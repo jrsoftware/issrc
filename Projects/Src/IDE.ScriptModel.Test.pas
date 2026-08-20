@@ -2360,9 +2360,20 @@ begin
   Assert(UTF8ToString(PrepareCodeSectionText(['#define X \', '  1 + \', '  2',
     'const C = 1;'])) = #13#10#13#10#13#10'const C = 1;');
 
-  { A spanning line which is not a directive is kept }
+  { A spanned code line group is joined onto its first line like ISPP joins
+    it (ISPP joins spanned lines whether or not they are directives), with
+    blank lines keeping the line count. The whitespace before the span
+    symbol survives, every piece loses its leading whitespace. }
   Assert(UTF8ToString(PrepareCodeSectionText(['X := 1 \', '+ 2;'])) =
-    'X := 1 \'#13#10'+ 2;');
+    'X := 1 + 2;'#13#10);
+  Assert(UTF8ToString(PrepareCodeSectionText(['A := 1 \', '  + 2 \', '  + 3;',
+    'B := 4;'])) = 'A := 1 + 2 + 3;'#13#10#13#10#13#10'B := 4;');
+
+  { The join keeps spanned strings and spanned '//' comments intact }
+  Assert(UTF8ToString(PrepareCodeSectionText(['S := ''a \', 'b'';'])) =
+    'S := ''a b'';'#13#10);
+  Assert(UTF8ToString(PrepareCodeSectionText(['// note \', 'X := 1;'])) =
+    '// note X := 1;'#13#10);
 
   { Inline ISPP directives are kept: the tokenizer skips them as comments }
   Assert(UTF8ToString(PrepareCodeSectionText(['C := {#X} 1;'])) = 'C := {#X} 1;');
@@ -2396,9 +2407,13 @@ begin
     Assert(Section.Routines[0].Name = 'InitializeSetup');
     Assert(Section.Routines[0].Kind = rkFunction);
     Assert(Section.Routines[0].FirstLine = 3);
+    Assert(Section.Routines[0].Prototype = 'function InitializeSetup: Boolean;');
+    Assert(Section.Routines[0].ResultTypeText = 'Boolean');
     Assert(Section.Routines[1].Name = 'DoSomething');
     Assert(Section.Routines[1].Kind = rkProcedure);
     Assert(Section.Routines[1].FirstLine = 8);
+    Assert(Section.Routines[1].Prototype = 'procedure DoSomething(const A: Integer);');
+    Assert(Section.Routines[1].ResultTypeText = '');
 
     { The next Parse replaces the previous items }
     Section.Parse(['procedure P;', 'begin', 'end;']);
@@ -2408,7 +2423,9 @@ begin
     Assert(Section.RoutineCount = 0);
 
     { A multi-line header: FirstLine is the keyword's line. The keyword and
-      the name can even sit on different lines. }
+      the name can even sit on different lines. The prototype's embedded line
+      breaks collapse to single spaces together with the surrounding
+      whitespace. }
     Section.Parse([
       '',
       'function MyFunc(const A: String;',
@@ -2418,10 +2435,14 @@ begin
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'MyFunc');
     Assert(Section.Routines[0].FirstLine = 1);
+    Assert(Section.Routines[0].Prototype =
+      'function MyFunc(const A: String; const B: Integer): Boolean;');
+    Assert(Section.Routines[0].ResultTypeText = 'Boolean');
     Section.Parse(['procedure', '  Below;', 'begin', 'end;']);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'Below');
     Assert(Section.Routines[0].FirstLine = 0);
+    Assert(Section.Routines[0].Prototype = 'procedure Below;');
 
     { Procedural types are not routines: a routine keyword after '=', ':',
       'of', '(' or ',' does not start a header }
@@ -2441,19 +2462,66 @@ begin
     Assert(Section.Routines[0].FirstLine = 7);
 
     { Also not after ':' inside a parameter list or as a procedural return
-      type }
+      type. A parameter list's ';' separators do not terminate the header. }
     Section.Parse([
       'function Weird(P: procedure; F: function: Integer): Boolean;',
       'begin',
       'end;']);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'Weird');
+    Assert(Section.Routines[0].Prototype =
+      'function Weird(P: procedure; F: function: Integer): Boolean;');
+    Assert(Section.Routines[0].ResultTypeText = 'Boolean');
     Section.Parse([
       'function GetHandler: function(A, B: Integer): Boolean;',
       'begin',
       'end;']);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'GetHandler');
+    Assert(Section.Routines[0].Prototype =
+      'function GetHandler: function(A, B: Integer): Boolean;');
+    Assert(Section.Routines[0].ResultTypeText = 'function(A, B: Integer): Boolean');
+
+    { A procedural return type whose own parameter list contains ';' }
+    Section.Parse([
+      'function GetCompare: function(const A: String; const B: String): Integer;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype =
+      'function GetCompare: function(const A: String; const B: String): Integer;');
+    Assert(Section.Routines[0].ResultTypeText =
+      'function(const A: String; const B: String): Integer');
+
+    { Something else can share the header's first or last physical line: the
+      prototype is exactly the keyword through its ';'. Within a line the
+      header is kept as written. }
+    Section.Parse(['const C = 1; procedure Shared; begin end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'Shared');
+    Assert(Section.Routines[0].Prototype = 'procedure Shared;');
+    Assert(Section.Routines[0].ResultTypeText = '');
+    Section.Parse(['function  Spaced  (A: Integer) : Boolean ;', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype =
+      'function  Spaced  (A: Integer) : Boolean ;');
+    Assert(Section.Routines[0].ResultTypeText = 'Boolean');
+
+    { An unterminated header is cut short by the next declaration's keyword,
+      a tokenize error, or the section's end, keeping what is there }
+    Section.Parse([
+      'function Foo(A: Integer): Boolean',
+      'procedure Bar;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Prototype = 'function Foo(A: Integer): Boolean');
+    Assert(Section.Routines[0].ResultTypeText = 'Boolean');
+    Assert(Section.Routines[1].Name = 'Bar');
+    Section.Parse(['function Typing(A: Integer): Str']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'function Typing(A: Integer): Str');
+    Assert(Section.Routines[0].ResultTypeText = 'Str');
 
     { <event('...')> attributes before a header are tolerated; FirstLine stays
       the keyword's line }
@@ -2465,6 +2533,7 @@ begin
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'MyInitializeWizard2');
     Assert(Section.Routines[0].FirstLine = 1);
+    Assert(Section.Routines[0].Prototype = 'procedure MyInitializeWizard2;'); { The attribute is not part of the prototype }
 
     { Keyword text inside comments and strings is not a routine }
     Section.Parse([
@@ -2496,6 +2565,54 @@ begin
     Assert(Section.Routines[0].FirstLine = 1);
     Assert(Section.Routines[1].Name = 'AfterSpanned');
     Assert(Section.Routines[1].FirstLine = 6);
+
+    { A blanked ISPP directive line inside a header collapses like a line
+      break }
+    Section.Parse([
+      'function Directive(A: Integer;',
+      '#define X 1',
+      '  B: Integer): Boolean;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype =
+      'function Directive(A: Integer; B: Integer): Boolean;');
+
+    { A header split with ISPP's span symbol parses like ISPP's joined line:
+      the group sits on its first line and later line numbers do not shift }
+    Section.Parse([
+      'procedure Spanned(A: Integer; \',
+      '  B: Integer);',
+      'begin',
+      'end;',
+      'procedure AfterSpannedCode;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Name = 'Spanned');
+    Assert(Section.Routines[0].Prototype =
+      'procedure Spanned(A: Integer; B: Integer);');
+    Assert(Section.Routines[1].Name = 'AfterSpannedCode');
+
+    { A spanned string does not abort the scan }
+    Section.Parse([
+      'const S = ''a \',
+      '  b'';',
+      'procedure AfterSpannedString;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'AfterSpannedString');
+
+    { A spanned '//' comment comments out its continuation }
+    Section.Parse([
+      '// disabled: \',
+      'procedure Old;',
+      'procedure Current;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'Current');
 
     { Malformed input never raises: declarations before a tokenize error are
       kept, the rest of the scan is lost (resync is Phase 5) }

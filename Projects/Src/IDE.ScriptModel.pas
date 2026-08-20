@@ -208,10 +208,14 @@ type
   private
     FName: String;
     FKind: TCodeSectionRoutineKind;
+    FResultTypeText: String;
+    FPrototype: String;
     FFirstLine: Integer;
   public
     property Name: String read FName;
     property Kind: TCodeSectionRoutineKind read FKind;
+    property ResultTypeText: String read FResultTypeText;
+    property Prototype: String read FPrototype;
     property FirstLine: Integer read FFirstLine;
   end;
 
@@ -1449,19 +1453,50 @@ function PrepareCodeSectionText(const ALines: array of String): AnsiString;
 { Prepares a [Code] section's lines for the ROPS tokenizer, matching
   TScriptCompiler.Compile: joins the lines with CRLF and UTF-8 encodes the
   result. ISPP directive lines are blanked first, keeping the line count.
+  Spanned code lines are joined like TPreprocessor.InternalQueueLine does,
+  onto the group's first line, with blank lines keeping the line count.
   Inline ISPP directives need no treatment because the tokenizer does not
   error on those (it sees them as comments). }
 begin
   const Builder = TStringBuilder.Create;
   try
-    var InSpannedDirective := False;
-    for var I := 0 to High(ALines) do begin
+    var I := 0;
+    while I <= High(ALines) do begin
       if I > 0 then
         Builder.Append(#13#10);
-      if InSpannedDirective or (ClassifyScriptLine(ALines[I]) = slkISPPDirective) then
-        InSpannedDirective := ScriptLineSpans(ALines[I])
-      else
-        Builder.Append(ALines[I]);
+      const Line = ALines[I];
+      if ClassifyScriptLine(Line) = slkISPPDirective then begin
+        { Blank the directive line and its spanned continuation lines: an
+          unblanked '#' would make the tokenizer abort the whole scan }
+        var Spans := ScriptLineSpans(Line);
+        Inc(I);
+        while Spans and (I <= High(ALines)) do begin
+          Builder.Append(#13#10);
+          Spans := ScriptLineSpans(ALines[I]);
+          Inc(I);
+        end;
+      end else if ScriptLineSpans(Line) then begin
+        { Join like TPreprocessor.InternalQueueLine }
+        var Joined := TrimLeft(Copy(Line, 1, Length(Line)-1));
+        var LineBreaks := 0;
+        var Spans := True;
+        Inc(I);
+        while Spans and (I <= High(ALines)) do begin
+          Spans := ScriptLineSpans(ALines[I]);
+          if Spans then
+            Joined := Joined + TrimLeft(Copy(ALines[I], 1, Length(ALines[I])-1))
+          else
+            Joined := Joined + TrimLeft(ALines[I]);
+          Inc(LineBreaks);
+          Inc(I);
+        end;
+        Builder.Append(Joined);
+        for var J := 1 to LineBreaks do
+          Builder.Append(#13#10);
+      end else begin
+        Builder.Append(Line);
+        Inc(I);
+      end;
     end;
     Result := Utf8Encode(Builder.ToString);
   finally
@@ -1488,20 +1523,60 @@ const
     CSTI_OpenRound, CSTI_Comma];
 
 procedure TScriptModelCodeSection.Parse(const ALines: array of String);
+
+  function SliceText(const AText: AnsiString;
+    const AStartPos, AEndPos: Integer): String;
+  { Returns byte positions [AStartPos, AEndPos) of the tokenized buffer as a
+    String, with trailing whitespace removed and each whitespace run
+    containing a line break collapsed to a single space }
+  begin
+    const S = TrimRight(UTF8ToString(Copy(AText, AStartPos+1,
+      AEndPos-AStartPos)));
+    const Builder = TStringBuilder.Create;
+    try
+      var I := 1;
+      while I <= Length(S) do begin
+        if S[I] > ' ' then begin
+          Builder.Append(S[I]);
+          Inc(I);
+        end else begin
+          var J := I;
+          var HasLineBreak := False;
+          while (J <= Length(S)) and (S[J] <= ' ') do begin
+            if CharInSet(S[J], [#13, #10]) then
+              HasLineBreak := True;
+            Inc(J);
+          end;
+          if HasLineBreak then
+            Builder.Append(' ')
+          else
+            Builder.Append(S, I-1, J-I); { Append is 0-based }
+          I := J;
+        end;
+      end;
+      Result := Builder.ToString;
+    finally
+      Builder.Free;
+    end;
+  end;
+
 begin
   FRoutines.Clear;
 
+  const Text = PrepareCodeSectionText(ALines);
   const Parser = TPSPascalParser.Create;
   try
-    Parser.SetText(PrepareCodeSectionText(ALines));
+    Parser.SetText(Text);
     var LastTokenID := CSTI_EOF;
     while Parser.CurrTokenID <> CSTI_EOF do begin { CSTI_EOF means error or EOF }
       const TokenID = Parser.CurrTokenID;
       if ((TokenID = CSTII_function) or (TokenID = CSTII_procedure)) and { Local routines don't exist, so simple check }
          not (LastTokenID in NoRoutineHeaderAfterTokens) then begin
         const FirstLine = Integer(Parser.Row)-1;
+        const StartPos = Integer(Parser.CurrTokenPos);
         Parser.Next;
         if Parser.CurrTokenID = CSTI_Identifier then begin
+          { Add routine with its name, kind and first line }
           const Routine = TCodeSectionRoutine.Create;
           FRoutines.Add(Routine);
           Routine.FName := UTF8ToString(Parser.OriginalToken);
@@ -1512,8 +1587,51 @@ begin
           Routine.FFirstLine := FirstLine;
           LastTokenID := CSTI_Identifier;
           Parser.Next;
+
+          { Parse the rest of the prototype until the terminating ';',
+            remembering the position of a function's result type }
+          var BraceDepth := 0;
+          var ResultTypeColonSeen := False;
+          var ResultTypeStartPos := -1;
+          var EndPos := -1;
+          while Parser.CurrTokenID <> CSTI_EOF do begin
+            const PrototypeTokenID = Parser.CurrTokenID;
+            if ResultTypeColonSeen and (ResultTypeStartPos < 0) then
+              ResultTypeStartPos := Integer(Parser.CurrTokenPos);
+            if ((PrototypeTokenID = CSTII_function) or (PrototypeTokenID = CSTII_procedure)) and
+               (BraceDepth = 0) and not (LastTokenID in NoRoutineHeaderAfterTokens) then { ROPS allows inline type declarations in parameter lists }
+              Break;  { Prototyp is unterminated, allow outer loop to parse new declaration }
+            if PrototypeTokenID = CSTI_OpenRound then
+              Inc(BraceDepth)
+            else if (PrototypeTokenID = CSTI_CloseRound) and (BraceDepth > 0) then
+              Dec(BraceDepth)
+            else if (PrototypeTokenID = CSTI_Colon) and (BraceDepth = 0) then
+              ResultTypeColonSeen := True;
+            { Known limitation: for a function using an inline structured result type
+              such as 'function F: record A: Integer; end;' it takes the first ';'
+              as the end of the type, truncating Prototype and ResultTypeText. }
+            const Terminated = (PrototypeTokenID = CSTI_Semicolon) and (BraceDepth = 0);
+            if Terminated then
+              EndPos := Integer(Parser.CurrTokenPos)+1; { Skip ';' }
+            LastTokenID := PrototypeTokenID;
+            Parser.Next;
+            if Terminated then
+              Break;
+          end;
+
+          var ResultTypeEndPos: Integer;
+          if EndPos >= 0 then
+            ResultTypeEndPos := EndPos-1 { Move back before ';' }
+          else begin
+            { Malformed or unterminated header; keep what is there }
+            EndPos := Integer(Parser.CurrTokenPos);
+            ResultTypeEndPos := EndPos;
+          end;
+          Routine.FPrototype := SliceText(Text, StartPos, EndPos);
+          if (Routine.FKind = rkFunction) and (ResultTypeStartPos >= 0) then
+            Routine.FResultTypeText := SliceText(Text, ResultTypeStartPos, ResultTypeEndPos);
         end else
-          LastTokenID := TokenID; { The token after the keyword is re-examined by the loop }
+          LastTokenID := TokenID;
       end else begin
         LastTokenID := TokenID;
         Parser.Next;
