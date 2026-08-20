@@ -148,6 +148,9 @@ type
       ALastLine: Integer; const ALines: TArray<String>);
   public
     destructor Destroy; override;
+    function TryGetRoutine(const AMemoLine: Integer;
+      out ARoutine: TCodeSectionRoutine): Boolean;
+    property Section: TScriptModelCodeSection read FSection;
   end;
 
   TLiveScriptObjectFactory = class
@@ -601,6 +604,13 @@ destructor TLiveScriptCodeSection.Destroy;
 begin
   FSection.Free;
   inherited;
+end;
+
+function TLiveScriptCodeSection.TryGetRoutine(const AMemoLine: Integer;
+  out ARoutine: TCodeSectionRoutine): Boolean;
+begin
+  ARoutine := nil;
+  Result := Valid and FSection.TryGetRoutine(AMemoLine - FFirstLine, ARoutine);
 end;
 
 { TLiveScriptObjectFactory }

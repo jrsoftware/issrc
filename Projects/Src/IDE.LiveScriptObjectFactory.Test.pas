@@ -1351,9 +1351,9 @@ begin
 end;
 
 { TryCreateCodeSection: creation on a [Code] occurrence, the refusals, an
-  empty [Code] body, separate objects for multiple [Code] occurrences, and
-  standard line tracking and validity across edits above and inside the
-  section }
+  empty [Code] body, separate objects for multiple [Code] occurrences with
+  TryGetRoutine using each object's own line base, and standard line tracking
+  and validity across edits above and inside the section }
 procedure TestTryCreateCodeSection(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 begin
@@ -1445,6 +1445,13 @@ begin
           Assert(CodeSection1.LastLine = 3);
           Assert(CodeSection2.FirstLine = 7);
           Assert(CodeSection2.LastLine = 9);
+          { TryGetRoutine takes memo lines, on each object's own line base }
+          var Routine: TCodeSectionRoutine;
+          Assert(CodeSection1.TryGetRoutine(2, Routine));
+          Assert(Routine.Name = 'A');
+          Assert(not CodeSection1.TryGetRoutine(8, Routine)); { CodeSection2's routine }
+          Assert(CodeSection2.TryGetRoutine(8, Routine));
+          Assert(Routine.Name = 'B');
         finally
           CodeSection2.Free;
         end;
@@ -1487,6 +1494,8 @@ begin
         AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(5),
           AMemo.GetPositionFromLine(6), ''); { Delete one of the section's lines }
         Assert(not CodeSection.Valid);
+        var Routine: TCodeSectionRoutine;
+        Assert(not CodeSection.TryGetRoutine(4, Routine)); { Fails safe when invalid }
       finally
         CodeSection.Free;
       end;
