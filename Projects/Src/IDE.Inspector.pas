@@ -21,7 +21,7 @@ uses
 type
   TInspectorRowKind = (irkParameter, irkParameterFlag, irkKey,
     irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits,
-    irkDebugCaretAt {$ENDIF});
+    irkDebugCaretAt, irkDebugRoutines, irkDebugCaretRoutine {$ENDIF});
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
@@ -82,6 +82,10 @@ type
       FCaretAt: TCaretAt;
       {$IFDEF DEBUG}
       FDebugStatusRowString: String;
+      FDebugRoutinesRowString: String;
+      FDebugCaretRoutineRowString: String;
+      FLiveCodeSection: TLiveScriptCodeSection;
+      FLiveCodeSectionIndex: Integer; { Factory section index it was created for }
       FUpdateFromCaretEarlyExitCount: Integer;
       {$ENDIF}
       FInEdit: Boolean;
@@ -234,6 +238,8 @@ begin
   FFollowCaret := AFollowCaret;
   {$IFDEF DEBUG}
   FDebugStatusRowString := 'Not updated yet';
+  FDebugRoutinesRowString := 'None';
+  FDebugCaretRoutineRowString := 'None';
   {$ENDIF}
   FMessagesWnd := AllocateHWnd(MessagesWndProc);
   FRows := TList<TInspectorRow>.Create;
@@ -269,6 +275,9 @@ begin
   FJvInspector.Free;
   FLiveParameterSectionEntries.Free;
   FLiveKeyValueSection.Free;
+  {$IFDEF DEBUG}
+  FLiveCodeSection.Free;
+  {$ENDIF}
   FRows.Free;
   if FMessagesWnd <> 0 then
     DeallocateHWnd(FMessagesWnd);
@@ -290,7 +299,8 @@ procedure TInspector.UpdateNote;
   end;
 
 begin
-  if (FLiveParameterSectionEntries = nil) and (FLiveKeyValueSection = nil) then begin
+  if (FLiveParameterSectionEntries = nil) and (FLiveKeyValueSection = nil)
+     {$IFDEF DEBUG} and (FLiveCodeSection = nil) {$ENDIF} then begin
     if FMixedSelection then
       ShowNote(LFmtMessage(SInspectorMixedSelectionNote))
     else
@@ -983,6 +993,34 @@ procedure TInspector.UpdateFromCaret;
       Result := '';
     end;
   end;
+
+  procedure UpdateDebugRoutinesRowString;
+  begin
+    FDebugRoutinesRowString := 'None';
+    const Section = FLiveCodeSection.Section;
+    var RoutinesString := '';
+    for var I := 0 to Section.RoutineCount-1 do begin
+      const Routine = Section.Routines[I];
+      if RoutinesString <> '' then
+        RoutinesString := RoutinesString + ', ';
+      RoutinesString := RoutinesString + Routine.Name + '@' +
+        IntToStr(FLiveCodeSection.FirstLine + Routine.FirstLine + 1);
+    end;
+    if RoutinesString <> '' then
+      FDebugRoutinesRowString := RoutinesString;
+  end;
+
+  procedure UpdateDebugCaretRoutineRowString(const ACaretLine: Integer);
+  begin
+    FDebugCaretRoutineRowString := 'None';
+    var CaretRoutine: TCodeSectionRoutine;
+    if FLiveCodeSection.TryGetRoutine(ACaretLine, CaretRoutine) then
+      FDebugCaretRoutineRowString := Format('%s@%d-%d: %s',
+        [CaretRoutine.Name,
+         FLiveCodeSection.FirstLine + CaretRoutine.FirstLine + 1,
+         FLiveCodeSection.FirstLine + CaretRoutine.LastLine + 1,
+         CaretRoutine.Prototype]);
+  end;
   {$ENDIF}
 
   function AddRow(const AParent: TJvCustomInspectorItem;
@@ -1347,6 +1385,8 @@ procedure TInspector.UpdateFromCaret;
         const DebugCategory = NewCategory('Debug');
         AddDebugRow(DebugCategory, 'Status', irkDebugStatus);
         AddDebugRow(DebugCategory, 'Sections', irkDebugSections);
+        AddDebugRow(DebugCategory, 'Routines', irkDebugRoutines);
+        AddDebugRow(DebugCategory, 'Caret routine', irkDebugCaretRoutine);
         AddDebugRow(DebugCategory, 'Early exits', irkDebugEarlyExits);
         AddDebugRow(DebugCategory, 'Caret at', irkDebugCaretAt);
         {$ENDIF}
@@ -1519,11 +1559,29 @@ begin
       Exit;
     end;
   end;
+  {$IFDEF DEBUG}
+  if (FLiveCodeSection <> nil) and FLiveCodeSection.Valid and
+     (FRowSetSignature <> '') and not LiveObjectTextChanged and
+     (SelectionTestPassed or not UseSelectionTest) then begin
+    var SectionIndex: Integer;
+    if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
+       (SectionIndex = FLiveCodeSectionIndex) then begin
+      UpdateDebugCaretRoutineRowString(CaretLine);
+      UpdateCaretAt;
+      Inc(FUpdateFromCaretEarlyExitCount);
+      InvalidateChangedRows; { See above }
+      Exit;
+    end;
+  end;
+  {$ENDIF}
 
   FreeAndNil(FLiveParameterSectionEntries);
   FreeAndNil(FLiveKeyValueSection);
   {$IFDEF DEBUG}
+  FreeAndNil(FLiveCodeSection);
   FUpdateFromCaretEarlyExitCount := 0;
+  FDebugRoutinesRowString := 'None';
+  FDebugCaretRoutineRowString := 'None';
   {$ENDIF}
 
   { Build row set signature for the selected entry or section }
@@ -1603,7 +1661,26 @@ begin
             RowSetSignature := RowSetSignature + '!';
         end;
       end;
-    end else begin
+    end
+    {$IFDEF DEBUG}
+    else if (EntryRefusalReason <> rrMixedSelection) and
+       FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
+       FFactory.TryCreateCodeSection(SectionIndex, FLiveCodeSection,
+         SectionRefusalReason) then begin
+      const Header = FFactory.SectionHeaders[SectionIndex];
+      FLiveCodeSectionIndex := SectionIndex;
+      FChangeCountAtCreation := FFactory.ChangeCount;
+      FSelectionLineRangesAtCreation := SelectionLineRanges;
+      FIndividualSelectionLineRangesAtCreation := IndividualSelectionLineRanges;
+      FCaretLineAtCreation := CaretLine;
+      FDebugStatusRowString := Format('[%s] section at line %d',
+        [Header.Name, Header.Line+1]);
+      UpdateDebugRoutinesRowString;
+      UpdateDebugCaretRoutineRowString(CaretLine);
+      RowSetSignature := 'C';
+    end
+    {$ENDIF}
+    else begin
       { Prefer the entry refusal }
       FSelectionLineRangesAtCreation := [];
       FIndividualSelectionLineRangesAtCreation := [];
@@ -1821,6 +1898,10 @@ begin
         Result := FCaretAt.Name + '@' + IntToStr(FCaretAt.Index)
       else
         Result := 'None';
+    irkDebugRoutines:
+      Result := FDebugRoutinesRowString;
+    irkDebugCaretRoutine:
+      Result := FDebugCaretRoutineRowString;
     {$ENDIF}
   end;
 end;
