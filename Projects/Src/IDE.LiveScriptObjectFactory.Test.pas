@@ -1350,6 +1350,152 @@ begin
   end;
 end;
 
+{ TryCreateCodeSection: creation on a [Code] occurrence, the refusals, an
+  empty [Code] body, separate objects for multiple [Code] occurrences, and
+  standard line tracking and validity across edits above and inside the
+  section }
+procedure TestTryCreateCodeSection(const AMemo: TScintEdit;
+  const AStyler: TInnoSetupStyler);
+begin
+  const EOL = String(AMemo.LineEndingString);
+
+  { Creation, refusals, and an empty [Code] body }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Setup]',                        { 0 }
+      'AppName=x',                      { 1 }
+      '[Files]',                        { 2 }
+      'Source: a',                      { 3 }
+      '[Code]',                         { 4 }
+      'procedure P;',                   { 5 }
+      'begin',                          { 6 }
+      'end;',                           { 7 }
+      '[Foo]',                          { 8 }
+      'junk',                           { 9 }
+      '[Code]',                         { 10, empty body }
+      '[Messages]',                     { 11 }
+      'MyMsg=hi']);                     { 12 }
+    try
+      const Factory = Context.Factory;
+      Assert(Factory.SectionCount = 6);
+      var CodeSection: TLiveScriptCodeSection;
+      var Reason: TRefusalReason;
+
+      { Refusals }
+      Assert(not Factory.TryCreateCodeSection(-1, CodeSection, Reason));
+      Assert(CodeSection = nil);
+      Assert(Reason = rrSectionIndexOutOfRange);
+      Assert(not Factory.TryCreateCodeSection(6, CodeSection, Reason));
+      Assert(Reason = rrSectionIndexOutOfRange);
+      Assert(not Factory.TryCreateCodeSection(0, CodeSection, Reason)); { [Setup] }
+      Assert(Reason = rrNotCodeSection);
+      Assert(not Factory.TryCreateCodeSection(1, CodeSection, Reason)); { [Files], a parameter section }
+      Assert(Reason = rrNotCodeSection);
+      Assert(not Factory.TryCreateCodeSection(3, CodeSection, Reason)); { [Foo] }
+      Assert(Reason = rrUnrecognizedSection);
+      Assert(not Factory.TryCreateCodeSection(5, CodeSection, Reason)); { [Messages] }
+      Assert(Reason = rrNotCodeSection);
+
+      { Creation on the populated [Code] occurrence }
+      Assert(Factory.TryCreateCodeSection(2, CodeSection, Reason));
+      try
+        Assert(CodeSection.Valid);
+        Assert(CodeSection.FirstLine = 5);
+        Assert(CodeSection.LastLine = 7);
+      finally
+        CodeSection.Free;
+      end;
+
+      { The empty [Code] occurrence gives an object with an empty range }
+      Assert(Factory.TryCreateCodeSection(4, CodeSection, Reason));
+      try
+        Assert(CodeSection.Valid);
+        Assert(CodeSection.LastLine < CodeSection.FirstLine);
+      finally
+        CodeSection.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Two [Code] occurrences give separate objects with their own ranges }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Code]',                         { 0 }
+      'procedure A;',                   { 1 }
+      'begin',                          { 2 }
+      'end;',                           { 3 }
+      '[Files]',                        { 4 }
+      'Source: a',                      { 5 }
+      '[Code]',                         { 6 }
+      'procedure B;',                   { 7 }
+      'begin',                          { 8 }
+      'end;']);                         { 9 }
+    try
+      const Factory = Context.Factory;
+      var Reason: TRefusalReason;
+      var CodeSection1, CodeSection2: TLiveScriptCodeSection;
+      Assert(Factory.TryCreateCodeSection(0, CodeSection1, Reason));
+      try
+        Assert(Factory.TryCreateCodeSection(2, CodeSection2, Reason));
+        try
+          Assert(CodeSection1 <> CodeSection2);
+          Assert(CodeSection1.FirstLine = 1);
+          Assert(CodeSection1.LastLine = 3);
+          Assert(CodeSection2.FirstLine = 7);
+          Assert(CodeSection2.LastLine = 9);
+        finally
+          CodeSection2.Free;
+        end;
+      finally
+        CodeSection1.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Standard line tracking: an insert above shifts the range, an insert inside
+    extends it, and deleting one of its lines invalidates the object }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Setup]',                        { 0 }
+      'AppName=x',                      { 1 }
+      '[Code]',                         { 2 }
+      'procedure P;',                   { 3 }
+      'begin',                          { 4 }
+      'end;']);                         { 5 }
+    try
+      const Factory = Context.Factory;
+      Assert(Factory.SectionCount = 2);
+      var CodeSection: TLiveScriptCodeSection;
+      var Reason: TRefusalReason;
+      Assert(Factory.TryCreateCodeSection(1, CodeSection, Reason));
+      try
+        Assert(CodeSection.FirstLine = 3);
+        Assert(CodeSection.LastLine = 5);
+        AMemo.ReplaceTextRange(0, 0, 'X' + EOL); { Insert a line at the top }
+        Assert(CodeSection.Valid);
+        Assert(CodeSection.FirstLine = 4);
+        Assert(CodeSection.LastLine = 6);
+        const Pos = AMemo.GetPositionFromLine(5); { The 'begin' line }
+        AMemo.ReplaceTextRange(Pos, Pos, '  Beep;' + EOL); { Insert a line inside the section }
+        Assert(CodeSection.Valid);
+        Assert(CodeSection.FirstLine = 4);
+        Assert(CodeSection.LastLine = 7);
+        AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(5),
+          AMemo.GetPositionFromLine(6), ''); { Delete one of the section's lines }
+        Assert(not CodeSection.Valid);
+      finally
+        CodeSection.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+end;
+
 { Edit tracking: the factory only learns of edits through Change }
 procedure TestEditTracking(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
@@ -1612,6 +1758,7 @@ begin
     TestCollectParameterValues(AMemo, AStyler);
     TestKeyValueSections(AMemo, AStyler);
     TestKeyValueSectionReadsAndWrites(AMemo, AStyler);
+    TestTryCreateCodeSection(AMemo, AStyler);
     TestEditTracking(AMemo, AStyler);
   finally
     AMemo.OnChange := nil;
