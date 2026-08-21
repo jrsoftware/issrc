@@ -1595,13 +1595,21 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
               not (ALastTokenID in NoRoutineHeaderAfterTokens);
   end;
 
+  function IsDeclarationBlockStart(const ATokenID: TPSPasToken): Boolean;
+  begin
+    Result := ATokenID in [CSTII_const, CSTII_type, CSTII_var, CSTII_Label];
+  end;
+
   procedure ParseRoutine(const AParser: TPSPascalParser;
     const AText: AnsiString; const ALineOffset: Integer;
-    var ALastTokenID: TPSPasToken; out AOpenRoutine: TCodeSectionRoutine);
+    var ALastTokenID: TPSPasToken; out AOpenRoutine: TCodeSectionRoutine;
+    out ABeginFound: Boolean);
   { AOpenRoutine equals the added routine when its body 'end' was not found
-    due to a tokenizer error or due to reaching EOF. Otherwise it equals nil. }
+    due to a tokenizer error or due to reaching EOF. Otherwise it equals nil.
+    ABeginFound tells whether the body's 'begin' was found. }
   begin
     AOpenRoutine := nil;
+    ABeginFound := False;
     const TokenID = AParser.CurrTokenID;
     const FirstLine = ALineOffset + Integer(AParser.Row)-1;
     const StartPos = Integer(AParser.CurrTokenPos);
@@ -1699,6 +1707,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             AParser.Next;
           end;
           if AParser.CurrTokenID = CSTII_begin then begin
+            ABeginFound := True;
             { Search for matching 'end' }
             Routine.FBodyFirstLine := ALineOffset + Integer(AParser.Row)-1;
             ALastTokenID := CSTII_begin;
@@ -1818,14 +1827,25 @@ begin
     var LineOffset := 0; { Line index of the buffer's first line, advanced by each resync below }
     var LastTokenID := CSTI_EOF;
     var OpenRoutine: TCodeSectionRoutine := nil;
+    var OpenRoutineBeginFound := False;
     while True do begin
       while Parser.CurrTokenID <> CSTI_EOF do begin { CSTI_EOF means error or EOF, told apart below }
         const TokenID = Parser.CurrTokenID;
-        if IsRoutineHeaderStart(TokenID, LastTokenID) then begin
-          if OpenRoutine <> nil then
-            OpenRoutine.FLastLine := LineOffset + Integer(Parser.Row)-2;
-          ParseRoutine(Parser, Text, LineOffset, LastTokenID, OpenRoutine);
-        end else if TokenID = CSTII_type then
+        const RoutineHeaderStart = IsRoutineHeaderStart(TokenID, LastTokenID);
+        { A declaration block start ends the open routine only when its
+          'begin' was found: before it the block can be the routine's own
+          local block. (ROPS does not really support local 'type' or 'const'
+          blocks, but we handle them same as 'var' and 'label' anyway.) }
+        const EndsOpenRoutine = RoutineHeaderStart or
+          (OpenRoutineBeginFound and IsDeclarationBlockStart(TokenID));
+        if (OpenRoutine <> nil) and EndsOpenRoutine then begin
+          OpenRoutine.FLastLine := LineOffset + Integer(Parser.Row)-2;
+          OpenRoutine := nil;
+        end;
+        if RoutineHeaderStart then
+          ParseRoutine(Parser, Text, LineOffset, LastTokenID, OpenRoutine,
+            OpenRoutineBeginFound)
+        else if TokenID = CSTII_type then
           ParseTypeBlock(Parser, LineOffset, LastTokenID)
         else begin
           LastTokenID := TokenID;

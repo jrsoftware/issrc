@@ -3147,6 +3147,70 @@ begin
     Assert(Section.TryGetRoutine(6, Routine));
     Assert(Routine = Section.Routines[1]);
 
+    { A type block found after the resync also ends the cut routine's span }
+    Section.Parse([
+      'procedure Typing;',      { 0 }
+      'begin',                  { 1 }
+      '  S := ''unterminated',  { 2 }
+      'type',                   { 3 }
+      '  TAfter = Integer;']);  { 4 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'Typing');
+    Assert(Section.Routines[0].BodyFirstLine = -1);
+    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].LastLine = 2);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TAfter');
+    Assert(Section.Types[0].Line = 4);
+    Assert(Section.TryGetRoutine(2, Routine));
+    Assert(Routine = Section.Routines[0]);
+    Assert(not Section.TryGetRoutine(3, Routine));
+    Assert(not Section.TryGetRoutine(4, Routine));
+
+    { 'const', 'var' and 'label' blocks are not parsed yet but also end the
+      span }
+    const BlockKeywords: TArray<String> = ['const', 'var', 'label'];
+    for var BlockKeyword in BlockKeywords do begin
+      Section.Parse([
+        'procedure Typing;',      { 0 }
+        'begin',                  { 1 }
+        '  S := ''unterminated',  { 2 }
+        BlockKeyword,             { 3 }
+        '  X']);                  { 4 }
+      Assert(Section.RoutineCount = 1);
+      Assert(Section.Routines[0].LastLine = 2);
+      Assert(not Section.TryGetRoutine(3, Routine));
+    end;
+
+    { But when the error hit before the routine's 'begin', a following block
+      keyword can start the routine's own local block, so the span stays
+      open. A type block coming up is still parsed. }
+    Section.Parse([
+      'procedure Typing;',     { 0 }
+      'const',                 { 1 }
+      '  C = ''unterminated',  { 2 }
+      'var',                   { 3 }
+      '  X: Integer;',         { 4 }
+      'begin',                 { 5 }
+      'end;']);                { 6 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].LastLine = 6);
+    Assert(Section.TryGetRoutine(5, Routine));
+    Assert(Routine = Section.Routines[0]);
+    Section.Parse([
+      'procedure Typing;',     { 0 }
+      'const',                 { 1 }
+      '  C = ''unterminated',  { 2 }
+      'type',                  { 3 }
+      '  T = Integer;']);      { 4 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].LastLine = 4);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'T');
+    Assert(Section.Types[0].Line = 4);
+    Assert(Section.TryGetRoutine(4, Routine));
+    Assert(Routine = Section.Routines[0]);
+
     { With no declaration after the error the cut routine's span runs to the
       section's last line }
     Section.Parse([
