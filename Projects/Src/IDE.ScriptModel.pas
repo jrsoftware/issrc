@@ -1493,7 +1493,8 @@ begin
       const Line = ALines[I];
       if ClassifyScriptLine(Line) = slkISPPDirective then begin
         { Blank the directive line and its spanned continuation lines: an
-          unblanked '#' would make the tokenizer abort the whole scan }
+          unblanked '#' would cost an error resync, and a spanned directive's
+          continuation lines would be scanned as code }
         var Spans := ScriptLineSpans(Line);
         Inc(I);
         while Spans and (I <= High(ALines)) do begin
@@ -1754,7 +1755,9 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
 
   procedure ParseTypeBlock(const AParser: TPSPascalParser;
     const ALineOffset: Integer; var ALastTokenID: TPSPasToken);
-  { Parses a type block until a token that does not continue the block }
+  { Parses a type block until a token that does not continue the block.
+    Known limitation: an inline 'interface' type elsewhere (ROPS allows one in
+    a var declaration) is not consumed, so its methods are seen as routines. }
   begin
     ALastTokenID := AParser.CurrTokenID;
     AParser.Next;
@@ -1871,7 +1874,8 @@ begin
       if ResyncPos >= Length(Text) then
         Break; { No next line }
 
-      { Restart parse }
+      { Restart parse, at top-level context: after an error inside an
+        interface, its remaining methods are therefore seen as routines }
       Inc(LineOffset, Integer(Parser.Row));
       Text := Copy(Text, ResyncPos+1, MaxInt);
       Parser.SetText(Text);
