@@ -2814,6 +2814,39 @@ begin
     Assert(Section.Routines[0].BodyLastLine = -1);
     Assert(Section.Routines[0].LastLine = 4);
 
+    { A declaration block also ends an unterminated body, so the block is not
+      swallowed as body text: a type block still gets its types, and a
+      record's 'end' inside it does not pose as the body's 'end' }
+    Section.Parse([
+      'procedure Typing;',  { 0 }
+      'begin',              { 1 }
+      '  X := 1;',          { 2 }
+      '',                   { 3 }
+      'type',               { 4 }
+      '  TFoo = record',    { 5 }
+      '    A: Integer;',    { 6 }
+      '  end;',             { 7 }
+      'var',                { 8 }
+      '  V: Integer;']);    { 9 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'Typing');
+    Assert(Section.Routines[0].BodyFirstLine = -1);
+    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].LastLine = 3);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TFoo');
+    Assert(Section.Types[0].TypeText = 'record');
+    Assert(Section.Types[0].Line = 5);
+    Section.Parse([
+      'procedure Typing;',  { 0 }
+      'begin',              { 1 }
+      'var',                { 2 }
+      '  V: Integer;']);    { 3 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].BodyFirstLine = -1);
+    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].LastLine = 1);
+
     { Malformed input never raises: declarations before a tokenize error are
       kept, and the scan resyncs past the error (see TestCodeSectionResync) }
     Section.Parse([

@@ -1716,7 +1716,8 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             AParser.Next;
             var BlockDepth := 1;
             while (AParser.CurrTokenID <> CSTI_EOF) and
-                  not IsRoutineHeaderStart(AParser.CurrTokenID, ALastTokenID) do begin
+                  not IsRoutineHeaderStart(AParser.CurrTokenID, ALastTokenID) and
+                  not IsDeclarationBlockStart(AParser.CurrTokenID) do begin
               const BodyTokenID = AParser.CurrTokenID;
               if BodyTokenID in [CSTII_begin, CSTII_case, CSTII_Try] then
                 Inc(BlockDepth)
