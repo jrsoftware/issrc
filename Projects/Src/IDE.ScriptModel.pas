@@ -1642,8 +1642,9 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         if ResultTypeColonSeen and (ResultTypeStartPos < 0) then
           ResultTypeStartPos := Integer(AParser.CurrTokenPos);
         if (IsRoutineHeaderStart(PrototypeTokenID, ALastTokenID) or
-            (PrototypeTokenID = CSTII_begin)) and (BraceDepth = 0) then
-          Break;  { Unterminated: cut by a new declaration or its own 'begin' }
+            (PrototypeTokenID = CSTII_begin) or
+            IsDeclarationBlockStart(PrototypeTokenID)) and (BraceDepth = 0) then
+          Break; { Unterminated: cut by a new declaration, its own 'begin', or a declaration block }
         if PrototypeTokenID = CSTI_OpenRound then
           Inc(BraceDepth)
         else if (PrototypeTokenID = CSTI_CloseRound) and (BraceDepth > 0) then
@@ -1677,7 +1678,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         Routine.FResultTypeText := SliceText(AText, ResultTypeStartPos, ResultTypeEndPos);
 
       if HeaderTerminated or
-         (AParser.CurrTokenID = CSTII_begin) then begin { A header cut by its own 'begin' still gets its body parsed }
+         (AParser.CurrTokenID = CSTII_begin) or IsDeclarationBlockStart(AParser.CurrTokenID) then begin { A header cut by its own 'begin' or a declaration block still gets its body searched for and parsed }
         { Handle trailing decoration }
         var DecorationLastLine := -1;
         while AParser.CurrTokenID in [CSTII_Forward, CSTII_External, CSTII_Export] do begin
@@ -1701,7 +1702,9 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         if Routine.FBodiless then
           Routine.FLastLine := DecorationLastLine
         else begin
-          { Search for 'begin' }
+          { Search for 'begin', past any local declaration blocks.
+            Any block is taken for a local one, even though ROPS does not
+            really support local 'type' or 'const' blocks. }
           while (AParser.CurrTokenID <> CSTI_EOF) and
                 (AParser.CurrTokenID <> CSTII_begin) and
                 not IsRoutineHeaderStart(AParser.CurrTokenID, ALastTokenID) do begin
@@ -1802,6 +1805,12 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             (OpenStructs[High(OpenStructs)] = CSTII_interface);
           if not InOpenInterface then
             Break;
+        end else if IsDeclarationBlockStart(DefinitionTokenID) and
+                    (BraceDepth = 0) then begin
+          { Also ends an unterminated definition, with no interface exemption:
+            a block start is never an interface member. The depth guard
+            keeps a procedural type's 'var'/'const' parameters out. }
+          Break;
         end;
         if DefinitionTokenID in [CSTII_record, CSTII_interface] then
           OpenStructs := OpenStructs + [DefinitionTokenID]

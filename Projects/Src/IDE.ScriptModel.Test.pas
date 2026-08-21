@@ -2570,6 +2570,49 @@ begin
     Assert(Section.Routines[0].BodyLastLine = 2);
     Assert(Section.Routines[0].LastLine = 2);
 
+    { A header missing its ';' is also cut by a declaration block start,
+      possibly its own local blocks, which the 'begin' search then skips }
+    Section.Parse([
+      'function Foo: Boolean',  { 0 }
+      'var',                    { 1 }
+      '  X: Integer;',          { 2 }
+      'begin',                  { 3 }
+      'end;']);                 { 4 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'function Foo: Boolean');
+    Assert(Section.Routines[0].ResultTypeText = 'Boolean');
+    Assert(Section.Routines[0].BodyFirstLine = 3);
+    Assert(Section.Routines[0].BodyLastLine = 4);
+    Assert(Section.Routines[0].LastLine = 4);
+
+    { 'var' and 'const' in a parameter list do not cut the header }
+    Section.Parse([
+      'procedure P(var A: Integer; const B: String);',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype =
+      'procedure P(var A: Integer; const B: String);');
+    Assert(Section.Routines[0].BodyFirstLine = 1);
+
+    { A declaration block after a bodyless header is taken for the routine's
+      own local blocks, so a type block there is not listed and the routine's
+      span covers it }
+    Section.Parse([
+      'procedure Foo;',      { 0 }
+      'type',                { 1 }
+      '  TBar = Integer;',   { 2 }
+      'procedure Baz;',      { 3 }
+      'begin',               { 4 }
+      'end;']);              { 5 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Name = 'Foo');
+    Assert(Section.Routines[0].BodyFirstLine = -1);
+    Assert(Section.Routines[0].LastLine = 2);
+    Assert(Section.TypeCount = 0);
+    Assert(Section.Routines[1].Name = 'Baz');
+    Assert(Section.Routines[1].BodyFirstLine = 4);
+
     { <event('...')> attributes before a header are tolerated; FirstLine stays
       the keyword's line }
     Section.Parse([
@@ -2965,6 +3008,32 @@ begin
     Assert(Section.Routines[0].Name = 'P');
     Assert(Section.Routines[0].FirstLine = 2);
 
+    { A declaration block start also ends an unterminated definition, keeping
+      the next block's members }
+    Section.Parse([
+      'type',             { 0 }
+      '  T = Integer',    { 1 }
+      'type',             { 2 }
+      '  U = String;']);  { 3 }
+    Assert(Section.TypeCount = 2);
+    Assert(Section.Types[0].Name = 'T');
+    Assert(Section.Types[0].TypeText = 'Integer');
+    Assert(Section.Types[0].Line = 1);
+    Assert(Section.Types[1].Name = 'U');
+    Assert(Section.Types[1].TypeText = 'String');
+    Assert(Section.Types[1].Line = 3);
+
+    { 'var' and 'const' in a procedural type's parameter list do not end the
+      definition }
+    Section.Parse([
+      'type',
+      '  TProc = procedure(var A: Integer; const B: String);',
+      '  TAfter = Integer;']);
+    Assert(Section.TypeCount = 2);
+    Assert(Section.Types[0].Name = 'TProc');
+    Assert(Section.Types[0].TypeText = 'procedure');
+    Assert(Section.Types[1].Name = 'TAfter');
+
     { An unterminated record does not hide the routines below it }
     Section.Parse([
       'type',
@@ -3039,6 +3108,25 @@ begin
     Assert(Section.Types[0].Name = 'IFoo');
     Assert(Section.Types[0].TypeText = 'interface');
     Assert(Section.RoutineCount = 0);
+
+    { But a declaration block start does end an unterminated interface: it
+      can never be one of its members }
+    Section.Parse([
+      'type',               { 0 }
+      '  IFoo = interface', { 1 }
+      '    procedure M1;',  { 2 }
+      'var',                { 3 }
+      '  X: Integer;',      { 4 }
+      'procedure P;',       { 5 }
+      'begin',              { 6 }
+      'end;']);             { 7 }
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'IFoo');
+    Assert(Section.Types[0].TypeText = 'interface');
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 5);
+    Assert(Section.Routines[0].BodyFirstLine = 6);
 
     { A block below a routine }
     Section.Parse([
