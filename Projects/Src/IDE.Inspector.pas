@@ -21,7 +21,7 @@ uses
 type
   TInspectorRowKind = (irkParameter, irkParameterFlag, irkKey,
     irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits,
-    irkDebugCaretAt, irkDebugRoutines, irkDebugCaretRoutine {$ENDIF});
+    irkDebugCaretAt, irkDebugSectionRoutines, irkDebugCaretRoutine {$ENDIF});
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
@@ -82,7 +82,7 @@ type
       FCaretAt: TCaretAt;
       {$IFDEF DEBUG}
       FDebugStatusRowString: String;
-      FDebugRoutinesRowString: String;
+      FDebugSectionRoutinesRowString: String;
       FDebugCaretRoutineRowString: String;
       FLiveCodeSection: TLiveScriptCodeSection;
       FLiveCodeSectionIndex: Integer; { Factory section index it was created for }
@@ -238,7 +238,7 @@ begin
   FFollowCaret := AFollowCaret;
   {$IFDEF DEBUG}
   FDebugStatusRowString := 'Not updated yet';
-  FDebugRoutinesRowString := 'None';
+  FDebugSectionRoutinesRowString := 'None';
   FDebugCaretRoutineRowString := 'None';
   {$ENDIF}
   FMessagesWnd := AllocateHWnd(MessagesWndProc);
@@ -994,20 +994,20 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
-  procedure UpdateDebugRoutinesRowString;
+  procedure UpdateDebugSectionRoutinesRowString;
   begin
-    FDebugRoutinesRowString := 'None';
+    FDebugSectionRoutinesRowString := 'None';
     const Section = FLiveCodeSection.Section;
-    var RoutinesString := '';
+    var S := '';
     for var I := 0 to Section.RoutineCount-1 do begin
       const Routine = Section.Routines[I];
-      if RoutinesString <> '' then
-        RoutinesString := RoutinesString + ', ';
-      RoutinesString := RoutinesString + Routine.Name + '@' +
+      if S <> '' then
+        S := S + ', ';
+      S := S + Routine.Name + '@' +
         IntToStr(FLiveCodeSection.FirstLine + Routine.FirstLine + 1);
     end;
-    if RoutinesString <> '' then
-      FDebugRoutinesRowString := RoutinesString;
+    if S <> '' then
+      FDebugSectionRoutinesRowString := S;
   end;
 
   procedure UpdateDebugCaretRoutineRowString(const ACaretLine: Integer);
@@ -1385,7 +1385,7 @@ procedure TInspector.UpdateFromCaret;
         const DebugCategory = NewCategory('Debug');
         AddDebugRow(DebugCategory, 'Status', irkDebugStatus);
         AddDebugRow(DebugCategory, 'Sections', irkDebugSections);
-        AddDebugRow(DebugCategory, 'Routines', irkDebugRoutines);
+        AddDebugRow(DebugCategory, 'Section routines', irkDebugSectionRoutines);
         AddDebugRow(DebugCategory, 'Caret routine', irkDebugCaretRoutine);
         AddDebugRow(DebugCategory, 'Early exits', irkDebugEarlyExits);
         AddDebugRow(DebugCategory, 'Caret at', irkDebugCaretAt);
@@ -1580,7 +1580,7 @@ begin
   {$IFDEF DEBUG}
   FreeAndNil(FLiveCodeSection);
   FUpdateFromCaretEarlyExitCount := 0;
-  FDebugRoutinesRowString := 'None';
+  FDebugSectionRoutinesRowString := 'None';
   FDebugCaretRoutineRowString := 'None';
   {$ENDIF}
 
@@ -1675,7 +1675,7 @@ begin
       FCaretLineAtCreation := CaretLine;
       FDebugStatusRowString := Format('[%s] section at line %d',
         [Header.Name, Header.Line+1]);
-      UpdateDebugRoutinesRowString;
+      UpdateDebugSectionRoutinesRowString;
       UpdateDebugCaretRoutineRowString(CaretLine);
       RowSetSignature := 'C';
     end
@@ -1898,8 +1898,8 @@ begin
         Result := FCaretAt.Name + '@' + IntToStr(FCaretAt.Index)
       else
         Result := 'None';
-    irkDebugRoutines:
-      Result := FDebugRoutinesRowString;
+    irkDebugSectionRoutines:
+      Result := FDebugSectionRoutinesRowString;
     irkDebugCaretRoutine:
       Result := FDebugCaretRoutineRowString;
     {$ENDIF}
