@@ -19,9 +19,10 @@ uses
 type
   TNavigator = class
   private
-    FComboBox: TComboBox;
-    FComboBox2: TComboBox;
+    FComboBox: TComboBox;  { Sections }
+    FComboBox2: TComboBox; { Routines }
     FSavedComboBoxWindowProc: TWndMethod;
+    FSavedComboBox2WindowProc: TWndMethod;
     FFactory: TLiveScriptObjectFactory;
     FItemIndexBeforeDropDown: Integer;
     FDropDownAccepted: Boolean;
@@ -35,8 +36,10 @@ type
     procedure ComboBoxCloseUp(Sender: TObject);
     procedure ComboBoxSelect(Sender: TObject);
     procedure ComboBoxWindowProc(var Message: TMessage);
+    procedure ComboBox2WindowProc(var Message: TMessage);
     procedure GoToComboBoxItem(const AComboBox: TComboBox;
       const AFocusMemo: Boolean);
+    procedure TrackDropDownAcceptance(const Message: TMessage);
   public
     constructor Create(const AComboBox, AComboBox2: TComboBox;
       const AFactory: TLiveScriptObjectFactory);
@@ -67,8 +70,13 @@ begin
   FComboBox.OnDropDown := ComboBoxDropDown;
   FComboBox.OnCloseUp := ComboBoxCloseUp;
   FComboBox.OnSelect := ComboBoxSelect;
+  FComboBox2.OnDropDown := ComboBoxDropDown;
+  FComboBox2.OnCloseUp := ComboBoxCloseUp;
+  FComboBox2.OnSelect := ComboBoxSelect;
   FSavedComboBoxWindowProc := FComboBox.WindowProc;
   FComboBox.WindowProc := ComboBoxWindowProc;
+  FSavedComboBox2WindowProc := FComboBox2.WindowProc;
+  FComboBox2.WindowProc := ComboBox2WindowProc;
   UpdateFromCaret;
 end;
 
@@ -79,6 +87,10 @@ begin
   FComboBox.OnCloseUp := nil;
   FComboBox.OnSelect := nil;
   FComboBox.WindowProc := FSavedComboBoxWindowProc;
+  FComboBox2.OnDropDown := nil;
+  FComboBox2.OnCloseUp := nil;
+  FComboBox2.OnSelect := nil;
+  FComboBox2.WindowProc := FSavedComboBox2WindowProc;
   FLiveCodeSection.Free;
   inherited Destroy;
 end;
@@ -88,7 +100,7 @@ end;
   jump, even when the current item did not change. A cancel must not
   jump. CBN_SELENDOK and CBN_SELENDCANCEL are the notifications that
   tell an accept from a cancel, but the VCL has no events for them, so
-  ComboBoxWindowProc watches them and updates FDropDownAccepted.
+  TrackDropDownAcceptance watches them and updates FDropDownAccepted.
   Both notifications are sent before CBN_CLOSEUP: see the CComboBox docs
   (https://learn.microsoft.com/en-us/cpp/mfc/reference/ccombobox-class).
 
@@ -126,20 +138,34 @@ end;
   jumps but keeps the focus in the combobox, so the user can keep
   picking.
 
+  While tracking, the code makes use of the fact that only one drop
+  down can be open at a time.
+
   For reference, ComboBoxSelect is called on:
   -Arrow down/up etc, with the list open (=browsing)
   -Same but with the list closed (=picking)
   -Mouse click (=picking)
   -The selection restore after a cancel, arriving after the close up }
 
-procedure TNavigator.ComboBoxWindowProc(var Message: TMessage);
+procedure TNavigator.TrackDropDownAcceptance(const Message: TMessage);
 begin
   if Message.Msg = CN_COMMAND then
     case TWMCommand(Message).NotifyCode of
       CBN_SELENDOK: FDropDownAccepted := True;
       CBN_SELENDCANCEL: FDropDownAccepted := False;
     end;
+end;
+
+procedure TNavigator.ComboBoxWindowProc(var Message: TMessage);
+begin
+  TrackDropDownAcceptance(Message);
   FSavedComboBoxWindowProc(Message);
+end;
+
+procedure TNavigator.ComboBox2WindowProc(var Message: TMessage);
+begin
+  TrackDropDownAcceptance(Message);
+  FSavedComboBox2WindowProc(Message);
 end;
 
 procedure TNavigator.ComboBoxDropDown(Sender: TObject);
@@ -188,24 +214,61 @@ end;
 
 procedure TNavigator.GoToComboBoxItem(const AComboBox: TComboBox;
   const AFocusMemo: Boolean);
-begin
-  const Index = AComboBox.ItemIndex;
-  if Index < 0 then
-    Exit;
 
-  const Memo = FFactory.Memo;
-  if AFocusMemo then begin
-    Memo.SetFocus;
-    if not Memo.Focused then
-      Exit; { Validation rejected the focus change }
+  function TryFocusMemo: Boolean;
+  begin
+    Result := True;
+    if AFocusMemo then begin
+      const Memo = FFactory.Memo;
+      Memo.SetFocus;
+      Result := Memo.Focused; { False if validation rejected the focus change }
+    end;
   end;
 
-  if Index >= FFactory.SectionCount then
-    Exit;
+  procedure GoToLine(const ALine: Integer);
+  begin
+    const Memo = FFactory.Memo;
+    Memo.EnsurePositionInViewVertically(Memo.GetPositionFromLine(ALine));
+    Memo.CaretLine := ALine;
+  end;
 
-  const Line = FFactory.GetSectionFirstSignificantLine(Index);
-  Memo.EnsurePositionInViewVertically(Memo.GetPositionFromLine(Line));
-  Memo.CaretLine := Line;
+  procedure GoToSection(const AIndex: Integer);
+  begin
+    if AIndex < 0 then
+      Exit;
+
+    if not TryFocusMemo then
+      Exit;
+
+    if AIndex >= FFactory.SectionCount then
+      Exit;
+
+    GoToLine(FFactory.GetSectionFirstSignificantLine(AIndex));
+  end;
+
+  procedure GoToRoutine(const AIndex: Integer);
+  begin
+    if AIndex < 0 then
+      Exit;
+
+    if (FLiveCodeSection = nil) or not FLiveCodeSection.Valid then
+      Exit;
+
+    if not TryFocusMemo then
+      Exit;
+
+    const Section = FLiveCodeSection.Section;
+    if AIndex >= Section.RoutineCount then
+      Exit;
+
+    GoToLine(FLiveCodeSection.FirstLine + Section.Routines[AIndex].FirstLine);
+  end;
+
+begin
+  if AComboBox = FComboBox then
+    GoToSection(AComboBox.ItemIndex)
+  else
+    GoToRoutine(AComboBox.ItemIndex);
 end;
 
 procedure TNavigator.SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
