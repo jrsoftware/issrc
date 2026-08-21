@@ -989,6 +989,7 @@ procedure TInspector.UpdateFromCaret;
       rrMixedSelection: Result := 'The selection mixes section types or other content';
       rrSectionIndexOutOfRange: Result := 'The section index is out of range';
       rrNotKeyValueSection: Result := 'The section is not a key/value section';
+      rrNotCodeSection: Result := 'The section is not a [Code] section';
     else
       Result := '';
     end;
