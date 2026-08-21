@@ -26,7 +26,7 @@ type
     FDropDownAccepted: Boolean;
     FJustClosedUp: Boolean;
     FPendingPickComboBox: TComboBox;
-    FChangeCountAtSet: Int64; { Factory ChangeCount at the last section list build, -1 to force one }
+    FChangeCountAtSectionsSet: Int64; { -1 to force one }
     procedure HandleCloseUpDone;
     procedure ComboBoxDropDown(Sender: TObject);
     procedure ComboBoxCloseUp(Sender: TObject);
@@ -54,7 +54,7 @@ begin
 
   FComboBox := AComboBox;
   FFactory := AFactory;
-  FChangeCountAtSet := -1;
+  FChangeCountAtSectionsSet := -1;
   FComboBox.OnDropDown := ComboBoxDropDown;
   FComboBox.OnCloseUp := ComboBoxCloseUp;
   FComboBox.OnSelect := ComboBoxSelect;
@@ -201,7 +201,7 @@ end;
 procedure TNavigator.SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
 begin
   FFactory := AFactory;
-  FChangeCountAtSet := -1; { Force rebuild }
+  FChangeCountAtSectionsSet := -1; { Force rebuild }
   UpdateFromCaret;
 end;
 
@@ -245,13 +245,13 @@ begin
     NewItemIndex := -1;
 
   const ChangeCount = FFactory.ChangeCount;
-  if FChangeCountAtSet <> ChangeCount then begin
+  if FChangeCountAtSectionsSet <> ChangeCount then begin
     var Headers: TArray<String>;
     SetLength(Headers, FFactory.SectionCount);
     for var I := 0 to FFactory.SectionCount-1 do
-      Headers[I] := FFactory.SectionHeaders[I].Name;
+      Headers[I] := '[' + FFactory.SectionHeaders[I].Name + ']';
     SetComboBoxItems(FComboBox, Headers, NewItemIndex);
-    FChangeCountAtSet := ChangeCount;
+    FChangeCountAtSectionsSet := ChangeCount;
   end;
 
   if FComboBox.ItemIndex <> NewItemIndex then
