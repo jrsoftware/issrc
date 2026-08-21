@@ -214,6 +214,7 @@ type
     FBodyFirstLine, FBodyLastLine: Integer; { -1/-1 for a bodiless routine and while no
     matching 'end' is found }
     FBodiless: Boolean;                     { True after a 'forward' or 'external' directive }
+    FBodilessType: String;                  { forward' or 'external' if bodiless, empty otherwise }
   public
     property Name: String read FName;
     property Kind: TCodeSectionRoutineKind read FKind;
@@ -224,6 +225,7 @@ type
     property BodyLastLine: Integer read FBodyLastLine;
     property LastLine: Integer read FLastLine;
     property Bodiless: Boolean read FBodiless;
+    property BodilessType: String read FBodilessType;
   end;
 
   { A user-defined declaration other than a routine }
@@ -1682,8 +1684,13 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         { Handle trailing decoration }
         var DecorationLastLine := -1;
         while AParser.CurrTokenID in [CSTII_Forward, CSTII_External, CSTII_Export] do begin
-          if AParser.CurrTokenID <> CSTII_Export then
+          if AParser.CurrTokenID <> CSTII_Export then begin
             Routine.FBodiless := True;
+            if AParser.CurrTokenID = CSTII_Forward then
+              Routine.FBodilessType := 'forward'
+            else
+              Routine.FBodilessType := 'external';
+          end;
           ALastTokenID := AParser.CurrTokenID;
           DecorationLastLine := ALineOffset + Integer(AParser.Row)-1;
           AParser.Next;
