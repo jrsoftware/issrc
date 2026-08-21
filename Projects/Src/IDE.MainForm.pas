@@ -358,6 +358,8 @@ type
     MemoPanel: TPanel;
     NavigatorPanel: TPanel;
     NavigatorComboBox: TComboBox;
+    NavigatorCaptionText: TNewStaticText;
+    NavigatorComboBox2: TComboBox;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -1184,6 +1186,7 @@ begin
     { UpdateTheme does not set Font.Color in this case, so re-add seFont }
     InspectorFilterEdit.StyleElements := InspectorFilterEdit.StyleElements + [seFont];
     NavigatorComboBox.StyleElements := NavigatorComboBox.StyleElements + [seFont];
+    NavigatorComboBox2.StyleElements := NavigatorComboBox2.StyleElements + [seFont];
   end;
 
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
@@ -1270,7 +1273,9 @@ begin
   InspectorPopupMenuBitBtn.Hint := InspectorPopupMenuBitBtn.Caption;
 
   TWinControlMSAANameHook.Create(NavigatorComboBox, RemoveAccelChar(VNavigator.Caption));
-  CreateNavigator; { Also hooks and must be after previous call }
+  TWinControlMSAANameHook.Create(NavigatorComboBox2,
+    LFmtMessage(SNavigatorRoutineMSAAName, [RemoveAccelChar(VNavigator.Caption)]));
+  CreateNavigator; { Also hooks and must be after previous calls }
 
   FMemosStyler.Theme := FTheme;
 
@@ -1613,8 +1618,11 @@ begin
       AddControlToArray(UpdatePanelDonateBitBtn, Controls, NControls);
       AddControlToArray(UpdatePanelCloseBitBtn, Controls, NControls);
     end;
-    if NavigatorPanel.Visible then
+    if NavigatorPanel.Visible then begin
       AddControlToArray(NavigatorComboBox, Controls, NControls);
+      if NavigatorComboBox2.Visible then
+        AddControlToArray(NavigatorComboBox2, Controls, NControls);
+    end;
 
     { Now move focus to next or previous }
     if NControls > 1 then begin
@@ -1768,10 +1776,10 @@ begin
      FInspector.JvInspector.ContainsControl(ActiveControl) then
     Exit(False);
 
-  { The navigator's combobox handles F4 itself, except Alt+F4 }
+  { The navigator's comboboxes handle F4 themselves, except Alt+F4 }
   if (Message.CharCode = VK_F4) and
      not (ssAlt in KeyDataToShiftState(Message.KeyData)) and
-     (ActiveControl = NavigatorComboBox) then
+     ((ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2)) then
     Exit(False);
 
   Result := inherited;
@@ -3949,6 +3957,25 @@ begin
   { Update combobox position }
   NavigatorComboBox.Left := Padding;
   NavigatorComboBox.Top := (NavigatorPanel.ClientHeight - NavigatorComboBox.Height) div 2;
+
+  { Update caption position }
+  NavigatorCaptionText.Left := NavigatorComboBox.Left + NavigatorComboBox.Width + Padding;
+  NavigatorCaptionText.Top := (NavigatorPanel.ClientHeight - NavigatorCaptionText.Height) div 2;
+
+  { Update the second combobox's position and width, hiding it and the caption
+    if there's no space, like InspectorFilterEdit. The '>' glyph has trailing
+    whitespace, so remove 2 pixels to make the caption's gaps look equal. No
+    padding at the right when the inspector is visible: its splitter already
+    provides the spacing. }
+  const X = NavigatorCaptionText.Left + NavigatorCaptionText.Width + Padding - ToCurrentPPI(2);
+  var W := NavigatorPanel.ClientWidth - X;
+  if not InspectorPanel.Visible then
+    Dec(W, Padding);
+  NavigatorCaptionText.Visible := W > 0;
+  NavigatorComboBox2.Visible := W > 0;
+  if NavigatorComboBox2.Visible then
+    NavigatorComboBox2.SetBounds(X, (NavigatorPanel.ClientHeight - NavigatorComboBox2.Height) div 2,
+      W, NavigatorComboBox2.Height);
 end;
 
 procedure TMainForm.NavigatorPanelResize(Sender: TObject);
@@ -6264,6 +6291,7 @@ begin
     - UpdatePanel
     - StatusSplitPanel
     - InspectorSplitPanel, InspectorCaptionText, and InspectorNoteText
+    - NavigatorCaptionText
     - The 4 ListBoxes
     Setting a control's StyleName to 'Windows' also prevents all its children
     from being styled. For that reason some controls set StyleElements to []
@@ -6320,6 +6348,7 @@ begin
     StyleElements is empty, like MainForm. So recreate here, using Perform
     because RecreateWnd is protected in Delphi 10.4 }
   NavigatorComboBox.Perform(CM_RECREATEWND, 0, 0);
+  NavigatorComboBox2.Perform(CM_RECREATEWND, 0, 0);
 
   ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[FTheme.Dark];
   ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.MarkersAndACImageCollection[FTheme.Dark];
@@ -6343,7 +6372,9 @@ begin
     InspectorFilterEdit.Font.Color := FTheme.Colors[tcFore];
     NavigatorPanel.ParentBackground := False;
     NavigatorPanel.Color := FTheme.Colors[tcToolBack];
+    NavigatorCaptionText.Font.Color := FTheme.Colors[tcFore];
     NavigatorComboBox.Font.Color := FTheme.Colors[tcFore];
+    NavigatorComboBox2.Font.Color := FTheme.Colors[tcFore];
   end;
 
   FInspector.UpdateTheme(FTheme, FHighContrastActive);

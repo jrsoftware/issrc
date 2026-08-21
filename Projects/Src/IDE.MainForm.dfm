@@ -256,6 +256,26 @@ object MainForm: TMainForm
           TabOrder = 0
           StyleElements = [seClient, seBorder]
         end
+        object NavigatorCaptionText: TNewStaticText
+          Left = 138
+          Top = 5
+          Width = 7
+          Height = 14
+          Caption = '>'
+          StyleName = 'Windows'
+          TabOrder = 1
+          Transparent = False
+        end
+        object NavigatorComboBox2: TComboBox
+          Left = 150
+          Top = 2
+          Width = 82
+          Height = 21
+          Style = csDropDownList
+          DropDownCount = 24
+          TabOrder = 2
+          StyleElements = [seClient, seBorder]
+        end
       end
     end
   end
