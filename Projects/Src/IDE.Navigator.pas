@@ -27,7 +27,9 @@ type
     FDropDownAccepted: Boolean;
     FJustClosedUp: Boolean;
     FPendingPickComboBox: TComboBox;
-    FChangeCountAtSectionsSet: Int64; { -1 to force one }
+    FChangeCountAtSectionsSet, FChangeCountAtRoutinesSet: Int64; { -1 to force rebuild }
+    FLiveCodeSection: TLiveScriptCodeSection;
+    FLiveCodeSectionIndex: Integer; { Factory section index it was created for }
     procedure HandleCloseUpDone;
     procedure ComboBoxDropDown(Sender: TObject);
     procedure ComboBoxCloseUp(Sender: TObject);
@@ -45,6 +47,10 @@ type
 
 implementation
 
+uses
+  SysUtils,
+  IDE.ScriptModel, IDE.ScriptModel.Metadata.Extra;
+
 { TNavigator }
 
 constructor TNavigator.Create(const AComboBox, AComboBox2: TComboBox;
@@ -57,6 +63,7 @@ begin
   FComboBox2 := AComboBox2;
   FFactory := AFactory;
   FChangeCountAtSectionsSet := -1;
+  FChangeCountAtRoutinesSet := -1;
   FComboBox.OnDropDown := ComboBoxDropDown;
   FComboBox.OnCloseUp := ComboBoxCloseUp;
   FComboBox.OnSelect := ComboBoxSelect;
@@ -72,6 +79,7 @@ begin
   FComboBox.OnCloseUp := nil;
   FComboBox.OnSelect := nil;
   FComboBox.WindowProc := FSavedComboBoxWindowProc;
+  FLiveCodeSection.Free;
   inherited Destroy;
 end;
 
@@ -202,8 +210,16 @@ end;
 
 procedure TNavigator.SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
 begin
+  if AFactory = FFactory then begin
+    UpdateFromCaret;
+    Exit;
+  end;
+  { Attach to a different factory = different memo = different tab }
   FFactory := AFactory;
   FChangeCountAtSectionsSet := -1; { Force rebuild }
+  FChangeCountAtRoutinesSet := -1; { Force rebuild }
+  if FComboBox2.DroppedDown then
+    FComboBox2.DroppedDown := False; { Ensure UpdateFromCaret doesn't skip the update }
   UpdateFromCaret;
 end;
 
@@ -242,22 +258,84 @@ begin
   FJustClosedUp := False;
 
   const CaretLine = FFactory.Memo.CaretLine;
-  var NewItemIndex: Integer;
-  if not FFactory.TryGetSectionAtLine(CaretLine, NewItemIndex) then
-    NewItemIndex := -1;
+  var NewSectionIndex: Integer;
+  if not FFactory.TryGetSectionAtLine(CaretLine, NewSectionIndex) then
+    NewSectionIndex := -1;
 
   const ChangeCount = FFactory.ChangeCount;
   if FChangeCountAtSectionsSet <> ChangeCount then begin
-    var Headers: TArray<String>;
-    SetLength(Headers, FFactory.SectionCount);
+    { Update to new sections }
+    var Sections: TArray<String>;
+    SetLength(Sections, FFactory.SectionCount);
     for var I := 0 to FFactory.SectionCount-1 do
-      Headers[I] := '[' + FFactory.SectionHeaders[I].Name + ']';
-    SetComboBoxItems(FComboBox, Headers, NewItemIndex);
+      Sections[I] := '[' + FFactory.SectionHeaders[I].Name + ']';
+    SetComboBoxItems(FComboBox, Sections, NewSectionIndex);
     FChangeCountAtSectionsSet := ChangeCount;
   end;
 
-  if FComboBox.ItemIndex <> NewItemIndex then
-    FComboBox.ItemIndex := NewItemIndex;
+  if FComboBox.ItemIndex <> NewSectionIndex then
+    FComboBox.ItemIndex := NewSectionIndex;
+
+  { Second combobox: not updated while dropped down, so the debugger moving
+    the caret while the user browses, for example to a breakpoint, cannot
+    change the list under them }
+  if not FComboBox2.DroppedDown then begin
+    if (NewSectionIndex >= 0) and
+       (FFactory.SectionHeaders[NewSectionIndex].Section = scCode) then begin
+
+      { Rebuild if needed }
+      const Rebuild = (FLiveCodeSection = nil) or not FLiveCodeSection.Valid or
+        (FLiveCodeSectionIndex <> NewSectionIndex) or
+        (FChangeCountAtRoutinesSet <> ChangeCount);
+      if Rebuild then begin
+        FreeAndNil(FLiveCodeSection);
+        var RefusalReason: TRefusalReason;
+        if FFactory.TryCreateCodeSection(NewSectionIndex, FLiveCodeSection,
+             RefusalReason) then
+          FLiveCodeSectionIndex := NewSectionIndex;
+      end;
+
+      { Determine caret routine index }
+      var NewRoutineIndex := -1;
+      if FLiveCodeSection <> nil then begin
+        var CaretRoutine: TCodeSectionRoutine;
+        if FLiveCodeSection.TryGetRoutine(CaretLine, CaretRoutine) then begin
+          const Section = FLiveCodeSection.Section;
+          for var I := 0 to Section.RoutineCount-1 do begin
+            if Section.Routines[I] = CaretRoutine then begin
+              NewRoutineIndex := I;
+              Break;
+            end;
+          end;
+        end;
+      end;
+
+      if Rebuild then begin
+        { Update to new routines }
+        var Routines: TArray<String> := [];
+        if FLiveCodeSection <> nil then begin
+          const Section = FLiveCodeSection.Section;
+          SetLength(Routines, Section.RoutineCount);
+          for var I := 0 to Section.RoutineCount-1 do begin
+            const Routine = Section.Routines[I];
+            Routines[I] := Routine.Name;
+            if Routine.BodilessType <> '' then
+              Routines[I] := Routines[I] + ' (' + Routine.BodilessType + ')';
+          end;
+        end;
+        SetComboBoxItems(FComboBox2, Routines, NewRoutineIndex);
+      end;
+
+      { Select caret routine }
+      if FComboBox2.ItemIndex <> NewRoutineIndex then
+        FComboBox2.ItemIndex := NewRoutineIndex;
+    end else begin
+      FreeAndNil(FLiveCodeSection);
+      SetComboBoxItems(FComboBox2, [], -1);
+    end;
+
+    FChangeCountAtRoutinesSet := ChangeCount;
+  end;
 end;
 
 end.
