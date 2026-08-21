@@ -1664,9 +1664,9 @@ begin
     end
     {$IFDEF DEBUG}
     else if (EntryRefusalReason <> rrMixedSelection) and
-       FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
-       FFactory.TryCreateCodeSection(SectionIndex, FLiveCodeSection,
-         SectionRefusalReason) then begin
+            FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
+            FFactory.TryCreateCodeSection(SectionIndex, FLiveCodeSection,
+              SectionRefusalReason) then begin
       const Header = FFactory.SectionHeaders[SectionIndex];
       FLiveCodeSectionIndex := SectionIndex;
       FChangeCountAtCreation := FFactory.ChangeCount;

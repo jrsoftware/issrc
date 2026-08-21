@@ -2799,6 +2799,188 @@ begin
   end;
 end;
 
+procedure TestCodeSectionTypes;
+begin
+  const Section = TScriptModelCodeSection.Create;
+  try
+    { Each definition kind gives its normalized kind word. Name and Line come
+      from the member's identifier. A record ends at its 'end'. }
+    Section.Parse([
+      'type',
+      '  TMyRecord = record',
+      '    A: Integer;',
+      '    B: String;',
+      '  end;',
+      '  TIntArray = array of Integer;',
+      '  TByteSet = set of Byte;',
+      '  TProc = procedure(Sender: TObject);',
+      '  TFunc = function(A, B: Integer): Boolean;',
+      '  TMyState = (msOne, msTwo);',
+      '  TInt = Integer;']);
+    Assert(Section.RoutineCount = 0);
+    Assert(Section.TypeCount = 7);
+    Assert(Section.Types[0].Name = 'TMyRecord');
+    Assert(Section.Types[0].TypeText = 'record');
+    Assert(Section.Types[0].Line = 1);
+    Assert(Section.Types[1].Name = 'TIntArray');
+    Assert(Section.Types[1].TypeText = 'array');
+    Assert(Section.Types[1].Line = 5);
+    Assert(Section.Types[2].Name = 'TByteSet');
+    Assert(Section.Types[2].TypeText = 'set');
+    Assert(Section.Types[2].Line = 6);
+    Assert(Section.Types[3].Name = 'TProc');
+    Assert(Section.Types[3].TypeText = 'procedure');
+    Assert(Section.Types[3].Line = 7);
+    Assert(Section.Types[4].Name = 'TFunc');
+    Assert(Section.Types[4].TypeText = 'function');
+    Assert(Section.Types[4].Line = 8);
+    Assert(Section.Types[5].Name = 'TMyState');
+    Assert(Section.Types[5].TypeText = 'enumeration');
+    Assert(Section.Types[5].Line = 9);
+    Assert(Section.Types[6].Name = 'TInt');
+    Assert(Section.Types[6].TypeText = 'Integer'); { An alias gives the identifier as written }
+    Assert(Section.Types[6].Line = 10);
+
+    { The next Parse replaces the previous items }
+    Section.Parse(['type', '  TOnly = Integer;']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TOnly');
+    Section.Parse(['type']);
+    Assert(Section.TypeCount = 0);
+    Section.Parse([]);
+    Assert(Section.TypeCount = 0);
+
+    { An interface is consumed as one definition: one type item and none of
+      its method declarations as top-level routines }
+    Section.Parse([
+      'type',
+      '  IPersistFile = interface(IPersist)',
+      '    ''{0000010B-0000-0000-C000-000000000046}''',
+      '    procedure Save(pszFileName: String; fRemember: BOOL); safecall;',
+      '    function GetCurFile: String; safecall;',
+      '  end;',
+      '',
+      'procedure AfterInterface;',
+      'begin',
+      'end;']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'IPersistFile');
+    Assert(Section.Types[0].TypeText = 'interface');
+    Assert(Section.Types[0].Line = 1);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'AfterInterface');
+    Assert(Section.Routines[0].FirstLine = 7);
+
+    { A routine header ends the block; the routine still parses }
+    Section.Parse([
+      'type',
+      '  TState = (stOne, stTwo);',
+      'procedure UseState(S: TState);',
+      'begin',
+      'end;']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TState');
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'UseState');
+    Assert(Section.Routines[0].FirstLine = 2);
+    Assert(Section.Routines[0].BodyLastLine = 4);
+
+    { A routine header also ends an unterminated definition, keeping the type }
+    Section.Parse([
+      'type',
+      '  TFoo = Integer',
+      'procedure P;',
+      'begin',
+      'end;']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TFoo');
+    Assert(Section.Types[0].TypeText = 'Integer');
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 2);
+
+    { An unterminated record does not hide the routines below it }
+    Section.Parse([
+      'type',
+      '  TFoo = record',
+      '    A: Integer;',
+      '',
+      'procedure P;',
+      'begin',
+      'end;']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TFoo');
+    Assert(Section.Types[0].TypeText = 'record');
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 4);
+
+    { Also not when the record's unterminated procedural field leaves its
+      parentheses open }
+    Section.Parse([
+      'type',
+      '  TFoo = record',
+      '    A: function(B: Integer;',
+      '',
+      'procedure P;',
+      'begin',
+      'end;']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TFoo');
+    Assert(Section.Types[0].TypeText = 'record');
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 4);
+
+    { An unterminated interface does hide them: its methods are
+      indistinguishable from routine headers }
+    Section.Parse([
+      'type',
+      '  IFoo = interface',
+      '    procedure M1;',
+      '',
+      'procedure P;',
+      'begin',
+      'end;']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'IFoo');
+    Assert(Section.Types[0].TypeText = 'interface');
+    Assert(Section.RoutineCount = 0);
+
+    { A block below a routine }
+    Section.Parse([
+      'procedure P;',
+      'begin',
+      'end;',
+      'type',
+      '  TAfter = String;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TAfter');
+    Assert(Section.Types[0].TypeText = 'String');
+    Assert(Section.Types[0].Line = 4);
+
+    { A subrange definition is not valid ROPS; it only must not derail the
+      scanner. The kind is not a listed one, so it gives ''. }
+    Section.Parse([
+      'type',
+      '  TRange = 0..9;',
+      '  TAfter = Integer;',
+      'procedure P;',
+      'begin',
+      'end;']);
+    Assert(Section.TypeCount = 2);
+    Assert(Section.Types[0].Name = 'TRange');
+    Assert(Section.Types[0].TypeText = '');
+    Assert(Section.Types[0].Line = 1);
+    Assert(Section.Types[1].Name = 'TAfter');
+    Assert(Section.Types[1].TypeText = 'Integer');
+    Assert(Section.RoutineCount = 1);
+  finally
+    Section.Free;
+  end;
+end;
+
 procedure TestCodeSectionRoutineAtLine;
 begin
   const Section = TScriptModelCodeSection.Create;
@@ -2909,6 +3091,7 @@ begin
   TestKeyValueSectionValuePosition;
   TestPrepareCodeSectionText;
   TestCodeSection;
+  TestCodeSectionTypes;
   TestCodeSectionRoutineAtLine;
   {$IFDEF ISTESTTOOLPROJ}
   { ISTestTool only: under the ISIDE DEBUG self-test the initializers would
