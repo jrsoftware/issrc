@@ -1782,11 +1782,12 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
       while AParser.CurrTokenID <> CSTI_EOF do begin
         const DefinitionTokenID = AParser.CurrTokenID;
         if IsRoutineHeaderStart(DefinitionTokenID, ALastTokenID) then begin
-          if (BraceDepth = 0) and (Length(OpenStructs) = 0) then
+          { Ends an unterminated definition, unless directly in an interface:
+            its methods are indistinguishable from routine headers }
+          const InOpenInterface = (Length(OpenStructs) > 0) and
+            (OpenStructs[High(OpenStructs)] = CSTII_interface);
+          if not InOpenInterface then
             Break;
-          const InOpenRecord = (Length(OpenStructs) > 0) and (OpenStructs[High(OpenStructs)] = CSTII_record);
-          if InOpenRecord then
-            Break; { The record's 'end' is missing }
         end;
         if DefinitionTokenID in [CSTII_record, CSTII_interface] then
           OpenStructs := OpenStructs + [DefinitionTokenID]

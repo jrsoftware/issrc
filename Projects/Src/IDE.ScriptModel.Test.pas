@@ -2933,6 +2933,33 @@ begin
     Assert(Section.Routines[0].Name = 'P');
     Assert(Section.Routines[0].FirstLine = 4);
 
+    { Nor when an unterminated enumeration or procedural type leaves its
+      parentheses open }
+    Section.Parse([
+      'type',
+      '  TState = (stOne, stTwo',
+      'procedure P;',
+      'begin',
+      'end;']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TState');
+    Assert(Section.Types[0].TypeText = 'enumeration');
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 2);
+    Section.Parse([
+      'type',
+      '  TF = function(A: Integer;',
+      'procedure P;',
+      'begin',
+      'end;']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TF');
+    Assert(Section.Types[0].TypeText = 'function');
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 2);
+
     { An unterminated interface does hide them: its methods are
       indistinguishable from routine headers }
     Section.Parse([
