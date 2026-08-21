@@ -2515,7 +2515,8 @@ begin
     Assert(Section.Routines[0].ResultTypeText = 'Boolean');
 
     { An unterminated header is cut short by the next declaration's keyword,
-      a tokenize error, or the section's end, keeping what is there }
+      its own body's 'begin', a tokenize error, or the section's end, keeping
+      what is there }
     Section.Parse([
       'function Foo(A: Integer): Boolean',
       'procedure Bar;',
@@ -2537,6 +2538,37 @@ begin
     Assert(Section.Routines[0].ResultTypeText = 'Str');
     Assert(Section.Routines[0].BodyFirstLine = -1);
     Assert(Section.Routines[0].LastLine = 0); { Section's last line }
+
+    { A header missing its ';' is cut by its own body's 'begin', which cannot
+      be part of a header; the body is still parsed }
+    Section.Parse([
+      'function NoSemicolon: Boolean',  { 0 }
+      'begin',                          { 1 }
+      '  Result := True;',              { 2 }
+      'end;',                           { 3 }
+      'procedure After;',               { 4 }
+      'begin',                          { 5 }
+      'end;']);                         { 6 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Name = 'NoSemicolon');
+    Assert(Section.Routines[0].Prototype = 'function NoSemicolon: Boolean');
+    Assert(Section.Routines[0].ResultTypeText = 'Boolean');
+    Assert(Section.Routines[0].BodyFirstLine = 1);
+    Assert(Section.Routines[0].BodyLastLine = 3);
+    Assert(Section.Routines[0].LastLine = 3);
+    Assert(Section.Routines[1].Name = 'After');
+    Assert(Section.Routines[1].BodyFirstLine = 5);
+    Assert(Section.Routines[1].LastLine = 6);
+    Section.Parse([
+      'procedure NoSemicolon',  { 0 }
+      'begin',                  { 1 }
+      'end;']);                 { 2 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'procedure NoSemicolon');
+    Assert(Section.Routines[0].ResultTypeText = '');
+    Assert(Section.Routines[0].BodyFirstLine = 1);
+    Assert(Section.Routines[0].BodyLastLine = 2);
+    Assert(Section.Routines[0].LastLine = 2);
 
     { <event('...')> attributes before a header are tolerated; FirstLine stays
       the keyword's line }

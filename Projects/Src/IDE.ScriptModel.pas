@@ -1641,9 +1641,9 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         const PrototypeTokenID = AParser.CurrTokenID;
         if ResultTypeColonSeen and (ResultTypeStartPos < 0) then
           ResultTypeStartPos := Integer(AParser.CurrTokenPos);
-        if IsRoutineHeaderStart(PrototypeTokenID, ALastTokenID) and
-           (BraceDepth = 0) then
-          Break;  { Prototype is unterminated, allow outer loop to parse new declaration }
+        if (IsRoutineHeaderStart(PrototypeTokenID, ALastTokenID) or
+            (PrototypeTokenID = CSTII_begin)) and (BraceDepth = 0) then
+          Break;  { Unterminated: cut by a new declaration or its own 'begin' }
         if PrototypeTokenID = CSTI_OpenRound then
           Inc(BraceDepth)
         else if (PrototypeTokenID = CSTI_CloseRound) and (BraceDepth > 0) then
@@ -1676,7 +1676,8 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
       if (Routine.FKind = rkFunction) and (ResultTypeStartPos >= 0) then
         Routine.FResultTypeText := SliceText(AText, ResultTypeStartPos, ResultTypeEndPos);
 
-      if HeaderTerminated then begin
+      if HeaderTerminated or
+         (AParser.CurrTokenID = CSTII_begin) then begin { A header cut by its own 'begin' still gets its body parsed }
         { Handle trailing decoration }
         var DecorationLastLine := -1;
         while AParser.CurrTokenID in [CSTII_Forward, CSTII_External, CSTII_Export] do begin
