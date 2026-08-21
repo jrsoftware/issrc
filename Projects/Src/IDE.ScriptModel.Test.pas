@@ -2783,15 +2783,16 @@ begin
     Assert(Section.Routines[0].LastLine = 4);
 
     { Malformed input never raises: declarations before a tokenize error are
-      kept, the rest of the scan is lost (resync is Phase 5) }
+      kept, and the scan resyncs past the error (see TestCodeSectionResync) }
     Section.Parse([
       'procedure BeforeError;',
       'begin',
       'end;',
       'S := ''unterminated',
       'procedure AfterError;']);
-    Assert(Section.RoutineCount = 1);
+    Assert(Section.RoutineCount = 2);
     Assert(Section.Routines[0].Name = 'BeforeError');
+    Assert(Section.Routines[1].Name = 'AfterError');
     Section.Parse(['%!?']);
     Assert(Section.RoutineCount = 0);
   finally
@@ -3069,6 +3070,187 @@ begin
   end;
 end;
 
+procedure TestCodeSectionResync;
+begin
+  const Section = TScriptModelCodeSection.Create;
+  try
+    { A tokenize error in the middle does not end the scan: it resyncs at the
+      next physical line, keeping the declarations before and after the error
+      with their line numbers }
+    Section.Parse([
+      'procedure Before;',    { 0 }
+      'begin',                { 1 }
+      'end;',                 { 2 }
+      'S := ''unterminated',  { 3 }
+      'procedure After;',     { 4 }
+      'begin',                { 5 }
+      'end;']);               { 6 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Name = 'Before');
+    Assert(Section.Routines[0].LastLine = 2);
+    Assert(Section.Routines[1].Name = 'After');
+    Assert(Section.Routines[1].FirstLine = 4);
+    Assert(Section.Routines[1].Prototype = 'procedure After;');
+    Assert(Section.Routines[1].BodyFirstLine = 5);
+    Assert(Section.Routines[1].BodyLastLine = 6);
+    Assert(Section.Routines[1].LastLine = 6);
+
+    { An error inside a body: the routine keeps -1/-1 and its span ends on
+      the line before the next declaration found after the resync }
+    Section.Parse([
+      'procedure Typing;',      { 0 }
+      'begin',                  { 1 }
+      '  S := ''unterminated',  { 2 }
+      'end;',                   { 3 }
+      '',                       { 4 }
+      'procedure After;',       { 5 }
+      'begin',                  { 6 }
+      'end;']);                 { 7 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Name = 'Typing');
+    Assert(Section.Routines[0].BodyFirstLine = -1);
+    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].LastLine = 4);
+    Assert(Section.Routines[1].Name = 'After');
+    Assert(Section.Routines[1].FirstLine = 5);
+    Assert(Section.Routines[1].LastLine = 7);
+    var Routine: TCodeSectionRoutine;
+    Assert(Section.TryGetRoutine(3, Routine)); { The leftover 'end;' line }
+    Assert(Routine = Section.Routines[0]);
+    Assert(Section.TryGetRoutine(6, Routine));
+    Assert(Routine = Section.Routines[1]);
+
+    { With no declaration after the error the cut routine's span runs to the
+      section's last line }
+    Section.Parse([
+      'procedure Typing;',      { 0 }
+      'begin',                  { 1 }
+      '  S := ''unterminated',  { 2 }
+      '  X := 1;',              { 3 }
+      '']);                     { 4 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].BodyFirstLine = -1);
+    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].LastLine = 4);
+
+    { An unterminated header cut by an error keeps the text up to the cut }
+    Section.Parse([
+      'function Cut(A: Integer): Bool ''x', { 0 }
+      'procedure After;',                   { 1 }
+      'begin',                              { 2 }
+      'end;']);                             { 3 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Name = 'Cut');
+    Assert(Section.Routines[0].Prototype = 'function Cut(A: Integer): Bool');
+    Assert(Section.Routines[0].ResultTypeText = 'Bool');
+    Assert(Section.Routines[0].LastLine = 0);
+    Assert(Section.Routines[1].Name = 'After');
+    Assert(Section.Routines[1].LastLine = 3);
+
+    { A bad char literal and an unrecognized byte resync the same way }
+    Section.Parse([
+      'X := #$;',       { 0 }
+      'procedure P1;',  { 1 }
+      'begin',          { 2 }
+      'end;',           { 3 }
+      'X := 1 ~ 2;',    { 4 }
+      'procedure P2;',  { 5 }
+      'begin',          { 6 }
+      'end;']);         { 7 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Name = 'P1');
+    Assert(Section.Routines[0].FirstLine = 1);
+    Assert(Section.Routines[0].LastLine = 3);
+    Assert(Section.Routines[1].Name = 'P2');
+    Assert(Section.Routines[1].FirstLine = 5);
+    Assert(Section.Routines[1].LastLine = 7);
+
+    { The resync point can itself error right away (SetText calls Next) }
+    Section.Parse([
+      'S := ''one',    { 0 }
+      '''two',         { 1 }
+      'procedure P;',  { 2 }
+      'begin',         { 3 }
+      'end;']);        { 4 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 2);
+
+    { An error inside a spanned group resyncs after the group's first
+      physical line (the joined line), keeping later line numbers }
+    Section.Parse([
+      'X := ~ 1 \',     { 0 }
+      '  + 2;',         { 1 }
+      'procedure P;',   { 2 }
+      'begin',          { 3 }
+      'end;']);         { 4 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 2);
+    Assert(Section.Routines[0].LastLine = 4);
+
+    { An error inside a type block: the members found before it are kept; the
+      resync continues at top-level context, so the block's remaining members
+      are skipped until the next block or declaration }
+    Section.Parse([
+      'type',                   { 0 }
+      '  TBefore = Integer;',   { 1 }
+      '  TBad = ''x',           { 2 }
+      '  TLost = String;',      { 3 }
+      'type',                   { 4 }
+      '  TFound = Boolean;',    { 5 }
+      'procedure P;',           { 6 }
+      'begin',                  { 7 }
+      'end;']);                 { 8 }
+    Assert(Section.TypeCount = 3);
+    Assert(Section.Types[0].Name = 'TBefore');
+    Assert(Section.Types[0].Line = 1);
+    Assert(Section.Types[1].Name = 'TBad');
+    Assert(Section.Types[1].TypeText = ''); { The error cut it before its kind }
+    Assert(Section.Types[1].Line = 2);
+    Assert(Section.Types[2].Name = 'TFound');
+    Assert(Section.Types[2].Line = 5);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 6);
+
+    { An unterminated comment of either syntax is not resynced past: the
+      tokenizer consumes it to the end of the text }
+    Section.Parse([
+      'procedure Before;',
+      'begin',
+      'end;',
+      '{ unterminated',
+      'procedure Hidden;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'Before');
+    Section.Parse([
+      'procedure Before;',
+      'begin',
+      'end;',
+      '(* unterminated',
+      'procedure Hidden;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'Before');
+
+    { Arbitrary garbage never raises, including an error on the last line
+      with nothing left to resync to }
+    Section.Parse(['%', '''', 'X := #$', '~~~']);
+    Assert(Section.RoutineCount = 0);
+    Assert(Section.TypeCount = 0);
+    Section.Parse(['{']);
+    Assert(Section.RoutineCount = 0);
+    Section.Parse(['(*']);
+    Assert(Section.RoutineCount = 0);
+    Section.Parse(['''']);
+    Assert(Section.RoutineCount = 0);
+  finally
+    Section.Free;
+  end;
+end;
+
 procedure IDEScriptModelRunTests;
 begin
   TestLineHelpers;
@@ -3093,6 +3275,7 @@ begin
   TestCodeSection;
   TestCodeSectionTypes;
   TestCodeSectionRoutineAtLine;
+  TestCodeSectionResync;
   {$IFDEF ISTESTTOOLPROJ}
   { ISTestTool only: under the ISIDE DEBUG self-test the initializers would
     run at unit initialization, so MainForm's own calls would find the lists

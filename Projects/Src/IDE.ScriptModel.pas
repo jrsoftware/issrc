@@ -239,8 +239,9 @@ type
   end;
 
   { A single occurrence of a [Code] section. Read-only. Parse never raises on
-    malformed input: invalid code is simply skipped as long as it tokenizes, and
-    a tokenize error ends the scan, keeping the declarations found before it. }
+    malformed input: invalid code is simply skipped as long as it tokenizes,
+    and after a tokenizer error it restarts at the next line, except for
+    unterminated comment errors. All the time it keeps the declarations found. }
   TScriptModelCodeSection = class
   private
     FRoutines: TObjectList<TCodeSectionRoutine>;
@@ -1595,10 +1596,14 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
   end;
 
   procedure ParseRoutine(const AParser: TPSPascalParser;
-    const AText: AnsiString; var ALastTokenID: TPSPasToken);
+    const AText: AnsiString; const ALineOffset: Integer;
+    var ALastTokenID: TPSPasToken; out AOpenRoutine: TCodeSectionRoutine);
+  { AOpenRoutine equals the added routine when its body 'end' was not found
+    due to a tokenizer error or due to reaching EOF. Otherwise it equals nil. }
   begin
+    AOpenRoutine := nil;
     const TokenID = AParser.CurrTokenID;
-    const FirstLine = Integer(AParser.Row)-1;
+    const FirstLine = ALineOffset + Integer(AParser.Row)-1;
     const StartPos = Integer(AParser.CurrTokenPos);
     AParser.Next;
     if AParser.CurrTokenID = CSTI_Identifier then begin
@@ -1669,14 +1674,14 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
           if AParser.CurrTokenID <> CSTII_Export then
             Routine.FBodiless := True;
           ALastTokenID := AParser.CurrTokenID;
-          DecorationLastLine := Integer(AParser.Row)-1;
+          DecorationLastLine := ALineOffset + Integer(AParser.Row)-1;
           AParser.Next;
           { Consume the rest of the decoration until its ';' }
           while (AParser.CurrTokenID <> CSTI_EOF) and
                 not IsRoutineHeaderStart(AParser.CurrTokenID, ALastTokenID) do begin
             const DecorationTokenID = AParser.CurrTokenID;
             ALastTokenID := DecorationTokenID;
-            DecorationLastLine := Integer(AParser.Row)-1;
+            DecorationLastLine := ALineOffset + Integer(AParser.Row)-1;
             AParser.Next;
             if DecorationTokenID = CSTI_Semicolon then
               Break;
@@ -1695,7 +1700,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
           end;
           if AParser.CurrTokenID = CSTII_begin then begin
             { Search for matching 'end' }
-            Routine.FBodyFirstLine := Integer(AParser.Row)-1;
+            Routine.FBodyFirstLine := ALineOffset + Integer(AParser.Row)-1;
             ALastTokenID := CSTII_begin;
             AParser.Next;
             var BlockDepth := 1;
@@ -1707,7 +1712,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
               else if BodyTokenID = CSTII_end then begin
                 Dec(BlockDepth);
                 if BlockDepth = 0 then begin
-                  Routine.FBodyLastLine := Integer(AParser.Row)-1;
+                  Routine.FBodyLastLine := ALineOffset + Integer(AParser.Row)-1;
                   Routine.FLastLine := Routine.FBodyLastLine;
                 end;
               end;
@@ -1725,10 +1730,11 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         { No body 'end' found: take the line before the next declaration,
           or to the section's last line. This way a body still being
           typed still reports the routine. }
-        if AParser.CurrTokenID = CSTI_EOF then
-          Routine.FLastLine := Integer(High(ALines))
-        else begin
-          Routine.FLastLine := Integer(AParser.Row)-2;
+        if AParser.CurrTokenID = CSTI_EOF then begin { Could be tokenizer error }
+          Routine.FLastLine := Integer(High(ALines));
+          AOpenRoutine := Routine;
+        end else begin
+          Routine.FLastLine := ALineOffset + Integer(AParser.Row)-2;
           if Routine.FLastLine < Routine.FFirstLine then
             Routine.FLastLine := Routine.FFirstLine;
         end;
@@ -1738,14 +1744,14 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
   end;
 
   procedure ParseTypeBlock(const AParser: TPSPascalParser;
-    var ALastTokenID: TPSPasToken);
+    const ALineOffset: Integer; var ALastTokenID: TPSPasToken);
   { Parses a type block until a token that does not continue the block }
   begin
     ALastTokenID := AParser.CurrTokenID;
     AParser.Next;
     while AParser.CurrTokenID = CSTI_Identifier do begin
       const Name = UTF8ToString(AParser.OriginalToken);
-      const Line = Integer(AParser.Row)-1;
+      const Line = ALineOffset + Integer(AParser.Row)-1;
       ALastTokenID := CSTI_Identifier;
       AParser.Next;
       if AParser.CurrTokenID <> CSTI_Equal then
@@ -1804,21 +1810,51 @@ begin
   FRoutines.Clear;
   FTypes.Clear;
 
-  const Text = PrepareCodeSectionText(ALines);
+  var Text := PrepareCodeSectionText(ALines);
   const Parser = TPSPascalParser.Create;
   try
     Parser.SetText(Text);
+    var LineOffset := 0; { Line index of the buffer's first line, advanced by each resync below }
     var LastTokenID := CSTI_EOF;
-    while Parser.CurrTokenID <> CSTI_EOF do begin { CSTI_EOF means error or EOF }
-      const TokenID = Parser.CurrTokenID;
-      if IsRoutineHeaderStart(TokenID, LastTokenID) then
-        ParseRoutine(Parser, Text, LastTokenID)
-      else if TokenID = CSTII_type then
-        ParseTypeBlock(Parser, LastTokenID)
-      else begin
-        LastTokenID := TokenID;
-        Parser.Next;
+    var OpenRoutine: TCodeSectionRoutine := nil;
+    while True do begin
+      while Parser.CurrTokenID <> CSTI_EOF do begin { CSTI_EOF means error or EOF, told apart below }
+        const TokenID = Parser.CurrTokenID;
+        if IsRoutineHeaderStart(TokenID, LastTokenID) then begin
+          if OpenRoutine <> nil then
+            OpenRoutine.FLastLine := LineOffset + Integer(Parser.Row)-2;
+          ParseRoutine(Parser, Text, LineOffset, LastTokenID, OpenRoutine);
+        end else if TokenID = CSTII_type then
+          ParseTypeBlock(Parser, LineOffset, LastTokenID)
+        else begin
+          LastTokenID := TokenID;
+          Parser.Next;
+        end;
       end;
+
+      { On a tokenizer error CurrTokenPos is still at the errored token,
+        instead of at the end of the text }
+      if Integer(Parser.CurrTokenPos) >= Length(Text) then
+        Break;
+      const ErrorPos = Integer(Parser.CurrTokenPos);
+
+      { '{' or '(' means there was just an unterminated comment }
+      if CharInSet(Text[ErrorPos+1], ['{', '(']) then
+        Break;
+
+      { Some other error: keep what was found so far, and search for
+        start of the next line }
+      var ResyncPos := ErrorPos+1;
+      while (ResyncPos <= Length(Text)) and (Text[ResyncPos] <> #10) do
+        Inc(ResyncPos);
+      if ResyncPos >= Length(Text) then
+        Break; { No next line }
+
+      { Restart parse }
+      Inc(LineOffset, Integer(Parser.Row));
+      Text := Copy(Text, ResyncPos+1, MaxInt);
+      Parser.SetText(Text);
+      LastTokenID := CSTI_EOF;
     end;
   finally
     Parser.Free;
