@@ -25,12 +25,12 @@ uses
 type
   TLiveScriptObjectFactory = class;
 
-  { Why TryCreateParameterSectionEntries or TryCreateKeyValueSection refused to
-    create an object }
+  { Why TryCreateParameterSectionEntries, TryCreateKeyValueSection, or
+    TryCreateCodeSection refused to create an object }
   TRefusalReason = (rrLineOutOfRange, rrNotInsideSection,
     rrInCodeSection, rrUnrecognizedSection, rrNotParameterSection, rrComment,
     rrISPPDirective, rrMixedSelection, rrSectionIndexOutOfRange,
-    rrNotKeyValueSection);
+    rrNotKeyValueSection, rrNotCodeSection);
 
   TLiveScriptSectionHeader = record
     Line: Integer;
@@ -140,6 +140,19 @@ type
     property Section: TScriptModelKeyValueSection read FSection;
   end;
 
+  { A single occurrence of a [Code] section. Read-only. }
+  TLiveScriptCodeSection = class(TLiveScriptObject)
+  private
+    FSection: TScriptModelCodeSection;
+    constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
+      ALastLine: Integer; const ALines: TArray<String>);
+  public
+    destructor Destroy; override;
+    function TryGetRoutine(const AMemoLine: Integer;
+      out ARoutine: TCodeSectionRoutine): Boolean;
+    property Section: TScriptModelCodeSection read FSection;
+  end;
+
   TLiveScriptObjectFactory = class
   private
     FMemo: TScintEdit;
@@ -159,10 +172,14 @@ type
       out ALineKind: TScriptLineKind): TArray<String>; overload;
     function GetLogicalLineFirstLine(const ALine: Integer): Integer;
     function GetLogicalLineLastLine(const ALine: Integer): Integer;
+    function GetSectionBodyLines(const ASectionIndex: Integer;
+      out AFirstLine, ALastLine: Integer): TArray<String>;
     function GetSectionHeader(Index: Integer): TLiveScriptSectionHeader;
     procedure GetSectionLines(const ASectionIndex: Integer;
       out AFirstLine, ALastLine: Integer);
     function LineSpans(const ALine: Integer): Boolean;
+    function TryGetSectionForCreation(const ASectionIndex: Integer;
+      out ASection: TInnoSetupSection; out ARefusalReason: TRefusalReason): Boolean;
     procedure WriteBackChange(const ALiveScriptObject: TLiveScriptObject;
       const ALines: TArray<String>; const ACreatedFromBlankLine: Boolean = False);
   public
@@ -189,6 +206,9 @@ type
       out ARefusalReason: TRefusalReason): Boolean;
     function TryCreateKeyValueSection(const ASectionIndex: Integer;
       out ASection: TLiveScriptKeyValueSection;
+      out ARefusalReason: TRefusalReason): Boolean;
+    function TryCreateCodeSection(const ASectionIndex: Integer;
+      out ASection: TLiveScriptCodeSection;
       out ARefusalReason: TRefusalReason): Boolean;
     { Bumped on every Change and Reset call, so a consumer can tell whether
       the memo changed since it last read something }
@@ -568,6 +588,29 @@ end;
 procedure TLiveScriptKeyValueSection.SetQuoteNewValues(const Value: Boolean);
 begin
   FSection.QuoteNewValues := Value;
+end;
+
+{ TLiveScriptCodeSection }
+
+constructor TLiveScriptCodeSection.Create(const AFactory: TLiveScriptObjectFactory;
+  const AFirstLine, ALastLine: Integer; const ALines: TArray<String>);
+begin
+  inherited Create(AFactory, AFirstLine, ALastLine);
+  FSection := TScriptModelCodeSection.Create;
+  FSection.Parse(ALines);
+end;
+
+destructor TLiveScriptCodeSection.Destroy;
+begin
+  FSection.Free;
+  inherited;
+end;
+
+function TLiveScriptCodeSection.TryGetRoutine(const AMemoLine: Integer;
+  out ARoutine: TCodeSectionRoutine): Boolean;
+begin
+  ARoutine := nil;
+  Result := Valid and FSection.TryGetRoutine(AMemoLine - FFirstLine, ARoutine);
 end;
 
 { TLiveScriptObjectFactory }
@@ -1285,20 +1328,36 @@ begin
   Result := True;
 end;
 
+function TLiveScriptObjectFactory.TryGetSectionForCreation(const ASectionIndex: Integer;
+  out ASection: TInnoSetupSection; out ARefusalReason: TRefusalReason): Boolean;
+begin
+  Result := False;
+  EnsureIndex;
+  EnsureStyled;
+  if (ASectionIndex < 0) or (ASectionIndex >= FSectionHeaders.Count) then begin
+    ARefusalReason := rrSectionIndexOutOfRange;
+    Exit;
+  end;
+  ASection := FSectionHeaders[ASectionIndex].Section;
+  Result := True;
+end;
+
+function TLiveScriptObjectFactory.GetSectionBodyLines(const ASectionIndex: Integer;
+  out AFirstLine, ALastLine: Integer): TArray<String>;
+begin
+  GetSectionLines(ASectionIndex, AFirstLine, ALastLine);
+  Result := GetLinesText(AFirstLine, ALastLine);
+end;
+
 function TLiveScriptObjectFactory.TryCreateKeyValueSection(const ASectionIndex: Integer;
   out ASection: TLiveScriptKeyValueSection;
   out ARefusalReason: TRefusalReason): Boolean;
 begin
   ASection := nil;
   Result := False;
-  EnsureIndex;
-  EnsureStyled;
-
-  if (ASectionIndex < 0) or (ASectionIndex >= FSectionHeaders.Count) then begin
-    ARefusalReason := rrSectionIndexOutOfRange;
+  var Section: TInnoSetupSection;
+  if not TryGetSectionForCreation(ASectionIndex, Section, ARefusalReason) then
     Exit;
-  end;
-  const Section = FSectionHeaders[ASectionIndex].Section;
   if TryGetCommonSectionRefusalReason(Section, ARefusalReason) then
     Exit;
   if not (Section in KeyValueSections) then begin
@@ -1307,16 +1366,34 @@ begin
   end;
 
   var FirstLine, LastLine: Integer;
-  GetSectionLines(ASectionIndex, FirstLine, LastLine);
-  var SectionLines: TArray<String>;
-  if LastLine >= FirstLine then
-    SectionLines := GetLinesText(FirstLine, LastLine)
-  else
-    SectionLines := [];
+  const SectionLines = GetSectionBodyLines(ASectionIndex, FirstLine, LastLine);
   var Metadata: TScriptModelSectionMetadata := nil;
   TryGetScriptModelSectionMetadata(FSectionHeaders[ASectionIndex].Name, Metadata);
   ASection := TLiveScriptKeyValueSection.Create(Self, FirstLine, LastLine,
     Metadata, SectionLines);
+  Result := True;
+end;
+
+function TLiveScriptObjectFactory.TryCreateCodeSection(const ASectionIndex: Integer;
+  out ASection: TLiveScriptCodeSection;
+  out ARefusalReason: TRefusalReason): Boolean;
+begin
+  ASection := nil;
+  Result := False;
+  var Section: TInnoSetupSection;
+  if not TryGetSectionForCreation(ASectionIndex, Section, ARefusalReason) then
+    Exit;
+  if Section <> scCode then begin
+    { The common check's scCode branch cannot hit here }
+    if not TryGetCommonSectionRefusalReason(Section, ARefusalReason) then
+      ARefusalReason := rrNotCodeSection;
+    Exit;
+  end;
+
+  var FirstLine, LastLine: Integer;
+  const SectionLines = GetSectionBodyLines(ASectionIndex, FirstLine, LastLine);
+  ASection := TLiveScriptCodeSection.Create(Self, FirstLine, LastLine,
+    SectionLines);
   Result := True;
 end;
 

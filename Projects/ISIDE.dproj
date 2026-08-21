@@ -228,6 +228,7 @@
         <DCCReference Include="..\Components\Toolbar.Accessibility.pas"/>
         <DCCReference Include="..\Components\JvInspector.pas"/>
         <DCCReference Include="..\Components\JvInspector.MSAA.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.Extra.pas"/>

@@ -95,6 +95,7 @@ uses
   Toolbar.Accessibility in '..\Components\Toolbar.Accessibility.pas',
   JvInspector in '..\Components\JvInspector.pas',
   JvInspector.MSAA in '..\Components\JvInspector.MSAA.pas',
+  uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas',
   IDE.ScriptModel in 'Src\IDE.ScriptModel.pas',
   IDE.ScriptModel.Metadata in 'Src\IDE.ScriptModel.Metadata.pas',
   IDE.ScriptModel.Metadata.Extra in 'Src\IDE.ScriptModel.Metadata.Extra.pas',

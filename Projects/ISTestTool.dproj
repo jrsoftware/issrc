@@ -131,6 +131,7 @@
         <DCCReference Include="..\Components\ChaCha20.Test.pas"/>
         <DCCReference Include="Src\Compiler.StringLists.pas"/>
         <DCCReference Include="Src\Compiler.StringLists.Test.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.Extra.pas"/>
