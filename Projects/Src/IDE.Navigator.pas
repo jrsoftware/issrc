@@ -20,6 +20,7 @@ type
   TNavigator = class
   private
     FComboBox: TComboBox;
+    FComboBox2: TComboBox;
     FSavedComboBoxWindowProc: TWndMethod;
     FFactory: TLiveScriptObjectFactory;
     FItemIndexBeforeDropDown: Integer;
@@ -35,7 +36,7 @@ type
     procedure GoToComboBoxItem(const AComboBox: TComboBox;
       const AFocusMemo: Boolean);
   public
-    constructor Create(const AComboBox: TComboBox;
+    constructor Create(const AComboBox, AComboBox2: TComboBox;
       const AFactory: TLiveScriptObjectFactory);
     destructor Destroy; override;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
@@ -46,13 +47,14 @@ implementation
 
 { TNavigator }
 
-constructor TNavigator.Create(const AComboBox: TComboBox;
+constructor TNavigator.Create(const AComboBox, AComboBox2: TComboBox;
   const AFactory: TLiveScriptObjectFactory);
-{ Doesn't take ownership of the combobox }
+{ Doesn't take ownership of the comboboxes }
 begin
   inherited Create;
 
   FComboBox := AComboBox;
+  FComboBox2 := AComboBox2;
   FFactory := AFactory;
   FChangeCountAtSectionsSet := -1;
   FComboBox.OnDropDown := ComboBoxDropDown;

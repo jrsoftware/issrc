@@ -972,7 +972,7 @@ constructor TMainForm.Create(AOwner: TComponent);
 
   procedure CreateNavigator;
   begin
-    FNavigator := TNavigator.Create(NavigatorComboBox,
+    FNavigator := TNavigator.Create(NavigatorComboBox, NavigatorComboBox2,
       LiveScriptObjectFactoryForMemo(FActiveMemo));
   end;
 
