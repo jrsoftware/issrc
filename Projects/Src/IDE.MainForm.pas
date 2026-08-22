@@ -1553,12 +1553,14 @@ end;
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 
-  procedure AddControlToArray(const ControlToAdd: TWinControl; var Controls: TArray<TWinControl>;
-    var NControls: NativeInt);
+  procedure AddControlToArray(const ControlToAdd, RegionControl: TWinControl;
+    var Controls, RegionControls: TArray<TWinControl>; var NControls: NativeInt);
   begin
     Inc(NControls);
     SetLength(Controls, NControls);
+    SetLength(RegionControls, NControls);
     Controls[NControls-1] := ControlToAdd;
+    RegionControls[NControls-1] := RegionControl;
   end;
 
   function EscapeShouldFocusActiveMemo: Boolean;
@@ -1621,21 +1623,18 @@ begin
     Key := 0;
     FocusNavigator(OpenDropDown);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
-    { Move focus between the active memo, the inspector, the inspector
-      filter, the inspector popup menu button, the active bottom pane, the
-      active banner, and the navigator's comboboxes, backward if Shift is
-      held }
+    { Move focus between the active memo, the inspector, the active bottom
+      pane, the active banner, and the navigator, backward if Shift is held }
     Key := 0;
 
-    { First get the list of controls to toggle between }
+    { First get the list of controls to toggle between, only one per 'major region':
+      https://learn.microsoft.com/en-us/windows/apps/design/accessibility/keyboard-accessibility#optimize-for-f6
+      Each control is paired with its panel, which is that region. }
     var Controls: TArray<TWinControl> := [FActiveMemo];
+    var RegionControls: TArray<TWinControl> := [FActiveMemo];
     var NControls: NativeInt := Length(Controls); { Explicit type for Delphi 10.4 }
-    if InspectorPanel.Visible then begin
-      AddControlToArray(FInspector.JvInspector, Controls, NControls);
-      if InspectorFilterEdit.Visible then
-        AddControlToArray(InspectorFilterEdit, Controls, NControls);
-      AddControlToArray(InspectorPopupMenuBitBtn, Controls, NControls);
-    end;
+    if InspectorPanel.Visible then
+      AddControlToArray(FInspector.JvInspector, InspectorPanel, Controls, RegionControls, NControls);
     if StatusPanel.Visible then begin
       var ControlToAdd: TWinControl := nil;
       case OutputTabSet.TabIndex of
@@ -1645,26 +1644,25 @@ begin
         tiFindResults: ControlToAdd := FindResultsList;
       end;
       if ControlToAdd <> nil then
-        AddControlToArray(ControlToAdd, Controls, NControls);
+        AddControlToArray(ControlToAdd, StatusPanel, Controls, RegionControls, NControls);
     end;
     if UpdatePanel.Visible then begin
       if FUpdatePanelMessages[UpdateLinkLabel.Tag].HasLink then
-        AddControlToArray(UpdateLinkLabel, Controls, NControls);
-      AddControlToArray(UpdatePanelDonateBitBtn, Controls, NControls);
-      AddControlToArray(UpdatePanelCloseBitBtn, Controls, NControls);
+        AddControlToArray(UpdateLinkLabel, UpdatePanel, Controls, RegionControls, NControls)
+      else
+        AddControlToArray(UpdatePanelDonateBitBtn, UpdatePanel, Controls, RegionControls, NControls);
     end;
-    if NavigatorPanel.Visible then begin
-      AddControlToArray(NavigatorComboBox, Controls, NControls);
-      if NavigatorComboBox2.Visible then
-        AddControlToArray(NavigatorComboBox2, Controls, NControls);
-    end;
+    if NavigatorPanel.Visible then
+      AddControlToArray(NavigatorComboBox, NavigatorPanel, Controls, RegionControls, NControls);
+
+    { Show focus rectangles if they're hidden }
+    SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
 
     { Now move focus to next or previous }
     if NControls > 1 then begin
       const Delta = IfThen(ssShift in Shift, -1, 1);
       for var I := 0 to NControls-1 do begin
-        { Using ContainsControl because the inspector has in-place editors }
-        if Controls[I].ContainsControl(ActiveControl) then begin
+        if RegionControls[I].ContainsControl(ActiveControl) then begin
           ActiveControl := Controls[(I+Delta+NControls) mod NControls];
           Exit;
         end;
