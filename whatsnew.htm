@@ -75,8 +75,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <ul>
     <li>The section combo box shows the section the cursor is in and lists all of the script's sections, in the order they appear. Picking one goes to the start of its contents.</li>
     <li>The routines combo box is shown while the cursor is in a <tt>[Code]</tt> section. It shows the procedure or function the cursor is in and lists all procedures and functions in the section, in the order they appear. Picking one goes to its header.</li>
-    <li>Pressing Ctrl+Shift+; focuses the routines combo box if it's shown, and the section combo box otherwise. Pressing Ctrl+Shift+. does the same and also opens the drop-down list. Pressing Esc returns the focus to the editor.<br/>
-        These Navigator keyboard commands are also listed in the <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic.</li>
+    <li>Pressing Ctrl+Shift+; focuses the routines combo box if it's shown, and the section combo box otherwise. Pressing Ctrl+Shift+. does the same and also opens the drop-down list. Pressing Esc returns the focus to the editor.</li>
     <li>Supports screen readers, high-contrast themes, and dark mode.</li>
     <li>The Navigator is shown by default and can be hidden using the new <i>Navigator</i> item in the <i>View</i> menu.</li>
     <li>When the Navigator is shown and the editor is focused, Shift+F6 focuses the routines combo box if it's shown, and the section combo box otherwise.</li>
@@ -102,7 +101,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
         A parameter value is then only shown when it is the same in all entries, and left blank otherwise. A flag is checked or unchecked when it is the same in all entries, and shows an indeterminate checkbox otherwise. Bold is used for a parameter which is present in at least one entry.<br/>
         Setting a non-empty value or checking a flag applies it to all entries at once, adding the parameter where it was missing. Removing a parameter removes it from every entry which has it. Any change is a single <i>Undo</i> step.</li>
     <li>Creates a new entry when you set a value or check a flag while the cursor is on a blank line in a parameter section.</li>
-    <li>Pressing F1 on a row opens the help for that directive, parameter, or flag. Pressing Ctrl+G on a row, or double-clicking the name of a row that isn't expandable, jumps to the corresponding value in the script and selects it. When editing multiple entries at once, it selects the value in every entry.<br/>
+    <li>Pressing F1 on a row opens the help for that directive, parameter, or flag. Pressing Ctrl+G on a row, or double-clicking the name of a row that isn't expandable, jumps to the corresponding value in the script and selects it. When editing multiple entries at once, it selects the value in every entry. Pressing Esc returns the focus to the editor, unless there's a value to discard or a filter to clear.<br/>
         All other Inspector keyboard and mouse commands are listed in the <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic. A popup menu is also available, via right-click or the menu button in the Inspector's header.</li>
     <li>Supports screen readers, high-contrast themes, and dark mode.</li>
     <li>New related options:

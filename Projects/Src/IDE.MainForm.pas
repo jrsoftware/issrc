@@ -1561,14 +1561,25 @@ procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
     Controls[NControls-1] := ControlToAdd;
   end;
 
+  function EscapeShouldFocusActiveMemo: Boolean;
+  begin
+    if (ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2) then
+      Result := True { Returns to the memo even with the list open, just like VSCode }
+    else if ActiveControl = InspectorFilterEdit then
+      Result := InspectorFilterEdit.Text = '' { Otherwise Esc clears the filter }
+    else if FInspector.JvInspector.ContainsControl(ActiveControl) then
+      Result := (ActiveControl = FInspector.JvInspector) or
+        FInspector.JvInspector.EditorActiveWithNothingToUndo { Otherwise Esc restores the value in the in-place editor }
+    else
+      Result := InspectorHeaderPanel.ContainsControl(ActiveControl);
+  end;
+
 begin
   var AShortCut := ShortCut(Key, Shift);
   if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
     Key := 0; { Intentionally only done when BStopCompile is enabled to allow the memo to process it instead }
     BStopCompileClick(Self)
-  end else if (AShortCut = VK_ESCAPE) and
-              ((ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2)) then begin
-    { Returns to the memo even with the list open, just like VSCode }
+  end else if (AShortCut = VK_ESCAPE) and EscapeShouldFocusActiveMemo then begin
     Key := 0;
     ActiveControl := FActiveMemo;
   end else if (AShortCut = FBackNavButtonShortCut) or

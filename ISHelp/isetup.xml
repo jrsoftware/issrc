@@ -3954,9 +3954,6 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Commit the value being edited</td><td>Enter</td>
 </tr>
 <tr>
-  <td>Discard changes to the value being edited</td><td>Esc</td>
-</tr>
-<tr>
   <td>Toggle a <tt>yes</tt>/<tt>no</tt> value</td><td>Space or click the checkbox</td>
 </tr>
 <tr>
@@ -3981,7 +3978,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Show help for the selected directive, parameter, or flag</td><td>F1</td>
 </tr>
 <tr>
-  <td>Clear the filter</td><td>Esc in the filter edit</td>
+  <td>Discard changes to the value being edited, clear the filter, or return focus to the active memo</td><td>Esc</td>
 </tr>
 </table>
 
