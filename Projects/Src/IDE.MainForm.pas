@@ -1571,7 +1571,10 @@ procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
       Result := (ActiveControl = FInspector.JvInspector) or
         FInspector.JvInspector.EditorActiveWithNothingToUndo { Otherwise Esc restores the value in the in-place editor }
     else
-      Result := InspectorHeaderPanel.ContainsControl(ActiveControl);
+      Result := UpdatePanel.ContainsControl(ActiveControl) or
+                InspectorHeaderPanel.ContainsControl(ActiveControl) or
+                (ActiveControl = CompilerOutputList) or (ActiveControl = DebugOutputList) or
+                (ActiveControl = DebugCallStackList) or (ActiveControl = FindResultsList);
   end;
 
 begin
