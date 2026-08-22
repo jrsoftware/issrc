@@ -268,10 +268,6 @@ const
   SNavBack = 'Back (%1)';
   SNavForward = 'Forward (%1)';
 
-  { Navigator }
-  SNavigatorSectionsMSAAName = 'Sections';
-  SNavigatorRoutinesMSAAName = 'Routines';
-
   { Toolbar button captions }
   SToolBarBack = 'Back';
   SToolBarForward = 'Forward';

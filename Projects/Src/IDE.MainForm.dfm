@@ -251,8 +251,11 @@ object MainForm: TMainForm
           Top = 2
           Width = 125
           Height = 21
+          Hint = 'Sections'
           Style = csDropDownList
           DropDownCount = 24
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 0
           StyleElements = [seClient, seBorder]
         end
@@ -271,8 +274,11 @@ object MainForm: TMainForm
           Top = 2
           Width = 125
           Height = 21
+          Hint = 'Routines'
           Style = csDropDownList
           DropDownCount = 24
+          ParentShowHint = False
+          ShowHint = True
           TabOrder = 2
           StyleElements = [seClient, seBorder]
         end

@@ -1275,8 +1275,8 @@ begin
   TWinControlMSAANameHook.Create(InspectorFilterEdit, InspectorFilterEdit.TextHint);
   InspectorPopupMenuBitBtn.Hint := InspectorPopupMenuBitBtn.Caption;
 
-  TWinControlMSAANameHook.Create(NavigatorComboBox, LFmtMessage(SNavigatorSectionsMSAAName));
-  TWinControlMSAANameHook.Create(NavigatorComboBox2, LFmtMessage(SNavigatorRoutinesMSAAName));
+  TWinControlMSAANameHook.Create(NavigatorComboBox, NavigatorComboBox.Hint);
+  TWinControlMSAANameHook.Create(NavigatorComboBox2, NavigatorComboBox2.Hint);
   CreateNavigator; { Also hooks and must be after previous calls }
 
   FMemosStyler.Theme := FTheme;
