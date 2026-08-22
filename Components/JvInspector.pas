@@ -2065,6 +2065,10 @@ begin
       property-editor is active has no effect until you clicked twice on the control.
       Telling the VCL that this control has the focus, fixes the problem. }
     SetFocus;
+    { Clicking the already selected row focuses the editor directly, so the
+      inspector gets no WM_SETFOCUS of its own to repaint the row on }
+    if HWND(Msg.WParam) <> Inspector.Handle then
+      InvalidateItem;
   end;
 end;
 
