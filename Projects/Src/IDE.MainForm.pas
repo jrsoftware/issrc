@@ -1563,20 +1563,29 @@ procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
     RegionControls[NControls-1] := RegionControl;
   end;
 
-  function EscapeShouldFocusActiveMemo: Boolean;
+  function ShouldFocusActiveMemo(const AShortCut: TShortCut): Boolean;
   begin
-    if (ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2) then
-      Result := True { Returns to the memo even with the list open, just like VSCode }
-    else if ActiveControl = InspectorFilterEdit then
-      Result := InspectorFilterEdit.Text = '' { Otherwise Esc clears the filter }
-    else if FInspector.JvInspector.ContainsControl(ActiveControl) then
-      Result := (ActiveControl = FInspector.JvInspector) or
-        FInspector.JvInspector.EditorActiveWithNothingToUndo { Otherwise Esc restores the value in the in-place editor }
-    else
-      Result := UpdatePanel.ContainsControl(ActiveControl) or
-                InspectorHeaderPanel.ContainsControl(ActiveControl) or
-                (ActiveControl = CompilerOutputList) or (ActiveControl = DebugOutputList) or
-                (ActiveControl = DebugCallStackList) or (ActiveControl = FindResultsList);
+    if AShortCut = VK_ESCAPE then begin
+      if (ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2) then
+        Result := True { Returns to the memo even with the list open, just like VSCode }
+      else if ActiveControl = InspectorFilterEdit then
+        Result := InspectorFilterEdit.Text = '' { Otherwise Esc clears the filter }
+      else if FInspector.JvInspector.ContainsControl(ActiveControl) then
+        Result := (ActiveControl = FInspector.JvInspector) or
+          FInspector.JvInspector.EditorActiveWithNothingToUndo { Otherwise Esc restores the value in the in-place editor }
+      else
+        Result := UpdatePanel.ContainsControl(ActiveControl) or
+                  InspectorHeaderPanel.ContainsControl(ActiveControl) or
+                  (ActiveControl = CompilerOutputList) or (ActiveControl = DebugOutputList) or
+                  (ActiveControl = DebugCallStackList) or (ActiveControl = FindResultsList);
+    end else if AShortCut = VK_RETURN then begin
+      { Only the navigator comboboxes, and only with the list closed: with it open
+        the combobox needs Enter to accept the pick, and then IDE.Navigator will
+        move focus itself }
+      Result := ((ActiveControl = NavigatorComboBox) and not NavigatorComboBox.DroppedDown) or
+                ((ActiveControl = NavigatorComboBox2) and not NavigatorComboBox2.DroppedDown);
+    end else
+      Result := False;
   end;
 
 begin
@@ -1584,7 +1593,7 @@ begin
   if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
     Key := 0; { Intentionally only done when BStopCompile is enabled to allow the memo to process it instead }
     BStopCompileClick(Self)
-  end else if (AShortCut = VK_ESCAPE) and EscapeShouldFocusActiveMemo then begin
+  end else if ShouldFocusActiveMemo(AShortCut) then begin
     Key := 0;
     ActiveControl := FActiveMemo;
   end else if (AShortCut = FBackNavButtonShortCut) or
@@ -1628,8 +1637,7 @@ begin
     Key := 0;
 
     { First get the list of controls to toggle between, only one per 'major region':
-      https://learn.microsoft.com/en-us/windows/apps/design/accessibility/keyboard-accessibility#optimize-for-f6
-      Each control is paired with its panel, which is that region. }
+      https://learn.microsoft.com/en-us/windows/apps/design/accessibility/keyboard-accessibility#optimize-for-f6 }
     var Controls: TArray<TWinControl> := [FActiveMemo];
     var RegionControls: TArray<TWinControl> := [FActiveMemo];
     var NControls: NativeInt := Length(Controls); { Explicit type for Delphi 10.4 }

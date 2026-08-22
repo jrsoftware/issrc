@@ -3921,7 +3921,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Focus and select</td><td>Ctrl+Shift+.</td>
 </tr>
 <tr>
-  <td>Return focus to the active memo</td><td>Esc</td>
+  <td>Return focus to the active memo</td><td>Esc or Enter</td>
 </tr>
 </table>
 
