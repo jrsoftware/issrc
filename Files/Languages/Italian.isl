@@ -403,8 +403,8 @@ ShutdownBlockReasonUninstallingApp=Disinstallazione di %1.
 
 NameAndVersion=%1 versione %2
 AdditionalIcons=Icone aggiuntive:
-CreateDesktopIcon=Crea un'icona sul &desktop
-CreateQuickLaunchIcon=Crea un'icona nella &barra 'Avvio veloce'
+CreateDesktopIcon=Crea collegamento programma sul &desktop
+CreateQuickLaunchIcon=Crea collegamento programma nella &barra 'Avvio veloce'
 ProgramOnTheWeb=Sito web %1
 UninstallProgram=Disinstalla %1
 LaunchProgram=Esegui %1
