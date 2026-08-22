@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..1008] of TTranslationPair = (
+  GermanIDETranslations: array [0..1010] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -370,6 +370,8 @@ const
     (English: 'Re&open Tab'; Localized: 'Registerkarte erneut &öffnen'),
     (English: 'Reopen &All Tabs'; Localized: '&Alle Registerkarten erneut öffnen'),
     (English: 'C&lose Current Tab'; Localized: 'A&ktuelle Registerkarte schließen'),
+    (English: 'Focus Navi&gator'; Localized: 'Navigator &fokussieren'),
+    (English: 'Focus And &Select Navigator'; Localized: 'Navigator fokussieren und aus&wählen'),
     (English: '&Compiler Output'; Localized: '&Compiler-Ausgabe'),
     (English: '&Debug Output'; Localized: '&Debug-Ausgabe'),
     (English: 'D&ebug Call Stack'; Localized: 'Debug-Aufruf&liste'),

@@ -360,6 +360,9 @@ type
     NavigatorComboBox: TComboBox;
     NavigatorCaptionText: TNewStaticText;
     NavigatorComboBox2: TComboBox;
+    VNavigatorFocus: TMenuItem;
+    VNavigatorFocusAndSelect: TMenuItem;
+    N28: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -516,6 +519,7 @@ type
     procedure PInspectorQuoteNewDirectiveValuesClick(Sender: TObject);
     procedure PInspectorQuoteNewParameterValuesClick(Sender: TObject);
     procedure VNavigatorClick(Sender: TObject);
+    procedure VNavigatorFocusClick(Sender: TObject);
     procedure NavigatorPanelResizeOrCaretInCodeSectionChange(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
@@ -589,6 +593,7 @@ type
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       out Output: String): Integer;
     procedure FinishLocalization;
+    procedure FocusNavigator(const AOpenDropDown: Boolean);
     function GetBorderStyle: TFormBorderStyle;
     function GetMainFilename: String;
     function GetMainBaseDir: String;
@@ -1227,6 +1232,9 @@ begin
   { Use fake Ctrl+G shortcut for PInspectorGoTo because EGotoLine already has
     the real one }
   SetFakeShortCut(PInspectorGoTo, Ord('G'), [ssCtrl]);
+  { Ctrl+Shift+; and Ctrl+Shift+. are handled by FormKeyDown }
+  SetFakeShortCut(VNavigatorFocus, VK_OEM_1, [ssShift, ssCtrl]);
+  SetFakeShortCut(VNavigatorFocusAndSelect, VK_OEM_PERIOD, [ssShift, ssCtrl]);
 
   PopupMenu := TMainFormPopupMenu.Create(Self, EMenu);
 
@@ -1597,14 +1605,7 @@ begin
     { Ctrl+Shift+; = Focus and Ctrl+Shift+. = Focus and select, just like VSCode }
     const OpenDropDown = Key = VK_OEM_PERIOD;
     Key := 0;
-    if NavigatorPanel.Visible then begin
-      var AComboBox := NavigatorComboBox;
-      if NavigatorComboBox2.Visible then
-        AComboBox := NavigatorComboBox2;
-      ActiveControl := AComboBox;
-      if OpenDropDown then
-        AComboBox.DroppedDown := True;
-    end;
+    FocusNavigator(OpenDropDown);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
     { Move focus between the active memo, the inspector, the inspector
       filter, the inspector popup menu button, the active bottom pane, the
@@ -3538,6 +3539,23 @@ end;
 procedure TMainForm.VNavigatorClick(Sender: TObject);
 begin
   SetNavigatorVisible(not NavigatorPanel.Visible);
+end;
+
+procedure TMainForm.FocusNavigator(const AOpenDropDown: Boolean);
+begin
+  if NavigatorPanel.Visible then begin
+    var ComboBox := NavigatorComboBox;
+    if NavigatorComboBox2.Visible then
+      ComboBox := NavigatorComboBox2;
+    ActiveControl := ComboBox;
+    if AOpenDropDown then
+      ComboBox.DroppedDown := True;
+  end;
+end;
+
+procedure TMainForm.VNavigatorFocusClick(Sender: TObject);
+begin
+  FocusNavigator(Sender = VNavigatorFocusAndSelect);
 end;
 
 procedure TMainForm.VHideClick(Sender: TObject);

@@ -839,6 +839,17 @@ object MainForm: TMainForm
       object N20: TMenuItem
         Caption = '-'
       end
+      object VNavigatorFocus: TMenuItem
+        Caption = 'Focus Navi&gator'
+        OnClick = VNavigatorFocusClick
+      end
+      object VNavigatorFocusAndSelect: TMenuItem
+        Caption = 'Focus And &Select Navigator'
+        OnClick = VNavigatorFocusClick
+      end
+      object N28: TMenuItem
+        Caption = '-'
+      end
       object VCompilerOutput: TMenuItem
         Caption = '&Compiler Output'
         RadioItem = True

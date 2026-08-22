@@ -3673,7 +3673,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
 
-<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for <tt>VK_OEM_1</tt>, . for <tt>VK_OEM_PERIOD</tt>, / for <tt>VK_OEM_2</tt>, [ for <tt>VK_OEM_4</tt>, \ for <tt>VK_OEM_5</tt>, and ] for <tt>VK_OEM_6</tt>. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
+<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for <tt>VK_OEM_1</tt>, . for <tt>VK_OEM_PERIOD</tt>, / for <tt>VK_OEM_2</tt>, [ for <tt>VK_OEM_4</tt>, \ for <tt>VK_OEM_5</tt>, and ] for <tt>VK_OEM_6</tt>. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the menus these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
 
 <table>
 <tr><th>Command</th><th>Classic shortcut</th><th>Visual Studio Code shortcut</th></tr>
