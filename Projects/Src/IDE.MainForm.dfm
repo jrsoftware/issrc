@@ -245,11 +245,11 @@ object MainForm: TMainForm
         TabOrder = 0
         Visible = False
         StyleElements = []
-        OnResize = NavigatorPanelResize
+        OnResize = NavigatorPanelResizeOrCaretInCodeSectionChange
         object NavigatorComboBox: TComboBox
           Left = 4
           Top = 2
-          Width = 130
+          Width = 125
           Height = 21
           Style = csDropDownList
           DropDownCount = 24
@@ -257,7 +257,7 @@ object MainForm: TMainForm
           StyleElements = [seClient, seBorder]
         end
         object NavigatorCaptionText: TNewStaticText
-          Left = 138
+          Left = 134
           Top = 5
           Width = 7
           Height = 14
@@ -267,9 +267,9 @@ object MainForm: TMainForm
           Transparent = False
         end
         object NavigatorComboBox2: TComboBox
-          Left = 150
+          Left = 146
           Top = 2
-          Width = 82
+          Width = 125
           Height = 21
           Style = csDropDownList
           DropDownCount = 24

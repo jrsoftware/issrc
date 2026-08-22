@@ -17,6 +17,9 @@ uses
   IDE.LiveScriptObjectFactory;
 
 type
+  TNavigatorComboBoxItemsChangedEvent = procedure(Sender: TObject;
+    const AComboBox: TComboBox) of object;
+
   TNavigator = class
   private
     FComboBox: TComboBox;  { Sections }
@@ -31,6 +34,9 @@ type
     FChangeCountAtSectionsSet, FChangeCountAtRoutinesSet: Int64; { -1 to force rebuild }
     FLiveCodeSection: TLiveScriptCodeSection;
     FLiveCodeSectionIndex: Integer; { Factory section index it was created for }
+    FCaretInCodeSection: Boolean;
+    FOnCaretInCodeSectionChange: TNotifyEvent;
+    FOnComboBoxItemsChanged: TNavigatorComboBoxItemsChangedEvent;
     procedure HandleCloseUpDone;
     procedure ComboBoxDropDown(Sender: TObject);
     procedure ComboBoxCloseUp(Sender: TObject);
@@ -42,10 +48,13 @@ type
     procedure TrackDropDownAcceptance(const Message: TMessage);
   public
     constructor Create(const AComboBox, AComboBox2: TComboBox;
-      const AFactory: TLiveScriptObjectFactory);
+      const AFactory: TLiveScriptObjectFactory;
+      const AOnCaretInCodeSectionChange: TNotifyEvent;
+      const AOnComboBoxItemsChanged: TNavigatorComboBoxItemsChangedEvent);
     destructor Destroy; override;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
     procedure UpdateFromCaret;
+    property CaretInCodeSection: Boolean read FCaretInCodeSection;
   end;
 
 implementation
@@ -57,7 +66,9 @@ uses
 { TNavigator }
 
 constructor TNavigator.Create(const AComboBox, AComboBox2: TComboBox;
-  const AFactory: TLiveScriptObjectFactory);
+  const AFactory: TLiveScriptObjectFactory;
+  const AOnCaretInCodeSectionChange: TNotifyEvent;
+  const AOnComboBoxItemsChanged: TNavigatorComboBoxItemsChangedEvent);
 { Doesn't take ownership of the comboboxes }
 begin
   inherited Create;
@@ -65,6 +76,8 @@ begin
   FComboBox := AComboBox;
   FComboBox2 := AComboBox2;
   FFactory := AFactory;
+  FOnCaretInCodeSectionChange := AOnCaretInCodeSectionChange;
+  FOnComboBoxItemsChanged := AOnComboBoxItemsChanged;
   FChangeCountAtSectionsSet := -1;
   FChangeCountAtRoutinesSet := -1;
   FComboBox.OnDropDown := ComboBoxDropDown;
@@ -77,7 +90,6 @@ begin
   FComboBox.WindowProc := ComboBoxWindowProc;
   FSavedComboBox2WindowProc := FComboBox2.WindowProc;
   FComboBox2.WindowProc := ComboBox2WindowProc;
-  UpdateFromCaret;
 end;
 
 destructor TNavigator.Destroy;
@@ -314,6 +326,8 @@ procedure TNavigator.UpdateFromCaret;
       finally
         AComboBox.Items.EndUpdate;
       end;
+      if Assigned(FOnComboBoxItemsChanged) then
+        FOnComboBoxItemsChanged(Self, AComboBox);
     end;
   end;
 
@@ -343,8 +357,9 @@ begin
     the caret while the user browses, for example to a breakpoint, cannot
     change the list under them }
   if not FComboBox2.DroppedDown then begin
-    if (NewSectionIndex >= 0) and
-       (FFactory.SectionHeaders[NewSectionIndex].Section = scCode) then begin
+    const CaretInCodeSection = (NewSectionIndex >= 0) and
+      (FFactory.SectionHeaders[NewSectionIndex].Section = scCode);
+    if CaretInCodeSection then begin
 
       { Rebuild if needed }
       const Rebuild = (FLiveCodeSection = nil) or not FLiveCodeSection.Valid or
@@ -398,6 +413,12 @@ begin
     end;
 
     FChangeCountAtRoutinesSet := ChangeCount;
+
+    if FCaretInCodeSection <> CaretInCodeSection then begin
+      FCaretInCodeSection := CaretInCodeSection;
+      if Assigned(FOnCaretInCodeSectionChange) then
+        FOnCaretInCodeSectionChange(Self);
+    end;
   end;
 end;
 

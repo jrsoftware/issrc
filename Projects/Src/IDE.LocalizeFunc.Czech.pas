@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..1006] of TTranslationPair = (
+  CzechIDETranslations: array [0..1008] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -202,6 +202,8 @@ const
     (English: '%1: %2'; Localized: '%1: %2'),
     (English: 'Back (%1)'; Localized: 'Zpět (%1)'),
     (English: 'Forward (%1)'; Localized: 'Vpřed (%1)'),
+    (English: 'Sections'; Localized: 'Sekce'),
+    (English: 'Routines'; Localized: 'Rutiny'),
     (English: 'Back'; Localized: 'Zpět'),
     (English: 'Forward'; Localized: 'Vpřed'),
     (English: 'Open'; Localized: 'Otevřít'),

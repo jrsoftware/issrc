@@ -516,7 +516,7 @@ type
     procedure PInspectorQuoteNewDirectiveValuesClick(Sender: TObject);
     procedure PInspectorQuoteNewParameterValuesClick(Sender: TObject);
     procedure VNavigatorClick(Sender: TObject);
-    procedure NavigatorPanelResize(Sender: TObject);
+    procedure NavigatorPanelResizeOrCaretInCodeSectionChange(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -631,6 +631,8 @@ type
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
     procedure SetInspectorActiveFactory;
     procedure SetInspectorVisible(const AVisible: Boolean);
+    procedure NavigatorComboBoxItemsChanged(Sender: TObject;
+      const AComboBox: TComboBox);
     procedure SetNavigatorActiveFactory;
     procedure SetNavigatorVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
@@ -973,7 +975,8 @@ constructor TMainForm.Create(AOwner: TComponent);
   procedure CreateNavigator;
   begin
     FNavigator := TNavigator.Create(NavigatorComboBox, NavigatorComboBox2,
-      LiveScriptObjectFactoryForMemo(FActiveMemo));
+      LiveScriptObjectFactoryForMemo(FActiveMemo),
+      NavigatorPanelResizeOrCaretInCodeSectionChange, NavigatorComboBoxItemsChanged);
   end;
 
   procedure ReadAndApplyConfig;
@@ -1272,9 +1275,8 @@ begin
   TWinControlMSAANameHook.Create(InspectorFilterEdit, InspectorFilterEdit.TextHint);
   InspectorPopupMenuBitBtn.Hint := InspectorPopupMenuBitBtn.Caption;
 
-  TWinControlMSAANameHook.Create(NavigatorComboBox, RemoveAccelChar(VNavigator.Caption));
-  TWinControlMSAANameHook.Create(NavigatorComboBox2,
-    LFmtMessage(SNavigatorRoutineMSAAName, [RemoveAccelChar(VNavigator.Caption)]));
+  TWinControlMSAANameHook.Create(NavigatorComboBox, LFmtMessage(SNavigatorSectionsMSAAName));
+  TWinControlMSAANameHook.Create(NavigatorComboBox2, LFmtMessage(SNavigatorRoutinesMSAAName));
   CreateNavigator; { Also hooks and must be after previous calls }
 
   FMemosStyler.Theme := FTheme;
@@ -3962,25 +3964,34 @@ begin
   NavigatorCaptionText.Left := NavigatorComboBox.Left + NavigatorComboBox.Width + Padding;
   NavigatorCaptionText.Top := (NavigatorPanel.ClientHeight - NavigatorCaptionText.Height) div 2;
 
-  { Update the second combobox's position and width, hiding it and the caption
-    if there's no space, like InspectorFilterEdit. The '>' glyph has trailing
-    whitespace, so remove 2 pixels to make the caption's gaps look equal. No
-    padding at the right when the inspector is visible: its splitter already
-    provides the spacing. }
-  const X = NavigatorCaptionText.Left + NavigatorCaptionText.Width + Padding - ToCurrentPPI(2);
-  var W := NavigatorPanel.ClientWidth - X;
-  if not InspectorPanel.Visible then
-    Dec(W, Padding);
-  NavigatorCaptionText.Visible := W > 0;
-  NavigatorComboBox2.Visible := W > 0;
+  { Update second combobox position }
+  const X = NavigatorCaptionText.Left + NavigatorCaptionText.Width + Padding -
+    ToCurrentPPI(2); { The '>' text has trailing whitespace }
+  NavigatorCaptionText.Visible := (FNavigator <> nil) and
+    FNavigator.CaretInCodeSection;
+  NavigatorComboBox2.Visible := NavigatorCaptionText.Visible;
   if NavigatorComboBox2.Visible then
     NavigatorComboBox2.SetBounds(X, (NavigatorPanel.ClientHeight - NavigatorComboBox2.Height) div 2,
-      W, NavigatorComboBox2.Height);
+      NavigatorComboBox2.Width, NavigatorComboBox2.Height);
 end;
 
-procedure TMainForm.NavigatorPanelResize(Sender: TObject);
+procedure TMainForm.NavigatorPanelResizeOrCaretInCodeSectionChange(Sender: TObject);
 begin
   UpdateNavigatorPanelLayout;
+end;
+
+procedure TMainForm.NavigatorComboBoxItemsChanged(Sender: TObject;
+  const AComboBox: TComboBox);
+begin
+  if AComboBox = NavigatorComboBox2 then begin
+    AComboBox.Canvas.Font.Assign(AComboBox.Font);
+    var W := NavigatorComboBox.Width; { Minimum width }
+    const Extra = ToCurrentPPI(32);
+    for var I := 0 to AComboBox.Items.Count-1 do
+      W := Max(W, AComboBox.Canvas.TextWidth(AComboBox.Items[I]) + Extra);
+    AComboBox.Width := W;
+    { Calling UpdateNavigatorPanelLayout now is not needed currently }
+  end;
 end;
 
 procedure TMainForm.UpdateInspectorPanelWidth(W: Integer);
