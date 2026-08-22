@@ -1558,6 +1558,11 @@ begin
   if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
     Key := 0; { Intentionally only done when BStopCompile is enabled to allow the memo to process it instead }
     BStopCompileClick(Self)
+  end else if (AShortCut = VK_ESCAPE) and
+              ((ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2)) then begin
+    { Returns to the memo even with the list open, just like VSCode }
+    Key := 0;
+    ActiveControl := FActiveMemo;
   end else if (AShortCut = FBackNavButtonShortCut) or
               ((FBackNavButtonShortCut2 <> 0) and (AShortCut = FBackNavButtonShortCut2)) then begin
     Key := 0;
@@ -1587,6 +1592,19 @@ begin
     UpdateViewMenu(VMenu); { VCloseCurrentTab.Enabled is not kept updated }
     if VCloseCurrentTab.Enabled then
       VCloseCurrentTabClick(Self);
+  end else if ((Key = VK_OEM_1) or (Key = VK_OEM_PERIOD)) and
+              (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
+    { Ctrl+Shift+; = Focus and Ctrl+Shift+. = Focus and select, just like VSCode }
+    const OpenDropDown = Key = VK_OEM_PERIOD;
+    Key := 0;
+    if NavigatorPanel.Visible then begin
+      var AComboBox := NavigatorComboBox;
+      if NavigatorComboBox2.Visible then
+        AComboBox := NavigatorComboBox2;
+      ActiveControl := AComboBox;
+      if OpenDropDown then
+        AComboBox.DroppedDown := True;
+    end;
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
     { Move focus between the active memo, the inspector, the inspector
       filter, the inspector popup menu button, the active bottom pane, the

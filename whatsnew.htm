@@ -73,10 +73,13 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   </li>
   <li>Added a new <i>Navigator</i> bar above the Compiler IDE editor. It shows the section and the <tt>[Code]</tt> routine the cursor is in as two breadcrumb combo boxes, allowing you to jump to the section or routine.
   <ul>
-    <li>The section combo box shows the section the cursor is in and lists all of the script's sections, in the order they appear. Picking one goes to its first significant line.</li>
+    <li>The section combo box shows the section the cursor is in and lists all of the script's sections, in the order they appear. Picking one goes to the start of its contents.</li>
     <li>The routines combo box is shown while the cursor is in a <tt>[Code]</tt> section. It shows the procedure or function the cursor is in and lists all procedures and functions in the section, in the order they appear. Picking one goes to its header.</li>
+    <li>Pressing Ctrl+Shift+; focuses the routines combo box if it's shown, and the section combo box otherwise. Pressing Ctrl+Shift+. does the same and also opens the drop-down list. Pressing Esc returns the focus to the editor.<br/>
+        These Navigator keyboard commands are also listed in the <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic.</li>
     <li>Supports screen readers, high-contrast themes, and dark mode.</li>
     <li>The Navigator is shown by default and can be hidden using the new <i>Navigator</i> item in the <i>View</i> menu.</li>
+    <li>When the Navigator is shown and the editor is focused, Shift+F6 focuses the routines combo box if it's shown, and the section combo box otherwise.</li>
   </ul>
   </li>
   <li>Added a new <i>Inspector</i> panel to the right of the Compiler IDE editor. It shows the directives of the current section or the parameters of the current entry or entries as an editable list, so you can review and change what the script does without remembering exact names, flags, and defaults.
@@ -111,6 +114,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
       <li>Quoting of new values is controlled by the new <i>Quote new directive values</i> and <i>Quote new parameter values</i> options.</li>
     </ul>
     </li>
+    <li>When the Inspector is shown and the editor is focused, F6 focuses the Inspector.</li>
     <li>Thanks to the creators of <a href="https://github.com/project-jedi/jvcl">TJvInspector</a>: The (heavily modified) inspector control used in the Compiler IDE.</li>
   </ul>
   </li>

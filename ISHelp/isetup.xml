@@ -3664,6 +3664,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <keyword value="Keyboard commands" />
 <keyword value="Mouse commands" />
 <keyword value="Inspector keyboard and mouse commands" />
+<keyword value="Navigator keyboard commands" />
 <body>
 
 <p>Besides the keyboard commands listed in the menus, the Compiler IDE supports additional keyboard and mouse commands, some of which depend on the active editor key map.</p>
@@ -3906,6 +3907,21 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 </tr>
 <tr>
   <td>Switch between the active memo, the Inspector and its controls, the active bottom pane, the active banner, and the Navigator's combo boxes</td><td>F6 or Shift+F6</td>
+</tr>
+</table>
+
+<p>The Navigator supports its own keyboard commands, listed below.</p>
+
+<table>
+<tr><th>Command</th><th>Keyboard</th></tr>
+<tr>
+  <td>Focus</td><td>Ctrl+Shift+;</td>
+</tr>
+<tr>
+  <td>Focus and select</td><td>Ctrl+Shift+.</td>
+</tr>
+<tr>
+  <td>Return focus to the active memo</td><td>Esc</td>
 </tr>
 </table>
 
