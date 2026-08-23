@@ -1453,6 +1453,7 @@ begin
 
   { The value }
   TmpRect := FPaintItem.Rects[iprValueArea];
+  Inc(TmpRect.Left, MulDiv(2, CurrentPPI, 96));
   if TmpRect.Height div FTextHeight < 2 then begin
     OffsetRect(TmpRect, 0, (TmpRect.Height - FTextHeight) div 2);
     IntersectRect(TmpRect, TmpRect, FPaintItem.Rects[iprValueArea]);
