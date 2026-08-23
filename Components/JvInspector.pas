@@ -1023,15 +1023,10 @@ begin
     Value := W - 2 * GetItemHeight;
   if Value < (2 * GetItemHeight) then
     Value := 2 * GetItemHeight;
-  const OldDivider = FDivider;
+  if Value = FDivider then
+    Exit;
   FDivider := Value;
-  if HandleAllocated then begin
-    var MinLeft := OldDivider;
-    if FDivider < MinLeft then
-      MinLeft := FDivider;
-    var R := Rect(MinLeft - 1, 0, ClientWidth, ClientHeight);
-    Windows.InvalidateRect(Handle, @R, False);
-  end;
+  Invalidate; { Full invalidate because names use end ellipsis }
 end;
 
 procedure TJvInspector.SetMarkedItem(const Value: TJvCustomInspectorItem);
@@ -1570,7 +1565,8 @@ begin
   if Assigned(FOnCustomizeItemCanvas) then
     FOnCustomizeItemCanvas(FPaintItem, Canvas);
   var NameTextRect := FPaintItem.Rects[iprNameText];
-  Canvas.TextRect(NameTextRect, NameTextRect.Left, NameTextRect.Top, FPaintItem.DisplayName);
+  var NameText := FPaintItem.DisplayName;
+  Canvas.TextRect(NameTextRect, NameText, [tfSingleLine, tfNoPrefix, tfEndEllipsis]);
   ApplyValueFont;
   if Assigned(FOnCustomizeItemCanvas) then
     FOnCustomizeItemCanvas(FPaintItem, Canvas);
