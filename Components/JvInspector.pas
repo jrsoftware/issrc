@@ -1021,8 +1021,8 @@ begin
     W := Width;
   if Value > (W - 2 * GetItemHeight) then
     Value := W - 2 * GetItemHeight;
-  if Value < (2 * GetItemHeight) then
-    Value := 2 * GetItemHeight;
+  if Value < (4 * GetItemHeight) then
+    Value := 4 * GetItemHeight;
   if Value = FDivider then
     Exit;
   FDivider := Value;

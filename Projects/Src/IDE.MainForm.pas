@@ -3870,7 +3870,7 @@ end;
 
 procedure TMainForm.UpdateInspectorPanelWidth(W: Integer);
 begin
-  const MinWidth = ToCurrentPPI(120);
+  const MinWidth = ToCurrentPPI(130);
   const MaxWidth = BodyPanel.ClientWidth - ToCurrentPPI(200) - InspectorSplitPanel.Width;
   if W > MaxWidth then W := MaxWidth;
   if W < MinWidth then W := MinWidth;
