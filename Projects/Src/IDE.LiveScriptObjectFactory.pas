@@ -43,7 +43,9 @@ type
     FFactory: TLiveScriptObjectFactory;
     FFirstLine, FLastLine: Integer; { The lines for which the object was created,
       always up-to-date. An edit inside them still makes the parsed content
-      stale. Use the factory's ChangeCount to detect this. }
+      stale. Use the factory's ChangeCount to detect this. Without Change's
+      updates, a write-back which inserts a line during multi-entry editing
+      would make the entries below it write back at the wrong lines }
     FValid: Boolean; { False if some or all of the object's lines were deleted since creation }
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
       ALastLine: Integer);
@@ -213,7 +215,12 @@ type
       out ASection: TLiveScriptCodeSection;
       out ARefusalReason: TRefusalReason): Boolean;
     { Bumped on every Change and Reset call, so a consumer can tell whether
-      the memo changed since it last read something }
+      the memo changed since it last read something. The memo being changed
+      does not mean each live object's parsed content is stale, but this
+      still isn't tracked per object because it wouldn't help much:
+      consumers also keep data from outside their objects at creation,
+      such as the object's section index, so any change anywhere will make
+      them want to rebuild, even if we start tracking staleness per object. }
     property ChangeCount: Int64 read FChangeCount;
     property Memo: TScintEdit read FMemo;
     property SectionHeaders[Index: Integer]: TLiveScriptSectionHeader read GetSectionHeader;
