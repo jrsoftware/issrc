@@ -46,6 +46,8 @@ type
     procedure GoToComboBoxItem(const AComboBox: TComboBox;
       const AFocusMemo: Boolean);
     procedure TrackDropDownAcceptance(const Message: TMessage);
+    function HandleComboBoxKeyDown(const AComboBox: TComboBox;
+      const Message: TMessage): Boolean;
   public
     constructor Create(const AComboBox, AComboBox2: TComboBox;
       const AFactory: TLiveScriptObjectFactory;
@@ -60,6 +62,7 @@ type
 implementation
 
 uses
+  Windows,
   SysUtils,
   IDE.ScriptModel, IDE.ScriptModel.Metadata.Extra;
 
@@ -168,14 +171,41 @@ begin
     end;
 end;
 
+function TNavigator.HandleComboBoxKeyDown(const AComboBox: TComboBox;
+  const Message: TMessage): Boolean;
+begin
+  if (Message.Msg <> WM_KEYDOWN) or
+     (GetKeyState(VK_SHIFT) < 0) or (GetKeyState(VK_CONTROL) < 0) then
+    Exit(False);
+
+  var OtherComboBox: TComboBox := nil;
+  case TWMKeyDown(Message).CharCode of
+    VK_RIGHT: if AComboBox = FComboBox then OtherComboBox := FComboBox2;
+    VK_LEFT: if AComboBox = FComboBox2 then OtherComboBox := FComboBox;
+  end;
+
+  Result := (OtherComboBox <> nil) and OtherComboBox.CanFocus;
+
+  if Result then begin
+    const WasDroppedDown = AComboBox.DroppedDown;
+    OtherComboBox.SetFocus;
+    if WasDroppedDown then
+      OtherComboBox.DroppedDown := True;
+  end;
+end;
+
 procedure TNavigator.ComboBoxWindowProc(var Message: TMessage);
 begin
+  if HandleComboBoxKeyDown(FComboBox, Message) then
+    Exit;
   TrackDropDownAcceptance(Message);
   FSavedComboBoxWindowProc(Message);
 end;
 
 procedure TNavigator.ComboBox2WindowProc(var Message: TMessage);
 begin
+  if HandleComboBoxKeyDown(FComboBox2, Message) then
+    Exit;
   TrackDropDownAcceptance(Message);
   FSavedComboBox2WindowProc(Message);
 end;
