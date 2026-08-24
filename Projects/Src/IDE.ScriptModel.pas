@@ -17,8 +17,8 @@ unit IDE.ScriptModel;
     into the parsed lines, byte-identical. Editing keeps line spanning.
   - Key/value sections: a section occurrence is an ordered list of
     its logical lines, so after joining physical lines for line
-    spanning. Editing does not keep line spanning. Does keep whitespace
-    and quotes.
+    spanning. Editing does not keep line spanning. Does keep leading
+    whitespace and quotes.
 
   Supports an OnChange event to get notified of changes.
 
