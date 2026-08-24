@@ -2031,7 +2031,8 @@ begin
   end else
     Exit;
   var KnownValues := Copy(Definition.KnownValues);
-  SortValueList(KnownValues);
+  if not Definition.KnownValuesCustomSorted then
+    SortValueList(KnownValues);
   Values.AddStrings(KnownValues);
 end;
 

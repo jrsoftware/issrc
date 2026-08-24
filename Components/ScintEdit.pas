@@ -21,6 +21,7 @@ const
   StyleNumberUnusedBits = 8-StyleNumberBits; { 3 bits of a byte are unused }
 
 type
+  TScintAutoCompleteOrder = (sacoPreSorted, sacoPerformSort, sacoCustom);
   TScintChangeHistory = (schDisabled, schMarkers, schIndicators);
   TScintCommand = type NativeInt;
   TScintEditAutoCompleteSelectionEvent = TNotifyEvent;
@@ -361,6 +362,7 @@ type
     function SelEmpty: Boolean;
     function SelNotEmpty(out Sel: TScintRange): Boolean;
     procedure SetAutoCompleteFillupChars(const FillupChars: AnsiString);
+    procedure SetAutoCompleteOrder(const Order: TScintAutoCompleteOrder);
     procedure SetAutoCompleteSeparators(const Separator, TypeSeparator: AnsiChar);
     procedure SetAutoCompleteSelectedItem(const S: TScintRawString);
     procedure SetAutoCompleteStopChars(const StopChars: AnsiString);
@@ -1896,6 +1898,14 @@ begin
     FAutoCompleteFontSize := Value;
     UpdateStyleAttributes;
   end;
+end;
+
+procedure TScintEdit.SetAutoCompleteOrder(const Order: TScintAutoCompleteOrder);
+const
+  Orders: array[TScintAutoCompleteOrder] of Integer =
+    (SC_ORDER_PRESORTED, SC_ORDER_PERFORMSORT, SC_ORDER_CUSTOM);
+begin
+  Call(SCI_AUTOCSETORDER, Orders[Order], 0);
 end;
 
 procedure TScintEdit.SetAutoCompleteSelectedItem(const S: TScintRawString);

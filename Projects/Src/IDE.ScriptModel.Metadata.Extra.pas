@@ -481,6 +481,9 @@ function ParameterValueIsSingleValue(const ParameterName: String;
 function SetupSectionDirectiveValueIsMultiValue(
   const SetupSectionDirective: TSetupSectionDirective): Boolean;
 
+function MemberKnownValuesAreCustomSorted(const MemberName: String;
+  const Section: TInnoSetupSection): Boolean;
+
 type
   TScriptBrowseFileType = (bftDocs, bftIco, bftImages, bftVclStyle, bftIsl,
     bftKey, bftTxt);
@@ -588,6 +591,16 @@ begin
     if DirectiveValue.Directive = SetupSectionDirective then
       Exit(True);
   Result := False;
+end;
+
+function MemberKnownValuesAreCustomSorted(const MemberName: String;
+  const Section: TInnoSetupSection): Boolean;
+begin
+  var Metadata: TScriptModelSectionMetadata;
+  var Definition: TMemberDefinition;
+  Result := TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata) and
+    Metadata.TryGetMember(MemberName, Definition) and
+    Definition.KnownValuesCustomSorted;
 end;
 
 resourcestring

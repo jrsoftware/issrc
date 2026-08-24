@@ -467,7 +467,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
   function ChooseWordList(const Res: TLineScanResult;
     const Section: TInnoSetupSection; const IsParamSection: Boolean;
     out WordList, FillupChars: AnsiString;
-    var ExtraContinueChars: TSysCharSet): Boolean;
+    var ExtraContinueChars: TSysCharSet;
+    var AutoCompleteOrder: TScintAutoCompleteOrder): Boolean;
   begin
     Result := False;
     if Res.FoundMemberName <> '' then begin
@@ -500,6 +501,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
             Exit;
         end;
       end;
+      if MemberKnownValuesAreCustomSorted(Res.FoundMemberName, Section) then
+        AutoCompleteOrder := sacoCustom;
       FillupChars := ' ';
     end else begin
       { Autocompleting a name }
@@ -534,6 +537,7 @@ begin
   var WordList: AnsiString;
   var FillupChars: AnsiString;
   var ExtraContinueChars: TSysCharSet := [];
+  var AutoCompleteOrder := sacoPreSorted;
 
   var IsPragmaContext: Boolean;
   if FMemosStyler.ISPPInstalled and IsInISPPLineContext(AMemo, LinePos, CaretPos, IsPragmaContext) and not IsPragmaContext then begin
@@ -606,7 +610,7 @@ begin
             var Res: TLineScanResult;
             if not LineScanBackwards(LinePos, WordStartPos, Section, IsParamSection, Res) or
                not CanAutoComplete(Res, Section) or
-               not ChooseWordList(Res, Section, IsParamSection, WordList, FillupChars, ExtraContinueChars) then
+               not ChooseWordList(Res, Section, IsParamSection, WordList, FillupChars, ExtraContinueChars, AutoCompleteOrder) then
               Exit;
           end;
         end;
@@ -618,6 +622,7 @@ begin
     CharsBefore := ExtendCharsBefore(LinePos, CaretPos, CharsBefore);
 
   AMemo.SetAutoCompleteFillupChars(FillupChars);
+  AMemo.SetAutoCompleteOrder(AutoCompleteOrder);
   AMemo.ShowAutoComplete(CharsBefore, WordList);
 end;
 

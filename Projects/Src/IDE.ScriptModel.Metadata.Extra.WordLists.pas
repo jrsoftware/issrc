@@ -56,7 +56,7 @@ function GetMemberValuesAutoCompleteWordList(const Section: TInnoSetupSection;
 function GetScriptAutoCompleteWordList(const ClassOrRecordMembers: Boolean): AnsiString;
 
 function BuildAutoCompleteWordList(const Values: array of AnsiString;
-  const Typ: Integer): AnsiString;
+  const Typ: Integer; const Sort: Boolean = True): AnsiString;
 
 { Word lists for other purposes }
 
@@ -96,13 +96,16 @@ begin
     SL.Add(String(Word));
 end;
 
-function InternalBuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString;
+function InternalBuildAutoCompleteWordList(const WordStringList: TStringList;
+  const Sort: Boolean = True): AnsiString;
 begin
-  { Scintilla uses an ASCII binary search so the list must be in ASCII sort
-    order (case-insensitive). }
-  WordStringList.CaseSensitive := False;
-  WordStringList.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
-  WordStringList.Sort;
+  if Sort then begin
+    { Scintilla uses an ASCII binary search so the list must be in ASCII sort
+      order (case-insensitive) }
+    WordStringList.CaseSensitive := False;
+    WordStringList.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
+    WordStringList.Sort;
+  end;
 
   Result := '';
   for var S in WordStringList do begin
@@ -115,13 +118,13 @@ begin
 end;
 
 function BuildAutoCompleteWordList(const Values: array of AnsiString;
-  const Typ: Integer): AnsiString;
+  const Typ: Integer; const Sort: Boolean = True): AnsiString;
 begin
   const SL = TStringList.Create;
   try
     for var Value in Values do
       AddAutoCompleteWordToList(SL, Value, Typ);
-    Result := InternalBuildAutoCompleteWordList(SL);
+    Result := InternalBuildAutoCompleteWordList(SL, Sort);
   finally
     SL.Free;
   end;
@@ -347,7 +350,8 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
         for var I := 0 to High(Member.KnownValues) do
           Values[I] := AnsiString(Member.KnownValues[I]);
         MemberValuesAutoCompleteWordLists.Add(MemberValuesKey(Item.Section, Member.Name),
-          BuildAutoCompleteWordList(Values, awtMemberValue));
+          BuildAutoCompleteWordList(Values, awtMemberValue,
+            not Member.KnownValuesCustomSorted));
         if Member.Name = 'Flags' then begin
           const SL = FlagsWords[Item.Section];
           for var Value in Values do

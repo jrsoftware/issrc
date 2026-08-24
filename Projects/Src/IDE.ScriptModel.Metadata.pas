@@ -33,6 +33,7 @@ type
                                    For mvkChoice: the known choices (other choices might still be valid, like a scripted expression)
                                    For mvkYesNo: 'yes' and 'no' (other values might still be valid, like an ISPP inline directive)
                                    For mvkPermissions: the known permissions (the value is a space separated list of them) }
+    KnownValuesCustomSorted: Boolean; { True if KnownValues is already in the order to show }
     DefaultValue: String; { The default of a directive-key, empty for parameters and non-directive keys }
     Obsolete: Boolean;    { To be hidden unless explicitly present in the script }
   end;
@@ -182,6 +183,7 @@ procedure InitializeSectionMetadata;
     Result.Name := AName;
     Result.ValueKind := AValueKind;
     Result.KnownValues := AKnownValues;
+    Result.KnownValuesCustomSorted := False;
     Result.Obsolete := AObsolete;
     Result.DefaultValue := ADefaultValue;
   end;
@@ -294,28 +296,30 @@ procedure InitializeSectionMetadata;
   end;
 
 const
-  LZMALevels: TArray<String> = ['fast', 'normal', 'max', 'ultra', 'ultra64'];
+  { In alphabetical order for CompressionValues and to match how InternalCompressLevel will show it }
+  LZMALevels: TArray<String> = ['fast', 'max', 'normal', 'ultra', 'ultra64'];
 
   function CompressionValues: TArray<String>;
+  { Returns the values in custom order, which is their alphabetical order except for
+    the zstd levels: those are in increasing order and not in ASCII order }
   type
     TZipLevel = 1..9;
   const
-    ZipAlgos: TArray<String> = ['zip', 'bzip'];
     LZMAAlgos: TArray<String> = ['lzma', 'lzma2'];
     ZstdAlgo = 'zstd';
     MeaningfulZstdLevels: TArray<Integer> = [1, 3, 6, 8, 13, 16, 18, 19, 20, 21, 22];
   begin
-    Result := ['none'];
-    for var Algo in ZipAlgos do begin
-      Result := Result + [Algo];
-      for var Level := Low(TZipLevel) to High(TZipLevel) do
-        Result := Result + [Algo + '/' + Level.ToString];
-    end;
+    Result := ['bzip'];
+    for var Level := Low(TZipLevel) to High(TZipLevel) do
+      Result := Result + ['bzip/' + Level.ToString];
     for var Algo in LZMAAlgos do begin
       Result := Result + [Algo];
       for var Level in LZMALevels do
         Result := Result + [Algo + '/' + Level];
     end;
+    Result := Result + ['none', 'zip'];
+    for var Level := Low(TZipLevel) to High(TZipLevel) do
+      Result := Result + ['zip/' + Level.ToString];
     Result := Result + [ZstdAlgo];
     for var Level in MeaningfulZstdLevels do
       Result := Result + [ZstdAlgo + '/' + Level.ToString];
@@ -437,6 +441,7 @@ const
         ValueKind, KnownValues, Directive in SetupSectionDirectivesObsolete,
         SetupSectionDirectiveDefaultValue(Directive));
     end;
+    Members[Ord(ssCompression)].KnownValuesCustomSorted := True; { See CompressionValues }
     SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Setup', Members,
       nil,
       [FR('WizardStyle', 'classic', ['modern']),

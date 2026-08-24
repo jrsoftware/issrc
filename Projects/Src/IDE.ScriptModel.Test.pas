@@ -501,6 +501,7 @@ begin
     inspector's text-row fallback when the value isn't yes/no }
   Assert(Metadata.TryGetMember('SolidCompression', Definition));
   Assert(Definition.ValueKind = mvkYesNo);
+  Assert(not Definition.KnownValuesCustomSorted);
   Assert(Length(Definition.KnownValues) = 2);
   Assert(Definition.KnownValues[0] = 'yes');
   Assert(Definition.KnownValues[1] = 'no');
@@ -531,14 +532,23 @@ begin
   Assert(Metadata.TryGetMember('ChangesEnvironment', Definition));
   Assert(Definition.DefaultValue = 'no');
   { The choice directives list their values, including Compression's computed
-    list }
+    list, which is in display order: their sorted order except for the zstd
+    levels, which are in increasing order }
   Assert(Metadata.TryGetMember('Compression', Definition));
   Assert(Definition.ValueKind = mvkChoice);
+  Assert(Definition.KnownValuesCustomSorted);
+  { Which is what ChooseWordList asks for using MemberKnownValuesAreCustomSorted }
+  Assert(MemberKnownValuesAreCustomSorted('compression', scSetup));
+  Assert(not MemberKnownValuesAreCustomSorted('Flags', scFiles));
   Assert(Length(Definition.KnownValues) = 45); { none + zip and bzip with 9 levels each + lzma and lzma2 with 5 levels each + zstd with its 11 meaningful levels }
-  Assert(Definition.KnownValues[0] = 'none');
-  Assert(Definition.KnownValues[1] = 'zip');
-  Assert(Definition.KnownValues[2] = 'zip/1');
-  Assert(Definition.KnownValues[32] = 'lzma2/ultra64');
+  Assert(Definition.KnownValues[0] = 'bzip');
+  Assert(Definition.KnownValues[1] = 'bzip/1');
+  Assert(Definition.KnownValues[11] = 'lzma/fast');
+  Assert(Definition.KnownValues[12] = 'lzma/max'); { Sorted, like InternalCompressLevel shows its levels }
+  Assert(Definition.KnownValues[21] = 'lzma2/ultra64');
+  Assert(Definition.KnownValues[22] = 'none');
+  Assert(Definition.KnownValues[23] = 'zip');
+  Assert(Definition.KnownValues[38] = 'zstd/13'); { ASCII order would put it before 'zstd/3' }
   Assert(Definition.KnownValues[44] = 'zstd/22');
   Assert(Definition.DefaultValue = 'lzma2/max');
   Assert(Metadata.TryGetMember('LZMAUseSeparateProcess', Definition));
@@ -2258,6 +2268,12 @@ begin
     '_x' + TypeSeparator + MemberValueType);
   Assert(BuildAutoCompleteWordList([], awtMemberValue) = '');
 
+  { With Sort=False the words keep their given order, for lists shown with
+    sacoCustom }
+  Assert(BuildAutoCompleteWordList(['abc', 'ab'], awtMemberValue, False) =
+    'abc' + TypeSeparator + MemberValueType + ListSeparator +
+    'ab' + TypeSeparator + MemberValueType);
+
   { The sections word list, without the sections SectionMap excludes }
   Assert(ListHasEntry(SectionsAutoCompleteWordList, '[Files]', awtSectionName));
   Assert(ListHasEntry(SectionsAutoCompleteWordList, '[Code]', awtSectionName));
@@ -2297,6 +2313,12 @@ begin
   Assert(ListHasEntry(GetMemberValuesAutoCompleteWordList(scSetup, 'wizardstyle'), 'modern', awtMemberValue));
   Assert(ListHasEntry(GetMemberValuesAutoCompleteWordList(scSetup, 'ArchitecturesAllowed'), 'x64compatible', awtMemberValue));
   Assert(GetMemberValuesAutoCompleteWordList(scFiles, 'Source') = '');
+
+  { Compression's word list keeps the display order of its known values, so
+    'zstd/13' follows 'zstd/8' }
+  Assert(Pos('zstd/8' + TypeSeparator + MemberValueType + ListSeparator +
+    'zstd/13' + TypeSeparator + MemberValueType,
+    GetMemberValuesAutoCompleteWordList(scSetup, 'Compression')) <> 0);
 
   { The ISPP expression word list, with the function names from the
     dictionaries }
