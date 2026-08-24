@@ -225,6 +225,65 @@ object MainForm: TMainForm
         WordWrap = True
       end
     end
+    object MemoPanel: TPanel
+      Left = 0
+      Top = 0
+      Width = 236
+      Height = 86
+      Align = alClient
+      BevelOuter = bvNone
+      FullRepaint = False
+      TabOrder = 4
+      object NavigatorPanel: TPanel
+        Left = 0
+        Top = 0
+        Width = 236
+        Height = 25
+        Align = alTop
+        BevelOuter = bvNone
+        FullRepaint = False
+        TabOrder = 0
+        Visible = False
+        StyleElements = []
+        OnResize = NavigatorPanelResizeOrCaretInCodeSectionChange
+        object NavigatorComboBox: TComboBox
+          Left = 4
+          Top = 2
+          Width = 125
+          Height = 21
+          Hint = 'Sections'
+          Style = csDropDownList
+          DropDownCount = 24
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 0
+          StyleElements = [seClient, seBorder]
+        end
+        object NavigatorCaptionText: TNewStaticText
+          Left = 134
+          Top = 5
+          Width = 7
+          Height = 14
+          Caption = '>'
+          StyleName = 'Windows'
+          TabOrder = 1
+          Transparent = False
+        end
+        object NavigatorComboBox2: TComboBox
+          Left = 146
+          Top = 2
+          Width = 125
+          Height = 21
+          Hint = 'Routines'
+          Style = csDropDownList
+          DropDownCount = 24
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 2
+          StyleElements = [seClient, seBorder]
+        end
+      end
+    end
   end
   object StatusBar: TStatusBar
     Left = 0
@@ -719,6 +778,10 @@ object MainForm: TMainForm
         Caption = '&Toolbar'
         OnClick = VToolbarClick
       end
+      object VNavigator: TMenuItem
+        Caption = 'Na&vigator'
+        OnClick = VNavigatorClick
+      end
       object VInspector: TMenuItem
         Caption = '&Inspector'
         OnClick = VInspectorClick
@@ -774,6 +837,17 @@ object MainForm: TMainForm
         OnClick = NavPopupMenuClick
       end
       object N20: TMenuItem
+        Caption = '-'
+      end
+      object VNavigatorFocus: TMenuItem
+        Caption = 'Focus Navi&gator'
+        OnClick = VNavigatorFocusClick
+      end
+      object VNavigatorFocusAndSelect: TMenuItem
+        Caption = 'Focus And &Select Navigator'
+        OnClick = VNavigatorFocusClick
+      end
+      object N28: TMenuItem
         Caption = '-'
       end
       object VCompilerOutput: TMenuItem

@@ -171,6 +171,7 @@ type
     procedure BeginUpdate;
     procedure EndUpdate;
     function EditorActive: Boolean;
+    function EditorActiveWithNothingToUndo: Boolean;
     function Focused: Boolean; override;
     procedure InvalidateItemByTag(const ATag: NativeInt);
     procedure ResyncEditor;
@@ -1247,6 +1248,14 @@ function TJvInspector.EditorActive: Boolean;
   is True, even if there's no in-place editor control created }
 begin
   Result := (Selected <> nil) and (Selected.EditCtrl <> nil);
+end;
+
+function TJvInspector.EditorActiveWithNothingToUndo: Boolean;
+{ True if the in-place editor is active while its text still matches the
+  selected item's value, so Esc/Undo has nothing to restore and losing the focus
+  applies nothing }
+begin
+  Result := EditorActive and (Selected.EditCtrl.Text = Selected.DisplayValue);
 end;
 
 function TJvInspector.Focused: Boolean;

@@ -3664,6 +3664,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <keyword value="Keyboard commands" />
 <keyword value="Mouse commands" />
 <keyword value="Inspector keyboard and mouse commands" />
+<keyword value="Navigator keyboard commands" />
 <body>
 
 <p>Besides the keyboard commands listed in the menus, the Compiler IDE supports additional keyboard and mouse commands, some of which depend on the active editor key map.</p>
@@ -3672,7 +3673,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
 
-<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for <tt>VK_OEM_1</tt>, . for <tt>VK_OEM_PERIOD</tt>, / for <tt>VK_OEM_2</tt>, [ for <tt>VK_OEM_4</tt>, \ for <tt>VK_OEM_5</tt>, and ] for <tt>VK_OEM_6</tt>. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
+<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for <tt>VK_OEM_1</tt>, . for <tt>VK_OEM_PERIOD</tt>, / for <tt>VK_OEM_2</tt>, [ for <tt>VK_OEM_4</tt>, \ for <tt>VK_OEM_5</tt>, and ] for <tt>VK_OEM_6</tt>. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the menus these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
 
 <table>
 <tr><th>Command</th><th>Classic shortcut</th><th>Visual Studio Code shortcut</th></tr>
@@ -3905,7 +3906,25 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Close current tab</td><td>Ctrl+F4 or Ctrl+W</td>
 </tr>
 <tr>
-  <td>Switch between the active memo, the Inspector and its controls, the active bottom pane, and the active banner</td><td>F6 or Shift+F6</td>
+  <td>Switch between the active memo, the Inspector, the active bottom pane, the active banner, and the Navigator</td><td>F6 or Shift+F6</td>
+</tr>
+</table>
+
+<p>The Navigator supports its own keyboard commands, listed below.</p>
+
+<table>
+<tr><th>Command</th><th>Keyboard</th></tr>
+<tr>
+  <td>Focus</td><td>Ctrl+Shift+;</td>
+</tr>
+<tr>
+  <td>Focus and select</td><td>Ctrl+Shift+.</td>
+</tr>
+<tr>
+  <td>Move between combo boxes</td><td>Left or Right</td>
+</tr>
+<tr>
+  <td>Return focus to the active memo</td><td>Esc or Enter</td>
 </tr>
 </table>
 
@@ -3938,9 +3957,6 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Commit the value being edited</td><td>Enter</td>
 </tr>
 <tr>
-  <td>Discard changes to the value being edited</td><td>Esc</td>
-</tr>
-<tr>
   <td>Toggle a <tt>yes</tt>/<tt>no</tt> value</td><td>Space or click the checkbox</td>
 </tr>
 <tr>
@@ -3965,7 +3981,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Show help for the selected directive, parameter, or flag</td><td>F1</td>
 </tr>
 <tr>
-  <td>Clear the filter</td><td>Esc in the filter edit</td>
+  <td>Discard changes to the value being edited, clear the filter, or return focus to the active memo</td><td>Esc</td>
 </tr>
 </table>
 

@@ -228,6 +228,7 @@
         <DCCReference Include="..\Components\Toolbar.Accessibility.pas"/>
         <DCCReference Include="..\Components\JvInspector.pas"/>
         <DCCReference Include="..\Components\JvInspector.MSAA.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.Extra.pas"/>
@@ -237,6 +238,7 @@
         <DCCReference Include="Src\IDE.LiveScriptObjectFactory.pas"/>
         <DCCReference Include="Src\IDE.LiveScriptObjectFactory.Test.pas"/>
         <DCCReference Include="Src\IDE.Inspector.pas"/>
+        <DCCReference Include="Src\IDE.Navigator.pas"/>
         <DCCReference Include="Src\IDE.MainForm.MRUHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.UAHHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.NavigationHelper.pas"/>

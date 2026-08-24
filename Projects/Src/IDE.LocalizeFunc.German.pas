@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..1005] of TTranslationPair = (
+  GermanIDETranslations: array [0..1010] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -308,6 +308,8 @@ const
     (English: 'Close'; Localized: 'Schließen'),
     (English: 'Filter'; Localized: 'Filter'),
     (English: 'Inspector Menu'; Localized: 'Inspektormenü'),
+    (English: 'Sections'; Localized: 'Abschnitte'),
+    (English: 'Routines'; Localized: 'Routinen'),
     (English: 'New Main Script (%1)'; Localized: 'Neues Hauptskript (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Hauptskript öffnen (%1)'),
     (English: 'Save (%1)'; Localized: 'Speichern (%1)'),
@@ -359,6 +361,7 @@ const
     (English: 'Zoom &Out'; Localized: 'Ver&kleinern'),
     (English: '&Reset'; Localized: '&Zurücksetzen'),
     (English: '&Toolbar'; Localized: 'S&ymbolleiste'),
+    (English: 'Na&vigator'; Localized: 'Navi&gator'),
     (English: '&Inspector'; Localized: '&Inspektor'),
     (English: 'St&atus Bar'; Localized: '&Statusleiste'),
     (English: '&Next Tab'; Localized: '&Nächste Registerkarte'),
@@ -367,6 +370,8 @@ const
     (English: 'Re&open Tab'; Localized: 'Registerkarte erneut &öffnen'),
     (English: 'Reopen &All Tabs'; Localized: '&Alle Registerkarten erneut öffnen'),
     (English: 'C&lose Current Tab'; Localized: 'A&ktuelle Registerkarte schließen'),
+    (English: 'Focus Navi&gator'; Localized: 'Navigator &fokussieren'),
+    (English: 'Focus And &Select Navigator'; Localized: 'Navigator fokussieren und aus&wählen'),
     (English: '&Compiler Output'; Localized: '&Compiler-Ausgabe'),
     (English: '&Debug Output'; Localized: '&Debug-Ausgabe'),
     (English: 'D&ebug Call Stack'; Localized: 'Debug-Aufruf&liste'),

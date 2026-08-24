@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..1005] of TTranslationPair = (
+  DutchIDETranslations: array [0..1010] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -308,6 +308,8 @@ const
     (English: 'Close'; Localized: 'Sluiten'),
     (English: 'Filter'; Localized: 'Filter'),
     (English: 'Inspector Menu'; Localized: 'Inspector-menu'),
+    (English: 'Sections'; Localized: 'Secties'),
+    (English: 'Routines'; Localized: 'Routines'),
     (English: 'New Main Script (%1)'; Localized: 'Nieuw hoofdscript (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Hoofdscript openen (%1)'),
     (English: 'Save (%1)'; Localized: 'Opslaan (%1)'),
@@ -359,6 +361,7 @@ const
     (English: 'Zoom &Out'; Localized: '&Uitzoomen'),
     (English: '&Reset'; Localized: '&Herstellen'),
     (English: '&Toolbar'; Localized: '&Werkbalk'),
+    (English: 'Na&vigator'; Localized: '&Navigator'),
     (English: '&Inspector'; Localized: '&Inspector'),
     (English: 'St&atus Bar'; Localized: '&Statusbalk'),
     (English: '&Next Tab'; Localized: '&Volgend tabblad'),
@@ -367,6 +370,8 @@ const
     (English: 'Re&open Tab'; Localized: 'Tabblad &opnieuw openen'),
     (English: 'Reopen &All Tabs'; Localized: 'A&lle tabbladen opnieuw openen'),
     (English: 'C&lose Current Tab'; Localized: 'Huidig tabblad sl&uiten'),
+    (English: 'Focus Navi&gator'; Localized: 'Navigator &focussen'),
+    (English: 'Focus And &Select Navigator'; Localized: 'Navigator focussen en s&electeren'),
     (English: '&Compiler Output'; Localized: '&Compiler-uitvoer'),
     (English: '&Debug Output'; Localized: '&Debug-uitvoer'),
     (English: 'D&ebug Call Stack'; Localized: 'Debug-&aanroepstack'),

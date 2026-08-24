@@ -25,12 +25,12 @@ uses
 type
   TLiveScriptObjectFactory = class;
 
-  { Why TryCreateParameterSectionEntries or TryCreateKeyValueSection refused to
-    create an object }
+  { Why TryCreateParameterSectionEntries, TryCreateKeyValueSection, or
+    TryCreateCodeSection refused to create an object }
   TRefusalReason = (rrLineOutOfRange, rrNotInsideSection,
     rrInCodeSection, rrUnrecognizedSection, rrNotParameterSection, rrComment,
     rrISPPDirective, rrMixedSelection, rrSectionIndexOutOfRange,
-    rrNotKeyValueSection);
+    rrNotKeyValueSection, rrNotCodeSection);
 
   TLiveScriptSectionHeader = record
     Line: Integer;
@@ -41,7 +41,11 @@ type
   TLiveScriptObject = class
   private
     FFactory: TLiveScriptObjectFactory;
-    FFirstLine, FLastLine: Integer; { The lines for which the object was created, always up-to-date }
+    FFirstLine, FLastLine: Integer; { The lines for which the object was created,
+      always up-to-date. An edit inside them still makes the parsed content
+      stale. Use the factory's ChangeCount to detect this. Without Change's
+      updates, a write-back which inserts a line during multi-entry editing
+      would make the entries below it write back at the wrong lines }
     FValid: Boolean; { False if some or all of the object's lines were deleted since creation }
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
       ALastLine: Integer);
@@ -140,13 +144,26 @@ type
     property Section: TScriptModelKeyValueSection read FSection;
   end;
 
+  { A single occurrence of a [Code] section. Read-only. }
+  TLiveScriptCodeSection = class(TLiveScriptObject)
+  private
+    FSection: TScriptModelCodeSection;
+    constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
+      ALastLine: Integer; const ALines: TArray<String>);
+  public
+    destructor Destroy; override;
+    function TryGetRoutine(const AMemoLine: Integer;
+      out ARoutine: TCodeSectionRoutine): Boolean;
+    property Section: TScriptModelCodeSection read FSection;
+  end;
+
   TLiveScriptObjectFactory = class
   private
     FMemo: TScintEdit;
     FStyler: TInnoSetupStyler;
     FSectionHeaders: TList<TLiveScriptSectionHeader>; { Includes scUnknown/scThirdParty section }
     FIndexValid: Boolean;
-    FDirtyFirstLine, FDirtyLastLine: Integer; { -1 when nothing is dirty }
+    FDirtyFirstLine, FDirtyLastLine: Integer; { -1 when nothing is dirty, used by UpdateIndexForDirtyLines }
     FLiveScriptObjects: TList<TLiveScriptObject>;
     FWritingBackObject: TLiveScriptObject;
     FChangeCount: Int64;
@@ -159,10 +176,14 @@ type
       out ALineKind: TScriptLineKind): TArray<String>; overload;
     function GetLogicalLineFirstLine(const ALine: Integer): Integer;
     function GetLogicalLineLastLine(const ALine: Integer): Integer;
+    function GetSectionBodyLines(const ASectionIndex: Integer;
+      out AFirstLine, ALastLine: Integer): TArray<String>;
     function GetSectionHeader(Index: Integer): TLiveScriptSectionHeader;
     procedure GetSectionLines(const ASectionIndex: Integer;
       out AFirstLine, ALastLine: Integer);
     function LineSpans(const ALine: Integer): Boolean;
+    function TryGetSectionForCreation(const ASectionIndex: Integer;
+      out ASection: TInnoSetupSection; out ARefusalReason: TRefusalReason): Boolean;
     procedure WriteBackChange(const ALiveScriptObject: TLiveScriptObject;
       const ALines: TArray<String>; const ACreatedFromBlankLine: Boolean = False);
   public
@@ -173,6 +194,7 @@ type
     function SectionCount: Integer;
     function TryGetSectionAtLine(const ALine: Integer;
       out ASectionIndex: Integer): Boolean;
+    function GetSectionFirstSignificantLine(const ASectionIndex: Integer): Integer;
     procedure GetSectionOccurrence(const ASectionIndex: Integer;
       out AOccurrenceIndex, AOccurrenceCount: Integer);
     function TryGetSetupDirectiveValue(const ADirectiveName: String;
@@ -189,8 +211,16 @@ type
     function TryCreateKeyValueSection(const ASectionIndex: Integer;
       out ASection: TLiveScriptKeyValueSection;
       out ARefusalReason: TRefusalReason): Boolean;
+    function TryCreateCodeSection(const ASectionIndex: Integer;
+      out ASection: TLiveScriptCodeSection;
+      out ARefusalReason: TRefusalReason): Boolean;
     { Bumped on every Change and Reset call, so a consumer can tell whether
-      the memo changed since it last read something }
+      the memo changed since it last read something. The memo being changed
+      does not mean each live object's parsed content is stale, but this
+      still isn't tracked per object because it wouldn't help much:
+      consumers also keep data from outside their objects at creation,
+      such as the object's section index, so any change anywhere will make
+      them want to rebuild, even if we start tracking staleness per object. }
     property ChangeCount: Int64 read FChangeCount;
     property Memo: TScintEdit read FMemo;
     property SectionHeaders[Index: Integer]: TLiveScriptSectionHeader read GetSectionHeader;
@@ -569,6 +599,29 @@ begin
   FSection.QuoteNewValues := Value;
 end;
 
+{ TLiveScriptCodeSection }
+
+constructor TLiveScriptCodeSection.Create(const AFactory: TLiveScriptObjectFactory;
+  const AFirstLine, ALastLine: Integer; const ALines: TArray<String>);
+begin
+  inherited Create(AFactory, AFirstLine, ALastLine);
+  FSection := TScriptModelCodeSection.Create;
+  FSection.Parse(ALines);
+end;
+
+destructor TLiveScriptCodeSection.Destroy;
+begin
+  FSection.Free;
+  inherited;
+end;
+
+function TLiveScriptCodeSection.TryGetRoutine(const AMemoLine: Integer;
+  out ARoutine: TCodeSectionRoutine): Boolean;
+begin
+  ARoutine := nil;
+  Result := Valid and FSection.TryGetRoutine(AMemoLine - FFirstLine, ARoutine);
+end;
+
 { TLiveScriptObjectFactory }
 
 constructor TLiveScriptObjectFactory.Create(const AMemo: TScintEdit;
@@ -766,6 +819,10 @@ begin
     end;
     for var LiveScriptObject in FLiveScriptObjects do begin
       if LiveScriptObject.FValid and (LiveScriptObject <> FWritingBackObject) then begin
+        { If the lines were added before or inside the live object, update its
+          line properties. An edit inside still makes the parsed content
+          stale, including any line numbers from that parse, even if they are
+          relative (like in TScriptModelCodeSection). }
         if LiveScriptObject.FFirstLine >= FirstLine then begin
           Inc(LiveScriptObject.FFirstLine, Count);
           Inc(LiveScriptObject.FLastLine, Count);
@@ -800,14 +857,15 @@ begin
     end;
     for var LiveScriptObject in FLiveScriptObjects do begin
       if LiveScriptObject.FValid and (LiveScriptObject <> FWritingBackObject) then begin
+        { If lines were removed inside the live object or joined into its last
+          line, make it invalid. If lines were removed before it, update its
+          line properties. }
         if ((LiveScriptObject.FFirstLine <= DeleteLast) and
             (LiveScriptObject.FLastLine >= DeleteFirst)) or
            ((FirstLine > FirstAffectedLine) and
-            (LiveScriptObject.FLastLine = FirstAffectedLine)) then begin
-          { Some or all of the object's lines were deleted, or the next line
-            was joined into the object's last line }
-          LiveScriptObject.FValid := False;
-        end else if LiveScriptObject.FFirstLine > DeleteLast then begin
+            (LiveScriptObject.FLastLine = FirstAffectedLine)) then
+          LiveScriptObject.FValid := False
+        else if LiveScriptObject.FFirstLine > DeleteLast then begin
           Dec(LiveScriptObject.FFirstLine, Count);
           Dec(LiveScriptObject.FLastLine, Count);
         end;
@@ -892,6 +950,23 @@ begin
         (TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[L]) = Header.Section) do
     Inc(L);
   ALastLine := L-1;
+end;
+
+function TLiveScriptObjectFactory.GetSectionFirstSignificantLine(
+  const ASectionIndex: Integer): Integer;
+{ The first non blank line of the section's body, or the body's first line
+  when the whole body is blank, or the header's line when the body is empty }
+begin
+  EnsureIndex;
+  EnsureStyled; { For GetSectionLines }
+  var FirstLine, LastLine: Integer;
+  GetSectionLines(ASectionIndex, FirstLine, LastLine);
+  if LastLine < FirstLine then
+    Exit(FSectionHeaders[ASectionIndex].Line);
+  Result := FirstLine;
+  for var L := FirstLine to LastLine do
+    if Trim(FMemo.Lines[L]) <> '' then
+      Exit(L);
 end;
 
 function TLiveScriptObjectFactory.GetLinesText(const AFirstLine,
@@ -1267,20 +1342,36 @@ begin
   Result := True;
 end;
 
+function TLiveScriptObjectFactory.TryGetSectionForCreation(const ASectionIndex: Integer;
+  out ASection: TInnoSetupSection; out ARefusalReason: TRefusalReason): Boolean;
+begin
+  Result := False;
+  EnsureIndex;
+  EnsureStyled;
+  if (ASectionIndex < 0) or (ASectionIndex >= FSectionHeaders.Count) then begin
+    ARefusalReason := rrSectionIndexOutOfRange;
+    Exit;
+  end;
+  ASection := FSectionHeaders[ASectionIndex].Section;
+  Result := True;
+end;
+
+function TLiveScriptObjectFactory.GetSectionBodyLines(const ASectionIndex: Integer;
+  out AFirstLine, ALastLine: Integer): TArray<String>;
+begin
+  GetSectionLines(ASectionIndex, AFirstLine, ALastLine);
+  Result := GetLinesText(AFirstLine, ALastLine);
+end;
+
 function TLiveScriptObjectFactory.TryCreateKeyValueSection(const ASectionIndex: Integer;
   out ASection: TLiveScriptKeyValueSection;
   out ARefusalReason: TRefusalReason): Boolean;
 begin
   ASection := nil;
   Result := False;
-  EnsureIndex;
-  EnsureStyled;
-
-  if (ASectionIndex < 0) or (ASectionIndex >= FSectionHeaders.Count) then begin
-    ARefusalReason := rrSectionIndexOutOfRange;
+  var Section: TInnoSetupSection;
+  if not TryGetSectionForCreation(ASectionIndex, Section, ARefusalReason) then
     Exit;
-  end;
-  const Section = FSectionHeaders[ASectionIndex].Section;
   if TryGetCommonSectionRefusalReason(Section, ARefusalReason) then
     Exit;
   if not (Section in KeyValueSections) then begin
@@ -1289,16 +1380,34 @@ begin
   end;
 
   var FirstLine, LastLine: Integer;
-  GetSectionLines(ASectionIndex, FirstLine, LastLine);
-  var SectionLines: TArray<String>;
-  if LastLine >= FirstLine then
-    SectionLines := GetLinesText(FirstLine, LastLine)
-  else
-    SectionLines := [];
+  const SectionLines = GetSectionBodyLines(ASectionIndex, FirstLine, LastLine);
   var Metadata: TScriptModelSectionMetadata := nil;
   TryGetScriptModelSectionMetadata(FSectionHeaders[ASectionIndex].Name, Metadata);
   ASection := TLiveScriptKeyValueSection.Create(Self, FirstLine, LastLine,
     Metadata, SectionLines);
+  Result := True;
+end;
+
+function TLiveScriptObjectFactory.TryCreateCodeSection(const ASectionIndex: Integer;
+  out ASection: TLiveScriptCodeSection;
+  out ARefusalReason: TRefusalReason): Boolean;
+begin
+  ASection := nil;
+  Result := False;
+  var Section: TInnoSetupSection;
+  if not TryGetSectionForCreation(ASectionIndex, Section, ARefusalReason) then
+    Exit;
+  if Section <> scCode then begin
+    { The common check's scCode branch cannot hit here }
+    if not TryGetCommonSectionRefusalReason(Section, ARefusalReason) then
+      ARefusalReason := rrNotCodeSection;
+    Exit;
+  end;
+
+  var FirstLine, LastLine: Integer;
+  const SectionLines = GetSectionBodyLines(ASectionIndex, FirstLine, LastLine);
+  ASection := TLiveScriptCodeSection.Create(Self, FirstLine, LastLine,
+    SectionLines);
   Result := True;
 end;
 

@@ -26,7 +26,7 @@ uses
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
   Shared.DebugStruct, Shared.CompilerInt.Struct, Shared.ConfigIniFile, NewUxTheme, ImageList, ImgList, ToolWin,
-  IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.LiveScriptObjectFactory,
+  IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.Navigator, IDE.LiveScriptObjectFactory,
   VirtualImageList, BaseImageCollection, BitmapButton, NewStaticText;
 
 const
@@ -250,6 +250,7 @@ type
     BOpenOutputFolder: TMenuItem;
     N8: TMenuItem;
     VInspector: TMenuItem;
+    VNavigator: TMenuItem;
     VZoom: TMenuItem;
     VZoomIn: TMenuItem;
     VZoomOut: TMenuItem;
@@ -354,6 +355,14 @@ type
     PInspectorQuoteNewDirectiveValues: TMenuItem;
     PInspectorQuoteNewParameterValues: TMenuItem;
     N27: TMenuItem;
+    MemoPanel: TPanel;
+    NavigatorPanel: TPanel;
+    NavigatorComboBox: TComboBox;
+    NavigatorCaptionText: TNewStaticText;
+    NavigatorComboBox2: TComboBox;
+    VNavigatorFocus: TMenuItem;
+    VNavigatorFocusAndSelect: TMenuItem;
+    N28: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -509,6 +518,9 @@ type
     procedure PInspectorFollowCaretClick(Sender: TObject);
     procedure PInspectorQuoteNewDirectiveValuesClick(Sender: TObject);
     procedure PInspectorQuoteNewParameterValuesClick(Sender: TObject);
+    procedure VNavigatorClick(Sender: TObject);
+    procedure VNavigatorFocusClick(Sender: TObject);
+    procedure NavigatorPanelResizeOrCaretInCodeSectionChange(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -581,6 +593,7 @@ type
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       out Output: String): Integer;
     procedure FinishLocalization;
+    procedure FocusNavigator(const AOpenDropDown: Boolean);
     function GetBorderStyle: TFormBorderStyle;
     function GetMainFilename: String;
     function GetMainBaseDir: String;
@@ -623,6 +636,10 @@ type
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
     procedure SetInspectorActiveFactory;
     procedure SetInspectorVisible(const AVisible: Boolean);
+    procedure NavigatorComboBoxItemsChanged(Sender: TObject;
+      const AComboBox: TComboBox);
+    procedure SetNavigatorActiveFactory;
+    procedure SetNavigatorVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusBarCanvasDrawPanel(Canvas: TCanvas;
@@ -658,6 +675,7 @@ type
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure UpdateInspectorPanelWidth(W: Integer);
     procedure UpdateInspectorHeaderPanelLayout;
+    procedure UpdateNavigatorPanelLayout;
     procedure WMAppCommand(var Message: TMessage); message WM_APPCOMMAND;
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
@@ -705,6 +723,7 @@ type
     FDebugTarget: TDebugTarget;
     FFindResults: TFindResults;
     FInspector: TInspector;
+    FNavigator: TNavigator;
     FLastFindOptions: TFindOptions;
     FLastFindRegEx: Boolean;
     FLastFindText: String;
@@ -863,7 +882,7 @@ begin
   Memo.OnModifiedChange := MemoModifiedChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
-  Memo.Parent := BodyPanel;
+  Memo.Parent := MemoPanel;
   Memo.SetAutoCompleteSeparators(AutoCompleteWordListSeparator, AutoCompleteWordListTypeSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;
@@ -958,6 +977,13 @@ constructor TMainForm.Create(AOwner: TComponent);
       FOptions.InspectorFollowCaret, GetMainBaseDir, GetSignTools, LiveScriptObjectFactoryForMainMemo);
   end;
 
+  procedure CreateNavigator;
+  begin
+    FNavigator := TNavigator.Create(NavigatorComboBox, NavigatorComboBox2,
+      LiveScriptObjectFactoryForMemo(FActiveMemo),
+      NavigatorPanelResizeOrCaretInCodeSectionChange, NavigatorComboBoxItemsChanged);
+  end;
+
   procedure ReadAndApplyConfig;
   var
     Ini: TConfigIniFile;
@@ -969,7 +995,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Menu check boxes state }
       ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
-      { ShowInspector done below }
+      { ShowNavigator and ShowInspector done below }
       FOptions.LowPriorityDuringCompile := Ini.ReadBool('Options', 'LowPriorityDuringCompile', False);
 
       { Configuration options - does not read ThemeType, see ReadAndUpdateTheme instead }
@@ -1087,9 +1113,10 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
 
-      { StatusPanel height }
+      { StatusPanel height and navigator visibility }
       StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
         (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(OutputTabSet.Height)));
+      SetNavigatorVisible(Ini.ReadBool('Options', 'ShowNavigator', True));
 
       { Inspector widths and visibility }
       SyncInspectorOptions;
@@ -1166,6 +1193,8 @@ begin
     UpdatePanel.Color := clWindow;
     { UpdateTheme does not set Font.Color in this case, so re-add seFont }
     InspectorFilterEdit.StyleElements := InspectorFilterEdit.StyleElements + [seFont];
+    NavigatorComboBox.StyleElements := NavigatorComboBox.StyleElements + [seFont];
+    NavigatorComboBox2.StyleElements := NavigatorComboBox2.StyleElements + [seFont];
   end;
 
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
@@ -1203,6 +1232,9 @@ begin
   { Use fake Ctrl+G shortcut for PInspectorGoTo because EGotoLine already has
     the real one }
   SetFakeShortCut(PInspectorGoTo, Ord('G'), [ssCtrl]);
+  { Ctrl+Shift+; and Ctrl+Shift+. are handled by FormKeyDown }
+  SetFakeShortCut(VNavigatorFocus, VK_OEM_1, [ssShift, ssCtrl]);
+  SetFakeShortCut(VNavigatorFocusAndSelect, VK_OEM_PERIOD, [ssShift, ssCtrl]);
 
   PopupMenu := TMainFormPopupMenu.Create(Self, EMenu);
 
@@ -1250,6 +1282,10 @@ begin
   UpdateInspectorHeaderPanelLayout;
   TWinControlMSAANameHook.Create(InspectorFilterEdit, InspectorFilterEdit.TextHint);
   InspectorPopupMenuBitBtn.Hint := InspectorPopupMenuBitBtn.Caption;
+
+  TWinControlMSAANameHook.Create(NavigatorComboBox, NavigatorComboBox.Hint);
+  TWinControlMSAANameHook.Create(NavigatorComboBox2, NavigatorComboBox2.Hint);
+  CreateNavigator; { Also hooks and must be after previous calls }
 
   FMemosStyler.Theme := FTheme;
 
@@ -1349,6 +1385,7 @@ destructor TMainForm.Destroy;
       { Menu check boxes state }
       Ini.WriteBool('Options', 'ShowToolbar', ToolbarPanel.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
+      Ini.WriteBool('Options', 'ShowNavigator', NavigatorPanel.Visible);
       Ini.WriteBool('Options', 'ShowInspector', InspectorPanel.Visible);
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
@@ -1383,6 +1420,7 @@ begin
 
   FUpdatePanelMessages.Free;
   FInspector.Free;
+  FNavigator.Free;
   FNavStacks.Free;
   FKeyMappedMenus.Free;
   FMenuBitmaps.Free;
@@ -1494,7 +1532,7 @@ begin
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
   UpdateInspectorPanelWidth(InspectorPanel.Width);
-  UpdateInspectorHeaderPanelLayout;
+  UpdateInspectorHeaderPanelLayout; { Also calls UpdateNavigatorPanelLayout }
   if InspectorNoteText.Visible then
     InspectorNoteText.AdjustHeight;
 end;
@@ -1515,12 +1553,39 @@ end;
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 
-  procedure AddControlToArray(const ControlToAdd: TWinControl; var Controls: TArray<TWinControl>;
-    var NControls: NativeInt);
+  procedure AddControlToArray(const ControlToAdd, RegionControl: TWinControl;
+    var Controls, RegionControls: TArray<TWinControl>; var NControls: NativeInt);
   begin
     Inc(NControls);
     SetLength(Controls, NControls);
+    SetLength(RegionControls, NControls);
     Controls[NControls-1] := ControlToAdd;
+    RegionControls[NControls-1] := RegionControl;
+  end;
+
+  function ShouldFocusActiveMemo(const AShortCut: TShortCut): Boolean;
+  begin
+    if AShortCut = VK_ESCAPE then begin
+      if (ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2) then
+        Result := True { Returns to the memo even with the list open, just like VSCode }
+      else if ActiveControl = InspectorFilterEdit then
+        Result := InspectorFilterEdit.Text = '' { Otherwise Esc clears the filter }
+      else if FInspector.JvInspector.ContainsControl(ActiveControl) then
+        Result := (ActiveControl = FInspector.JvInspector) or
+          FInspector.JvInspector.EditorActiveWithNothingToUndo { Otherwise Esc restores the value in the in-place editor }
+      else
+        Result := UpdatePanel.ContainsControl(ActiveControl) or
+                  InspectorHeaderPanel.ContainsControl(ActiveControl) or
+                  (ActiveControl = CompilerOutputList) or (ActiveControl = DebugOutputList) or
+                  (ActiveControl = DebugCallStackList) or (ActiveControl = FindResultsList);
+    end else if AShortCut = VK_RETURN then begin
+      { Only the navigator comboboxes, and only with the list closed: with it open
+        the combobox needs Enter to accept the pick, and then IDE.Navigator will
+        move focus itself }
+      Result := ((ActiveControl = NavigatorComboBox) and not NavigatorComboBox.DroppedDown) or
+                ((ActiveControl = NavigatorComboBox2) and not NavigatorComboBox2.DroppedDown);
+    end else
+      Result := False;
   end;
 
 begin
@@ -1528,6 +1593,9 @@ begin
   if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
     Key := 0; { Intentionally only done when BStopCompile is enabled to allow the memo to process it instead }
     BStopCompileClick(Self)
+  end else if ShouldFocusActiveMemo(AShortCut) then begin
+    Key := 0;
+    ActiveControl := FActiveMemo;
   end else if (AShortCut = FBackNavButtonShortCut) or
               ((FBackNavButtonShortCut2 <> 0) and (AShortCut = FBackNavButtonShortCut2)) then begin
     Key := 0;
@@ -1557,21 +1625,24 @@ begin
     UpdateViewMenu(VMenu); { VCloseCurrentTab.Enabled is not kept updated }
     if VCloseCurrentTab.Enabled then
       VCloseCurrentTabClick(Self);
+  end else if ((Key = VK_OEM_1) or (Key = VK_OEM_PERIOD)) and
+              (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
+    { Ctrl+Shift+; = Focus and Ctrl+Shift+. = Focus and select, just like VSCode }
+    const OpenDropDown = Key = VK_OEM_PERIOD;
+    Key := 0;
+    FocusNavigator(OpenDropDown);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
-    { Move focus between the active memo, the inspector, the inspector filter,
-      the inspector popup menu button, the active bottom pane, and the active
-      banner, backward if Shift is held }
+    { Move focus between the active memo, the inspector, the active bottom
+      pane, the active banner, and the navigator, backward if Shift is held }
     Key := 0;
 
-    { First get the list of controls to toggle between }
+    { First get the list of controls to toggle between, only one per 'major region':
+      https://learn.microsoft.com/en-us/windows/apps/design/accessibility/keyboard-accessibility#optimize-for-f6 }
     var Controls: TArray<TWinControl> := [FActiveMemo];
+    var RegionControls: TArray<TWinControl> := [FActiveMemo];
     var NControls: NativeInt := Length(Controls); { Explicit type for Delphi 10.4 }
-    if InspectorPanel.Visible then begin
-      AddControlToArray(FInspector.JvInspector, Controls, NControls);
-      if InspectorFilterEdit.Visible then
-        AddControlToArray(InspectorFilterEdit, Controls, NControls);
-      AddControlToArray(InspectorPopupMenuBitBtn, Controls, NControls);
-    end;
+    if InspectorPanel.Visible then
+      AddControlToArray(FInspector.JvInspector, InspectorPanel, Controls, RegionControls, NControls);
     if StatusPanel.Visible then begin
       var ControlToAdd: TWinControl := nil;
       case OutputTabSet.TabIndex of
@@ -1581,21 +1652,25 @@ begin
         tiFindResults: ControlToAdd := FindResultsList;
       end;
       if ControlToAdd <> nil then
-        AddControlToArray(ControlToAdd, Controls, NControls);
+        AddControlToArray(ControlToAdd, StatusPanel, Controls, RegionControls, NControls);
     end;
     if UpdatePanel.Visible then begin
       if FUpdatePanelMessages[UpdateLinkLabel.Tag].HasLink then
-        AddControlToArray(UpdateLinkLabel, Controls, NControls);
-      AddControlToArray(UpdatePanelDonateBitBtn, Controls, NControls);
-      AddControlToArray(UpdatePanelCloseBitBtn, Controls, NControls);
+        AddControlToArray(UpdateLinkLabel, UpdatePanel, Controls, RegionControls, NControls)
+      else
+        AddControlToArray(UpdatePanelDonateBitBtn, UpdatePanel, Controls, RegionControls, NControls);
     end;
+    if NavigatorPanel.Visible then
+      AddControlToArray(NavigatorComboBox, NavigatorPanel, Controls, RegionControls, NControls);
+
+    { Show focus rectangles if they're hidden }
+    SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
 
     { Now move focus to next or previous }
     if NControls > 1 then begin
       const Delta = IfThen(ssShift in Shift, -1, 1);
       for var I := 0 to NControls-1 do begin
-        { Using ContainsControl because the inspector has in-place editors }
-        if Controls[I].ContainsControl(ActiveControl) then begin
+        if RegionControls[I].ContainsControl(ActiveControl) then begin
           ActiveControl := Controls[(I+Delta+NControls) mod NControls];
           Exit;
         end;
@@ -1739,7 +1814,13 @@ begin
   { The inspector handles F4 itself, except Alt+F4 }
   if (Message.CharCode = VK_F4) and
      not (ssAlt in KeyDataToShiftState(Message.KeyData)) and
-     InspectorPanel.Visible and FInspector.JvInspector.ContainsControl(ActiveControl) then
+     FInspector.JvInspector.ContainsControl(ActiveControl) then
+    Exit(False);
+
+  { The navigator's comboboxes handle F4 themselves, except Alt+F4 }
+  if (Message.CharCode = VK_F4) and
+     not (ssAlt in KeyDataToShiftState(Message.KeyData)) and
+     ((ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2)) then
     Exit(False);
 
   Result := inherited;
@@ -3446,6 +3527,57 @@ begin
   SetInspectorVisible(not InspectorPanel.Visible);
 end;
 
+procedure TMainForm.SetNavigatorActiveFactory;
+begin
+  FNavigator.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo));
+end;
+
+procedure TMainForm.SetNavigatorVisible(const AVisible: Boolean);
+begin
+  if NavigatorPanel.Visible <> AVisible then begin
+    const CaretWasInView =
+      FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
+    if AVisible then
+      SetNavigatorActiveFactory { Update contents }
+    else if NavigatorPanel.ContainsControl(ActiveControl) then
+      ActiveControl := FActiveMemo;
+    NavigatorPanel.Visible := AVisible;
+    if StatusPanel.Visible then begin { Note: Still False when called by ReadAndApplyConfig }
+      { The navigator changed the room left for the memo, so reclamp an
+        output pane at maximum height. When the pane is shown later,
+        SetStatusPanelVisible reclamps. }
+      UpdateStatusPanelHeight(StatusPanel.Height);
+    end;
+    if AVisible and CaretWasInView then begin
+      { If the caret was in view, make sure it still is }
+      FActiveMemo.ScrollCaretIntoView;
+    end;
+  end;
+  VNavigator.Checked := AVisible;
+end;
+
+procedure TMainForm.VNavigatorClick(Sender: TObject);
+begin
+  SetNavigatorVisible(not NavigatorPanel.Visible);
+end;
+
+procedure TMainForm.FocusNavigator(const AOpenDropDown: Boolean);
+begin
+  if NavigatorPanel.Visible then begin
+    var ComboBox := NavigatorComboBox;
+    if NavigatorComboBox2.Visible then
+      ComboBox := NavigatorComboBox2;
+    ActiveControl := ComboBox;
+    if AOpenDropDown then
+      ComboBox.DroppedDown := True;
+  end;
+end;
+
+procedure TMainForm.VNavigatorFocusClick(Sender: TObject);
+begin
+  FocusNavigator(Sender = VNavigatorFocusAndSelect);
+end;
+
 procedure TMainForm.VHideClick(Sender: TObject);
 begin
   SetStatusPanelVisible(False);
@@ -3797,6 +3929,8 @@ begin
 
     if InspectorPanel.Visible then
       SetInspectorActiveFactory;
+    if NavigatorPanel.Visible then
+      SetNavigatorActiveFactory;
   end;
 end;
 
@@ -3862,10 +3996,58 @@ end;
 procedure TMainForm.UpdateStatusPanelHeight(H: Integer);
 begin
   const MinHeight = (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + OutputTabSet.Height;
-  const MaxHeight = BodyPanel.ClientHeight - ToCurrentPPI(48) - StatusSplitPanel.Height;
+  var MaxHeight := BodyPanel.ClientHeight - ToCurrentPPI(48) - StatusSplitPanel.Height;
+  if NavigatorPanel.Visible then
+    Dec(MaxHeight, NavigatorPanel.Height);
   if H > MaxHeight then H := MaxHeight;
   if H < MinHeight then H := MinHeight;
   StatusPanel.Height := H;
+end;
+
+procedure TMainForm.UpdateNavigatorPanelLayout;
+begin
+  const Padding = ToCurrentPPI(4); { See UpdateInspectorHeaderPanelLayout }
+
+  { Update height by copying the inspector header's height, for a consistent layout.
+    Works even if the inspector is hidden. }
+  NavigatorPanel.ClientHeight := InspectorHeaderPanel.ClientHeight;
+
+  { Update combobox position }
+  NavigatorComboBox.Left := Padding;
+  NavigatorComboBox.Top := (NavigatorPanel.ClientHeight - NavigatorComboBox.Height) div 2;
+
+  { Update caption position }
+  NavigatorCaptionText.Left := NavigatorComboBox.Left + NavigatorComboBox.Width + Padding;
+  NavigatorCaptionText.Top := (NavigatorPanel.ClientHeight - NavigatorCaptionText.Height) div 2;
+
+  { Update second combobox position }
+  const X = NavigatorCaptionText.Left + NavigatorCaptionText.Width + Padding -
+    ToCurrentPPI(2); { The '>' text has trailing whitespace }
+  NavigatorCaptionText.Visible := (FNavigator <> nil) and
+    FNavigator.CaretInCodeSection;
+  NavigatorComboBox2.Visible := NavigatorCaptionText.Visible;
+  if NavigatorComboBox2.Visible then
+    NavigatorComboBox2.SetBounds(X, (NavigatorPanel.ClientHeight - NavigatorComboBox2.Height) div 2,
+      NavigatorComboBox2.Width, NavigatorComboBox2.Height);
+end;
+
+procedure TMainForm.NavigatorPanelResizeOrCaretInCodeSectionChange(Sender: TObject);
+begin
+  UpdateNavigatorPanelLayout;
+end;
+
+procedure TMainForm.NavigatorComboBoxItemsChanged(Sender: TObject;
+  const AComboBox: TComboBox);
+begin
+  if AComboBox = NavigatorComboBox2 then begin
+    AComboBox.Canvas.Font.Assign(AComboBox.Font);
+    var W := NavigatorComboBox.Width; { Minimum width }
+    const Extra = ToCurrentPPI(32);
+    for var I := 0 to AComboBox.Items.Count-1 do
+      W := Max(W, AComboBox.Canvas.TextWidth(AComboBox.Items[I]) + Extra);
+    AComboBox.Width := W;
+    { Calling UpdateNavigatorPanelLayout now is not needed currently }
+  end;
 end;
 
 procedure TMainForm.UpdateInspectorPanelWidth(W: Integer);
@@ -3880,7 +4062,9 @@ end;
 
 procedure TMainForm.UpdateInspectorHeaderPanelLayout;
 begin
-  const Padding = ToCurrentPPI(4); { 4 = same as InspectorNoteText's horizontal margins in the .dfm }
+  { 4 = same as InspectorNoteText's horizontal margins in the .dfm.
+    Also see UpdateNavigatorPanelLayout. }
+  const Padding = ToCurrentPPI(4);
 
   { Update height }
   InspectorHeaderPanel.ClientHeight := InspectorFilterEdit.Height + 2*Padding;
@@ -3899,6 +4083,9 @@ begin
   InspectorFilterEdit.Visible := W > 0;
   if InspectorFilterEdit.Visible then
     InspectorFilterEdit.SetBounds(X, Padding, W, InspectorFilterEdit.Height);
+
+  { Keep the navigator panel at the same height }
+  UpdateNavigatorPanelLayout;
 end;
 
 procedure TMainForm.InspectorHeaderPanelResize(Sender: TObject);
@@ -5046,6 +5233,8 @@ begin
 
   if InspectorPanel.Visible and (Memo = FActiveMemo) then
     FInspector.UpdateFromCaret;
+  if NavigatorPanel.Visible and (Memo = FActiveMemo) then
+    FNavigator.UpdateFromCaret;
 end;
 
 procedure TMainForm.MemoModifiedChange(Sender: TObject);
@@ -6162,6 +6351,7 @@ begin
     - Scrollbars and StatusBar
     - The inspector's filter edit
     - The inspector's checkboxes, in-place editors, drop-down buttons, and drop-down lists
+    - The navigator's comboboxes
     The following components (and any children) ignore the active style because
     their StyleName is set to 'Windows' always, either by the .dfm or by code:
     - FMemos
@@ -6169,6 +6359,7 @@ begin
     - UpdatePanel
     - StatusSplitPanel
     - InspectorSplitPanel, InspectorCaptionText, and InspectorNoteText
+    - NavigatorCaptionText
     - The 4 ListBoxes
     Setting a control's StyleName to 'Windows' also prevents all its children
     from being styled. For that reason some controls set StyleElements to []
@@ -6177,6 +6368,7 @@ begin
     - MainForm itself, for styling of scrollbars and StatusBar
     - InspectorHeaderPanel, for styling of the inspector filter edit
     - InspectorPanel, for styling of the inspector elements named above (and InspectorHeaderPanel's children)
+    - NavigatorPanel, for styling of the navigator's comboboxes
     Menus ignore the active style because shMenus is removed from TStyleManager.SystemHooks
     at startup. }
   if FTheme.Dark then
@@ -6217,6 +6409,15 @@ begin
   SetListBoxWindowTheme(DebugCallStackList);
   SetListBoxWindowTheme(FindResultsList);
 
+  { TComboBoxStyleHook subclasses the drop-down window to paint its border,
+    but only does so while the combobox's window is being created. A style
+    change normally handles this by recreating all windows (see
+    CM_CUSTOMSTYLECHANGED in TCustomForm.WndProc) but skips forms whose
+    StyleElements is empty, like MainForm. So recreate here, using Perform
+    because RecreateWnd is protected in Delphi 10.4 }
+  NavigatorComboBox.Perform(CM_RECREATEWND, 0, 0);
+  NavigatorComboBox2.Perform(CM_RECREATEWND, 0, 0);
+
   ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[FTheme.Dark];
   ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.MarkersAndACImageCollection[FTheme.Dark];
 
@@ -6237,6 +6438,11 @@ begin
     InspectorCaptionText.Font.Color := FTheme.Colors[tcFore];
     InspectorNoteText.Font.Color := FTheme.Colors[tcFore];
     InspectorFilterEdit.Font.Color := FTheme.Colors[tcFore];
+    NavigatorPanel.ParentBackground := False;
+    NavigatorPanel.Color := FTheme.Colors[tcToolBack];
+    NavigatorCaptionText.Font.Color := FTheme.Colors[tcFore];
+    NavigatorComboBox.Font.Color := FTheme.Colors[tcFore];
+    NavigatorComboBox2.Font.Color := FTheme.Colors[tcFore];
   end;
 
   FInspector.UpdateTheme(FTheme, FHighContrastActive);

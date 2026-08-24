@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..1005] of TTranslationPair = (
+  CzechIDETranslations: array [0..1010] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -308,6 +308,8 @@ const
     (English: 'Close'; Localized: 'Zavřít'),
     (English: 'Filter'; Localized: 'Filtr'),
     (English: 'Inspector Menu'; Localized: 'Nabídka Inspektoru'),
+    (English: 'Sections'; Localized: 'Sekce'),
+    (English: 'Routines'; Localized: 'Rutiny'),
     (English: 'New Main Script (%1)'; Localized: 'Nový hlavní skript (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Otevřít hlavní skript (%1)'),
     (English: 'Save (%1)'; Localized: 'Uložit (%1)'),
@@ -359,6 +361,7 @@ const
     (English: 'Zoom &Out'; Localized: '&Oddálit'),
     (English: '&Reset'; Localized: 'O&bnovit'),
     (English: '&Toolbar'; Localized: 'Pa&nel nástrojů'),
+    (English: 'Na&vigator'; Localized: 'Navi&gátor'),
     (English: '&Inspector'; Localized: 'Insp&ektor'),
     (English: 'St&atus Bar'; Localized: '&Stavový řádek'),
     (English: '&Next Tab'; Localized: 'Další ka&rta'),
@@ -367,6 +370,8 @@ const
     (English: 'Re&open Tab'; Localized: 'Znovu &otevřít kartu'),
     (English: 'Reopen &All Tabs'; Localized: 'Zno&vu otevřít všechny karty'),
     (English: 'C&lose Current Tab'; Localized: 'Z&avřít aktuální kartu'),
+    (English: 'Focus Navi&gator'; Localized: '&Fokus na Navigátor'),
+    (English: 'Focus And &Select Navigator'; Localized: 'Fokus na Navigá&tor a výběr'),
     (English: '&Compiler Output'; Localized: 'Výstup &kompilátoru'),
     (English: '&Debug Output'; Localized: 'Výstup &ladění'),
     (English: 'D&ebug Call Stack'; Localized: 'Záso&bník volání ladění'),

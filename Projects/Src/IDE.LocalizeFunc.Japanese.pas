@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..1005] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..1010] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -308,6 +308,8 @@ const
     (English: 'Close'; Localized: '閉じる'),
     (English: 'Filter'; Localized: 'フィルター'),
     (English: 'Inspector Menu'; Localized: 'インスペクターメニュー'),
+    (English: 'Sections'; Localized: 'セクション'),
+    (English: 'Routines'; Localized: 'ルーチン'),
     (English: 'New Main Script (%1)'; Localized: '新しいメインスクリプト (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'メインスクリプトを開く (%1)'),
     (English: 'Save (%1)'; Localized: '保存 (%1)'),
@@ -359,6 +361,7 @@ const
     (English: 'Zoom &Out'; Localized: '縮小(&O)'),
     (English: '&Reset'; Localized: 'リセット(&R)'),
     (English: '&Toolbar'; Localized: 'ツール バー(&T)'),
+    (English: 'Na&vigator'; Localized: 'ナビゲーター(&V)'),
     (English: '&Inspector'; Localized: 'インスペクター(&I)'),
     (English: 'St&atus Bar'; Localized: 'ステータス バー(&A)'),
     (English: '&Next Tab'; Localized: '次のタブ(&N)'),
@@ -367,6 +370,8 @@ const
     (English: 'Re&open Tab'; Localized: 'タブを再度開く(&O)'),
     (English: 'Reopen &All Tabs'; Localized: 'すべてのタブを再度開く(&A)'),
     (English: 'C&lose Current Tab'; Localized: '現在のタブを閉じる(&L)'),
+    (English: 'Focus Navi&gator'; Localized: 'ナビゲーターにフォーカス(&G)'),
+    (English: 'Focus And &Select Navigator'; Localized: 'ナビゲーターにフォーカスして選択(&S)'),
     (English: '&Compiler Output'; Localized: 'コンパイラー出力(&C)'),
     (English: '&Debug Output'; Localized: 'デバッグ出力(&D)'),
     (English: 'D&ebug Call Stack'; Localized: 'デバッグ コール スタック(&E)'),
