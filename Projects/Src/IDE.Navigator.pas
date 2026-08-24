@@ -323,8 +323,14 @@ begin
   FFactory := AFactory;
   FChangeCountAtSectionsSet := -1; { Force rebuild }
   FChangeCountAtRoutinesSet := -1; { Force rebuild }
+  { A close up must not jump: the comboboxes still hold the previous tab's items }
+  FDropDownAccepted := False;
+  FPendingPickComboBox := nil;
+  { Ensure UpdateFromCaret doesn't skip the update }
+  if FComboBox.DroppedDown then
+    FComboBox.DroppedDown := False;
   if FComboBox2.DroppedDown then
-    FComboBox2.DroppedDown := False; { Ensure UpdateFromCaret doesn't skip the update }
+    FComboBox2.DroppedDown := False;
   UpdateFromCaret;
 end;
 
@@ -370,23 +376,28 @@ begin
     NewSectionIndex := -1;
 
   const ChangeCount = FFactory.ChangeCount;
-  if FChangeCountAtSectionsSet <> ChangeCount then begin
-    { Update to new sections }
-    var Sections: TArray<String>;
-    SetLength(Sections, FFactory.SectionCount);
-    for var I := 0 to FFactory.SectionCount-1 do
-      Sections[I] := '[' + FFactory.SectionHeaders[I].Name + ']';
-    SetComboBoxItems(FComboBox, Sections, NewSectionIndex);
-    FChangeCountAtSectionsSet := ChangeCount;
+  const AnyDroppedDown = FComboBox.DroppedDown or FComboBox2.DroppedDown;
+
+  { Neither combobox is updated while either one is dropped down, so the
+    debugger moving the caret while the user browses, for example to a
+    breakpoint, cannot move the selection or change the list under them. Note
+    that breakpoints can be set on parameter section entries as well. }
+  if not AnyDroppedDown then begin
+    if FChangeCountAtSectionsSet <> ChangeCount then begin
+      { Update to new sections }
+      var Sections: TArray<String>;
+      SetLength(Sections, FFactory.SectionCount);
+      for var I := 0 to FFactory.SectionCount-1 do
+        Sections[I] := '[' + FFactory.SectionHeaders[I].Name + ']';
+      SetComboBoxItems(FComboBox, Sections, NewSectionIndex);
+      FChangeCountAtSectionsSet := ChangeCount;
+    end;
+
+    if FComboBox.ItemIndex <> NewSectionIndex then
+      FComboBox.ItemIndex := NewSectionIndex;
   end;
 
-  if FComboBox.ItemIndex <> NewSectionIndex then
-    FComboBox.ItemIndex := NewSectionIndex;
-
-  { Second combobox: not updated while dropped down, so the debugger moving
-    the caret while the user browses, for example to a breakpoint, cannot
-    change the list under them }
-  if not FComboBox2.DroppedDown then begin
+  if not AnyDroppedDown then begin
     const CaretInCodeSection = (NewSectionIndex >= 0) and
       (FFactory.SectionHeaders[NewSectionIndex].Section = scCode);
     if CaretInCodeSection then begin
