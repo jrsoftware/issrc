@@ -41,7 +41,9 @@ type
   TLiveScriptObject = class
   private
     FFactory: TLiveScriptObjectFactory;
-    FFirstLine, FLastLine: Integer; { The lines for which the object was created, always up-to-date }
+    FFirstLine, FLastLine: Integer; { The lines for which the object was created,
+      always up-to-date. An edit inside them still makes the parsed content
+      stale. Use the factory's ChangeCount to detect this. }
     FValid: Boolean; { False if some or all of the object's lines were deleted since creation }
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
       ALastLine: Integer);
@@ -159,7 +161,7 @@ type
     FStyler: TInnoSetupStyler;
     FSectionHeaders: TList<TLiveScriptSectionHeader>; { Includes scUnknown/scThirdParty section }
     FIndexValid: Boolean;
-    FDirtyFirstLine, FDirtyLastLine: Integer; { -1 when nothing is dirty }
+    FDirtyFirstLine, FDirtyLastLine: Integer; { -1 when nothing is dirty, used by UpdateIndexForDirtyLines }
     FLiveScriptObjects: TList<TLiveScriptObject>;
     FWritingBackObject: TLiveScriptObject;
     FChangeCount: Int64;
@@ -810,6 +812,10 @@ begin
     end;
     for var LiveScriptObject in FLiveScriptObjects do begin
       if LiveScriptObject.FValid and (LiveScriptObject <> FWritingBackObject) then begin
+        { If the lines were added before or inside the live object, update its
+          line properties. An edit inside still makes the parsed content
+          stale, including any line numbers from that parse, even if they are
+          relative (like in TScriptModelCodeSection). }
         if LiveScriptObject.FFirstLine >= FirstLine then begin
           Inc(LiveScriptObject.FFirstLine, Count);
           Inc(LiveScriptObject.FLastLine, Count);
@@ -844,14 +850,15 @@ begin
     end;
     for var LiveScriptObject in FLiveScriptObjects do begin
       if LiveScriptObject.FValid and (LiveScriptObject <> FWritingBackObject) then begin
+        { If lines were removed inside the live object or joined into its last
+          line, make it invalid. If lines were removed before it, update its
+          line properties. }
         if ((LiveScriptObject.FFirstLine <= DeleteLast) and
             (LiveScriptObject.FLastLine >= DeleteFirst)) or
            ((FirstLine > FirstAffectedLine) and
-            (LiveScriptObject.FLastLine = FirstAffectedLine)) then begin
-          { Some or all of the object's lines were deleted, or the next line
-            was joined into the object's last line }
-          LiveScriptObject.FValid := False;
-        end else if LiveScriptObject.FFirstLine > DeleteLast then begin
+            (LiveScriptObject.FLastLine = FirstAffectedLine)) then
+          LiveScriptObject.FValid := False
+        else if LiveScriptObject.FFirstLine > DeleteLast then begin
           Dec(LiveScriptObject.FFirstLine, Count);
           Dec(LiveScriptObject.FLastLine, Count);
         end;

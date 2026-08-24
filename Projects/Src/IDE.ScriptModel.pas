@@ -240,7 +240,8 @@ type
     property Line: Integer read FLine;
   end;
 
-  { A single occurrence of a [Code] section. Read-only. Parse never raises on
+  { A single occurrence of a [Code] section. Read-only. All line numbers are
+    0-based indexes into the lines given to Parse. Parse never raises on
     malformed input: invalid code is simply skipped as long as it tokenizes,
     and after a tokenizer error it restarts at the next line, except for
     unterminated comment errors. All the time it keeps the declarations found. }
