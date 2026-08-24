@@ -12,7 +12,7 @@ unit IDE.Navigator;
 interface
 
 uses
-  Messages,
+  Windows, Messages,
   Classes, Controls, StdCtrls,
   IDE.LiveScriptObjectFactory;
 
@@ -31,9 +31,12 @@ type
     FDropDownAccepted: Boolean;
     FJustClosedUp: Boolean;
     FPendingPickComboBox: TComboBox;
-    FChangeCountAtSectionsSet, FChangeCountAtRoutinesSet: Int64; { -1 to force rebuild }
+    FChangeCountAtSectionsSet: Int64; { -1 to force rebuild }
+    FChangeCountAtRoutinesSet: Int64;
     FLiveCodeSection: TLiveScriptCodeSection;
     FLiveCodeSectionIndex: Integer; { Factory section index it was created for }
+    FMessagesWnd: HWND;
+    FRebuildRoutinesPending: Boolean;
     FCaretInCodeSection: Boolean;
     FOnCaretInCodeSectionChange: TNotifyEvent;
     FOnComboBoxItemsChanged: TNavigatorComboBoxItemsChangedEvent;
@@ -48,6 +51,10 @@ type
     procedure TrackDropDownAcceptance(const Message: TMessage);
     function HandleComboBoxKeyDown(const AComboBox: TComboBox;
       const Message: TMessage): Boolean;
+    procedure RebuildRoutinesTimerUpdate(const ACancel: Boolean);
+    procedure MessagesWndProc(var Message: TMessage);
+    procedure UpdateFromCaret(const AIgnoreDroppedDown,
+      AForceRebuildNow: Boolean); overload;
   public
     constructor Create(const AComboBox, AComboBox2: TComboBox;
       const AFactory: TLiveScriptObjectFactory;
@@ -55,16 +62,18 @@ type
       const AOnComboBoxItemsChanged: TNavigatorComboBoxItemsChangedEvent);
     destructor Destroy; override;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
-    procedure UpdateFromCaret;
+    procedure UpdateFromCaret; overload;
     property CaretInCodeSection: Boolean read FCaretInCodeSection;
   end;
 
 implementation
 
 uses
-  Windows,
   SysUtils,
-  IDE.ScriptModel, IDE.ScriptModel.Metadata.Extra;
+  IDE.HelperFunc, IDE.ScriptModel, IDE.ScriptModel.Metadata.Extra;
+
+const
+  RebuildRoutinesTimerID = 1;
 
 { TNavigator }
 
@@ -82,7 +91,7 @@ begin
   FOnCaretInCodeSectionChange := AOnCaretInCodeSectionChange;
   FOnComboBoxItemsChanged := AOnComboBoxItemsChanged;
   FChangeCountAtSectionsSet := -1;
-  FChangeCountAtRoutinesSet := -1;
+  FMessagesWnd := AllocateHWnd(MessagesWndProc);
   FComboBox.OnDropDown := ComboBoxDropDown;
   FComboBox.OnCloseUp := ComboBoxCloseUp;
   FComboBox.OnSelect := ComboBoxSelect;
@@ -106,8 +115,32 @@ begin
   FComboBox2.OnCloseUp := nil;
   FComboBox2.OnSelect := nil;
   FComboBox2.WindowProc := FSavedComboBox2WindowProc;
+  if FMessagesWnd <> 0 then
+    DeallocateHWnd(FMessagesWnd);
   FLiveCodeSection.Free;
   inherited Destroy;
+end;
+
+procedure TNavigator.RebuildRoutinesTimerUpdate(const ACancel: Boolean);
+const
+  RebuildRoutinesTimerInterval = 100;
+begin
+  if ACancel then
+    KillTimer(FMessagesWnd, RebuildRoutinesTimerID)
+  else
+    SetTimer(FMessagesWnd, RebuildRoutinesTimerID, RebuildRoutinesTimerInterval, nil);
+  FRebuildRoutinesPending := not ACancel;
+end;
+
+procedure TNavigator.MessagesWndProc(var Message: TMessage);
+begin
+  if (Message.Msg = WM_TIMER) and (Message.WParam = RebuildRoutinesTimerID) then begin
+    if AnyInputDown or FComboBox.DroppedDown or FComboBox2.DroppedDown then
+      Exit; { Keeps timer alive }
+    RebuildRoutinesTimerUpdate(True); { Kills timer }
+    UpdateFromCaret(False, True);
+  end else
+    Message.Result := DefWindowProc(FMessagesWnd, Message.Msg, Message.WParam, Message.LParam);
 end;
 
 { Drop down handling: Ending a drop down accepts it (Enter, a click, or
@@ -212,6 +245,15 @@ end;
 
 procedure TNavigator.ComboBoxDropDown(Sender: TObject);
 begin
+  if FRebuildRoutinesPending then begin
+    RebuildRoutinesTimerUpdate(True); { Kills timer }
+    UpdateFromCaret(True, True); { Make sure it ignores DroppedDown and force a rebuild }
+    { ^ This updates the items just in time and might also have changed the width
+      of the combobox (in TMainForm's NavigatorComboBoxItemsChanged). Both these
+      things worked fine when tested, also for the width of the list which is
+      about to drop down. }
+  end;
+
   FItemIndexBeforeDropDown := (Sender as TComboBox).ItemIndex;
   FDropDownAccepted := False;
 end;
@@ -293,7 +335,7 @@ procedure TNavigator.GoToComboBoxItem(const AComboBox: TComboBox;
     if AIndex < 0 then
       Exit;
 
-    if (FLiveCodeSection = nil) or not FLiveCodeSection.Valid then
+    if FRebuildRoutinesPending or (FLiveCodeSection = nil) or not FLiveCodeSection.Valid then
       Exit;
 
     if not TryFocusMemo then
@@ -322,7 +364,6 @@ begin
   { Attach to a different factory = different memo = different tab }
   FFactory := AFactory;
   FChangeCountAtSectionsSet := -1; { Force rebuild }
-  FChangeCountAtRoutinesSet := -1; { Force rebuild }
   { A close up must not jump: the comboboxes still hold the previous tab's items }
   FDropDownAccepted := False;
   FPendingPickComboBox := nil;
@@ -331,10 +372,13 @@ begin
     FComboBox.DroppedDown := False;
   if FComboBox2.DroppedDown then
     FComboBox2.DroppedDown := False;
-  UpdateFromCaret;
+  { Update }
+  RebuildRoutinesTimerUpdate(True); { Cancel any queued }
+  UpdateFromCaret(False, True); { Force rebuild }
 end;
 
-procedure TNavigator.UpdateFromCaret;
+procedure TNavigator.UpdateFromCaret(const AIgnoreDroppedDown,
+  AForceRebuildNow: Boolean);
 
   function ItemsDiffer(const AComboBox: TComboBox;
     const AItems: TArray<String>): Boolean;
@@ -376,7 +420,7 @@ begin
     NewSectionIndex := -1;
 
   const ChangeCount = FFactory.ChangeCount;
-  const AnyDroppedDown = FComboBox.DroppedDown or FComboBox2.DroppedDown;
+  const AnyDroppedDown = not AIgnoreDroppedDown and (FComboBox.DroppedDown or FComboBox2.DroppedDown);
 
   { Neither combobox is updated while either one is dropped down, so the
     debugger moving the caret while the user browses, for example to a
@@ -403,16 +447,21 @@ begin
     if CaretInCodeSection then begin
 
       { Rebuild if needed }
-      const Rebuild = (FLiveCodeSection = nil) or not FLiveCodeSection.Valid or
-        (FLiveCodeSectionIndex <> NewSectionIndex) or
-        (FChangeCountAtRoutinesSet <> ChangeCount);
-      if Rebuild then begin
+      const TextChanged = FChangeCountAtRoutinesSet <> ChangeCount;
+      const Rebuild = (FLiveCodeSection = nil) or
+        (FLiveCodeSectionIndex <> NewSectionIndex) or TextChanged;
+      const RebuildNow = AForceRebuildNow or
+        (Rebuild and ((FLiveCodeSection = nil) or (FLiveCodeSectionIndex <> NewSectionIndex)));
+
+      if RebuildNow then begin
+        RebuildRoutinesTimerUpdate(True); { Cancel any queued }
         FreeAndNil(FLiveCodeSection);
         var RefusalReason: TRefusalReason;
         if FFactory.TryCreateCodeSection(NewSectionIndex, FLiveCodeSection,
              RefusalReason) then
           FLiveCodeSectionIndex := NewSectionIndex;
-      end;
+      end else if Rebuild then
+        RebuildRoutinesTimerUpdate(False);
 
       { Determine caret routine index }
       var NewRoutineIndex := -1;
@@ -429,7 +478,7 @@ begin
         end;
       end;
 
-      if Rebuild then begin
+      if RebuildNow then begin
         { Update to new routines }
         var Routines: TArray<String> := [];
         if FLiveCodeSection <> nil then begin
@@ -449,6 +498,7 @@ begin
       if FComboBox2.ItemIndex <> NewRoutineIndex then
         FComboBox2.ItemIndex := NewRoutineIndex;
     end else begin
+      RebuildRoutinesTimerUpdate(True); { Cancel any queued }
       FreeAndNil(FLiveCodeSection);
       SetComboBoxItems(FComboBox2, [], -1);
     end;
@@ -461,6 +511,11 @@ begin
         FOnCaretInCodeSectionChange(Self);
     end;
   end;
+end;
+
+procedure TNavigator.UpdateFromCaret;
+begin
+  UpdateFromCaret(False, False);
 end;
 
 end.

@@ -420,23 +420,6 @@ begin
 end;
 
 procedure TInspector.MessagesWndProc(var Message: TMessage);
-
-  function AnyInputDown: Boolean;
-  { Also handles mouse input }
-  begin
-    { The mouse buttons don't map to a scan code (see below) so check them separately }
-    for var Key := VK_LBUTTON to VK_XBUTTON2 do
-      if GetAsyncKeyState(Key) < 0 then
-        Exit(True);
-    { For the other codes only trust GetAsyncKeyState if the code maps to a
-      scan code. This is because it was seen to report non-existing code 0
-      as being down consistently in one debug session, but never in any other. }
-    for var Key := VK_BACK to $FE do { This includes reserved and unassigned key codes }
-      if (GetAsyncKeyState(Key) < 0) and (MapVirtualKey(Key, MAPVK_VK_TO_VSC) <> 0) then
-        Exit(True);
-    Result := False;
-  end;
-
 begin
   if Message.Msg = WM_RemoveSelectedRow then
     RemoveSelectedRow
