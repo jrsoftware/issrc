@@ -295,31 +295,34 @@ procedure InitializeSectionMetadata;
     end;
   end;
 
-const
-  { In alphabetical order for CompressionValues and to match how InternalCompressLevel will show it }
-  LZMALevels: TArray<String> = ['fast', 'max', 'normal', 'ultra', 'ultra64'];
+  function ZipCompressionValues(const Algo: String): TArray<String>;
+  type
+    TZipLevel = 1..9;
+  begin
+    Result := [Algo];
+    for var Level := Low(TZipLevel) to High(TZipLevel) do
+      Result := Result + [Algo + '/' + Level.ToString];
+  end;
+
+  const
+    { In alphabetical order for CompressionValues and to match how InternalCompressLevel will show it }
+    LZMALevels: TArray<String> = ['fast', 'max', 'normal', 'ultra', 'ultra64'];
 
   function CompressionValues: TArray<String>;
   { Returns the values in custom order, which is their alphabetical order except for
     the zstd levels: those are in increasing order and not in ASCII order }
-  type
-    TZipLevel = 1..9;
   const
     LZMAAlgos: TArray<String> = ['lzma', 'lzma2'];
     ZstdAlgo = 'zstd';
     MeaningfulZstdLevels: TArray<Integer> = [1, 3, 6, 8, 13, 16, 18, 19, 20, 21, 22];
   begin
-    Result := ['bzip'];
-    for var Level := Low(TZipLevel) to High(TZipLevel) do
-      Result := Result + ['bzip/' + Level.ToString];
+    Result := ZipCompressionValues('bzip');
     for var Algo in LZMAAlgos do begin
       Result := Result + [Algo];
       for var Level in LZMALevels do
         Result := Result + [Algo + '/' + Level];
     end;
-    Result := Result + ['none', 'zip'];
-    for var Level := Low(TZipLevel) to High(TZipLevel) do
-      Result := Result + ['zip/' + Level.ToString];
+    Result := Result + ['none'] + ZipCompressionValues('zip');
     Result := Result + [ZstdAlgo];
     for var Level in MeaningfulZstdLevels do
       Result := Result + [ZstdAlgo + '/' + Level.ToString];
