@@ -4052,7 +4052,7 @@ end;
 
 procedure TMainForm.UpdateInspectorPanelWidth(W: Integer);
 begin
-  const MinWidth = ToCurrentPPI(120);
+  const MinWidth = ToCurrentPPI(130);
   const MaxWidth = BodyPanel.ClientWidth - ToCurrentPPI(200) - InspectorSplitPanel.Width;
   if W > MaxWidth then W := MaxWidth;
   if W < MinWidth then W := MinWidth;
@@ -4259,14 +4259,15 @@ end;
 procedure TMainForm.UpdateImages;
 { Should be called after DPI and theme changes }
 begin
-  var WH := MulDiv(16, CurrentPPI, 96);
-  var Images := ImagesModule.ToolbarImageCollection[FTheme.Dark];
+  const WH = MulDiv(16, CurrentPPI, 96);
 
-  var Image := Images.GetSourceImage(Images.GetIndexByName('heart-filled'), WH, WH);
-  UpdatePanelDonateBitBtn.Graphic := Image;
+  const LightImages = ImagesModule.ToolbarImageCollection[False];
+  const DonateImage = LightImages.GetSourceImage(LightImages.GetIndexByName('heart-filled'), WH, WH);
+  UpdatePanelDonateBitBtn.Graphic := DonateImage;
 
-  Image := Images.GetSourceImage(Images.GetIndexByName('menu-hamburger'), WH, WH);
-  InspectorPopupMenuBitBtn.Graphic := Image;
+  const ThemedImages = ImagesModule.ToolbarImageCollection[FTheme.Dark];
+  const MenuImage = ThemedImages.GetSourceImage(ThemedImages.GetIndexByName('menu-hamburger'), WH, WH);
+  InspectorPopupMenuBitBtn.Graphic := MenuImage;
 end;
 
 procedure TMainForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;

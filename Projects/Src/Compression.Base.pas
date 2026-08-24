@@ -22,11 +22,6 @@ type
   TCompressorProps = class
   end;
 
-  TThreadedCompressorProps = class(TCompressorProps)
-  public
-    NumBlockThreads: Integer;
-  end;
-
   TCompressorProgressProc = procedure(BytesProcessed: Int64) of object;
   TCompressorWriteProc = procedure(const Buffer; Count: Cardinal) of object;
   TCustomCompressorClass = class of TCustomCompressor;

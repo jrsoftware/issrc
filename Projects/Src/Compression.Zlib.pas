@@ -46,9 +46,9 @@ type
     FCompressionLevel: Integer;
     FInitialized: Boolean;
     FStrm: TZStreamRec;
-    FBuffer: array[0..65535] of Byte;
+    FOutBuffer: array[0..65535] of Byte;
     procedure EndCompress;
-    procedure FlushBuffer;
+    procedure FlushOutBuffer;
     procedure InitCompress;
   protected
     procedure DoCompress(const Buffer; Count: Cardinal); override;
@@ -65,7 +65,7 @@ type
     FInitialized: Boolean;
     FStrm: TZStreamRec;
     FReachedEnd: Boolean;
-    FBuffer: array[0..65535] of Byte;
+    FInBuffer: array[0..65535] of Byte;
   protected
     procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
     procedure DoReset; override;
@@ -199,8 +199,8 @@ begin
     starting a new stream, but our DLL doesn't currently export it. }
   if not FInitialized then begin
     InitStream(FStrm);
-    FStrm.next_out := @FBuffer;
-    FStrm.avail_out := SizeOf(FBuffer);
+    FStrm.next_out := @FOutBuffer;
+    FStrm.avail_out := SizeOf(FOutBuffer);
     Check(deflateInit_(FStrm, FCompressionLevel, zlib_version, SizeOf(FStrm)), [Z_OK]);
     FInitialized := True;
   end;
@@ -214,12 +214,12 @@ begin
   end;
 end;
 
-procedure TZCompressor.FlushBuffer;
+procedure TZCompressor.FlushOutBuffer;
 begin
-  if FStrm.avail_out < SizeOf(FBuffer) then begin
-    WriteProc(FBuffer, SizeOf(FBuffer) - FStrm.avail_out);
-    FStrm.next_out := @FBuffer;
-    FStrm.avail_out := SizeOf(FBuffer);
+  if FStrm.avail_out < SizeOf(FOutBuffer) then begin
+    WriteProc(FOutBuffer, SizeOf(FOutBuffer) - FStrm.avail_out);
+    FStrm.next_out := @FOutBuffer;
+    FStrm.avail_out := SizeOf(FOutBuffer);
   end;
 end;
 
@@ -231,7 +231,7 @@ begin
   while FStrm.avail_in > 0 do begin
     Check(deflate(FStrm, Z_NO_FLUSH), [Z_OK]);
     if FStrm.avail_out = 0 then
-      FlushBuffer;
+      FlushOutBuffer;
   end;
   if Assigned(ProgressProc) then
     ProgressProc(Count);
@@ -245,8 +245,8 @@ begin
   { Note: This assumes FStrm.avail_out > 0. This shouldn't be a problem since
     Compress always flushes when FStrm.avail_out reaches 0. }
   while Check(deflate(FStrm, Z_FINISH), [Z_OK, Z_STREAM_END]) <> Z_STREAM_END do
-    FlushBuffer;
-  FlushBuffer;
+    FlushOutBuffer;
+  FlushOutBuffer;
   EndCompress;
 end;
 
@@ -256,7 +256,7 @@ constructor TZDecompressor.Create(AReadProc: TDecompressorReadProc);
 begin
   inherited Create(AReadProc);
   InitStream(FStrm);
-  FStrm.next_in := @FBuffer;
+  FStrm.next_in := @FInBuffer;
   FStrm.avail_in := 0;
   Check(inflateInit_(FStrm, zlib_version, SizeOf(FStrm)), [Z_OK]);
   FInitialized := True;
@@ -277,8 +277,8 @@ begin
     if FReachedEnd then  { unexpected EOF }
       raise ECompressDataError.Create(SZlibDataError);
     if FStrm.avail_in = 0 then begin
-      FStrm.next_in := @FBuffer;
-      FStrm.avail_in := ReadInput(FBuffer, SizeOf(FBuffer));
+      FStrm.next_in := @FInBuffer;
+      FStrm.avail_in := ReadInput(FInBuffer, SizeOf(FInBuffer));
       { Note: If avail_in is zero while zlib still needs input, inflate() will
         return Z_BUF_ERROR. We interpret that as a data error (see below). }
     end;
@@ -291,7 +291,7 @@ end;
 
 procedure TZDecompressor.DoReset;
 begin
-  FStrm.next_in := @FBuffer;
+  FStrm.next_in := @FInBuffer;
   FStrm.avail_in := 0;
   { inflateReset can only fail if passed an invalid z_stream }
   Check(inflateReset(FStrm), [Z_OK]);

@@ -237,8 +237,7 @@ object OptionsForm: TOptionsForm
     Left = 340
     Top = 8
     Width = 321
-    Height = 425
-    Anchors = [akLeft, akTop, akBottom]
+    Height = 405
     Caption = ' Editor '
     TabOrder = 2
     object AutoAutoCompleteCheck: TCheckBox
@@ -315,19 +314,18 @@ object OptionsForm: TOptionsForm
     end
     object Label1: TNewStaticText
       Left = 8
-      Top = 359
+      Top = 339
       Width = 25
       Height = 14
-      Anchors = [akLeft, akBottom]
       Caption = 'Font:'
       TabOrder = 16
     end
     object FontPanel: TPanel
       Left = 104
-      Top = 350
+      Top = 330
       Width = 129
       Height = 32
-      Anchors = [akLeft, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight]
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'AaBbXxZz'
@@ -335,30 +333,29 @@ object OptionsForm: TOptionsForm
     end
     object ChangeFontButton: TButton
       Left = 240
-      Top = 355
+      Top = 335
       Width = 73
       Height = 23
-      Anchors = [akRight, akBottom]
+      Anchors = [akTop, akRight]
       Caption = '&Change...'
       TabOrder = 18
       OnClick = ChangeFontButtonClick
     end
     object Label2: TNewStaticText
       Left = 8
-      Top = 393
+      Top = 373
       Width = 54
       Height = 14
-      Anchors = [akLeft, akBottom]
       Caption = '&Tab Width:'
       FocusControl = TabWidthEdit
       TabOrder = 19
     end
     object TabWidthEdit: TEdit
       Left = 104
-      Top = 390
+      Top = 370
       Width = 50
       Height = 21
-      Anchors = [akLeft, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 20
       OnChange = TabWidthEditChange
     end
@@ -373,21 +370,20 @@ object OptionsForm: TOptionsForm
     end
     object Label4: TNewStaticText
       Left = 8
-      Top = 325
+      Top = 305
       Width = 37
       Height = 14
-      Anchors = [akLeft, akBottom]
       Caption = 'T&heme:'
       FocusControl = ThemeComboBox
       TabOrder = 14
     end
     object ThemeComboBox: TComboBox
       Left = 104
-      Top = 321
+      Top = 301
       Width = 209
       Height = 21
       Style = csDropDownList
-      Anchors = [akLeft, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 15
     end
     object HighlightSelTextOccurrencesCheck: TCheckBox
@@ -410,29 +406,28 @@ object OptionsForm: TOptionsForm
     end
     object Label5: TNewStaticText
       Left = 8
-      Top = 296
+      Top = 276
       Width = 27
       Height = 14
-      Anchors = [akLeft, akBottom]
       Caption = 'Ke&ys:'
       FocusControl = MemoKeyMappingComboBox
       TabOrder = 12
     end
     object MemoKeyMappingComboBox: TComboBox
       Left = 104
-      Top = 292
+      Top = 272
       Width = 209
       Height = 21
       Style = csDropDownList
-      Anchors = [akLeft, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 13
     end
     object ShowWhiteSpaceCheck: TCheckBox
       Left = 160
-      Top = 392
+      Top = 372
       Width = 153
       Height = 17
-      Anchors = [akRight, akBottom]
+      Anchors = [akTop, akRight]
       Caption = 'Show whitespace'
       TabOrder = 21
     end

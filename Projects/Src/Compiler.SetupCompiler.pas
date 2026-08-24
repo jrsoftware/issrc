@@ -135,7 +135,7 @@ type
     CompressMethod: TSetupCompressMethod;
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
-    ZstdNumThreads: Integer;
+    ZstdCompressProps: TZstdCompressorProps;
     UseSolidCompression: Boolean;
     ArchiveExtraction, MinArchiveExtraction: TArchiveExtraction;
     DontMergeDuplicateFiles: Boolean;
@@ -3613,7 +3613,13 @@ begin
         WizardStyleFileDynamicDark := Value;
       end;
     ssZstdNumThreads: begin
-        ZstdNumThreads := StrToIntRange(Value, 1, 64);
+        I := StrToIntRange(Value, -1, 64);
+        if I = 0 then
+          Invalid
+        else if I = -1 then  { undocumented value for testing }
+          ZstdCompressProps.NumWorkers := 1
+        else if I <> 1 then
+          ZstdCompressProps.NumWorkers := I;
       end;
   end;
 end;
@@ -7827,8 +7833,12 @@ var
           { Start a new chunk if needed }
           if not CH.ChunkStarted then begin
             ChunkCompressed := (floChunkCompressed in FL.Flags);
-            CH.NewChunk(GetCompressorClass(ChunkCompressed), CompressLevel,
-              CompressProps, floChunkEncrypted in FL.Flags, CryptKey);
+            const CompressorClass = GetCompressorClass(ChunkCompressed);
+            var CompressorProps: TCompressorProps := CompressProps;
+            if CompressorClass.InheritsFrom(TZstdCompressor) then
+              CompressorProps := ZstdCompressProps;
+            CH.NewChunk(CompressorClass, CompressLevel, CompressorProps,
+              floChunkEncrypted in FL.Flags, CryptKey);
           end;
 
           FL.FirstSlice := CH.ChunkFirstSlice;
@@ -8323,6 +8333,7 @@ begin
     end;
     InternalCompressProps := TLZMACompressorProps.Create;
     CompressProps := TLZMACompressorProps.Create;
+    ZstdCompressProps := TZstdCompressorProps.Create;
     GetActiveProcessorGroupCountFunc := GetProcAddress(GetModuleHandle(kernel32),
       'GetActiveProcessorGroupCount');
     if Assigned(GetActiveProcessorGroupCountFunc) then begin
@@ -8403,12 +8414,11 @@ begin
 
     { Verify settings set in [Setup] section }
     if CompressMethod = cmZstd then begin
-      if (ZstdNumThreads > 1) and (CompressLevel > 20) then begin
+      if (ZstdCompressProps.NumWorkers <> 0) and (CompressLevel > 20) then begin
         { Not allowed because aborting takes too long }
         LineNumber := SetupDirectiveLines[ssZstdNumThreads];
         AbortCompile(SCompilerMustNotUseZstdNumThreads);
       end;
-      CompressProps.NumBlockThreads := ZstdNumThreads;
     end;
     if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin
       if SetupArchitecture = sa32bit then
@@ -9289,6 +9299,7 @@ begin
     ClearPreLangDataList;
     ClearScriptFiles;
     ClearLineInfoList(CodeText);
+    FreeAndNil(ZstdCompressProps);
     FreeAndNil(CompressProps);
     FreeAndNil(InternalCompressProps);
   end;

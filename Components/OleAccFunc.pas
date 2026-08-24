@@ -111,6 +111,8 @@ end;
 
 destructor TWinControlMSAANameHook.Destroy;
 begin
+  if FControl.HandleAllocated then
+    SetOrClearNameForMSAA(FControl.Handle, '');
   FControl.WindowProc := FSavedWindowProc;
   inherited;
 end;

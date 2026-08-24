@@ -44,9 +44,9 @@ type
     FCompressionLevel: Integer;
     FInitialized: Boolean;
     FStrm: TBZStreamRec;
-    FBuffer: array[0..65535] of Byte;
+    FOutBuffer: array[0..65535] of Byte;
     procedure EndCompress;
-    procedure FlushBuffer;
+    procedure FlushOutBuffer;
     procedure InitCompress;
   protected
     procedure DoCompress(const Buffer; Count: Cardinal); override;
@@ -66,7 +66,7 @@ type
     FHeapBase: Pointer;
     FHeapCommitSize: Cardinal;
     FHeapNextFree: Cardinal;
-    FBuffer: array[0..65535] of Byte;
+    FInBuffer: array[0..65535] of Byte;
     procedure EndDecompress;
     procedure InitDecompress;
     function Malloc(const AItems, ASize: Integer): Pointer;
@@ -111,7 +111,7 @@ const
   BZ_OUTBUFF_FULL     = (-8);
   BZ_CONFIG_ERROR     = (-9);
 
-  SBzlibDataError = 'bzlib: Compressed data is corrupted';
+  SBzlibDataError = 'bzlib: Compressed data is corrupted (%d)';
   SBzlibInternalError = 'bzlib: Internal error. Code %d';
 
 function BZInitCompressFunctions(Module: HMODULE): Boolean;
@@ -200,8 +200,8 @@ procedure TBZCompressor.InitCompress;
 begin
   if not FInitialized then begin
     InitStream(FStrm);
-    FStrm.next_out := @FBuffer;
-    FStrm.avail_out := SizeOf(FBuffer);
+    FStrm.next_out := @FOutBuffer;
+    FStrm.avail_out := SizeOf(FOutBuffer);
     Check(BZ2_bzCompressInit(FStrm, FCompressionLevel, 0, 0), [BZ_OK]);
     FInitialized := True;
   end;
@@ -215,12 +215,12 @@ begin
   end;
 end;
 
-procedure TBZCompressor.FlushBuffer;
+procedure TBZCompressor.FlushOutBuffer;
 begin
-  if FStrm.avail_out < SizeOf(FBuffer) then begin
-    WriteProc(FBuffer, Cardinal(SizeOf(FBuffer) - FStrm.avail_out));
-    FStrm.next_out := @FBuffer;
-    FStrm.avail_out := SizeOf(FBuffer);
+  if FStrm.avail_out < SizeOf(FOutBuffer) then begin
+    WriteProc(FOutBuffer, Cardinal(SizeOf(FOutBuffer) - FStrm.avail_out));
+    FStrm.next_out := @FOutBuffer;
+    FStrm.avail_out := SizeOf(FOutBuffer);
   end;
 end;
 
@@ -232,7 +232,7 @@ begin
   while FStrm.avail_in > 0 do begin
     Check(BZ2_bzCompress(FStrm, BZ_RUN), [BZ_RUN_OK]);
     if FStrm.avail_out = 0 then
-      FlushBuffer;
+      FlushOutBuffer;
   end;
   if Assigned(ProgressProc) then
     ProgressProc(Count);
@@ -246,8 +246,8 @@ begin
   { Note: This assumes FStrm.avail_out > 0. This shouldn't be a problem since
     Compress always flushes when FStrm.avail_out reaches 0. }
   while Check(BZ2_bzCompress(FStrm, BZ_FINISH), [BZ_FINISH_OK, BZ_STREAM_END]) <> BZ_STREAM_END do
-    FlushBuffer;
-  FlushBuffer;
+    FlushOutBuffer;
+  FlushOutBuffer;
   EndCompress;
 end;
 
@@ -352,25 +352,39 @@ begin
 end;
 
 procedure TBZDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
+
+  procedure RaiseDataError(const Id: Integer);
+  begin
+    raise ECompressDataError.CreateFmt(SBzlibDataError, [Id]);
+  end;
+
 begin
   InitDecompress;
   FStrm.next_out := @Buffer;
   FStrm.avail_out := Count;
   while FStrm.avail_out > 0 do begin
-    if FReachedEnd then  { unexpected EOF }
-      raise ECompressDataError.Create(SBzlibDataError);
+    if FReachedEnd then
+      RaiseDataError(1);
     if FStrm.avail_in = 0 then begin
-      FStrm.next_in := @FBuffer;
-      FStrm.avail_in := ReadInput(FBuffer, SizeOf(FBuffer));
-      { Unlike zlib, bzlib does not return an error when avail_in is zero and
-        it still needs input. To avoid an infinite loop, check for this and
-        consider it a data error. }
-      if FStrm.avail_in = 0 then
-        raise ECompressDataError.Create(SBzlibDataError);
+      FStrm.next_in := @FInBuffer;
+      FStrm.avail_in := ReadInput(FInBuffer, SizeOf(FInBuffer));
     end;
+    const OldAvailIn = FStrm.avail_in;
+    const OldAvailOut = FStrm.avail_out;
     case Check(BZ2_bzDecompress(FStrm), [BZ_OK, BZ_STREAM_END, BZ_DATA_ERROR, BZ_DATA_ERROR_MAGIC]) of
+      BZ_OK:
+        begin
+          { If BZ_OK was returned but no forward progress was made, then that
+            means bzlib has run out of input (avail_in was 0 on entry) but it
+            is expecting more because it never got the full 10-byte stream
+            trailer (which would have caused BZ_STREAM_END to be returned
+            instead). To avoid an infinite loop, treat that as a data error. }
+          if (FStrm.avail_in = OldAvailIn) and (FStrm.avail_out = OldAvailOut) then
+            RaiseDataError(2);
+        end;
       BZ_STREAM_END: FReachedEnd := True;
-      BZ_DATA_ERROR, BZ_DATA_ERROR_MAGIC: raise ECompressDataError.Create(SBzlibDataError);
+      BZ_DATA_ERROR: RaiseDataError(3);
+      BZ_DATA_ERROR_MAGIC: RaiseDataError(4);
     end;
   end;
 end;

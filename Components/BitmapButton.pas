@@ -10,8 +10,11 @@ unit BitmapButton;
   which is actually a button with a focus rectangle when focused - in
   other words: an accessible TImage
 
+  Descends from TCustomButton so it clicks on both Space and Enter and takes
+  part in the VCL's default button handling
+
   Also supports other TGraphic types which can be assigned to a TBitmap
-  
+
   Make sure to set the Caption property, even if it isn't visible
 
   Also see TBitmapImage which is the TGraphicControl version
@@ -20,12 +23,14 @@ unit BitmapButton;
 interface
 
 uses
-  Windows, Messages, ShellAPI, Controls, Graphics, Classes, Imaging.pngimage,
+  Windows, Messages, ShellAPI,
+  Controls, StdCtrls, Graphics, Classes, Imaging.pngimage,
   BitmapImage;
 
 type
-  TBitmapButton = class(TCustomControl)
+  TBitmapButton = class(TCustomButton)
   private
+    FCanvas: TCanvas;
     FFocusBorderWidthHeight: Integer;
     FImpl: TBitmapImageImplementation;
     procedure SetBackColor(Value: TColor);
@@ -37,15 +42,17 @@ type
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
+    procedure DrawItem(const DrawItemStruct: TDrawItemStruct);
     procedure CMTextChanged(var Message: TMessage); message CM_TEXTCHANGED;
     procedure WMSetFocus(var Message: TWMSetFocus); message WM_SETFOCUS;
     procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
     procedure CNCommand(var Message: TWMCommand); message CN_COMMAND;
+    procedure CNDrawItem(var Message: TWMDrawItem); message CN_DRAWITEM;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     function GetPalette: HPALETTE; override;
-    procedure Paint; override;
     procedure SetAutoSize(Value: Boolean); override;
+    procedure SetButtonStyle(ADefault: Boolean); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -58,9 +65,12 @@ type
     property Anchors;
     property AutoSize: Boolean read FImpl.AutoSize write SetAutoSize default False;
     property BackColor: TColor read FImpl.BackColor write SetBackColor default clNone;
+    property Cancel;
     property Caption;
     property Center: Boolean read FImpl.Center write SetCenter default True;
+    property Default;
     property Enabled;
+    property ModalResult;
     property Opacity: Byte read FImpl.Opacity write SetOpacity default 255;
     property ParentShowHint;
     property PngImage: TPngImage read FImpl.PngImage write SetPngImage;
@@ -81,6 +91,9 @@ procedure Register;
 
 implementation
 
+uses
+  Themes;
+
 procedure Register;
 begin
   RegisterComponents('JR', [TBitmapButton]);
@@ -89,7 +102,8 @@ end;
 constructor TBitmapButton.Create(AOwner: TComponent);
 begin
   inherited;
-  ControlStyle := ControlStyle + [csParentBackground, csReplicatable] - [csClickEvents];
+  ControlStyle := ControlStyle + [csParentBackground, csReplicatable];
+  FCanvas := TCanvas.Create; { Same as TBitBtn }
   { Using a fixed focus border width/height to avoid design problems between systems }
   FFocusBorderWidthHeight := 2;
   const DoubleFBWH = 2*FFocusBorderWidthHeight;
@@ -103,13 +117,13 @@ end;
 procedure TBitmapButton.CreateParams(var Params: TCreateParams);
 begin
   inherited;
-  CreateSubClass(Params, 'BUTTON');
-  Params.Style := Params.Style or BS_NOTIFY; { For BN_DBLCLK }
+  Params.Style := Params.Style or BS_OWNERDRAW; { BS_OWNERDRAW also enables automatic BN_DBLCLK notification without BS_NOTIFY }
 end;
 
 destructor TBitmapButton.Destroy;
 begin
   FImpl.DeInit;
+  FCanvas.Free;
   inherited;
 end;
 
@@ -136,6 +150,11 @@ end;
 procedure TBitmapButton.SetBitmap(Value: TBitmap);
 begin
   FImpl.SetBitmap(Value);
+end;
+
+procedure TBitmapButton.SetButtonStyle(ADefault: Boolean);
+begin
+  { Just here to prevent TCustomButton.SetButtonStyle from running }
 end;
 
 procedure TBitmapButton.SetCenter(Value: Boolean);
@@ -178,25 +197,41 @@ begin
   Result := FImpl.GetPalette;
 end;
 
-procedure TBitmapButton.Paint;
+procedure TBitmapButton.DrawItem(const DrawItemStruct: TDrawItemStruct);
 begin
-  Canvas.Font := Font;
-  Canvas.Brush.Color := Color;
+  { Only handle full redraws: partial ODA_FOCUS and ODA_SELECT draws are not
+    preceded by an erase, and drawing an alpha image twice gives different
+    pixels. Focus changes already cause full redraws via WMSetFocus and
+    WMKillFocus, and there is no pressed look. }
+  if DrawItemStruct.itemAction and ODA_DRAWENTIRE = 0 then
+    Exit;
 
-  var R := ClientRect;
+  FCanvas.Handle := DrawItemStruct.hDC;
+  try
+    { Erase using the parent's background: TButtonControl.WMEraseBkGnd disables
+      normal erasing when themed. }
+    PerformEraseBackground(Self, DrawItemStruct.hDC);
 
-  if Focused and (SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS = 0) then begin
-    { See TBitBtn.DrawItem in Vcl.Buttons.pas }
-    Canvas.Pen.Color := clWindowFrame;
-    Canvas.Brush.Style := bsSolid;
-    Canvas.Brush.Color := clBtnFace;
-    { This might draw a focus border thinner or thicker than our FFocusBorderWidthHeight but that's okay }
-    Canvas.DrawFocusRect(R);
+    FCanvas.Font := Font;
+    FCanvas.Brush.Color := Color;
+
+    var R := ClientRect;
+
+    if Focused and (SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS = 0) then begin
+      { See TBitBtn.DrawItem in Vcl.Buttons.pas }
+      FCanvas.Pen.Color := clWindowFrame;
+      FCanvas.Brush.Style := bsSolid;
+      FCanvas.Brush.Color := clBtnFace;
+      { This might draw a focus border thinner or thicker than our FFocusBorderWidthHeight but that's okay }
+      FCanvas.DrawFocusRect(R);
+    end;
+
+    InflateRect(R, -FFocusBorderWidthHeight, -FFocusBorderWidthHeight);
+
+    FImpl.Paint(Self, FCanvas, R);
+  finally
+    FCanvas.Handle := 0;
   end;
-
-  InflateRect(R, -FFocusBorderWidthHeight, -FFocusBorderWidthHeight);
-
-  FImpl.Paint(Self, Canvas, R);
 end;
 
 procedure TBitmapButton.WMSetFocus(var Message: TWMSetFocus);
@@ -219,10 +254,22 @@ end;
 
 procedure TBitmapButton.CNCommand(var Message: TWMCommand);
 begin
-  if (Message.NotifyCode = BN_CLICKED) then
-    Click
-  else if (Message.NotifyCode = BN_DBLCLK) then
-    DblClick;
+  { BN_CLICKED is handled by TCustomButton.CNCommand }
+  if Message.NotifyCode = BN_DBLCLK then
+    DblClick
+  else
+    inherited;
 end;
 
+procedure TBitmapButton.CNDrawItem(var Message: TWMDrawItem);
+begin
+  DrawItem(Message.DrawItemStruct^);
+  Message.Result := 1;
+end;
+
+initialization
+  { Ensure VCL Styles leaves our painting alone }
+  TCustomStyleEngine.RegisterStyleHook(TBitmapButton, TStyleHook);
+finalization
+  TCustomStyleEngine.UnRegisterStyleHook(TBitmapButton, TStyleHook);
 end.

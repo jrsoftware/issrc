@@ -31,12 +31,13 @@ type
   TLZMASRes = type Integer;
   TLZMACompressorCustomWorker = class;
 
-  TLZMACompressorProps = class(TThreadedCompressorProps)
+  TLZMACompressorProps = class(TCompressorProps)
   public
     Algorithm: Integer;
     BlockSize: Integer;
     BTMode: Integer;
     DictionarySize: Cardinal;
+    NumBlockThreads: Integer;
     NumFastBytes: Integer;
     NumThreads: Integer;
     NumThreadGroups: Integer;
@@ -59,9 +60,9 @@ type
     NumThreadGroups: Integer;
   end;
   TLZMACompressorRingBuffer = record
-    Count: Integer;         { updated by reader and writer using InterlockedExchangeAdd only }
-    WriterOffset: Integer;  { accessed only by writer thread }
-    ReaderOffset: Integer;  { accessed only by reader thread }
+    [volatile] Count: Integer;  { updated by reader and writer using InterlockedExchangeAdd only }
+    WriterOffset: Integer;      { accessed only by writer thread }
+    ReaderOffset: Integer;      { accessed only by reader thread }
     Buf: array[0..$FFFFF] of Byte;
   end;
   { Using 32-bit handles to ensure islzma.exe doesn't depend on our bitness. This is safe
@@ -80,9 +81,9 @@ type
   end;
   PLZMACompressorSharedData = ^TLZMACompressorSharedData;
   TLZMACompressorSharedData = record
-    ProgressBytes: Int64;
-    NoMoreInput: BOOL;
-    EncodeResult: TLZMASRes;
+    [volatile] ProgressBytes: Int64;
+    [volatile] NoMoreInput: BOOL;
+    [volatile] EncodeResult: TLZMASRes;
     InputBuffer: TLZMACompressorRingBuffer;
     OutputBuffer: TLZMACompressorRingBuffer;
   end;
@@ -164,7 +165,7 @@ type
   private
     FThread: THandle;
     FLZMAHandle: TLZMACompressorHandle;
-    FReadLock, FWriteLock, FProgressLock: Integer;
+    [volatile] FReadLock, FWriteLock, FProgressLock: Integer;
     FSavedFatalException: TObject;
     function CheckTerminateWorkerEvent: HRESULT;
     function FillBuffer(const AWrite: Boolean; const Data: Pointer;

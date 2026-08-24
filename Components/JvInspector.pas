@@ -1022,17 +1022,12 @@ begin
     W := Width;
   if Value > (W - 2 * GetItemHeight) then
     Value := W - 2 * GetItemHeight;
-  if Value < (2 * GetItemHeight) then
-    Value := 2 * GetItemHeight;
-  const OldDivider = FDivider;
+  if Value < (4 * GetItemHeight) then
+    Value := 4 * GetItemHeight;
+  if Value = FDivider then
+    Exit;
   FDivider := Value;
-  if HandleAllocated then begin
-    var MinLeft := OldDivider;
-    if FDivider < MinLeft then
-      MinLeft := FDivider;
-    var R := Rect(MinLeft - 1, 0, ClientWidth, ClientHeight);
-    Windows.InvalidateRect(Handle, @R, False);
-  end;
+  Invalidate; { Full invalidate because names use end ellipsis }
 end;
 
 procedure TJvInspector.SetMarkedItem(const Value: TJvCustomInspectorItem);
@@ -1467,6 +1462,7 @@ begin
 
   { The value }
   TmpRect := FPaintItem.Rects[iprValueArea];
+  Inc(TmpRect.Left, MulDiv(2, CurrentPPI, 96));
   if TmpRect.Height div FTextHeight < 2 then begin
     OffsetRect(TmpRect, 0, (TmpRect.Height - FTextHeight) div 2);
     IntersectRect(TmpRect, TmpRect, FPaintItem.Rects[iprValueArea]);
@@ -1579,7 +1575,8 @@ begin
   if Assigned(FOnCustomizeItemCanvas) then
     FOnCustomizeItemCanvas(FPaintItem, Canvas);
   var NameTextRect := FPaintItem.Rects[iprNameText];
-  Canvas.TextRect(NameTextRect, NameTextRect.Left, NameTextRect.Top, FPaintItem.DisplayName);
+  var NameText := FPaintItem.DisplayName;
+  Canvas.TextRect(NameTextRect, NameText, [tfSingleLine, tfNoPrefix, tfEndEllipsis]);
   ApplyValueFont;
   if Assigned(FOnCustomizeItemCanvas) then
     FOnCustomizeItemCanvas(FPaintItem, Canvas);
@@ -2074,6 +2071,10 @@ begin
       property-editor is active has no effect until you clicked twice on the control.
       Telling the VCL that this control has the focus, fixes the problem. }
     SetFocus;
+    { Clicking the already selected row focuses the editor directly, so the
+      inspector gets no WM_SETFOCUS of its own to repaint the row on }
+    if HWND(Msg.WParam) <> Inspector.Handle then
+      InvalidateItem;
   end;
 end;
 
