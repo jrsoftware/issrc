@@ -1549,8 +1549,7 @@ end;
 const
   { A function or procedure keyword after one of these tokens is part of a
     procedural type }
-  NoRoutineHeaderAfterTokens = [CSTI_Equal, CSTI_Colon, CSTII_of,
-    CSTI_OpenRound, CSTI_Comma];
+  NoRoutineHeaderAfterTokens = [CSTI_Equal, CSTI_Colon, CSTII_of];
 
 procedure TScriptModelCodeSection.Parse(const ALines: array of String);
 
@@ -1642,10 +1641,10 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         const PrototypeTokenID = AParser.CurrTokenID;
         if ResultTypeColonSeen and (ResultTypeStartPos < 0) then
           ResultTypeStartPos := Integer(AParser.CurrTokenPos);
-        if (IsRoutineHeaderStart(PrototypeTokenID, ALastTokenID) or
-            (PrototypeTokenID = CSTII_begin) or
-            IsDeclarationBlockStart(PrototypeTokenID)) and (BraceDepth = 0) then
-          Break; { Unterminated: cut by a new declaration, its own 'begin', or a declaration block }
+        if IsRoutineHeaderStart(PrototypeTokenID, ALastTokenID) or
+           (PrototypeTokenID = CSTII_begin) or
+           (IsDeclarationBlockStart(PrototypeTokenID) and (BraceDepth = 0)) then
+          Break; { Unterminated: cut by a new declaration, its own 'begin', or a declaration block (last only outside parameter lists because those may contain 'const' and 'var') }
         if PrototypeTokenID = CSTI_OpenRound then
           Inc(BraceDepth)
         else if (PrototypeTokenID = CSTI_CloseRound) and (BraceDepth > 0) then

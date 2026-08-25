@@ -2517,7 +2517,7 @@ begin
     Assert(Section.Routines[0].Prototype = 'procedure Below;');
 
     { Procedural types are not routines: a routine keyword after '=', ':',
-      'of', '(' or ',' does not start a header }
+      or 'of' does not start a header }
     Section.Parse([
       'type',
       '  TProc = procedure(Sender: TObject);',
@@ -2659,6 +2659,60 @@ begin
     Assert(Section.Routines[0].Prototype =
       'procedure P(var A: Integer; const B: String);');
     Assert(Section.Routines[0].BodyFirstLine = 1);
+
+    { A header left unterminated inside its parameter list is cut by the next
+      routine's keyword, which is never legal there, so the routines below a
+      half-typed 'procedure X(' survive }
+    Section.Parse([
+      'procedure X(',                        { 0 }
+      '',                                    { 1 }
+      'function InitializeSetup: Boolean;',  { 2 }
+      'begin',                               { 3 }
+      '  Result := True;',                   { 4 }
+      'end;']);                              { 5 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Name = 'X');
+    Assert(Section.Routines[0].Prototype = 'procedure X(');
+    Assert(Section.Routines[0].BodyFirstLine = -1);
+    Assert(Section.Routines[0].LastLine = 1); { Line before the next declaration }
+    Assert(Section.Routines[1].Name = 'InitializeSetup');
+    Assert(Section.Routines[1].Prototype = 'function InitializeSetup: Boolean;');
+    Assert(Section.Routines[1].FirstLine = 2);
+    Assert(Section.Routines[1].BodyFirstLine = 3);
+    Assert(Section.Routines[1].BodyLastLine = 5);
+    Assert(Section.Routines[1].LastLine = 5);
+    Section.Parse([
+      'procedure X(A: Integer;',  { 0 }
+      'procedure After;',         { 1 }
+      'begin',                    { 2 }
+      'end;']);                   { 3 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Prototype = 'procedure X(A: Integer;');
+    Assert(Section.Routines[0].LastLine = 0);
+    Assert(Section.Routines[1].Name = 'After');
+    Assert(Section.Routines[1].BodyFirstLine = 2);
+    Section.Parse([
+      'procedure X(A,',                      { 0 }
+      'function InitializeSetup: Boolean;',  { 1 }
+      'begin',                               { 2 }
+      'end;']);                              { 3 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Prototype = 'procedure X(A,');
+    Assert(Section.Routines[0].LastLine = 0);
+    Assert(Section.Routines[1].Name = 'InitializeSetup');
+    Assert(Section.Routines[1].BodyFirstLine = 2);
+
+    { Its own 'begin' also cuts inside the parameter list, and the body is
+      still parsed }
+    Section.Parse([
+      'procedure X(',  { 0 }
+      'begin',         { 1 }
+      'end;']);        { 2 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'procedure X(');
+    Assert(Section.Routines[0].BodyFirstLine = 1);
+    Assert(Section.Routines[0].BodyLastLine = 2);
+    Assert(Section.Routines[0].LastLine = 2);
 
     { A declaration block after a bodyless header is taken for the routine's
       own local blocks, so a type block there is not listed and the routine's
