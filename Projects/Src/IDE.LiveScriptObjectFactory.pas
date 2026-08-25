@@ -1409,7 +1409,6 @@ begin
   if not TryGetSectionForCreation(ASectionIndex, Section, ARefusalReason) then
     Exit;
   if Section <> scCode then begin
-    { The common check's scCode branch cannot hit here }
     if not TryGetCommonSectionRefusalReason(Section, ARefusalReason) then
       ARefusalReason := rrNotCodeSection;
     Exit;
