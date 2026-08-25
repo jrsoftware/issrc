@@ -2199,6 +2199,12 @@ begin
   Assert(Definition.HeaderKind = hkISPPVoid);
   Assert(not Definition.HasParams);
 
+  { HasParams tests ')', so a header cut short inside its parameter list
+    counts as parameterless and the single-definition rule hides its call tip }
+  Definition := TFunctionDefinition.Create('procedure Foo(');
+  Assert(Definition.ScriptFuncWithoutHeader = 'Foo(');
+  Assert(not Definition.HasParams);
+
   { GetISPPFunctionDefinition: a known function, case-insensitively, and an
     unknown name }
   var Count: Integer;
