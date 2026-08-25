@@ -276,7 +276,7 @@ begin
   FLiveParameterSectionEntries.Free;
   FLiveKeyValueSection.Free;
   {$IFDEF DEBUG}
-  FLiveCodeSection.Free;
+  TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
   {$ENDIF}
   FRows.Free;
   if FMessagesWnd <> 0 then
@@ -1562,7 +1562,7 @@ begin
   FreeAndNil(FLiveParameterSectionEntries);
   FreeAndNil(FLiveKeyValueSection);
   {$IFDEF DEBUG}
-  FreeAndNil(FLiveCodeSection);
+  TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
   FUpdateFromCaretEarlyExitCount := 0;
   FDebugSectionRoutinesRowString := 'None';
   FDebugCaretRoutineRowString := 'None';
@@ -1649,7 +1649,7 @@ begin
     {$IFDEF DEBUG}
     else if (EntryRefusalReason <> rrMixedSelection) and
             FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
-            FFactory.TryCreateCodeSection(SectionIndex, FLiveCodeSection,
+            FFactory.TryAcquireCodeSection(SectionIndex, FLiveCodeSection,
               SectionRefusalReason) then begin
       const Header = FFactory.SectionHeaders[SectionIndex];
       FLiveCodeSectionIndex := SectionIndex;

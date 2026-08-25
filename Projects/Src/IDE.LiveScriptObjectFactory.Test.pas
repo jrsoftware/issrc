@@ -1384,16 +1384,18 @@ begin
   end;
 end;
 
-{ TryCreateCodeSection: creation on a [Code] occurrence, the refusals, an
-  empty [Code] body, separate objects for multiple [Code] occurrences with
-  TryGetRoutine using each object's own line base, and standard line tracking
-  and validity across edits above and inside the section }
-procedure TestTryCreateCodeSection(const AMemo: TScintEdit;
+{ TryAcquireCodeSection: acquisition on a [Code] occurrence, the refusals, an
+  empty [Code] body, separate shared objects for multiple [Code] occurrences
+  with TryGetRoutine using each object's own line base, further acquires
+  returning a still-held object, a new object on acquire after an edit with
+  the still-held old object staying alive, line tracking and invalidation,
+  and a release after factory destruction }
+procedure TestTryAcquireCodeSection(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 begin
   const EOL = String(AMemo.LineEndingString);
 
-  { Creation, refusals, and an empty [Code] body }
+  { Acquisition, refusals, and an empty [Code] body }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [
       '[Setup]',                        { 0 }
@@ -1416,44 +1418,48 @@ begin
       var Reason: TRefusalReason;
 
       { Refusals }
-      Assert(not Factory.TryCreateCodeSection(-1, CodeSection, Reason));
+      Assert(not Factory.TryAcquireCodeSection(-1, CodeSection, Reason));
       Assert(CodeSection = nil);
       Assert(Reason = rrSectionIndexOutOfRange);
-      Assert(not Factory.TryCreateCodeSection(6, CodeSection, Reason));
+      Assert(not Factory.TryAcquireCodeSection(6, CodeSection, Reason));
       Assert(Reason = rrSectionIndexOutOfRange);
-      Assert(not Factory.TryCreateCodeSection(0, CodeSection, Reason)); { [Setup] }
+      Assert(not Factory.TryAcquireCodeSection(0, CodeSection, Reason)); { [Setup] }
       Assert(Reason = rrNotCodeSection);
-      Assert(not Factory.TryCreateCodeSection(1, CodeSection, Reason)); { [Files], a parameter section }
+      Assert(not Factory.TryAcquireCodeSection(1, CodeSection, Reason)); { [Files], a parameter section }
       Assert(Reason = rrNotCodeSection);
-      Assert(not Factory.TryCreateCodeSection(3, CodeSection, Reason)); { [Foo] }
+      Assert(not Factory.TryAcquireCodeSection(3, CodeSection, Reason)); { [Foo] }
       Assert(Reason = rrUnrecognizedSection);
-      Assert(not Factory.TryCreateCodeSection(5, CodeSection, Reason)); { [Messages] }
+      Assert(not Factory.TryAcquireCodeSection(5, CodeSection, Reason)); { [Messages] }
       Assert(Reason = rrNotCodeSection);
 
-      { Creation on the populated [Code] occurrence }
-      Assert(Factory.TryCreateCodeSection(2, CodeSection, Reason));
+      { Acquisition on the populated [Code] occurrence }
+      Assert(Factory.TryAcquireCodeSection(2, CodeSection, Reason));
       try
         Assert(CodeSection.Valid);
         Assert(CodeSection.FirstLine = 5);
         Assert(CodeSection.LastLine = 7);
       finally
-        CodeSection.Free;
+        TLiveScriptObjectFactory.ReleaseAndNil(CodeSection);
       end;
+      Assert(CodeSection = nil); { Release nils the reference }
 
       { The empty [Code] occurrence gives an object with an empty range }
-      Assert(Factory.TryCreateCodeSection(4, CodeSection, Reason));
+      Assert(Factory.TryAcquireCodeSection(4, CodeSection, Reason));
       try
         Assert(CodeSection.Valid);
         Assert(CodeSection.LastLine < CodeSection.FirstLine);
       finally
-        CodeSection.Free;
+        TLiveScriptObjectFactory.ReleaseAndNil(CodeSection);
       end;
     finally
       Context.Free;
     end;
   end;
 
-  { Two [Code] occurrences give separate objects with their own ranges }
+  { Two [Code] occurrences give separate objects with their own ranges, a
+    second acquire of an occurrence, also after only caret movement, returns
+    the same still-held shared object, and an acquire after the last release
+    still hands out a usable object }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [
       '[Code]',                         { 0 }
@@ -1470,9 +1476,9 @@ begin
       const Factory = Context.Factory;
       var Reason: TRefusalReason;
       var CodeSection1, CodeSection2: TLiveScriptCodeSection;
-      Assert(Factory.TryCreateCodeSection(0, CodeSection1, Reason));
+      Assert(Factory.TryAcquireCodeSection(0, CodeSection1, Reason));
       try
-        Assert(Factory.TryCreateCodeSection(2, CodeSection2, Reason));
+        Assert(Factory.TryAcquireCodeSection(2, CodeSection2, Reason));
         try
           Assert(CodeSection1 <> CodeSection2);
           Assert(CodeSection1.FirstLine = 1);
@@ -1486,19 +1492,49 @@ begin
           Assert(not CodeSection1.TryGetRoutine(8, Routine)); { CodeSection2's routine }
           Assert(CodeSection2.TryGetRoutine(8, Routine));
           Assert(Routine.Name = 'B');
+
+          { A second acquire returns the same shared object; the preceding
+            caret movement does not bump ChangeCount, so it does not prevent
+            the reuse }
+          AMemo.CaretLine := 8;
+          var CodeSection3: TLiveScriptCodeSection;
+          Assert(Factory.TryAcquireCodeSection(0, CodeSection3, Reason));
+          try
+            Assert(CodeSection3 = CodeSection1);
+          finally
+            TLiveScriptObjectFactory.ReleaseAndNil(CodeSection3);
+          end;
+          { The object stays usable through the still-held reference }
+          Assert(CodeSection1.Valid);
+          Assert(CodeSection1.TryGetRoutine(2, Routine));
         finally
-          CodeSection2.Free;
+          TLiveScriptObjectFactory.ReleaseAndNil(CodeSection2);
         end;
       finally
-        CodeSection1.Free;
+        TLiveScriptObjectFactory.ReleaseAndNil(CodeSection1);
+      end;
+
+      { An acquire after the last release still hands out a usable object:
+        the freed object must not have left a dangling entry behind for the
+        share scan to find. Whether the object is a fresh parse cannot be
+        asserted: the freed one's address may be reused. }
+      var CodeSection4: TLiveScriptCodeSection;
+      Assert(Factory.TryAcquireCodeSection(0, CodeSection4, Reason));
+      try
+        Assert(CodeSection4.Valid);
+        Assert(CodeSection4.FirstLine = 1);
+        Assert(CodeSection4.LastLine = 3);
+      finally
+        TLiveScriptObjectFactory.ReleaseAndNil(CodeSection4);
       end;
     finally
       Context.Free;
     end;
   end;
 
-  { Standard line tracking: an insert above shifts the range, an insert inside
-    extends it, and deleting one of its lines invalidates the object }
+  { An edit makes the next acquire return a new object while a still-held old
+    object stays alive with its line tracking working, and deleting one of the
+    held object's lines invalidates it }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [
       '[Setup]',                        { 0 }
@@ -1510,32 +1546,79 @@ begin
     try
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 2);
-      var CodeSection: TLiveScriptCodeSection;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateCodeSection(1, CodeSection, Reason));
+      var HeldCodeSection: TLiveScriptCodeSection;
+      Assert(Factory.TryAcquireCodeSection(1, HeldCodeSection, Reason));
       try
-        Assert(CodeSection.FirstLine = 3);
-        Assert(CodeSection.LastLine = 5);
+        Assert(HeldCodeSection.FirstLine = 3);
+        Assert(HeldCodeSection.LastLine = 5);
+
+        { An edit above the section: the held object goes stale but its line
+          tracking keeps working }
         AMemo.ReplaceTextRange(0, 0, 'X' + EOL); { Insert a line at the top }
-        Assert(CodeSection.Valid);
-        Assert(CodeSection.FirstLine = 4);
-        Assert(CodeSection.LastLine = 6);
-        const Pos = AMemo.GetPositionFromLine(5); { The 'begin' line }
-        AMemo.ReplaceTextRange(Pos, Pos, '  Beep;' + EOL); { Insert a line inside the section }
-        Assert(CodeSection.Valid);
-        Assert(CodeSection.FirstLine = 4);
-        Assert(CodeSection.LastLine = 7);
-        AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(5),
-          AMemo.GetPositionFromLine(6), ''); { Delete one of the section's lines }
-        Assert(not CodeSection.Valid);
+        Assert(HeldCodeSection.Valid);
+        Assert(HeldCodeSection.FirstLine = 4);
+        Assert(HeldCodeSection.LastLine = 6);
+
+        { The next acquire returns a new object instead of the stale held
+          one, which stays alive }
+        var NewCodeSection: TLiveScriptCodeSection;
+        Assert(Factory.TryAcquireCodeSection(1, NewCodeSection, Reason));
         var Routine: TCodeSectionRoutine;
-        Assert(not CodeSection.TryGetRoutine(4, Routine)); { Fails safe when invalid }
+        try
+          Assert(NewCodeSection <> HeldCodeSection);
+          Assert(NewCodeSection.FirstLine = 4);
+          Assert(NewCodeSection.LastLine = 6);
+          Assert(NewCodeSection.TryGetRoutine(4, Routine));
+          Assert(Routine.Name = 'P');
+          { The still-held stale object answers the same lookup on its own
+            shifted line base }
+          Assert(HeldCodeSection.TryGetRoutine(4, Routine));
+          Assert(Routine.Name = 'P');
+        finally
+          TLiveScriptObjectFactory.ReleaseAndNil(NewCodeSection);
+        end;
+
+        { An edit inside the section extends the held object's range }
+        const Pos = AMemo.GetPositionFromLine(5); { Its 'begin' line }
+        AMemo.ReplaceTextRange(Pos, Pos, '  Beep;' + EOL);
+        Assert(HeldCodeSection.Valid);
+        Assert(HeldCodeSection.FirstLine = 4);
+        Assert(HeldCodeSection.LastLine = 7);
+
+        { Deleting one of the held object's lines invalidates it }
+        AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(6),
+          AMemo.GetPositionFromLine(7), ''); { Delete its 'begin' line }
+        Assert(not HeldCodeSection.Valid);
+        Assert(not HeldCodeSection.TryGetRoutine(4, Routine)); { Fails safe when invalid }
       finally
-        CodeSection.Free;
+        TLiveScriptObjectFactory.ReleaseAndNil(HeldCodeSection);
       end;
     finally
       Context.Free;
     end;
+  end;
+
+  { A held object survives factory destruction, and its release then frees it }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Code]',                         { 0 }
+      'procedure P;',                   { 1 }
+      'begin',                          { 2 }
+      'end;']);                         { 3 }
+    var CodeSection: TLiveScriptCodeSection := nil;
+    try
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryAcquireCodeSection(0, CodeSection, Reason));
+    finally
+      Context.Free;
+    end;
+    Assert(CodeSection.Valid);
+    var Routine: TCodeSectionRoutine;
+    Assert(CodeSection.TryGetRoutine(1, Routine));
+    Assert(Routine.Name = 'P');
+    TLiveScriptObjectFactory.ReleaseAndNil(CodeSection);
+    Assert(CodeSection = nil);
   end;
 end;
 
@@ -1802,7 +1885,7 @@ begin
     TestCollectParameterValues(AMemo, AStyler);
     TestKeyValueSections(AMemo, AStyler);
     TestKeyValueSectionReadsAndWrites(AMemo, AStyler);
-    TestTryCreateCodeSection(AMemo, AStyler);
+    TestTryAcquireCodeSection(AMemo, AStyler);
     TestEditTracking(AMemo, AStyler);
   finally
     AMemo.OnChange := nil;

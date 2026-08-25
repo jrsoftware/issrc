@@ -117,7 +117,7 @@ begin
   FComboBox2.WindowProc := FSavedComboBox2WindowProc;
   if FMessagesWnd <> 0 then
     DeallocateHWnd(FMessagesWnd);
-  FLiveCodeSection.Free;
+  TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
   inherited Destroy;
 end;
 
@@ -455,9 +455,9 @@ begin
 
       if RebuildNow then begin
         RebuildRoutinesTimerUpdate(True); { Cancel any queued }
-        FreeAndNil(FLiveCodeSection);
+        TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
         var RefusalReason: TRefusalReason;
-        if FFactory.TryCreateCodeSection(NewSectionIndex, FLiveCodeSection,
+        if FFactory.TryAcquireCodeSection(NewSectionIndex, FLiveCodeSection,
              RefusalReason) then
           FLiveCodeSectionIndex := NewSectionIndex;
       end else if Rebuild then
@@ -499,7 +499,7 @@ begin
         FComboBox2.ItemIndex := NewRoutineIndex;
     end else begin
       RebuildRoutinesTimerUpdate(True); { Cancel any queued }
-      FreeAndNil(FLiveCodeSection);
+      TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
       SetComboBoxItems(FComboBox2, [], -1);
     end;
 

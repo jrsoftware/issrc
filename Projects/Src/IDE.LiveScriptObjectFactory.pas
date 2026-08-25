@@ -26,7 +26,7 @@ type
   TLiveScriptObjectFactory = class;
 
   { Why TryCreateParameterSectionEntries, TryCreateKeyValueSection, or
-    TryCreateCodeSection refused to create an object }
+    TryAcquireCodeSection refused to create an object }
   TRefusalReason = (rrLineOutOfRange, rrNotInsideSection,
     rrInCodeSection, rrUnrecognizedSection, rrNotParameterSection, rrComment,
     rrISPPDirective, rrMixedSelection, rrSectionIndexOutOfRange,
@@ -144,12 +144,17 @@ type
     property Section: TScriptModelKeyValueSection read FSection;
   end;
 
-  { A single occurrence of a [Code] section. Read-only. }
+  { A single occurrence of a [Code] section. Read-only. Shared: handed out by
+    the factory's TryAcquireCodeSection and returned with ReleaseAndNil. }
   TLiveScriptCodeSection = class(TLiveScriptObject)
   private
     FSection: TScriptModelCodeSection;
-    constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
-      ALastLine: Integer; const ALines: TArray<String>);
+    FSectionIndex: Integer; { Factory section index it was created for }
+    FChangeCountAtParse: Int64; { The factory's ChangeCount when the object parsed }
+    FAcquireCount: Integer;
+    constructor Create(const AFactory: TLiveScriptObjectFactory;
+      const ASectionIndex, AFirstLine, ALastLine: Integer;
+      const ALines: TArray<String>);
   public
     destructor Destroy; override;
     function TryGetRoutine(const AMemoLine: Integer;
@@ -211,16 +216,17 @@ type
     function TryCreateKeyValueSection(const ASectionIndex: Integer;
       out ASection: TLiveScriptKeyValueSection;
       out ARefusalReason: TRefusalReason): Boolean;
-    function TryCreateCodeSection(const ASectionIndex: Integer;
-      out ASection: TLiveScriptCodeSection;
+    function TryAcquireCodeSection(const ASectionIndex: Integer;
+      out ASection: TLiveScriptCodeSection; { Always use ReleaseAndNil when done }
       out ARefusalReason: TRefusalReason): Boolean;
+    class procedure ReleaseAndNil(var ASection: TLiveScriptCodeSection); static;
     { Bumped on every Change and Reset call, so a consumer can tell whether
       the memo changed since it last read something. The memo being changed
-      does not mean each live object's parsed content is stale, but this
-      still isn't tracked per object because it wouldn't help much:
-      consumers also keep data from outside their objects at creation,
-      such as the object's section index, so any change anywhere will make
-      them want to rebuild, even if we start tracking staleness per object. }
+      does not mean each live object's parsed content is stale, but that
+      staleness isn't tracked because it wouldn't help much: consumers also
+      keep data from outside their objects at creation, such as the object's
+      section index, so any change anywhere will make them want to rebuild,
+      even with exact tracking. }
     property ChangeCount: Int64 read FChangeCount;
     property Memo: TScintEdit read FMemo;
     property SectionHeaders[Index: Integer]: TLiveScriptSectionHeader read GetSectionHeader;
@@ -602,9 +608,12 @@ end;
 { TLiveScriptCodeSection }
 
 constructor TLiveScriptCodeSection.Create(const AFactory: TLiveScriptObjectFactory;
-  const AFirstLine, ALastLine: Integer; const ALines: TArray<String>);
+  const ASectionIndex, AFirstLine, ALastLine: Integer;
+  const ALines: TArray<String>);
 begin
   inherited Create(AFactory, AFirstLine, ALastLine);
+  FSectionIndex := ASectionIndex;
+  FChangeCountAtParse := AFactory.FChangeCount;
   FSection := TScriptModelCodeSection.Create;
   FSection.Parse(ALines);
 end;
@@ -1388,7 +1397,7 @@ begin
   Result := True;
 end;
 
-function TLiveScriptObjectFactory.TryCreateCodeSection(const ASectionIndex: Integer;
+function TLiveScriptObjectFactory.TryAcquireCodeSection(const ASectionIndex: Integer;
   out ASection: TLiveScriptCodeSection;
   out ARefusalReason: TRefusalReason): Boolean;
 begin
@@ -1404,11 +1413,37 @@ begin
     Exit;
   end;
 
+  { Try to share existing }
+  for var LiveScriptObject in FLiveScriptObjects do begin
+    if LiveScriptObject is TLiveScriptCodeSection then begin
+      const CodeSection = TLiveScriptCodeSection(LiveScriptObject);
+      if (CodeSection.FSectionIndex = ASectionIndex) and CodeSection.Valid and
+         (CodeSection.FChangeCountAtParse = FChangeCount) then begin
+        Inc(CodeSection.FAcquireCount);
+        ASection := CodeSection;
+        Exit(True);
+      end;
+    end;
+  end;
+
   var FirstLine, LastLine: Integer;
   const SectionLines = GetSectionBodyLines(ASectionIndex, FirstLine, LastLine);
-  ASection := TLiveScriptCodeSection.Create(Self, FirstLine, LastLine,
-    SectionLines);
+  ASection := TLiveScriptCodeSection.Create(Self, ASectionIndex, FirstLine,
+    LastLine, SectionLines);
+  Inc(ASection.FAcquireCount);
   Result := True;
+end;
+
+class procedure TLiveScriptObjectFactory.ReleaseAndNil(
+  var ASection: TLiveScriptCodeSection);
+begin
+  if ASection = nil then
+    Exit;
+  const CodeSection = ASection;
+  ASection := nil;
+  Dec(CodeSection.FAcquireCount);
+  if CodeSection.FAcquireCount = 0 then
+    CodeSection.Free;
 end;
 
 procedure TLiveScriptObjectFactory.WriteBackChange(const ALiveScriptObject: TLiveScriptObject;
