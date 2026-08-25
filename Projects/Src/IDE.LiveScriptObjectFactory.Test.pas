@@ -184,6 +184,40 @@ begin
   end;
 end;
 
+{ GetSectionFirstSignificantLine over a body starting with a non blank line, a
+  body with leading blank lines, an all blank body, and two empty bodies }
+procedure TestGetSectionFirstSignificantLine(const AMemo: TScintEdit;
+  const AStyler: TInnoSetupStyler);
+begin
+  const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+    '[Setup]',                        { 0 }
+    'AppName=x',                      { 1 }
+    '[Files]',                        { 2 }
+    '',                               { 3, blank }
+    '   ',                            { 4, whitespace only }
+    'Source: a',                      { 5 }
+    '[Icons]',                        { 6 }
+    '',                               { 7 }
+    '  ',                             { 8 }
+    '[Registry]',                     { 9, no body }
+    '[Run] \',                        { 10, spanned header }
+    '  ; continuation',               { 11, continuation of line 10 }
+    'Filename: b',                    { 12 }
+    '[Tasks]']);                      { 13, no body and last line of the script }
+  try
+    const Factory = Context.Factory;
+    Assert(Factory.SectionCount = 6);
+    Assert(Factory.GetSectionFirstSignificantLine(0) = 1);  { Body starts non blank }
+    Assert(Factory.GetSectionFirstSignificantLine(1) = 5);  { Leading blank lines skipped }
+    Assert(Factory.GetSectionFirstSignificantLine(2) = 7);  { All blank body: its first line }
+    Assert(Factory.GetSectionFirstSignificantLine(3) = 9);  { Empty body: the header's line }
+    Assert(Factory.GetSectionFirstSignificantLine(4) = 12); { Header continuation is not body }
+    Assert(Factory.GetSectionFirstSignificantLine(5) = 13); { Empty body at end of script }
+  finally
+    Context.Free;
+  end;
+end;
+
 { TryCreateParameterSectionEntries: every refusal reason plus the two accept
   paths (a real parameter line, and a blank line yielding an empty entry) }
 procedure TestTryCreateParameterSectionEntries(const AMemo: TScintEdit;
@@ -1759,6 +1793,7 @@ begin
   try
     TestSectionIndexing(AMemo, AStyler);
     TestTryGetSectionAtLine(AMemo, AStyler);
+    TestGetSectionFirstSignificantLine(AMemo, AStyler);
     TestTryCreateParameterSectionEntries(AMemo, AStyler);
     TestTryCreateParameterSectionEntriesFromLineRanges(AMemo, AStyler);
     TestEntryRoundTrip(AMemo, AStyler);
