@@ -202,6 +202,7 @@ type
   end;
 
   TCodeSectionRoutineKind = (rkProcedure, rkFunction);
+  TCodeSectionRoutineBodilessType = (btNo, btForward, btExternal);
 
   { A user-defined procedure or function }
   TCodeSectionRoutine = class
@@ -213,8 +214,7 @@ type
     FFirstLine, FLastLine: Integer;         { Always set }
     FBodyFirstLine, FBodyLastLine: Integer; { -1/-1 for a bodiless routine and while no
     matching 'end' is found }
-    FBodiless: Boolean;                     { True after a 'forward' or 'external' directive }
-    FBodilessType: String;                  { forward' or 'external' if bodiless, empty otherwise }
+    FBodilessType: TCodeSectionRoutineBodilessType;
   public
     property Name: String read FName;
     property Kind: TCodeSectionRoutineKind read FKind;
@@ -224,8 +224,7 @@ type
     property BodyFirstLine: Integer read FBodyFirstLine;
     property BodyLastLine: Integer read FBodyLastLine;
     property LastLine: Integer read FLastLine;
-    property Bodiless: Boolean read FBodiless;
-    property BodilessType: String read FBodilessType;
+    property BodilessType: TCodeSectionRoutineBodilessType read FBodilessType;
   end;
 
   { A user-defined declaration other than a routine }
@@ -1685,13 +1684,10 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         { Handle trailing decoration }
         var DecorationLastLine := -1;
         while AParser.CurrTokenID in [CSTII_Forward, CSTII_External, CSTII_Export] do begin
-          if AParser.CurrTokenID <> CSTII_Export then begin
-            Routine.FBodiless := True;
-            if AParser.CurrTokenID = CSTII_Forward then
-              Routine.FBodilessType := 'forward'
-            else
-              Routine.FBodilessType := 'external';
-          end;
+          if AParser.CurrTokenID = CSTII_Forward then
+            Routine.FBodilessType := btForward
+          else if AParser.CurrTokenID = CSTII_External then
+            Routine.FBodilessType := btExternal;
           ALastTokenID := AParser.CurrTokenID;
           DecorationLastLine := ALineOffset + Integer(AParser.Row)-1;
           AParser.Next;
@@ -1707,7 +1703,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
           end;
         end;
         { Search for the body and parse it }
-        if Routine.FBodiless then
+        if Routine.FBodilessType <> btNo then
           Routine.FLastLine := DecorationLastLine
         else begin
           { Search for 'begin', past any local declaration blocks.

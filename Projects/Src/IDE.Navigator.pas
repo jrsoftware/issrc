@@ -486,9 +486,10 @@ begin
           SetLength(Routines, Section.RoutineCount);
           for var I := 0 to Section.RoutineCount-1 do begin
             const Routine = Section.Routines[I];
-            Routines[I] := Routine.Name;
-            if Routine.BodilessType <> '' then
-              Routines[I] := Routines[I] + ' (' + Routine.BodilessType + ')';
+            if Routine.BodilessType = btForward then
+              Routines[I] := Routine.Name + ' (forward)' { Do not localize }
+            else
+              Routines[I] := Routine.Name;
           end;
         end;
         SetComboBoxItems(FComboBox2, Routines, NewRoutineIndex);
