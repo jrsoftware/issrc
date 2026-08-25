@@ -713,8 +713,8 @@ type
     FErrorMemo, FStepMemo: TIDEScintFileEdit; { These change depending on user input }
     FMemosStyler: TInnoSetupStyler;           { Single styler for all memos }
     { Used by class helpers }
+    FAutoCompleteAndCallTipsLiveCodeSection: TLiveScriptCodeSection;
     FAutoCompleteExtraContinueChars: TSysCharSet;
-    FAutoCompleteLiveCodeSection: TLiveScriptCodeSection;
     FCallTipState: TCallTipState;
     FCompiledExe: String;
     FCompiling: Boolean;
@@ -1433,7 +1433,7 @@ begin
   FSignTools.Free;
   FMRUParametersList.Free;
   FMRUMainFilesList.Free;
-  TLiveScriptObjectFactory.ReleaseAndNil(FAutoCompleteLiveCodeSection);
+  TLiveScriptObjectFactory.ReleaseAndNil(FAutoCompleteAndCallTipsLiveCodeSection);
   FLiveScriptObjectFactories.Free;
   FFileMemos.Free;
   FHiddenFiles.Free;
@@ -5626,16 +5626,18 @@ begin
       end else begin
         var ClassMember := False;
         const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
+        var UserDefined := BuildUserDefinedFunctionDefinitions(FActiveMemo, Line);
         var Index := 0;
         var Count: Integer;
-        var FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+        var FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, UserDefined, Count);
         if Count = 0 then begin
           ClassMember := not ClassMember;
-          FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+          UserDefined := [];
+          FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, UserDefined, Count);
         end;
         while Index < Count do begin
           if Index <> 0 then
-            FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index);
+            FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, UserDefined);
           if HintStr <> '' then
             HintStr := HintStr + #13;
           HintStr := HintStr + ScriptFuncHeaderKindToStr(FunctionDefinition.HeaderKind) +

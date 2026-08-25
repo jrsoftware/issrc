@@ -23,10 +23,19 @@ type
     constructor Create(const ScriptFunc: AnsiString);
     {$WARN DUPLICATE_CTOR_DTOR OFF} { Don't care about C++ }
     constructor CreateISPP(const ISPPScriptFunc: AnsiString);
+    constructor CreateUserDefined(const ScriptFunc: String;
+      const AHeaderKind: TScriptFuncHeaderKind);
     {.$WARN DUPLICATE_CTOR_DTOR ON} { Restoring doesn't work }
   end;
   TFunctionDefinitions = array of TFunctionDefinition;
   TFunctionDefinitionsByName = TDictionary<String, TFunctionDefinitions>;
+
+  { Use when the name is known without having to call ExtractScriptFuncName }
+  TFunctionDefinitionWithName = record
+    Name: String;
+    Definition: TFunctionDefinition;
+  end;
+  TFunctionDefinitionsWithName = array of TFunctionDefinitionWithName;
 
 var
   ISPPFunctionsByName: TFunctionDefinitionsByName;
@@ -35,9 +44,11 @@ var
 function GetISPPFunctionDefinition(const Name: String;
   const Index: Integer; out Count: Integer): TFunctionDefinition;
 function GetScriptFunctionDefinition(const ClassMember: Boolean;
-  const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; overload;
+  const Name: String; const Index: Integer;
+  const UserDefined: TFunctionDefinitionsWithName; out Count: Integer): TFunctionDefinition; overload;
 function GetScriptFunctionDefinition(const ClassMember: Boolean;
-  const Name: String; const Index: Integer): TFunctionDefinition; overload;
+  const Name: String; const Index: Integer;
+  const UserDefined: TFunctionDefinitionsWithName): TFunctionDefinition; overload;
 
 procedure InitializeFunctionDefinitions;
 
@@ -65,40 +76,71 @@ begin
   HasParams := ScriptFuncHasParameters(ISPPScriptFunc);
 end;
 
+constructor TFunctionDefinition.CreateUserDefined(const ScriptFunc: String;
+  const AHeaderKind: TScriptFuncHeaderKind);
+begin
+  var HeaderLength: Integer;
+  case AHeaderKind of
+    hkFunction: HeaderLength := Length('function');
+    hkProcedure: HeaderLength := Length('procedure');
+  else
+    raise Exception.CreateFmt('Invalid user-defined header kind: %d', [Ord(AHeaderKind)]);
+  end;
+
+  ScriptFuncWithoutHeader := AnsiString(TrimLeft(Copy(ScriptFunc, HeaderLength+1, MaxInt)));
+  HeaderKind := AHeaderKind;
+  HasParams := ScriptFuncHasParameters(ScriptFuncWithoutHeader);
+end;
+
 { --- }
 
 { Result is undefined if out Count = 0 }
-function GetFunctionDefinition(const FunctionsByName: TFunctionDefinitionsByName;
-  const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition;
+function GetFunctionDefinitionFromList(const FunctionDefinitions: TFunctionDefinitions;
+  const Index: Integer; out Count: Integer): TFunctionDefinition;
 begin
-  var FunctionDefinitions: TFunctionDefinitions;
-  if FunctionsByName.TryGetValue(Name, FunctionDefinitions) then begin
-    Count := Integer(Length(FunctionDefinitions));
+  Count := Integer(Length(FunctionDefinitions));
+  if Count > 0 then begin
     var ResultIndex := Index;
     if ResultIndex >= Count then
       ResultIndex := Count-1;
-    Result := FunctionDefinitions[ResultIndex]
-  end else
-    Count := 0;
+    Result := FunctionDefinitions[ResultIndex];
+  end;
 end;
 
+{ Result is undefined if out Count = 0 }
 function GetISPPFunctionDefinition(const Name: String;
   const Index: Integer; out Count: Integer): TFunctionDefinition;
 begin
-  Result := GetFunctionDefinition(ISPPFunctionsByName, Name, Index, Count);
+  var FunctionDefinitions: TFunctionDefinitions;
+  if ISPPFunctionsByName.TryGetValue(Name, FunctionDefinitions) then
+    Result := GetFunctionDefinitionFromList(FunctionDefinitions, Index, Count)
+  else
+    Count := 0;
 end;
 
+{ Result is undefined if out Count = 0 }
 function GetScriptFunctionDefinition(const ClassMember: Boolean;
-  const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition;
+  const Name: String; const Index: Integer;
+  const UserDefined: TFunctionDefinitionsWithName; out Count: Integer): TFunctionDefinition;
 begin
-  Result := GetFunctionDefinition(ScriptFunctionsByName[ClassMember], Name, Index, Count);
+  var Definitions: TFunctionDefinitions := [];
+  { Add matching from UserDefined }
+  for var UserDefinedFunctionDefinition in UserDefined do
+    if SameText(UserDefinedFunctionDefinition.Name, Name) then
+      Definitions := Definitions + [UserDefinedFunctionDefinition.Definition];
+  { Add matching from built-ins }
+  var BuiltInDefinitions: TFunctionDefinitions;
+  if ScriptFunctionsByName[ClassMember].TryGetValue(Name, BuiltInDefinitions) then
+    Definitions := Definitions + BuiltInDefinitions;
+  Result := GetFunctionDefinitionFromList(Definitions, Index, Count);
 end;
 
 function GetScriptFunctionDefinition(const ClassMember: Boolean;
-  const Name: String; const Index: Integer): TFunctionDefinition;
+  const Name: String; const Index: Integer;
+  const UserDefined: TFunctionDefinitionsWithName): TFunctionDefinition;
 begin
   var Count: Integer;
-  Result := GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+  Result := GetScriptFunctionDefinition(ClassMember, Name, Index, UserDefined, Count);
 end;
 
 procedure InitializeFunctionDefinitions;

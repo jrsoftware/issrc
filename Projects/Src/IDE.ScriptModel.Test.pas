@@ -2205,6 +2205,26 @@ begin
   Assert(Definition.ScriptFuncWithoutHeader = 'Foo(');
   Assert(not Definition.HasParams);
 
+  { CreateUserDefined takes the kind from the caller and accepts the whitespace
+    a prototype read from the script can carry }
+  Definition := TFunctionDefinition.CreateUserDefined('procedure'#9'Foo(const A: Integer);', hkProcedure);
+  Assert(Definition.HeaderKind = hkProcedure);
+  Assert(Definition.ScriptFuncWithoutHeader = 'Foo(const A: Integer);');
+  Assert(Definition.HasParams);
+  Definition := TFunctionDefinition.CreateUserDefined('function  Bar: Boolean;', hkFunction);
+  Assert(Definition.HeaderKind = hkFunction);
+  Assert(Definition.ScriptFuncWithoutHeader = 'Bar: Boolean;');
+  Assert(not Definition.HasParams);
+
+  { Only a procedure or a function can be user-defined }
+  var CaughtInvalidHeaderKind := False;
+  try
+    Definition := TFunctionDefinition.CreateUserDefined('constructor Create;', hkConstructor);
+  except
+    CaughtInvalidHeaderKind := True;
+  end;
+  Assert(CaughtInvalidHeaderKind);
+
   { GetISPPFunctionDefinition: a known function, case-insensitively, and an
     unknown name }
   var Count: Integer;
@@ -2215,28 +2235,70 @@ begin
   GetISPPFunctionDefinition('NoSuchFunction', 0, Count);
   Assert(Count = 0);
 
-  { GetScriptFunctionDefinition: a single-prototype function, with both
-    overloads, and an unknown name }
-  Definition := GetScriptFunctionDefinition(False, 'MsgBox', 0, Count);
+  { GetScriptFunctionDefinition: a single-prototype function with no
+    user-defined definitions, with both overloads, and an unknown name }
+  Definition := GetScriptFunctionDefinition(False, 'MsgBox', 0, [], Count);
   Assert(Count = 1);
   Assert(Definition.HeaderKind = hkFunction);
   Assert(Pos(AnsiString('MsgBox('), Definition.ScriptFuncWithoutHeader) = 1);
-  const DefinitionFromOverload = GetScriptFunctionDefinition(False, 'MsgBox', 0);
+  const DefinitionFromOverload = GetScriptFunctionDefinition(False, 'MsgBox', 0, []);
   Assert(DefinitionFromOverload.ScriptFuncWithoutHeader = Definition.ScriptFuncWithoutHeader);
-  GetScriptFunctionDefinition(False, 'NoSuchFunction', 0, Count);
+  GetScriptFunctionDefinition(False, 'NoSuchFunction', 0, [], Count);
   Assert(Count = 0);
 
   { A class-member lookup with multiple prototypes: an out-of-range index
     clamps to the last prototype }
-  const FirstDefinition = GetScriptFunctionDefinition(True, 'Add', 0, Count);
+  const FirstDefinition = GetScriptFunctionDefinition(True, 'Add', 0, [], Count);
   Assert(Count > 1);
-  const LastDefinition = GetScriptFunctionDefinition(True, 'Add', Count-1, Count);
+  const LastDefinition = GetScriptFunctionDefinition(True, 'Add', Count-1, [], Count);
   Assert(LastDefinition.ScriptFuncWithoutHeader <> FirstDefinition.ScriptFuncWithoutHeader);
-  const ClampedDefinition = GetScriptFunctionDefinition(True, 'Add', MaxInt, Count);
+  const ClampedDefinition = GetScriptFunctionDefinition(True, 'Add', MaxInt, [], Count);
   Assert(ClampedDefinition.ScriptFuncWithoutHeader = LastDefinition.ScriptFuncWithoutHeader);
-  Definition := GetScriptFunctionDefinition(True, 'Create', 0, Count);
+  Definition := GetScriptFunctionDefinition(True, 'Create', 0, [], Count);
   Assert(Count > 1);
   Assert(Definition.HeaderKind = hkConstructor);
+
+  { Non-empty user-defined definitions: those matching the name come before
+    the built-in definitions, and the count covers the matching user-defined
+    definitions plus the built-in count only }
+  var UserDefined: TFunctionDefinitionsWithName;
+  SetLength(UserDefined, 2);
+  UserDefined[0].Name := 'MyRoutine';
+  UserDefined[0].Definition := TFunctionDefinition.Create('function MyRoutine(const A: Integer): Boolean;');
+  UserDefined[1].Name := 'MsgBox';
+  UserDefined[1].Definition := TFunctionDefinition.Create('procedure MsgBox(const Text: String);');
+
+  { A user-defined-only name, matched case-insensitively }
+  Definition := GetScriptFunctionDefinition(False, 'myroutine', 0, UserDefined, Count);
+  Assert(Count = 1);
+  Assert(Definition.ScriptFuncWithoutHeader = 'MyRoutine(const A: Integer): Boolean;');
+
+  { A name both user-defined and built-in: the user-defined one first, then
+    the built-in, with an out-of-range index clamping to the last }
+  Definition := GetScriptFunctionDefinition(False, 'MsgBox', 0, UserDefined, Count);
+  Assert(Count = 2);
+  Assert(Definition.HeaderKind = hkProcedure);
+  Definition := GetScriptFunctionDefinition(False, 'MsgBox', 1, UserDefined, Count);
+  Assert(Definition.HeaderKind = hkFunction);
+  Assert(Pos(AnsiString('MsgBox('), Definition.ScriptFuncWithoutHeader) = 1);
+  Definition := GetScriptFunctionDefinition(False, 'MsgBox', MaxInt, UserDefined, Count);
+  Assert(Definition.HeaderKind = hkFunction);
+
+  { The overload without a count, with user-defined definitions }
+  const DefinitionFromUserDefinedOverload = GetScriptFunctionDefinition(False, 'MsgBox', 0, UserDefined);
+  Assert(DefinitionFromUserDefinedOverload.HeaderKind = hkProcedure);
+
+  { A name matching neither a user-defined definition nor a built-in }
+  GetScriptFunctionDefinition(False, 'NoSuchFunction', 0, UserDefined, Count);
+  Assert(Count = 0);
+
+  { User-defined definitions whose names don't match are left out, so a lookup
+    which does have built-in definitions keeps its own count }
+  var BuiltInCount: Integer;
+  GetScriptFunctionDefinition(False, 'ExpandConstant', 0, [], BuiltInCount);
+  Assert(BuiltInCount > 0);
+  GetScriptFunctionDefinition(False, 'ExpandConstant', 0, UserDefined, Count);
+  Assert(Count = BuiltInCount);
 end;
 
 procedure TestWordLists;
