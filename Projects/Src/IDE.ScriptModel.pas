@@ -1553,34 +1553,64 @@ const
 
 procedure TScriptModelCodeSection.Parse(const ALines: array of String);
 
-  function SliceText(const AText: AnsiString;
+  function AdvanceWithSkip(const S: String; var I: Integer): Boolean;
+  { Advances past the comment or whitespace at I and returns True, or past
+    the content character or string literal at I and returns False }
+  begin
+    Result := True;
+    if S[I] <= ' ' then begin
+      { Whitespace }
+      while (I <= Length(S)) and (S[I] <= ' ') do
+        Inc(I);
+    end else if S[I] = '{' then begin
+      { Comment }
+      while (I <= Length(S)) and (S[I] <> '}') do
+        Inc(I);
+      Inc(I);
+    end else if (S[I] = '(') and (I < Length(S)) and (S[I+1] = '*') then begin
+      (* Comment *)
+      Inc(I, 2);
+      while (I < Length(S)) and not ((S[I] = '*') and (S[I+1] = ')')) do
+        Inc(I);
+      Inc(I, 2);
+    end else if (S[I] = '/') and (I < Length(S)) and (S[I+1] = '/') then begin
+      // Comment
+      while (I <= Length(S)) and not CharInSet(S[I], [#13, #10]) do
+        Inc(I);
+    end else begin
+      Result := False;
+      if S[I] = '''' then begin
+        { String literal: skip containing comment chars. Does not need special
+          handling for a string like 'hel''lo', that's just two of these loops. }
+        repeat
+          Inc(I);
+        until (I > Length(S)) or (S[I] = '''');
+      end;
+      if I <= Length(S) then
+        Inc(I);
+    end;
+  end;
+
+  function SliceCleanText(const AText: AnsiString;
     const AStartPos, AEndPos: Integer): String;
   { Returns byte positions [AStartPos, AEndPos) of the tokenized buffer as a
-    String, with trailing whitespace removed and each whitespace run
-    containing a line break collapsed to a single space }
+    String, cleaned up for display: comments and whitespace both collapse to
+    a single space, and are removed from the start or end }
   begin
-    const S = TrimRight(UTF8ToString(Copy(AText, AStartPos+1,
-      AEndPos-AStartPos)));
+    const S = UTF8ToString(Copy(AText, AStartPos+1, AEndPos-AStartPos));
     const Builder = TStringBuilder.Create;
     try
       var I := 1;
+      var PendingSeparator := False;
       while I <= Length(S) do begin
-        if S[I] > ' ' then begin
-          Builder.Append(S[I]);
-          Inc(I);
-        end else begin
-          var J := I;
-          var HasLineBreak := False;
-          while (J <= Length(S)) and (S[J] <= ' ') do begin
-            if CharInSet(S[J], [#13, #10]) then
-              HasLineBreak := True;
-            Inc(J);
-          end;
-          if HasLineBreak then
-            Builder.Append(' ')
-          else
-            Builder.Append(S, I-1, J-I); { Append is 0-based }
-          I := J;
+        const StartI = I;
+        if AdvanceWithSkip(S, I) then
+          PendingSeparator := True { Wait till actual content, helps to merge consecutive comments and whitespace }
+        else begin
+          if PendingSeparator and (Builder.Length > 0) then
+            Builder.Append(' ');
+          PendingSeparator := False;
+          Builder.Append(S, StartI-1, I-StartI); { Append is 0-based }
         end;
       end;
       Result := Builder.ToString;
@@ -1673,9 +1703,9 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         EndPos := Integer(AParser.CurrTokenPos);
         ResultTypeEndPos := EndPos;
       end;
-      Routine.FPrototype := SliceText(AText, StartPos, EndPos);
+      Routine.FPrototype := SliceCleanText(AText, StartPos, EndPos);
       if (Routine.FKind = rkFunction) and (ResultTypeStartPos >= 0) then
-        Routine.FResultTypeText := SliceText(AText, ResultTypeStartPos, ResultTypeEndPos);
+        Routine.FResultTypeText := SliceCleanText(AText, ResultTypeStartPos, ResultTypeEndPos);
 
       if HeaderTerminated or
          (AParser.CurrTokenID = CSTII_begin) or IsDeclarationBlockStart(AParser.CurrTokenID) then begin { A header cut by its own 'begin' or a declaration block still gets its body searched for and parsed }

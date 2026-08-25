@@ -2205,8 +2205,8 @@ begin
   Assert(Definition.ScriptFuncWithoutHeader = 'Foo(');
   Assert(not Definition.HasParams);
 
-  { CreateUserDefined takes the kind from the caller and accepts the whitespace
-    a prototype read from the script can carry }
+  { CreateUserDefined takes the kind from the caller and separates the header
+    on any whitespace, not just the single space a cleaned prototype has }
   Definition := TFunctionDefinition.CreateUserDefined('procedure'#9'Foo(const A: Integer);', hkProcedure);
   Assert(Definition.HeaderKind = hkProcedure);
   Assert(Definition.ScriptFuncWithoutHeader = 'Foo(const A: Integer);');
@@ -2634,18 +2634,77 @@ begin
       'function(const A: String; const B: String): Integer');
 
     { Something else can share the header's first or last physical line: the
-      prototype is exactly the keyword through its ';'. Within a line the
-      header is kept as written. }
+      prototype is exactly the keyword through its ';' }
     Section.Parse(['const C = 1; procedure Shared; begin end;']);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'Shared');
     Assert(Section.Routines[0].Prototype = 'procedure Shared;');
     Assert(Section.Routines[0].ResultTypeText = '');
+
+    { Every whitespace run collapses to a single space, also within a line }
     Section.Parse(['function  Spaced  (A: Integer) : Boolean ;', 'begin', 'end;']);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Prototype =
-      'function  Spaced  (A: Integer) : Boolean ;');
+      'function Spaced (A: Integer) : Boolean ;');
     Assert(Section.Routines[0].ResultTypeText = 'Boolean');
+    Section.Parse(['function'#9'Tabbed(A:'#9'Integer):'#9'Boolean;', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'function Tabbed(A: Integer): Boolean;');
+    Assert(Section.Routines[0].ResultTypeText = 'Boolean');
+
+    { A comment separates tokens like whitespace does, so it collapses into
+      the surrounding run instead of merging its neighbours. Both block forms
+      are recognized. }
+    Section.Parse([
+      'function{ a }Commented(A: Integer (* the size *)): Boolean;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'Commented');
+    Assert(Section.Routines[0].Prototype =
+      'function Commented(A: Integer ): Boolean;');
+    Assert(Section.Routines[0].ResultTypeText = 'Boolean');
+
+    { A '//' comment ends at its line break, so the rest of the header
+      survives, and it runs to the end when there is no line break left }
+    Section.Parse([
+      'function Split(A: // cut here',
+      '  Integer): Boolean;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'function Split(A: Integer): Boolean;');
+    Section.Parse(['procedure Trailing(A: Integer // note']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'procedure Trailing(A: Integer');
+
+    { A comment surrounded by whitespace merges into a single separator, and
+      one trailing the result type leaves no trailing space }
+    Section.Parse(['function Edges: { kind } Boolean { done };', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'function Edges: Boolean ;');
+    Assert(Section.Routines[0].ResultTypeText = 'Boolean');
+
+    { A comment's opening characters inside a string literal are kept: the
+      literal is not a comment }
+    Section.Parse(['procedure Literal(const S: String = ''{app}'');', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype =
+      'procedure Literal(const S: String = ''{app}'');');
+    Section.Parse(['procedure Quoted(const S: String = ''it''''s { x }'');', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype =
+      'procedure Quoted(const S: String = ''it''''s { x }'');');
+
+    { A non-ASCII comment leaves the prototype ASCII, unlike a non-ASCII string
+      literal, which the call tip's ASCII test then still rejects }
+    Section.Parse(['procedure Accented(A: Integer { caf'#$00E9' });', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'procedure Accented(A: Integer );');
+    Section.Parse(['procedure Kept(const S: String = ''caf'#$00E9''');', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype =
+      'procedure Kept(const S: String = ''caf'#$00E9''');');
 
     { An unterminated header is cut short by the next declaration's keyword,
       its own body's 'begin', a tokenize error, or the section's end, keeping
