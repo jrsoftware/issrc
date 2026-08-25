@@ -29,6 +29,8 @@ type
       const LinePos, ScanEndPos: Integer;
       out IsPragmaContext: Boolean): Boolean; static;
     { Private }
+    function _TryAcquireAndHoldCodeSectionAtLine(const AMemo: TScintEdit;
+      const ALine: Integer): Boolean;
     class function _InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
       const WordStartLinePos, PositionBeforeWordStartPos: Integer;
       const ISPPExpressionContext: Boolean): Boolean; static;
@@ -50,6 +52,35 @@ uses
 const
   AutoCompleteWordChars = AlphaDigitUnderscoreChars;
   AutoCompleteStartOrContinueChars = AutoCompleteWordChars + ['#', '{', '[', '<'];
+
+function CreateSortedCaseInsensitiveStringList: TStringList;
+begin
+  Result := TStringList.Create;
+  Result.CaseSensitive := False;
+  Result.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
+  Result.Sorted := True;
+  Result.Duplicates := dupIgnore;
+end;
+
+function TMainFormAutoCompleteAndCallTipsHelper._TryAcquireAndHoldCodeSectionAtLine(
+  const AMemo: TScintEdit; const ALine: Integer): Boolean;
+begin
+  Result := False;
+  const Factory = LiveScriptObjectFactoryForMemo(AMemo);
+  var SectionIndex: Integer;
+  if not Factory.TryGetSectionAtLine(ALine, SectionIndex) then
+    Exit;
+  var CodeSection: TLiveScriptCodeSection;
+  if not Factory.TryAcquireCodeSection(SectionIndex, CodeSection) then
+    Exit;
+
+  { The acquired section is held between autocompletions so it can still be reused later,
+    like after Navigator's debounce }
+  var PreviousCodeSection := FAutoCompleteLiveCodeSection;
+  FAutoCompleteLiveCodeSection := CodeSection;
+  TLiveScriptObjectFactory.ReleaseAndNil(PreviousCodeSection); { Frees or decrements acquire count }
+  Result := True;
+end;
 
 class function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer;
@@ -401,28 +432,13 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
   function BuildCodeRoutinesWordList(const Line: Integer): AnsiString;
   begin
     Result := '';
-    const Factory = LiveScriptObjectFactoryForMemo(AMemo);
-    var SectionIndex: Integer;
-    if not Factory.TryGetSectionAtLine(Line, SectionIndex) then
-      Exit;
-    var CodeSection: TLiveScriptCodeSection;
-    if not Factory.TryAcquireCodeSection(SectionIndex, CodeSection) then
+    if not _TryAcquireAndHoldCodeSectionAtLine(AMemo, Line) then
       Exit;
 
-    { CodeSection is held between autocompletions so it can still be reused later,
-      like after Navigator's debounce }
-    var PreviousCodeSection := FAutoCompleteLiveCodeSection;
-    FAutoCompleteLiveCodeSection := CodeSection;
-    TLiveScriptObjectFactory.ReleaseAndNil(PreviousCodeSection); { Frees or decrements acquire count }
-
-    const Names = TStringList.Create;
+    const Names = CreateSortedCaseInsensitiveStringList;
     try
-      Names.CaseSensitive := False;
-      Names.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
-      Names.Sorted := True;
-      Names.Duplicates := dupIgnore;
-      for var I := 0 to CodeSection.Section.RoutineCount-1 do
-        Names.Add(CodeSection.Section.Routines[I].Name);
+      for var I := 0 to FAutoCompleteLiveCodeSection.Section.RoutineCount-1 do
+        Names.Add(FAutoCompleteLiveCodeSection.Section.Routines[I].Name);
       Result := BuildAutoCompleteWordList(Names, awtScriptFunction);
     finally
       Names.Free;
