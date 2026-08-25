@@ -227,7 +227,7 @@ uses
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 begin
-  const C: AnsiString = '(';
+  const C: AnsiString = ')';
 
   Result := Pos(C, ScriptFunc) <> 0;
 end;
