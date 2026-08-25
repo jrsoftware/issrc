@@ -61,6 +61,7 @@ procedure DeleteKnownIncludedHiddenAndRichEditFiles(const AFilename: String);
 procedure LoadBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
 procedure SaveBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
 procedure DeleteBreakPointLines(const AFilename: String);
+function ShortCutUsesOEMKey(const ShortCut: TShortCut): Boolean;
 function NewShortCutToText(const ShortCut: TShortCut): String;
 procedure SetFakeShortCutText(const MenuItem: TMenuItem; const S: String);
 procedure SetFakeShortCut(const MenuItem: TMenuItem; const Key: Word;
@@ -486,6 +487,16 @@ begin
   finally
     Ini.Free;
   end;
+end;
+
+function ShortCutUsesOEMKey(const ShortCut: TShortCut): Boolean;
+const
+  OEMKeys =
+    [VK_OEM_1, VK_OEM_PLUS, VK_OEM_COMMA, VK_OEM_MINUS, VK_OEM_PERIOD,
+     VK_OEM_2, VK_OEM_3, VK_OEM_4, VK_OEM_5, VK_OEM_6, VK_OEM_7, VK_OEM_8,
+     VK_OEM_102];
+begin
+  Result := LoByte(Word(ShortCut)) in OEMKeys;
 end;
 
 function NewShortCutToText(const ShortCut: TShortCut): String;

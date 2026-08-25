@@ -100,6 +100,10 @@ end;
 
 procedure TestShortCutHelpers;
 begin
+  { ShortCutUsesOEMKey }
+  Assert(ShortCutUsesOEMKey(ShortCut(VK_OEM_2, [ssCtrl])));
+  Assert(not ShortCutUsesOEMKey(ShortCut(Ord('A'), [ssCtrl])));
+
   { NewShortCutToText: 'Ctrl+Shift+Alt' ordering, and '' for a key without a
     scan code }
   const CtrlText = LFmtMessage(SShortCutCtrl);

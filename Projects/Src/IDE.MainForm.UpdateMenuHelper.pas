@@ -22,6 +22,7 @@ type
     procedure UpdateFileMenu(const Menu: TMenuItem);
     procedure UpdateNewMainFileButtons;
     procedure UpdateSaveMenuItemAndButton;
+    procedure SetComplexCommandFakeShortCuts(const OEMKeyOnes: Boolean);
     procedure UpdateEditMenu(const Menu: TMenuItem);
     procedure UpdateViewMenu(const Menu: TMenuItem);
     procedure UpdateBuildMenu(const Menu: TMenuItem);
@@ -45,7 +46,7 @@ implementation
 
 uses
   Windows, CommCtrl,
-  SysUtils, Generics.Collections, VirtualImageList, ComCtrls,
+  Classes, SysUtils, Generics.Collections, VirtualImageList, ComCtrls,
   PathFunc,
   Shared.LicenseFunc,
   IDE.HelperFunc, IDE.IDEScintEdit, IDE.Inspector, IDE.Messages, IDE.LocalizeFunc;
@@ -344,6 +345,27 @@ begin
   SaveButton.Enabled := FSave.Enabled;
 end;
 
+procedure TMainFormUpdateMenuHelper.SetComplexCommandFakeShortCuts(
+  const OEMKeyOnes: Boolean);
+
+  procedure SetComplexCommandFakeShortCut(const MenuItem: TMenuItem;
+    const Command: TIDEScintComplexCommand);
+  begin
+    const ShortCut = FMainMemo.GetComplexCommandShortCut(Command);
+    if ShortCutUsesOEMKey(ShortCut) = OEMKeyOnes then
+      SetFakeShortCut(MenuItem, ShortCut);
+  end;
+
+begin
+  SetComplexCommandFakeShortCut(ESelectNextOccurrence, ccSelectNextOccurrence);
+  SetComplexCommandFakeShortCut(ESelectAllOccurrences, ccSelectAllOccurrences);
+  SetComplexCommandFakeShortCut(ESelectAllFindMatches, ccSelectAllFindMatches);
+  SetComplexCommandFakeShortCut(EFoldLine, ccFoldLine);
+  SetComplexCommandFakeShortCut(EUnfoldLine, ccUnfoldLine);
+  SetComplexCommandFakeShortCut(EToggleLinesComment, ccToggleLinesComment);
+  SetComplexCommandFakeShortCut(EBraceMatch, ccBraceMatch);
+end;
+
 procedure TMainFormUpdateMenuHelper.UpdateEditMenu(const Menu: TMenuItem);
 var
   MemoHasFocus, MemoIsReadOnly: Boolean;
@@ -373,6 +395,9 @@ begin
   EGotoLine.Enabled := MemoHasFocus or FInspector.JvInspector.Focused;
   EToggleLinesComment.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EBraceMatch.Enabled := MemoHasFocus;
+
+  { This is here because some complex-command-shortcuts use OEM keys }
+  SetComplexCommandFakeShortCuts(True);
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;
@@ -411,6 +436,11 @@ begin
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
   VFindResults.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiFindResults);
   VWordWrap.Checked := FOptions.WordWrap;
+
+  { Ctrl+Shift+; and Ctrl+Shift+. are handled by FormKeyDown.
+    These are here because they use OEM keys. }
+  SetFakeShortCut(VNavigatorFocus, VK_OEM_1, [ssShift, ssCtrl]);
+  SetFakeShortCut(VNavigatorFocusAndSelect, VK_OEM_PERIOD, [ssShift, ssCtrl]);
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;

@@ -1232,9 +1232,8 @@ begin
   { Use fake Ctrl+G shortcut for PInspectorGoTo because EGotoLine already has
     the real one }
   SetFakeShortCut(PInspectorGoTo, Ord('G'), [ssCtrl]);
-  { Ctrl+Shift+; and Ctrl+Shift+. are handled by FormKeyDown }
-  SetFakeShortCut(VNavigatorFocus, VK_OEM_1, [ssShift, ssCtrl]);
-  SetFakeShortCut(VNavigatorFocusAndSelect, VK_OEM_PERIOD, [ssShift, ssCtrl]);
+  { Fake shortcuts using OEM keys should be set just-in-time in UpdateMenuHelper,
+    so do not add those here }
 
   PopupMenu := TMainFormPopupMenu.Create(Self, EMenu);
 
@@ -2785,15 +2784,8 @@ begin
     Memo.UseTabCharacter := FOptions.UseTabCharacter;
 
     Memo.KeyMappingType := FOptions.MemoKeyMappingType;
-    if Memo = FMainMemo then begin
-      SetFakeShortCut(ESelectNextOccurrence,  FMainMemo.GetComplexCommandShortCut(ccSelectNextOccurrence));
-      SetFakeShortCut(ESelectAllOccurrences, FMainMemo.GetComplexCommandShortCut(ccSelectAllOccurrences));
-      SetFakeShortCut(ESelectAllFindMatches, FMainMemo.GetComplexCommandShortCut(ccSelectAllFindMatches));
-      SetFakeShortCut(EFoldLine, FMainMemo.GetComplexCommandShortCut(ccFoldLine));
-      SetFakeShortCut(EUnfoldLine, FMainMemo.GetComplexCommandShortCut(ccUnfoldLine));
-      SetFakeShortCut(EToggleLinesComment, FMainMemo.GetComplexCommandShortCut(ccToggleLinesComment));
-      SetFakeShortCut(EBraceMatch, FMainMemo.GetComplexCommandShortCut(ccBraceMatch));
-    end;
+    if Memo = FMainMemo then
+      SetComplexCommandFakeShortCuts(False);
 
     Memo.SmartHome := FOptions.SmartHome;
     Memo.UseFolding := FOptions.UseFolding;
