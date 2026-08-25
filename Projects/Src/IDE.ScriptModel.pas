@@ -1568,8 +1568,8 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         Inc(I);
       Inc(I);
     end else if (S[I] = '(') and (I < Length(S)) and (S[I+1] = '*') then begin
-      (* Comment *)
-      Inc(I, 2);
+      (* Comment: the opener's '*' may close it, like the ROPS tokenizer *)
+      Inc(I);
       while (I < Length(S)) and not ((S[I] = '*') and (S[I+1] = ')')) do
         Inc(I);
       Inc(I, 2);

@@ -304,7 +304,9 @@ begin
               ConsumeAllRemaining;
               CommitStyle(stComment);
             end else if (C = '(') and ConsumeChar('*') then begin
-              if not FinishConsumingStarComment then begin
+              if ConsumeChar(')') then { The opener's '*' may close it, like the ROPS tokenizer }
+                CommitStyle(stComment)
+              else if not FinishConsumingStarComment then begin
                 SpanState := spStarComment;
                 Exit;
               end;

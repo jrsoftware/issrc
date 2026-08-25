@@ -2665,6 +2665,16 @@ begin
       'function Commented(A: Integer ): Boolean;');
     Assert(Section.Routines[0].ResultTypeText = 'Boolean');
 
+    { A '(*' opener's own '*' may close the comment, like the ROPS tokenizer,
+      so '(*)' is complete. See Script.ROPS.Test.iss for a compiler witness. }
+    Section.Parse([
+      'procedure Degenerate(A: Integer (*) );',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'Degenerate');
+    Assert(Section.Routines[0].Prototype = 'procedure Degenerate(A: Integer );');
+
     { A '//' comment ends at its line break, so the rest of the header
       survives, and it runs to the end when there is no line break left }
     Section.Parse([
