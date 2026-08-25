@@ -1385,11 +1385,12 @@ begin
 end;
 
 { TryAcquireCodeSection: acquisition on a [Code] occurrence, the refusals, an
-  empty [Code] body, separate shared objects for multiple [Code] occurrences
-  with TryGetRoutine using each object's own line base, further acquires
-  returning a still-held object, a new object on acquire after an edit with
-  the still-held old object staying alive, line tracking and invalidation,
-  and a release after factory destruction }
+  empty [Code] body, the overload without a refusal reason, separate shared
+  objects for multiple [Code] occurrences with TryGetRoutine using each
+  object's own line base, further acquires returning a still-held object, a
+  new object on acquire after an edit with the still-held old object staying
+  alive, line tracking and invalidation, and a release after factory
+  destruction }
 procedure TestTryAcquireCodeSection(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 begin
@@ -1448,6 +1449,17 @@ begin
       try
         Assert(CodeSection.Valid);
         Assert(CodeSection.LastLine < CodeSection.FirstLine);
+      finally
+        TLiveScriptObjectFactory.ReleaseAndNil(CodeSection);
+      end;
+
+      { The overload without a refusal reason }
+      Assert(not Factory.TryAcquireCodeSection(0, CodeSection)); { [Setup] }
+      Assert(CodeSection = nil);
+      Assert(Factory.TryAcquireCodeSection(2, CodeSection));
+      try
+        Assert(CodeSection.FirstLine = 5);
+        Assert(CodeSection.LastLine = 7);
       finally
         TLiveScriptObjectFactory.ReleaseAndNil(CodeSection);
       end;

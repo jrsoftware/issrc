@@ -56,7 +56,11 @@ function GetMemberValuesAutoCompleteWordList(const Section: TInnoSetupSection;
 function GetScriptAutoCompleteWordList(const ClassOrRecordMembers: Boolean): AnsiString;
 
 function BuildAutoCompleteWordList(const Values: array of AnsiString;
-  const Typ: Integer; const Sort: Boolean = True): AnsiString;
+  const Typ: Integer; const Sort: Boolean = True): AnsiString; overload;
+function BuildAutoCompleteWordList(const Values: TStrings;
+  const Typ: Integer; const Sort: Boolean = True): AnsiString; overload;
+function MergeAutoCompleteWordLists(const BaseWordList,
+  ExtraWordList: AnsiString): AnsiString;
 
 { Word lists for other purposes }
 
@@ -75,7 +79,7 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
 implementation
 
 uses
-  SysUtils, TypInfo, Generics.Defaults,
+  SysUtils, StrUtils, TypInfo, Generics.Defaults,
   Shared.LangOptionsSectionDirectives, Shared.ScriptFunc,
   Shared.SetupMessageIDs, Shared.SetupSectionDirectives, Shared.Struct,
   IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
@@ -127,6 +131,57 @@ begin
     Result := InternalBuildAutoCompleteWordList(SL, Sort);
   finally
     SL.Free;
+  end;
+end;
+
+function BuildAutoCompleteWordList(const Values: TStrings;
+  const Typ: Integer; const Sort: Boolean = True): AnsiString;
+begin
+  const SL = TStringList.Create;
+  try
+    for var Value in Values do
+      AddAutoCompleteWordToList(SL, AnsiString(Value), Typ);
+    Result := InternalBuildAutoCompleteWordList(SL, Sort);
+  finally
+    SL.Free;
+  end;
+end;
+
+function MergeAutoCompleteWordLists(const BaseWordList,
+  ExtraWordList: AnsiString): AnsiString;
+begin
+  { Merges two word lists which are both in InternalBuildAutoCompleteWordList's
+    sort order into one list in that order, case-insensitively deduped on the
+    full entry (word plus type suffix): an extra entry colliding with a base
+    entry or an already merged extra entry is dropped }
+  if ExtraWordList = '' then
+    Exit(BaseWordList);
+
+  const BaseEntries = SplitString(String(BaseWordList), AutoCompleteWordListSeparator);
+  const ExtraEntries = SplitString(String(ExtraWordList), AutoCompleteWordListSeparator);
+
+  Result := '';
+  var LastMergedEntry := '';
+  var BaseIndex := 0;
+  var ExtraIndex := 0;
+  while (BaseIndex < Length(BaseEntries)) or (ExtraIndex < Length(ExtraEntries)) do begin
+    var Entry: String;
+    if (ExtraIndex >= Length(ExtraEntries)) or
+       ((BaseIndex < Length(BaseEntries)) and
+        (CompareText(BaseEntries[BaseIndex], ExtraEntries[ExtraIndex]) <= 0)) then begin
+      Entry := BaseEntries[BaseIndex];
+      Inc(BaseIndex);
+    end else begin
+      Entry := ExtraEntries[ExtraIndex];
+      Inc(ExtraIndex);
+      if CompareText(Entry, LastMergedEntry) = 0 then
+        Continue;
+    end;
+    if Result = '' then
+      Result := AnsiString(Entry)
+    else
+      Result := Result + AutoCompleteWordListSeparator + AnsiString(Entry);
+    LastMergedEntry := Entry;
   end;
 end;
 

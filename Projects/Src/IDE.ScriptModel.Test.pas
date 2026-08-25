@@ -19,7 +19,7 @@ implementation
 
 uses
   {$IFDEF DEBUG} Winapi.Windows, {$ENDIF} System.SysUtils,
-  {$IFDEF ISTESTTOOLPROJ} Shared.ScriptFunc, {$ENDIF}
+  {$IFDEF ISTESTTOOLPROJ} System.Classes, Shared.ScriptFunc, {$ENDIF}
   Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives,
   IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra
   {$IFDEF ISTESTTOOLPROJ}, IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
@@ -2273,6 +2273,49 @@ begin
   Assert(BuildAutoCompleteWordList(['abc', 'ab'], awtMemberValue, False) =
     'abc' + TypeSeparator + MemberValueType + ListSeparator +
     'ab' + TypeSeparator + MemberValueType);
+
+  { The TStrings overload takes the words from a string list }
+  const WordsList = TStringList.Create;
+  try
+    WordsList.Add('abc');
+    WordsList.Add('ab');
+    Assert(BuildAutoCompleteWordList(WordsList, awtMemberValue) =
+      'ab' + TypeSeparator + MemberValueType + ListSeparator +
+      'abc' + TypeSeparator + MemberValueType);
+  finally
+    WordsList.Free;
+  end;
+
+  { MergeAutoCompleteWordLists merges two sorted word lists into one sorted
+    list, case-insensitively deduped on the full entry: on a collision the
+    base list's entry survives and the extra is dropped }
+  const BaseList = BuildAutoCompleteWordList(['Beta', 'Echo'], awtMemberValue);
+  Assert(MergeAutoCompleteWordLists(BaseList,
+    BuildAutoCompleteWordList(['Alpha', 'Charlie', 'Zulu'], awtMemberValue)) =
+    'Alpha' + TypeSeparator + MemberValueType + ListSeparator +
+    'Beta' + TypeSeparator + MemberValueType + ListSeparator +
+    'Charlie' + TypeSeparator + MemberValueType + ListSeparator +
+    'Echo' + TypeSeparator + MemberValueType + ListSeparator +
+    'Zulu' + TypeSeparator + MemberValueType);
+  Assert(MergeAutoCompleteWordLists(BaseList,
+    BuildAutoCompleteWordList(['beta', 'beta'], awtMemberValue)) = BaseList);
+
+  { Duplicates among the extras collapse as well }
+  Assert(MergeAutoCompleteWordLists(BaseList,
+    BuildAutoCompleteWordList(['Alpha', 'Alpha'], awtMemberValue)) =
+    'Alpha' + TypeSeparator + MemberValueType + ListSeparator + BaseList);
+
+  { The same word under a different type digit is a different entry, and '1'
+    sorting before '3' puts the awtScriptFunction entry first }
+  const ScriptFunctionType = AnsiString(IntToStr(awtScriptFunction));
+  Assert(MergeAutoCompleteWordLists(BaseList,
+    BuildAutoCompleteWordList(['Beta'], awtScriptFunction)) =
+    'Beta' + TypeSeparator + ScriptFunctionType + ListSeparator + BaseList);
+
+  { An empty base or empty extras returns the other list unchanged }
+  Assert(MergeAutoCompleteWordLists('', BaseList) = BaseList);
+  Assert(MergeAutoCompleteWordLists(BaseList, '') = BaseList);
+  Assert(MergeAutoCompleteWordLists('', '') = '');
 
   { The sections word list, without the sections SectionMap excludes }
   Assert(ListHasEntry(SectionsAutoCompleteWordList, '[Files]', awtSectionName));

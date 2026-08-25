@@ -714,6 +714,7 @@ type
     FMemosStyler: TInnoSetupStyler;           { Single styler for all memos }
     { Used by class helpers }
     FAutoCompleteExtraContinueChars: TSysCharSet;
+    FAutoCompleteLiveCodeSection: TLiveScriptCodeSection;
     FCallTipState: TCallTipState;
     FCompiledExe: String;
     FCompiling: Boolean;
@@ -1432,6 +1433,7 @@ begin
   FSignTools.Free;
   FMRUParametersList.Free;
   FMRUMainFilesList.Free;
+  TLiveScriptObjectFactory.ReleaseAndNil(FAutoCompleteLiveCodeSection);
   FLiveScriptObjectFactories.Free;
   FFileMemos.Free;
   FHiddenFiles.Free;

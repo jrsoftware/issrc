@@ -41,7 +41,7 @@ type
 implementation
 
 uses
-  SysUtils, Math, TypInfo,
+  SysUtils, Classes, Math, TypInfo,
   Shared.SetupSectionDirectives,
   IDE.LiveScriptObjectFactory, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata,
   IDE.ScriptModel.Metadata.Extra, IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
@@ -398,6 +398,37 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
+  function BuildCodeRoutinesWordList(const Line: Integer): AnsiString;
+  begin
+    Result := '';
+    const Factory = LiveScriptObjectFactoryForMemo(AMemo);
+    var SectionIndex: Integer;
+    if not Factory.TryGetSectionAtLine(Line, SectionIndex) then
+      Exit;
+    var CodeSection: TLiveScriptCodeSection;
+    if not Factory.TryAcquireCodeSection(SectionIndex, CodeSection) then
+      Exit;
+
+    { CodeSection is held between autocompletions so it can still be reused later,
+      like after Navigator's debounce }
+    var PreviousCodeSection := FAutoCompleteLiveCodeSection;
+    FAutoCompleteLiveCodeSection := CodeSection;
+    TLiveScriptObjectFactory.ReleaseAndNil(PreviousCodeSection); { Frees or decrements acquire count }
+
+    const Names = TStringList.Create;
+    try
+      Names.CaseSensitive := False;
+      Names.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
+      Names.Sorted := True;
+      Names.Duplicates := dupIgnore;
+      for var I := 0 to CodeSection.Section.RoutineCount-1 do
+        Names.Add(CodeSection.Section.Routines[I].Name);
+      Result := BuildAutoCompleteWordList(Names, awtScriptFunction);
+    finally
+      Names.Free;
+    end;
+  end;
+
   function ChooseCodeWordList(const LinePos, WordStartPos: Integer;
     out WordList: AnsiString): Boolean;
   begin
@@ -428,10 +459,14 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     end;
 
     { If no event function was found then autocomplete script functions,
-      types, etc if the current word has no dot before it }
+      types, etc if the current word has no dot before it, merging in the
+      current section's own routines }
     if WordList = '' then begin
       const ClassOrRecordMember = (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
       WordList := GetScriptAutoCompleteWordList(ClassOrRecordMember);
+      if not ClassOrRecordMember then
+        WordList := MergeAutoCompleteWordLists(WordList,
+          BuildCodeRoutinesWordList(AMemo.GetLineFromPosition(LinePos)));
     end;
 
     if WordList = '' then

@@ -119,17 +119,22 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   </li>
   <li>Compiler IDE autocompletion improved:
   <ul>
-    <li>Added support for:
+    <li>Parameter and directive values:
     <ul>
-      <li>The <tt>Tasks</tt>, <tt>Components</tt>, <tt>Languages</tt>, <tt>Types</tt>, and <tt>ISSigAllowedKeys</tt> parameters, offering the names the script itself defines (for <tt>ISSigAllowedKeys</tt> also the group names), plus values it already uses, and for <tt>Tasks</tt>, <tt>Components</tt>, and <tt>Languages</tt> the operators <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>.</li>
-      <li>The <tt>Attribs</tt> parameters of the <tt>[Files]</tt> and <tt>[Dirs]</tt> sections, the <tt>Root</tt> and <tt>ValueType</tt> parameters of the <tt>[Registry]</tt> section, and the <tt>[LangOptions]</tt> section directive <tt>RightToLeft</tt>, offering all supported values.</li>
-      <li>The <tt>Permissions</tt> parameters, offering all combinations of a <a href="https://jrsoftware.org/ishelp/index.php?topic=usergroupids">user or group identifier</a> and an access type supported by the section, like <tt>users-modify</tt>.</li>
-      <li>The <tt>[Setup]</tt> section directive <tt>SignTool</tt>, offering the Sign Tool names configured in the IDE.</li>
+      <li>Added support for:
+      <ul>
+        <li>The <tt>Tasks</tt>, <tt>Components</tt>, <tt>Languages</tt>, <tt>Types</tt>, and <tt>ISSigAllowedKeys</tt> parameters, offering the names the script itself defines (for <tt>ISSigAllowedKeys</tt> also the group names), plus values it already uses, and for <tt>Tasks</tt>, <tt>Components</tt>, and <tt>Languages</tt> the operators <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>.</li>
+        <li>The <tt>Attribs</tt> parameters of the <tt>[Files]</tt> and <tt>[Dirs]</tt> sections, the <tt>Root</tt> and <tt>ValueType</tt> parameters of the <tt>[Registry]</tt> section, and the <tt>[LangOptions]</tt> section directive <tt>RightToLeft</tt>, offering all supported values.</li>
+        <li>The <tt>Permissions</tt> parameters, offering all combinations of a <a href="https://jrsoftware.org/ishelp/index.php?topic=usergroupids">user or group identifier</a> and an access type supported by the section, like <tt>users-modify</tt>.</li>
+        <li>The <tt>[Setup]</tt> section directive <tt>SignTool</tt>, offering the Sign Tool names configured in the IDE.</li>
+      </ul>
+      </li>
+      <li>For the parameters which accept multiple values, works for every value, not just the first, so an expression like <tt>not (a and b) or c</tt> is completed name by name. (The Inspector's drop-down lists instead offer used expressions as a whole.)</li>
+      <li>When editing an included file, any names and values taken from the script include those of the main script as well. (Also applies to the Inspector.)</li>
+      <li>The names and values taken from the script, and the Sign Tool names, are only listed when they consist of letters, digits, and underscores. (Does not apply to the Inspector.)</li>
     </ul>
     </li>
-    <li>For the parameters which accept multiple values, works for every value, not just the first, so an expression like <tt>not (a and b) or c</tt> is completed name by name. (The Inspector's drop-down lists instead offer used expressions as a whole.)</li>
-    <li>When editing an included file, any names and values taken from the script include those of the main script as well. (Also applies to the Inspector.)</li>
-    <li>The names and values taken from the script, and the Sign Tool names, are only listed when they consist of letters, digits, and underscores. (Does not apply to the Inspector.)</li>
+    <li>While in a <tt>[Code]</tt> section, autocompletion now also supports showing your own procedures and functions from that section.</li>
     <li>Also did other minor improvements to autocompletion.</li>
   </ul>
   </li>

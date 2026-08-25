@@ -212,8 +212,7 @@ type
     FResultTypeText: String;
     FPrototype: String;
     FFirstLine, FLastLine: Integer;         { Always set }
-    FBodyFirstLine, FBodyLastLine: Integer; { -1/-1 for a bodiless routine and while no
-    matching 'end' is found }
+    FBodyFirstLine, FBodyLastLine: Integer; { -1/-1 for a bodiless routine and while no matching 'end' is found }
     FBodilessType: TCodeSectionRoutineBodilessType;
   public
     property Name: String read FName;

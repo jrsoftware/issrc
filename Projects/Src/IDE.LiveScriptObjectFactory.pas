@@ -218,7 +218,9 @@ type
       out ARefusalReason: TRefusalReason): Boolean;
     function TryAcquireCodeSection(const ASectionIndex: Integer;
       out ASection: TLiveScriptCodeSection; { Always use ReleaseAndNil when done }
-      out ARefusalReason: TRefusalReason): Boolean;
+      out ARefusalReason: TRefusalReason): Boolean; overload;
+    function TryAcquireCodeSection(const ASectionIndex: Integer;
+      out ASection: TLiveScriptCodeSection): Boolean; overload;
     class procedure ReleaseAndNil(var ASection: TLiveScriptCodeSection); static;
     { Bumped on every Change and Reset call, so a consumer can tell whether
       the memo changed since it last read something. The memo being changed
@@ -1432,6 +1434,13 @@ begin
     LastLine, SectionLines);
   Inc(ASection.FAcquireCount);
   Result := True;
+end;
+
+function TLiveScriptObjectFactory.TryAcquireCodeSection(const ASectionIndex: Integer;
+  out ASection: TLiveScriptCodeSection): Boolean;
+begin
+  var RefusalReason: TRefusalReason;
+  Result := TryAcquireCodeSection(ASectionIndex, ASection, RefusalReason);
 end;
 
 class procedure TLiveScriptObjectFactory.ReleaseAndNil(
