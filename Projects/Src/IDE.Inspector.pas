@@ -23,7 +23,7 @@ type
     irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits,
     irkDebugCaretAt, irkDebugCaretRoutine, irkDebugRoutine, irkDebugRoutineResult,
     irkDebugType, irkDebugInterface, irkDebugInterfaceMethod,
-    irkDebugInterfaceMethodResult {$ENDIF});
+    irkDebugInterfaceMethodResult, irkDebugConstant, irkDebugGlobalVariable {$ENDIF});
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
@@ -1366,6 +1366,26 @@ procedure TInspector.UpdateFromCaret;
       end;
     end;
   end;
+
+  procedure AddCodeSectionSymbolRows;
+  begin
+    const Section = FLiveCodeSection.Section;
+    if (Section.ConstantCount > 0) or (Section.GlobalVariableCount > 0) then begin
+      const SymbolsCategory = NewCategory('Symbols');
+      for var I := 0 to Section.ConstantCount-1 do begin
+        const Declaration = Section.Constants[I];
+        AddDebugRow(SymbolsCategory,
+          CodeSectionRowName(Declaration.Name, Declaration.Line),
+          irkDebugConstant, I);
+      end;
+      for var I := 0 to Section.GlobalVariableCount-1 do begin
+        const Declaration = Section.GlobalVariables[I];
+        AddDebugRow(SymbolsCategory,
+          CodeSectionRowName(Declaration.Name, Declaration.Line),
+          irkDebugGlobalVariable, I);
+      end;
+    end;
+  end;
   {$ENDIF}
 
   function FindItemByID(const AID: String; const AIDIncludesIndex: Boolean;
@@ -1428,6 +1448,7 @@ procedure TInspector.UpdateFromCaret;
         if FLiveCodeSection <> nil then begin
           AddCodeSectionRoutineRows;
           AddCodeSectionTypeRows;
+          AddCodeSectionSymbolRows;
         end;
         {$ENDIF}
 
@@ -1743,6 +1764,16 @@ begin
         if Method.Kind = rkFunction then
           RowSetSignature := RowSetSignature + '!';
       end;
+      for var I := 0 to Model.ConstantCount-1 do begin
+        const Declaration = Model.Constants[I];
+        RowSetSignature := RowSetSignature + '|C' + IntToStr(I) + ':' +
+          CodeSectionRowName(Declaration.Name, Declaration.Line);
+      end;
+      for var I := 0 to Model.GlobalVariableCount-1 do begin
+        const Declaration = Model.GlobalVariables[I];
+        RowSetSignature := RowSetSignature + '|V' + IntToStr(I) + ':' +
+          CodeSectionRowName(Declaration.Name, Declaration.Line);
+      end;
     end
     {$ENDIF}
     else begin
@@ -2003,6 +2034,14 @@ begin
       if (FLiveCodeSection <> nil) and
          (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) then
         Result := FLiveCodeSection.Section.InterfaceMethods[ARow.Index].ResultTypeText;
+    irkDebugConstant:
+      if (FLiveCodeSection <> nil) and
+         (ARow.Index < FLiveCodeSection.Section.ConstantCount) then
+        Result := FLiveCodeSection.Section.Constants[ARow.Index].TypeText;
+    irkDebugGlobalVariable:
+      if (FLiveCodeSection <> nil) and
+         (ARow.Index < FLiveCodeSection.Section.GlobalVariableCount) then
+        Result := FLiveCodeSection.Section.GlobalVariables[ARow.Index].TypeText;
     {$ENDIF}
   end;
 end;
