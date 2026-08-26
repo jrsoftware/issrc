@@ -1546,11 +1546,6 @@ begin
   inherited;
 end;
 
-const
-  { A function or procedure keyword after one of these tokens is part of a
-    procedural type }
-  NoRoutineHeaderAfterTokens = [CSTI_Equal, CSTI_Colon, CSTII_of];
-
 procedure TScriptModelCodeSection.Parse(const ALines: array of String);
 
   function AdvanceWithSkip(const S: String; var I: Integer): Boolean;
@@ -1626,7 +1621,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
     ALastTokenID: TPSPasToken): Boolean;
   begin
     Result := ((ATokenID = CSTII_function) or (ATokenID = CSTII_procedure)) and { Local routines don't exist, so simple check }
-              not (ALastTokenID in NoRoutineHeaderAfterTokens);
+              not (ALastTokenID in [CSTI_Equal, CSTI_Colon, CSTII_of]); { A function or procedure keyword after one of these tokens is part of a procedural type }
   end;
 
   function IsDeclarationBlockStart(const ATokenID: TPSPasToken): Boolean;
