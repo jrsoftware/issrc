@@ -3908,6 +3908,9 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <tr>
   <td>Switch between the active memo, the Inspector, the active bottom pane, the active banner, and the Navigator</td><td>F6 or Shift+F6</td>
 </tr>
+<tr>
+  <td>Return focus to the active memo</td><td>Esc</td>
+</tr>
 </table>
 
 <p>The Navigator supports its own keyboard commands, listed below.</p>
