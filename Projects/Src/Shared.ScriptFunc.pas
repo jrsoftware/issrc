@@ -212,8 +212,6 @@ type
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString; overload;
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString; overload;
-function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind;
-  out Valid: Boolean): AnsiString; overload;
 function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
 function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 
@@ -242,18 +240,7 @@ end;
 
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
 begin
-  var Valid: Boolean;
-  Result := RemoveScriptFuncHeader(ScriptFunc, Kind, Valid);
-  if not Valid then
-    raise Exception.CreateFmt('Invalid ScriptFunc: %s', [ScriptFunc]);
-end;
-
-function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind;
-  out Valid: Boolean): AnsiString;
-{ Kind is undefined and Result is ScriptFunc unchanged if out Valid = False }
-begin
   Result := ScriptFunc;
-  Valid := True;
 
   const H1: AnsiString = 'function ';
   const H2: AnsiString = 'procedure ';
@@ -269,7 +256,7 @@ begin
     Kind := hkConstructor;
     Delete(Result, 1, Length(H3))
   end else
-    Valid := False;
+    raise Exception.CreateFmt('Invalid ScriptFunc: %s', [Result]);
 end;
 
 function RemoveISPPScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
