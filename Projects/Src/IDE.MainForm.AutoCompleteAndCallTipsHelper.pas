@@ -433,7 +433,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
-  function BuildCodeRoutinesWordList(const Line: Integer): AnsiString;
+  function BuildUserDefinedWordList(const Line: Integer;
+    const ClassMember: Boolean): AnsiString;
   begin
     Result := '';
     if not _TryAcquireAndHoldCodeSectionAtLine(AMemo, Line) then
@@ -441,8 +442,13 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
 
     const Names = CreateSortedCaseInsensitiveStringList;
     try
-      for var I := 0 to FAutoCompleteAndCallTipsLiveCodeSection.Section.RoutineCount-1 do
-        Names.Add(FAutoCompleteAndCallTipsLiveCodeSection.Section.Routines[I].Name);
+      const Section = FAutoCompleteAndCallTipsLiveCodeSection.Section;
+      if ClassMember then begin
+        for var I := 0 to Section.InterfaceMethodCount-1 do
+          Names.Add(Section.InterfaceMethods[I].Name)
+      end else
+        for var I := 0 to Section.RoutineCount-1 do
+          Names.Add(Section.Routines[I].Name);
       Result := BuildAutoCompleteWordList(Names, awtScriptFunction);
     finally
       Names.Free;
@@ -479,14 +485,12 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     end;
 
     { If no event function was found then autocomplete script functions,
-      types, etc if the current word has no dot before it, merging in the
-      current section's own routines }
+      types, etc, or class members if the current word has a dot before it,
+      merging in the current section's own routines or interface methods }
     if WordList = '' then begin
       const ClassOrRecordMember = (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
-      WordList := GetScriptAutoCompleteWordList(ClassOrRecordMember);
-      if not ClassOrRecordMember then
-        WordList := MergeAutoCompleteWordLists(WordList,
-          BuildCodeRoutinesWordList(AMemo.GetLineFromPosition(LinePos)));
+      WordList := MergeAutoCompleteWordLists(GetScriptAutoCompleteWordList(ClassOrRecordMember),
+        BuildUserDefinedWordList(AMemo.GetLineFromPosition(LinePos), ClassOrRecordMember));
     end;
 
     if WordList = '' then
