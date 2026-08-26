@@ -7,6 +7,18 @@
   Document Type Definition for isxfunc.xml
 -->
 
+<!ENTITY nbsp   "&#x00A0;">
+<!ENTITY copy   "&#x00A9;">
+<!ENTITY times  "&#x00D7;">
+<!ENTITY divide "&#x00F7;">
+<!ENTITY ndash  "&#x2013;">
+<!ENTITY mdash  "&#x2014;">
+<!ENTITY rarr   "&#x2192;">
+<!ENTITY minus  "&#x2212;">
+<!ENTITY approx "&#x2248;">
+<!ENTITY le     "&#x2264;">
+<!ENTITY ge     "&#x2265;">
+
 <!ENTITY % _inlineExceptLink "b | br | i | tt">
 <!ENTITY % _inline "%_inlineExceptLink; | link | extlink | sd | sn | isxfunc">
 <!ENTITY % _block "p | pre | example | ul | table">
