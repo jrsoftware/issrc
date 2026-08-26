@@ -20,7 +20,8 @@ uses
 
 type
   TInspectorRowKind = (irkParameter, irkParameterFlag, irkKey,
-    irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits,
+    irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugParseTime,
+    irkDebugSections, irkDebugEarlyExits,
     irkDebugCaretAt, irkDebugCaretRoutine, irkDebugRoutine, irkDebugRoutineResult,
     irkDebugType, irkDebugInterface, irkDebugInterfaceMethod,
     irkDebugInterfaceMethodResult, irkDebugConstant, irkDebugGlobalVariable {$ENDIF});
@@ -1441,14 +1442,15 @@ procedure TInspector.UpdateFromCaret;
         {$IFDEF DEBUG}
         const DebugCategory = NewCategory('Debug');
         AddDebugRow(DebugCategory, 'Status', irkDebugStatus);
+        AddDebugRow(DebugCategory, 'Parse time', irkDebugParseTime);
         AddDebugRow(DebugCategory, 'Sections', irkDebugSections);
         AddDebugRow(DebugCategory, 'Caret routine', irkDebugCaretRoutine);
         AddDebugRow(DebugCategory, 'Early exits', irkDebugEarlyExits);
         AddDebugRow(DebugCategory, 'Caret at', irkDebugCaretAt);
         if FLiveCodeSection <> nil then begin
-          AddCodeSectionRoutineRows;
           AddCodeSectionTypeRows;
           AddCodeSectionSymbolRows;
+          AddCodeSectionRoutineRows;
         end;
         {$ENDIF}
 
@@ -1960,6 +1962,23 @@ begin
 end;
 
 function TInspector.RowGetAsString(const ARow: TInspectorRow): String;
+
+  {$IFDEF DEBUG}
+  function DebugParseTimeRowString: String;
+  begin
+    var ParseTimeMilliseconds: Double;
+    if FLiveParameterSectionEntries <> nil then
+      ParseTimeMilliseconds := FLiveParameterSectionEntries.ParseTimeMilliseconds
+    else if FLiveKeyValueSection <> nil then
+      ParseTimeMilliseconds := FLiveKeyValueSection.ParseTimeMilliseconds
+    else if FLiveCodeSection <> nil then
+      ParseTimeMilliseconds := FLiveCodeSection.ParseTimeMilliseconds
+    else
+      Exit('None');
+    Result := Format('%.3f ms', [ParseTimeMilliseconds]);
+  end;
+  {$ENDIF}
+
 begin
   Result := '';
   case ARow.Kind of
@@ -1978,6 +1997,8 @@ begin
     {$IFDEF DEBUG}
     irkDebugStatus:
       Result := FDebugStatusRowString;
+    irkDebugParseTime:
+      Result := DebugParseTimeRowString;
     irkDebugSections:
       begin
         for var I := 0 to FFactory.SectionCount-1 do begin

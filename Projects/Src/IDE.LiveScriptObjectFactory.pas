@@ -47,12 +47,14 @@ type
       updates, a write-back which inserts a line during multi-entry editing
       would make the entries below it write back at the wrong lines }
     FValid: Boolean; { False if some or all of the object's lines were deleted since creation }
+    FParseTimeMilliseconds: Double;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
       ALastLine: Integer);
   public
     destructor Destroy; override;
     property FirstLine: Integer read FFirstLine;
     property LastLine: Integer read FLastLine;
+    property ParseTimeMilliseconds: Double read FParseTimeMilliseconds;
     property Valid: Boolean read FValid;
   end;
 
@@ -84,6 +86,7 @@ type
     procedure EndUndoAction;
     function GetCount: Integer;
     function GetEntry(Index: Integer): TLiveScriptParameterSectionEntry;
+    function GetParseTimeMilliseconds: Double;
     function GetPrimaryEntry: TScriptModelParameterSectionEntry;
     function GetPrimaryFirstLine: Integer;
     function GetPrimaryLastLine: Integer;
@@ -107,6 +110,8 @@ type
     procedure Remove(const AName: String; const AIndexHint: Integer);
     property Count: Integer read GetCount;
     property Entries[Index: Integer]: TLiveScriptParameterSectionEntry read GetEntry;
+    { The entries' parse times added up }
+    property ParseTimeMilliseconds: Double read GetParseTimeMilliseconds;
     { The first entry's model. Metadata is common to all entries, so definition
       lookups for any entry can use it. }
     property PrimaryEntry: TScriptModelParameterSectionEntry read GetPrimaryEntry;
@@ -242,7 +247,7 @@ function CollectParameterValuesFromFactories(
 implementation
 
 uses
-  SysUtils,
+  SysUtils, Diagnostics,
   PathFunc,
   Shared.CommonFunc;
 
@@ -277,7 +282,9 @@ begin
   FSection := ASection;
   FCreatedFromBlankLine := ACreatedFromBlankLine;
   FEntry := TScriptModelParameterSectionEntry.Create(AMetadata);
+  const Stopwatch = TStopwatch.StartNew;
   FEntry.Parse(ALines);
+  FParseTimeMilliseconds := Stopwatch.Elapsed.TotalMilliseconds;
   FEntry.OnChange := OnChange;
 end;
 
@@ -458,6 +465,13 @@ begin
   Result := FItems[Index];
 end;
 
+function TLiveScriptParameterSectionEntries.GetParseTimeMilliseconds: Double;
+begin
+  Result := 0;
+  for var LiveEntry in FItems do
+    Result := Result + LiveEntry.ParseTimeMilliseconds;
+end;
+
 function TLiveScriptParameterSectionEntries.GetPrimaryEntry: TScriptModelParameterSectionEntry;
 begin
   Result := FItems[0].Entry;
@@ -500,7 +514,9 @@ constructor TLiveScriptKeyValueSection.Create(const AFactory: TLiveScriptObjectF
 begin
   inherited Create(AFactory, AFirstLine, ALastLine);
   FSection := TScriptModelKeyValueSection.Create(AMetadata);
+  const Stopwatch = TStopwatch.StartNew;
   FSection.Parse(ALines);
+  FParseTimeMilliseconds := Stopwatch.Elapsed.TotalMilliseconds;
   FSection.OnChange := OnChange;
 end;
 
@@ -617,7 +633,9 @@ begin
   FSectionIndex := ASectionIndex;
   FChangeCountAtParse := AFactory.FChangeCount;
   FSection := TScriptModelCodeSection.Create;
+  const Stopwatch = TStopwatch.StartNew;
   FSection.Parse(ALines);
+  FParseTimeMilliseconds := Stopwatch.Elapsed.TotalMilliseconds;
 end;
 
 destructor TLiveScriptCodeSection.Destroy;
