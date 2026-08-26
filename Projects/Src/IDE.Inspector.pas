@@ -1975,8 +1975,26 @@ begin
         Result := FLiveCodeSection.Section.Routines[ARow.Index].ResultTypeText;
     irkDebugType:
       if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.TypeCount) then
-        Result := FLiveCodeSection.Section.Types[ARow.Index].TypeText;
+         (ARow.Index < FLiveCodeSection.Section.TypeCount) then begin
+        const Section = FLiveCodeSection.Section;
+        Result := Section.Types[ARow.Index].TypeText;
+        if Result = 'enumeration' then begin
+          { Fold the values into the value text. A type merely containing an
+            anonymous enumeration owns its values too, but showing them would
+            read as if the type itself were the enumeration. }
+          var Values := '';
+          for var I := 0 to Section.EnumerationValueCount-1 do begin
+            const Value = Section.EnumerationValues[I];
+            if Value.DeclarationTypeIndex = ARow.Index then begin
+              if Values <> '' then
+                Values := Values + ', ';
+              Values := Values + Value.Name;
+            end;
+          end;
+          if Values <> '' then
+            Result := Result + ' (' + Values + ')';
+        end;
+      end;
     irkDebugInterfaceMethod:
       if (FLiveCodeSection <> nil) and
          (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) then

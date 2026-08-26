@@ -2601,6 +2601,24 @@ begin
     Assert(Section.Routines[0].Name = 'TakesCallback');
     Assert(Section.Routines[0].FirstLine = 7);
 
+    { A name after the keyword does start a header, even after one of those
+      tokens: ROPS never names a procedural type, so the declaration above is
+      still being typed and keeps the routine below it }
+    const UnfinishedDeclarations: TArray<String> = [
+      'type X =', 'var P:', 'type X = array of'];
+    for var I := 0 to High(UnfinishedDeclarations) do begin
+      Section.Parse([
+        UnfinishedDeclarations[I], { 0 }
+        'procedure Existing;',     { 1 }
+        'begin',                   { 2 }
+        'end;']);                  { 3 }
+      Assert(Section.RoutineCount = 1);
+      Assert(Section.Routines[0].Name = 'Existing');
+      Assert(Section.Routines[0].FirstLine = 1);
+      Assert(Section.Routines[0].BodyFirstLine = 2);
+      Assert(Section.Routines[0].BodyLastLine = 3);
+    end;
+
     { Also not after ':' inside a parameter list or as a procedural return
       type. A parameter list's ';' separators do not terminate the header. }
     Section.Parse([
@@ -2869,9 +2887,29 @@ begin
     Assert(Section.Routines[0].BodyLastLine = 2);
     Assert(Section.Routines[0].LastLine = 2);
 
-    { A declaration block after a bodyless header is taken for the routine's
-      own local blocks, so a type block there is not listed and the routine's
-      span covers it }
+    { An open parameter list does not swallow the type block below it:
+      'type' never appears inside one }
+    Section.Parse([
+      'procedure Foo(',    { 0 }
+      'type',              { 1 }
+      '  Y = Integer;']);  { 2 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'Y');
+
+    { 'label' cuts inside one too. The block is then searched through as a
+      possibly local one, so the routine still extends over it. }
+    Section.Parse([
+      'procedure Foo(',  { 0 }
+      'label',           { 1 }
+      '  L;']);          { 2 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'procedure Foo(');
+    Assert(Section.Routines[0].BodyFirstLine = -1);
+    Assert(Section.Routines[0].LastLine = 2);
+
+    { ROPS has no local type block, so one after a bodyless header is parsed
+      rather than skipped. The search for 'begin' goes on past it. }
     Section.Parse([
       'procedure Foo;',      { 0 }
       'type',                { 1 }
@@ -2883,9 +2921,36 @@ begin
     Assert(Section.Routines[0].Name = 'Foo');
     Assert(Section.Routines[0].BodyFirstLine = -1);
     Assert(Section.Routines[0].LastLine = 2);
-    Assert(Section.TypeCount = 0);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TBar');
+    Assert(Section.Types[0].Line = 2);
     Assert(Section.Routines[1].Name = 'Baz');
     Assert(Section.Routines[1].BodyFirstLine = 4);
+
+    { A 'var' block is a local one, so it is still searched through }
+    Section.Parse([
+      'procedure Foo;',   { 0 }
+      'var',              { 1 }
+      '  A: Integer;',    { 2 }
+      'begin',            { 3 }
+      'end;']);           { 4 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].BodyFirstLine = 3);
+    Assert(Section.Routines[0].BodyLastLine = 4);
+    Assert(Section.TypeCount = 0);
+
+    { A routine whose body is still missing does not swallow the type block
+      below it, whichever way its body is unfinished }
+    const UnfinishedRoutines: TArray<String> = [
+      'procedure x;', 'procedure x; end;', 'procedure x; forward',
+      'procedure x; const C = 1;'];
+    for var I := 0 to High(UnfinishedRoutines) do begin
+      Section.Parse([UnfinishedRoutines[I], 'type', '  Y = Integer;']);
+      Assert(Section.RoutineCount = 1);
+      Assert(Section.TypeCount = 1);
+      Assert(Section.Types[0].Name = 'Y');
+      Assert(Section.Types[0].Line = 2);
+    end;
 
     { <event('...')> attributes before a header are tolerated; FirstLine stays
       the keyword's line }
@@ -3431,6 +3496,211 @@ begin
     Assert(Section.Types[1].Name = 'TAfter');
     Assert(Section.Types[1].TypeText = 'Integer');
     Assert(Section.RoutineCount = 1);
+
+    { The next declaration is found while a record or a parameter list of the
+      one being typed is still open }
+    const UnfinishedStructuredTypes: TArray<String> = [
+      '  X = record A: Integer;', '  X = procedure(A: Integer'];
+    for var I := 0 to High(UnfinishedStructuredTypes) do begin
+      Section.Parse(['type', UnfinishedStructuredTypes[I], '  Y = Integer;']);
+      Assert(Section.TypeCount = 2);
+      Assert(Section.Types[1].Name = 'Y');
+      Assert(Section.Types[1].TypeText = 'Integer');
+      Assert(Section.Types[1].Line = 2);
+    end;
+
+    { A name followed by '=' after the keyword is the next type declaration,
+      not a routine name }
+    Section.Parse([
+      'type',              { 0 }
+      '  X = procedure',   { 1 }
+      '  Y = Integer;']);  { 2 }
+    Assert(Section.RoutineCount = 0);
+    Assert(Section.TypeCount = 2);
+    Assert(Section.Types[1].Name = 'Y');
+    Assert(Section.Types[1].TypeText = 'Integer');
+  finally
+    Section.Free;
+  end;
+end;
+
+procedure TestCodeSectionEnumerationValues;
+begin
+  const Section = TScriptModelCodeSection.Create;
+  try
+    { An enumeration definition yields its type item plus one item per value,
+      with each value pointing back at the type }
+    Section.Parse([
+      'type',
+      '  TMyState = (msOne, msTwo);']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TMyState');
+    Assert(Section.Types[0].TypeText = 'enumeration');
+    Assert(Section.EnumerationValueCount = 2);
+    Assert(Section.EnumerationValues[0].Name = 'msOne');
+    Assert(Section.EnumerationValues[0].DeclarationTypeIndex = 0);
+    Assert(Section.EnumerationValues[0].Line = 1);
+    Assert(Section.EnumerationValues[1].Name = 'msTwo');
+    Assert(Section.EnumerationValues[1].DeclarationTypeIndex = 0);
+    Assert(Section.EnumerationValues[1].Line = 1);
+
+    { The next Parse replaces the previous items }
+    Section.Parse(['type', '  TOther = (a);']);
+    Assert(Section.EnumerationValueCount = 1);
+    Assert(Section.EnumerationValues[0].Name = 'a');
+    Assert(Section.EnumerationValues[0].DeclarationTypeIndex = 0);
+    Section.Parse([]);
+    Assert(Section.EnumerationValueCount = 0);
+
+    { Values spread over multiple lines report their own lines }
+    Section.Parse([
+      'type',               { 0 }
+      '  TMyState = (',     { 1 }
+      '    msOne,',         { 2 }
+      '    msTwo, msThree', { 3 }
+      '  );']);             { 4 }
+    Assert(Section.EnumerationValueCount = 3);
+    Assert(Section.EnumerationValues[0].Name = 'msOne');
+    Assert(Section.EnumerationValues[0].Line = 2);
+    Assert(Section.EnumerationValues[1].Name = 'msTwo');
+    Assert(Section.EnumerationValues[1].Line = 3);
+    Assert(Section.EnumerationValues[2].Name = 'msThree');
+    Assert(Section.EnumerationValues[2].Line = 3);
+
+    { Two enumerations keep their values apart }
+    Section.Parse([
+      'type',
+      '  TA = (aOne, aTwo);',
+      '  TB = (bOne);']);
+    Assert(Section.TypeCount = 2);
+    Assert(Section.Types[0].Name = 'TA');
+    Assert(Section.Types[1].Name = 'TB');
+    Assert(Section.EnumerationValueCount = 3);
+    Assert(Section.EnumerationValues[0].Name = 'aOne');
+    Assert(Section.EnumerationValues[0].DeclarationTypeIndex = 0);
+    Assert(Section.EnumerationValues[1].Name = 'aTwo');
+    Assert(Section.EnumerationValues[1].DeclarationTypeIndex = 0);
+    Assert(Section.EnumerationValues[2].Name = 'bOne');
+    Assert(Section.EnumerationValues[2].DeclarationTypeIndex = 1);
+
+    { Two enumerations sharing a name still keep their values apart }
+    Section.Parse([
+      'type',
+      '  TSame = (sOne);',
+      '  TSame = (sTwo);']);
+    Assert(Section.TypeCount = 2);
+    Assert(Section.EnumerationValueCount = 2);
+    Assert(Section.EnumerationValues[0].Name = 'sOne');
+    Assert(Section.EnumerationValues[0].DeclarationTypeIndex = 0);
+    Assert(Section.EnumerationValues[1].Name = 'sTwo');
+    Assert(Section.EnumerationValues[1].DeclarationTypeIndex = 1);
+
+    { An anonymous enumeration after 'of' belongs to the type being declared }
+    Section.Parse([
+      'type',
+      '  TItems = array of (one, two);']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TItems');
+    Assert(Section.Types[0].TypeText = 'array');
+    Assert(Section.EnumerationValueCount = 2);
+    Assert(Section.EnumerationValues[0].Name = 'one');
+    Assert(Section.EnumerationValues[0].DeclarationTypeIndex = 0);
+    Assert(Section.EnumerationValues[1].Name = 'two');
+    Assert(Section.EnumerationValues[1].DeclarationTypeIndex = 0);
+
+    { The same for one after ':', in a record field }
+    Section.Parse([
+      'type',                        { 0 }
+      '  TFoo = record',             { 1 }
+      '    A: (aOne, aTwo);',        { 2 }
+      '    B: Integer;',             { 3 }
+      '  end;',                      { 4 }
+      '  TAfter = (bOne);']);        { 5 }
+    Assert(Section.TypeCount = 2);
+    Assert(Section.Types[0].Name = 'TFoo');
+    Assert(Section.Types[0].TypeText = 'record');
+    Assert(Section.Types[1].Name = 'TAfter');
+    Assert(Section.EnumerationValueCount = 3);
+    Assert(Section.EnumerationValues[0].Name = 'aOne');
+    Assert(Section.EnumerationValues[0].DeclarationTypeIndex = 0);
+    Assert(Section.EnumerationValues[0].Line = 2);
+    Assert(Section.EnumerationValues[1].Name = 'aTwo');
+    Assert(Section.EnumerationValues[1].DeclarationTypeIndex = 0);
+    Assert(Section.EnumerationValues[2].Name = 'bOne');
+    Assert(Section.EnumerationValues[2].DeclarationTypeIndex = 1);
+
+    { One in a procedural type's parameter list keeps the brace depth balanced,
+      so the definition still terminates on its own semicolon }
+    Section.Parse([
+      'type',
+      '  TProc = procedure(A: (pOne, pTwo); B: Integer);',
+      '  TAfter = Integer;']);
+    Assert(Section.TypeCount = 2);
+    Assert(Section.Types[0].Name = 'TProc');
+    Assert(Section.Types[0].TypeText = 'procedure');
+    Assert(Section.Types[1].Name = 'TAfter');
+    Assert(Section.EnumerationValueCount = 2);
+    Assert(Section.EnumerationValues[0].Name = 'pOne');
+    Assert(Section.EnumerationValues[0].DeclarationTypeIndex = 0);
+    Assert(Section.EnumerationValues[1].Name = 'pTwo');
+
+    { Non-enumeration definitions with parentheses contribute no values }
+    Section.Parse([
+      'type',
+      '  TProc = procedure(Sender: TObject);',
+      '  IFoo = interface',
+      '    procedure M1(A: Integer);',
+      '  end;']);
+    Assert(Section.TypeCount = 2);
+    Assert(Section.EnumerationValueCount = 0);
+
+    { An enumeration cut by a routine header keeps the values already seen }
+    Section.Parse([
+      'type',
+      '  TState = (stOne, stTwo',
+      'procedure P;',
+      'begin',
+      'end;']);
+    Assert(Section.EnumerationValueCount = 2);
+    Assert(Section.EnumerationValues[0].Name = 'stOne');
+    Assert(Section.EnumerationValues[1].Name = 'stTwo');
+    Assert(Section.RoutineCount = 1);
+
+    { A declaration block start ends an unterminated definition }
+    Section.Parse([
+      'type',
+      '  TState = (stOne, stTwo',
+      'type',
+      '  TOther = Integer;']);
+    Assert(Section.EnumerationValueCount = 2);
+    Assert(Section.TypeCount = 2);
+    Assert(Section.Types[0].Name = 'TState');
+    Assert(Section.Types[1].Name = 'TOther');
+
+    { A record following an unterminated list contributes no values, not even
+      its comma-separated fields, and is still found as a type of its own }
+    Section.Parse([
+      'type',
+      '  TState = (stOne, stTwo',
+      '  TRec = record A, B: Integer; end;']);
+    Assert(Section.EnumerationValueCount = 2);
+    Assert(Section.EnumerationValues[0].Name = 'stOne');
+    Assert(Section.EnumerationValues[1].Name = 'stTwo');
+    Assert(Section.TypeCount = 2);
+    Assert(Section.Types[0].Name = 'TState');
+    Assert(Section.Types[1].Name = 'TRec');
+    Assert(Section.Types[1].TypeText = 'record');
+
+    { Every stage of typing a new type above an existing one keeps that one }
+    const TypedSoFar: TArray<String> = [
+      '  X', '  X =', '  X = (', '  X = (one', '  X = (one,',
+      '  X = (one)', '  X = (one;', '  X = (one);'];
+    for var I := 0 to High(TypedSoFar) do begin
+      Section.Parse(['type', TypedSoFar[I], '  Y = Integer;']);
+      Assert(Section.Types[Section.TypeCount-1].Name = 'Y');
+      Assert(Section.Types[Section.TypeCount-1].TypeText = 'Integer');
+      Assert(Section.Types[Section.TypeCount-1].Line = 2);
+    end;
   finally
     Section.Free;
   end;
@@ -4046,6 +4316,7 @@ begin
   TestPrepareCodeSectionText;
   TestCodeSection;
   TestCodeSectionTypes;
+  TestCodeSectionEnumerationValues;
   TestCodeSectionInterfaceMethods;
   TestCodeSectionRoutineAtLine;
   TestCodeSectionResync;

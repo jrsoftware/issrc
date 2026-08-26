@@ -244,8 +244,20 @@ type
     property Line: Integer read FLine;
   end;
 
-  { A user-defined declaration other than a routine }
-  TCodeSectionDeclaration = class
+  { A value of a user-defined enumeration type }
+  TCodeSectionEnumerationValue = class
+  private
+    FName: String;
+    FDeclarationTypeIndex: Integer; { For anonymous enumerations this is the type it is nested in, so not an enumeration }
+    FLine: Integer;
+  public
+    property Name: String read FName;
+    property DeclarationTypeIndex: Integer read FDeclarationTypeIndex;
+    property Line: Integer read FLine;
+  end;
+
+  { A user-defined type }
+  TCodeSectionType = class
   private
     FName: String;
     FTypeText: String;
@@ -264,10 +276,12 @@ type
   TScriptModelCodeSection = class
   private
     FRoutines: TObjectList<TCodeSectionRoutine>;
-    FTypes: TObjectList<TCodeSectionDeclaration>;
+    FTypes: TObjectList<TCodeSectionType>;
+    FEnumerationValues: TObjectList<TCodeSectionEnumerationValue>;
     FInterfaceMethods: TObjectList<TCodeSectionInterfaceMethod>;
     function GetRoutine(Index: Integer): TCodeSectionRoutine;
-    function GetType(Index: Integer): TCodeSectionDeclaration;
+    function GetType(Index: Integer): TCodeSectionType;
+    function GetEnumerationValue(Index: Integer): TCodeSectionEnumerationValue;
     function GetInterfaceMethod(Index: Integer): TCodeSectionInterfaceMethod;
   public
     constructor Create;
@@ -275,11 +289,13 @@ type
     procedure Parse(const ALines: array of String);
     function RoutineCount: Integer;
     function TypeCount: Integer;
+    function EnumerationValueCount: Integer;
     function InterfaceMethodCount: Integer;
     function TryGetRoutine(const ALine: Integer;
       out ARoutine: TCodeSectionRoutine): Boolean;
     property Routines[Index: Integer]: TCodeSectionRoutine read GetRoutine;
-    property Types[Index: Integer]: TCodeSectionDeclaration read GetType;
+    property Types[Index: Integer]: TCodeSectionType read GetType;
+    property EnumerationValues[Index: Integer]: TCodeSectionEnumerationValue read GetEnumerationValue;
     property InterfaceMethods[Index: Integer]: TCodeSectionInterfaceMethod read GetInterfaceMethod;
   end;
 
@@ -1554,17 +1570,52 @@ begin
   end;
 end;
 
+type
+  TPSPascalParserHelper = class helper for TPSPascalParser
+    function NextTokensAreRoutineName: Boolean;
+  end;
+
+function TPSPascalParserHelper.NextTokensAreRoutineName: Boolean;
+{ Tests whether an identifier not followed by '=' comes after the current
+  token, leaving the parser on the current one. An identifier followed by '='
+  is the next type declaration's name instead. TPSPascalParser has no
+  lookahead of its own, so its state is saved and put back. }
+begin
+  const SavedLastEnterPos = FLastEnterPos;
+  const SavedRow = FRow;
+  const SavedRealPosition = FRealPosition;
+  const SavedTokenLength = FTokenLength;
+  const SavedTokenID = FTokenId;
+  const SavedToken = FToken;
+  const SavedOriginalToken = FOriginalToken;
+  Next;
+  Result := CurrTokenID = CSTI_Identifier;
+  if Result then begin
+    Next;
+    Result := CurrTokenID <> CSTI_Equal;
+  end;
+  FLastEnterPos := SavedLastEnterPos;
+  FRow := SavedRow;
+  FRealPosition := SavedRealPosition;
+  FTokenLength := SavedTokenLength;
+  FTokenId := SavedTokenID;
+  FToken := SavedToken;
+  FOriginalToken := SavedOriginalToken;
+end;
+
 constructor TScriptModelCodeSection.Create;
 begin
   inherited Create;
   FRoutines := TObjectList<TCodeSectionRoutine>.Create;
-  FTypes := TObjectList<TCodeSectionDeclaration>.Create;
+  FTypes := TObjectList<TCodeSectionType>.Create;
+  FEnumerationValues := TObjectList<TCodeSectionEnumerationValue>.Create;
   FInterfaceMethods := TObjectList<TCodeSectionInterfaceMethod>.Create;
 end;
 
 destructor TScriptModelCodeSection.Destroy;
 begin
   FInterfaceMethods.Free;
+  FEnumerationValues.Free;
   FTypes.Free;
   FRoutines.Free;
   inherited;
@@ -1641,17 +1692,32 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
     end;
   end;
 
-  function IsRoutineHeaderStart(const ATokenID,
-    ALastTokenID: TPSPasToken): Boolean;
+  function IsRoutineHeaderStart(const AParser: TPSPascalParser;
+    const ALastTokenID: TPSPasToken): Boolean;
+  { Tests the token the parser is on }
   begin
-    Result := ((ATokenID = CSTII_function) or (ATokenID = CSTII_procedure)) and { Local routines don't exist, so simple check }
-              not (ALastTokenID in [CSTI_Equal, CSTI_Colon, CSTII_of]); { A function or procedure keyword after one of these tokens is part of a procedural type }
+    Result := (AParser.CurrTokenID = CSTII_function) or (AParser.CurrTokenID = CSTII_procedure); { Local routines don't exist, so simple check }
+    if Result and (ALastTokenID in [CSTI_Equal, CSTI_Colon, CSTII_of]) then begin
+      { A function or procedure keyword after one of these tokens is part of
+        a procedural type. ROPS never names one, so a routine name after it
+        means the type is still being typed and a routine starts here. }
+      Result := AParser.NextTokensAreRoutineName;
+    end;
   end;
 
   function IsDeclarationBlockStart(const ATokenID: TPSPasToken): Boolean;
   begin
     Result := ATokenID in [CSTII_const, CSTII_type, CSTII_var, CSTII_Label];
   end;
+
+  function IsParameterModifier(const ATokenID: TPSPasToken): Boolean;
+  begin
+    Result := ATokenID in [CSTII_const, CSTII_var];
+  end;
+
+  procedure ParseTypeBlock(const AParser: TPSPascalParser;
+    const AText: AnsiString; const ALineOffset: Integer;
+    var ALastTokenID: TPSPasToken); forward;
 
   type
     TParsedRoutineHeader = record
@@ -1697,11 +1763,16 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
       const PrototypeTokenID = AParser.CurrTokenID;
       if ResultTypeColonSeen and (ResultTypeStartPos < 0) then
         ResultTypeStartPos := Integer(AParser.CurrTokenPos);
-      if IsRoutineHeaderStart(PrototypeTokenID, ALastTokenID) or
+      { Unterminated: cut by a new declaration, its own 'begin', the 'end' of
+        the interface it is a method of, or a declaration block. 'const' and
+        'var' cut only outside parameter lists because they may be parameter
+        modifiers; 'type' and 'label' never appear in one. }
+      if IsRoutineHeaderStart(AParser, ALastTokenID) or
          (PrototypeTokenID = CSTII_begin) or
          (AStopAtEnd and (PrototypeTokenID = CSTII_end)) or
-         (IsDeclarationBlockStart(PrototypeTokenID) and (BraceDepth = 0)) then
-        Break; { Unterminated: cut by a new declaration, its own 'begin', the 'end' of the interface it is a method of, or a declaration block (last only outside parameter lists because those may contain 'const' and 'var') }
+         (IsDeclarationBlockStart(PrototypeTokenID) and
+          (not IsParameterModifier(PrototypeTokenID) or (BraceDepth = 0))) then
+        Break;
       if PrototypeTokenID = CSTI_OpenRound then
         Inc(BraceDepth)
       else if (PrototypeTokenID = CSTI_CloseRound) and (BraceDepth > 0) then
@@ -1772,9 +1843,13 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
           ALastTokenID := AParser.CurrTokenID;
           DecorationLastLine := ALineOffset + Integer(AParser.Row)-1;
           AParser.Next;
-          { Consume the rest of the decoration until its ';' }
+          { Consume the rest of the decoration until its ';'. A type block ends
+            it instead of being consumed: it is never part of a decoration, and
+            the main loop parses it. }
           while (AParser.CurrTokenID <> CSTI_EOF) and
-                not IsRoutineHeaderStart(AParser.CurrTokenID, ALastTokenID) do begin
+                not IsRoutineHeaderStart(AParser, ALastTokenID) do begin
+            if AParser.CurrTokenID = CSTII_type then
+              Break;
             const DecorationTokenID = AParser.CurrTokenID;
             ALastTokenID := DecorationTokenID;
             DecorationLastLine := ALineOffset + Integer(AParser.Row)-1;
@@ -1787,14 +1862,19 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         if Routine.FBodilessType <> btNo then
           Routine.FLastLine := DecorationLastLine
         else begin
-          { Search for 'begin', past any local declaration blocks.
-            Any block is taken for a local one, even though ROPS does not
-            really support local 'type' or 'const' blocks. }
+          { Search for 'begin', past any local declaration block. A type block
+            is parsed on the way rather than skipped, so its types survive a
+            body still being typed. The search goes on past it either way,
+            because the 'begin' may still follow. }
           while (AParser.CurrTokenID <> CSTI_EOF) and
                 (AParser.CurrTokenID <> CSTII_begin) and
-                not IsRoutineHeaderStart(AParser.CurrTokenID, ALastTokenID) do begin
-            ALastTokenID := AParser.CurrTokenID;
-            AParser.Next;
+                not IsRoutineHeaderStart(AParser, ALastTokenID) do begin
+            if AParser.CurrTokenID = CSTII_type then
+              ParseTypeBlock(AParser, AText, ALineOffset, ALastTokenID)
+            else begin
+              ALastTokenID := AParser.CurrTokenID;
+              AParser.Next;
+            end;
           end;
           if AParser.CurrTokenID = CSTII_begin then begin
             ABeginFound := True;
@@ -1804,7 +1884,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             AParser.Next;
             var BlockDepth := 1;
             while (AParser.CurrTokenID <> CSTI_EOF) and
-                  not IsRoutineHeaderStart(AParser.CurrTokenID, ALastTokenID) and
+                  not IsRoutineHeaderStart(AParser, ALastTokenID) and
                   not IsDeclarationBlockStart(AParser.CurrTokenID) do begin
               const BodyTokenID = AParser.CurrTokenID;
               if BodyTokenID in [CSTII_begin, CSTII_case, CSTII_Try] then
@@ -1842,27 +1922,81 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
     end;
   end;
 
+  type
+    TPendingType = record
+      Name: String; { Empty when there is none }
+      Line: Integer;
+    end;
+
+  procedure ParseEnumerationValues(const AParser: TPSPascalParser;
+    const ALineOffset, ATypeIndex: Integer; var ALastTokenID: TPSPasToken;
+    var APendingType: TPendingType);
+  { Parses an enumeration's value list, starting on its '(' and consuming the
+    closing ')' so the caller's brace depth stays balanced. ROPS allows nothing
+    but identifiers separated by commas, so any other token means the list is
+    still being typed and what follows it is not part of it. }
+  begin
+    repeat
+      ALastTokenID := AParser.CurrTokenID; { The '(' or ',' }
+      AParser.Next;
+      if AParser.CurrTokenID <> CSTI_Identifier then
+        Break;
+      const Name = UTF8ToString(AParser.OriginalToken);
+      const Line = ALineOffset + Integer(AParser.Row)-1;
+      ALastTokenID := CSTI_Identifier;
+      AParser.Next;
+      if AParser.CurrTokenID = CSTI_Equal then begin
+        { Not a value after all but the next type's name }
+        APendingType.Name := Name;
+        APendingType.Line := Line;
+        Exit;
+      end;
+      const Value = TCodeSectionEnumerationValue.Create;
+      FEnumerationValues.Add(Value);
+      Value.FName := Name;
+      Value.FDeclarationTypeIndex := ATypeIndex;
+      Value.FLine := Line;
+    until AParser.CurrTokenID <> CSTI_Comma;
+    if AParser.CurrTokenID = CSTI_CloseRound then begin
+      ALastTokenID := CSTI_CloseRound;
+      AParser.Next;
+    end;
+  end;
+
   procedure ParseTypeBlock(const AParser: TPSPascalParser;
     const AText: AnsiString; const ALineOffset: Integer;
     var ALastTokenID: TPSPasToken);
-  { Parses a type block until a token that does not continue the block.
+  { Parses a type block until a token that does not continue the block. A
+    declaration starts at an identifier followed by '=', so a definition still
+    being typed is ended by the next one instead of swallowing it.
     Known limitation: an inline 'interface' type elsewhere (ROPS allows one in
     a var declaration) is not consumed, so its methods are seen as routines. }
   begin
     ALastTokenID := AParser.CurrTokenID;
     AParser.Next;
-    while AParser.CurrTokenID = CSTI_Identifier do begin
-      const Name = UTF8ToString(AParser.OriginalToken);
-      const Line = ALineOffset + Integer(AParser.Row)-1;
-      ALastTokenID := CSTI_Identifier;
-      AParser.Next;
+    var PendingType: TPendingType;
+    PendingType.Name := '';
+    while (PendingType.Name <> '') or
+          (AParser.CurrTokenID = CSTI_Identifier) do begin
+      var Name: String;
+      var Line: Integer;
+      if PendingType.Name <> '' then begin
+        Name := PendingType.Name;
+        Line := PendingType.Line;
+        PendingType.Name := '';
+      end else begin
+        Name := UTF8ToString(AParser.OriginalToken);
+        Line := ALineOffset + Integer(AParser.Row)-1;
+        ALastTokenID := CSTI_Identifier;
+        AParser.Next;
+      end;
       if AParser.CurrTokenID <> CSTI_Equal then
-        Break;
+        Continue; { Not a declaration: the identifier after it may still be one }
       ALastTokenID := CSTI_Equal;
       AParser.Next;
 
       { Add type with its name, line and type }
-      const Declaration = TCodeSectionDeclaration.Create;
+      const Declaration = TCodeSectionType.Create;
       const DeclarationIndex = Integer(FTypes.Add(Declaration));
       Declaration.FName := Name;
       Declaration.FLine := Line;
@@ -1877,13 +2011,13 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         CSTI_Identifier: Declaration.FTypeText := UTF8ToString(AParser.OriginalToken);
       end;
 
-      { Parse the rest of the definition, without remembering anything
-        about it }
+      { Parse the rest of the definition, remembering only its interface
+        methods and enumeration values }
       var BraceDepth := 0;
       var OpenStructs: TArray<TPSPasToken> := []; { CSTII_record/CSTII_interface, innermost last }
       while AParser.CurrTokenID <> CSTI_EOF do begin
         const DefinitionTokenID = AParser.CurrTokenID;
-        if IsRoutineHeaderStart(DefinitionTokenID, ALastTokenID) then begin
+        if IsRoutineHeaderStart(AParser, ALastTokenID) then begin
           { Ends an unterminated definition, unless directly in an interface:
             its methods are indistinguishable from routine headers }
           const InOpenInterface = (Length(OpenStructs) > 0) and
@@ -1910,6 +2044,31 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             a block start is never an interface member. The depth guard
             keeps a procedural type's 'var'/'const' parameters out. }
           Break;
+        end else if (DefinitionTokenID = CSTI_OpenRound) and
+                    (ALastTokenID in [CSTI_Equal, CSTI_Colon, CSTII_of]) then begin
+          { A '(' where a type is expected is an enumeration's value list. An
+            anonymous enumeration's values belong to the type being declared,
+            like an anonymous interface's methods do. }
+          ParseEnumerationValues(AParser, ALineOffset, DeclarationIndex,
+            ALastTokenID, PendingType);
+          if PendingType.Name <> '' then
+            Break;
+          Continue;
+        end else if DefinitionTokenID = CSTI_Identifier then begin
+          { An identifier followed by '=' is the next declaration, so it ends
+            this one, also while a record, an interface or a parameter list is
+            still open: ROPS takes '=' only in a type or const declaration and
+            in an expression, and a type definition holds neither. }
+          const NextName = UTF8ToString(AParser.OriginalToken);
+          const NextLine = ALineOffset + Integer(AParser.Row)-1;
+          ALastTokenID := CSTI_Identifier;
+          AParser.Next;
+          if AParser.CurrTokenID = CSTI_Equal then begin
+            PendingType.Name := NextName;
+            PendingType.Line := NextLine;
+            Break;
+          end;
+          Continue;
         end;
         if DefinitionTokenID in [CSTII_record, CSTII_interface] then
           OpenStructs := OpenStructs + [DefinitionTokenID]
@@ -1932,6 +2091,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
 begin
   FRoutines.Clear;
   FTypes.Clear;
+  FEnumerationValues.Clear;
   FInterfaceMethods.Clear;
 
   var Text := PrepareCodeSectionText(ALines);
@@ -1943,9 +2103,19 @@ begin
     var OpenRoutine: TCodeSectionRoutine := nil;
     var OpenRoutineBeginFound := False;
     while True do begin
+
+      { Important goal: Finished code below code being typed should not get lost
+        while typing, whenever possible. This applies both to a type definition
+        still being typed and to a routine whose body is still missing.
+
+        Also: Parser simplicity is more important than exactly matching the ROPS
+        grammar. For example, ROPS accepts anonymous types in some contexts but
+        not others, without any clear reason why. The parser therefore reproduces
+        such distinctions only when doing so simplifies its code. }
+
       while Parser.CurrTokenID <> CSTI_EOF do begin { CSTI_EOF means error or EOF, told apart below }
         const TokenID = Parser.CurrTokenID;
-        const RoutineHeaderStart = IsRoutineHeaderStart(TokenID, LastTokenID);
+        const RoutineHeaderStart = IsRoutineHeaderStart(Parser, LastTokenID);
         { A declaration block start ends the open routine only when its
           'begin' was found: before it the block can be the routine's own
           local block. (ROPS does not really support local 'type' or 'const'
@@ -2014,9 +2184,20 @@ begin
 end;
 
 function TScriptModelCodeSection.GetType(
-  Index: Integer): TCodeSectionDeclaration;
+  Index: Integer): TCodeSectionType;
 begin
   Result := FTypes[Index];
+end;
+
+function TScriptModelCodeSection.EnumerationValueCount: Integer;
+begin
+  Result := Integer(FEnumerationValues.Count);
+end;
+
+function TScriptModelCodeSection.GetEnumerationValue(
+  Index: Integer): TCodeSectionEnumerationValue;
+begin
+  Result := FEnumerationValues[Index];
 end;
 
 function TScriptModelCodeSection.InterfaceMethodCount: Integer;
