@@ -1595,7 +1595,8 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
     const AStartPos, AEndPos: Integer): String;
   { Returns byte positions [AStartPos, AEndPos) of the tokenized buffer as a
     String, cleaned up for display: comments and whitespace both collapse to
-    a single space, and are removed from the start or end }
+    a single space, and are removed at the start, at the end, and before
+    ')', ';', ',' and ']' }
   begin
     const S = UTF8ToString(Copy(AText, AStartPos+1, AEndPos-AStartPos));
     const Builder = TStringBuilder.Create;
@@ -1608,7 +1609,9 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
           PendingSeparator := True { Wait till actual content, helps to merge consecutive comments and whitespace }
         else begin
           if PendingSeparator and (Builder.Length > 0) then
-            Builder.Append(' ');
+            if not CharInSet(S[StartI], [')', ';', ',', ']']) or
+               ((Builder.Chars[Builder.Length-1] = '*') and (S[StartI] = ')')) then { Don't remove space between * and ) because it would make it look like a comment }
+              Builder.Append(' ');
           PendingSeparator := False;
           Builder.Append(S, StartI-1, I-StartI); { Append is 0-based }
         end;

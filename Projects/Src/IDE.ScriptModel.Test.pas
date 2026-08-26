@@ -2641,11 +2641,12 @@ begin
     Assert(Section.Routines[0].Prototype = 'procedure Shared;');
     Assert(Section.Routines[0].ResultTypeText = '');
 
-    { Every whitespace run collapses to a single space, also within a line }
+    { Every whitespace run collapses to a single space, also within a line,
+      except before ')', ';', ',' and ']' }
     Section.Parse(['function  Spaced  (A: Integer) : Boolean ;', 'begin', 'end;']);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Prototype =
-      'function Spaced (A: Integer) : Boolean ;');
+      'function Spaced (A: Integer) : Boolean;');
     Assert(Section.Routines[0].ResultTypeText = 'Boolean');
     Section.Parse(['function'#9'Tabbed(A:'#9'Integer):'#9'Boolean;', 'begin', 'end;']);
     Assert(Section.RoutineCount = 1);
@@ -2662,7 +2663,7 @@ begin
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'Commented');
     Assert(Section.Routines[0].Prototype =
-      'function Commented(A: Integer ): Boolean;');
+      'function Commented(A: Integer): Boolean;');
     Assert(Section.Routines[0].ResultTypeText = 'Boolean');
 
     { A '(*' opener's own '*' may close the comment, like the ROPS tokenizer,
@@ -2673,7 +2674,12 @@ begin
       'end;']);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'Degenerate');
-    Assert(Section.Routines[0].Prototype = 'procedure Degenerate(A: Integer );');
+    Assert(Section.Routines[0].Prototype = 'procedure Degenerate(A: Integer);');
+
+    { For the same reason a '*' keeps its space before a ')' }
+    Section.Parse(['procedure Starred(A: Integer = (2 * ));', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'procedure Starred(A: Integer = (2 * ));');
 
     { A '//' comment ends at its line break, so the rest of the header
       survives, and it runs to the end when there is no line break left }
@@ -2692,7 +2698,7 @@ begin
       one trailing the result type leaves no trailing space }
     Section.Parse(['function Edges: { kind } Boolean { done };', 'begin', 'end;']);
     Assert(Section.RoutineCount = 1);
-    Assert(Section.Routines[0].Prototype = 'function Edges: Boolean ;');
+    Assert(Section.Routines[0].Prototype = 'function Edges: Boolean;');
     Assert(Section.Routines[0].ResultTypeText = 'Boolean');
 
     { A comment's opening characters inside a string literal are kept: the
@@ -2710,7 +2716,7 @@ begin
       literal, which the call tip's ASCII test then still rejects }
     Section.Parse(['procedure Accented(A: Integer { caf'#$00E9' });', 'begin', 'end;']);
     Assert(Section.RoutineCount = 1);
-    Assert(Section.Routines[0].Prototype = 'procedure Accented(A: Integer );');
+    Assert(Section.Routines[0].Prototype = 'procedure Accented(A: Integer);');
     Section.Parse(['procedure Kept(const S: String = ''caf'#$00E9''');', 'begin', 'end;']);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Prototype =
