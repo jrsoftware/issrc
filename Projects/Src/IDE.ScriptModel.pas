@@ -1923,14 +1923,14 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
   end;
 
   type
-    TPendingType = record
+    TPendingDeclaration = record
       Name: String; { Empty when there is none }
       Line: Integer;
     end;
 
   procedure ParseEnumerationValues(const AParser: TPSPascalParser;
     const ALineOffset, ATypeIndex: Integer; var ALastTokenID: TPSPasToken;
-    var APendingType: TPendingType);
+    var APendingDeclaration: TPendingDeclaration);
   { Parses an enumeration's value list, starting on its '(' and consuming the
     closing ')' so the caller's brace depth stays balanced. ROPS allows nothing
     but identifiers separated by commas, so any other token means the list is
@@ -1947,8 +1947,8 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
       AParser.Next;
       if AParser.CurrTokenID = CSTI_Equal then begin
         { Not a value after all but the next type's name }
-        APendingType.Name := Name;
-        APendingType.Line := Line;
+        APendingDeclaration.Name := Name;
+        APendingDeclaration.Line := Line;
         Exit;
       end;
       const Value = TCodeSectionEnumerationValue.Create;
@@ -1974,16 +1974,16 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
   begin
     ALastTokenID := AParser.CurrTokenID;
     AParser.Next;
-    var PendingType: TPendingType;
-    PendingType.Name := '';
-    while (PendingType.Name <> '') or
+    var PendingDeclaration: TPendingDeclaration;
+    PendingDeclaration.Name := '';
+    while (PendingDeclaration.Name <> '') or
           (AParser.CurrTokenID = CSTI_Identifier) do begin
       var Name: String;
       var Line: Integer;
-      if PendingType.Name <> '' then begin
-        Name := PendingType.Name;
-        Line := PendingType.Line;
-        PendingType.Name := '';
+      if PendingDeclaration.Name <> '' then begin
+        Name := PendingDeclaration.Name;
+        Line := PendingDeclaration.Line;
+        PendingDeclaration.Name := '';
       end else begin
         Name := UTF8ToString(AParser.OriginalToken);
         Line := ALineOffset + Integer(AParser.Row)-1;
@@ -2050,8 +2050,8 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             anonymous enumeration's values belong to the type being declared,
             like an anonymous interface's methods do. }
           ParseEnumerationValues(AParser, ALineOffset, DeclarationIndex,
-            ALastTokenID, PendingType);
-          if PendingType.Name <> '' then
+            ALastTokenID, PendingDeclaration);
+          if PendingDeclaration.Name <> '' then
             Break;
           Continue;
         end else if DefinitionTokenID = CSTI_Identifier then begin
@@ -2064,8 +2064,8 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
           ALastTokenID := CSTI_Identifier;
           AParser.Next;
           if AParser.CurrTokenID = CSTI_Equal then begin
-            PendingType.Name := NextName;
-            PendingType.Line := NextLine;
+            PendingDeclaration.Name := NextName;
+            PendingDeclaration.Line := NextLine;
             Break;
           end;
           Continue;
