@@ -24,7 +24,7 @@ type
     procedure InitiateAutoComplete(const AMemo: TScintEdit; const Key: AnsiChar);
     procedure AutoCompleteAndCallTipsHandleCharAdded(const AMemo: TScintEdit; const Ch: AnsiChar);
     function BuildUserDefinedFunctionDefinitions(const AMemo: TScintEdit;
-      const ALine: Integer): TFunctionDefinitionsWithName;
+      const ALine: Integer; const AClassMember: Boolean): TFunctionDefinitionsWithName;
     procedure CallTipsHandleArrowClick(const AMemo: TScintEdit; const Up: Boolean);
     procedure CallTipsHandleCtrlSpace(const AMemo: TScintEdit);
     procedure CallTipsHandleUpdateUI(const AMemo: TScintEdit);
@@ -682,7 +682,8 @@ begin
 end;
 
 function TMainFormAutoCompleteAndCallTipsHelper.BuildUserDefinedFunctionDefinitions(
-  const AMemo: TScintEdit; const ALine: Integer): TFunctionDefinitionsWithName;
+  const AMemo: TScintEdit; const ALine: Integer;
+  const AClassMember: Boolean): TFunctionDefinitionsWithName;
 
   function IsAsciiString(const S: String): Boolean;
   begin
@@ -692,6 +693,24 @@ function TMainFormAutoCompleteAndCallTipsHelper.BuildUserDefinedFunctionDefiniti
     Result := True;
   end;
 
+  procedure AddDefinition(const Prototypes: TStringList; const Name: String;
+    const Kind: TCodeSectionRoutineKind; const Prototype: String);
+  begin
+    if not IsAsciiString(Prototype) or (Prototypes.IndexOf(Prototype) >= 0) then
+      Exit;
+    Prototypes.Add(Prototype);
+    var HeaderKind: TScriptFuncHeaderKind;
+    if Kind = rkFunction then
+      HeaderKind := hkFunction
+    else
+      HeaderKind := hkProcedure;
+    var UserDefinedFunctionDefinition: TFunctionDefinitionWithName;
+    UserDefinedFunctionDefinition.Name := Name;
+    UserDefinedFunctionDefinition.Definition :=
+      TFunctionDefinition.CreateUserDefined(Prototype, HeaderKind);
+    Result := Result + [UserDefinedFunctionDefinition];
+  end;
+
 begin
   Result := [];
   if not _TryAcquireAndHoldCodeSectionAtLine(AMemo, ALine) then
@@ -699,22 +718,17 @@ begin
 
   const Prototypes = CreateSortedCaseInsensitiveStringList;
   try
-    for var I := 0 to FAutoCompleteAndCallTipsLiveCodeSection.Section.RoutineCount-1 do begin
-      const Routine = FAutoCompleteAndCallTipsLiveCodeSection.Section.Routines[I];
-      const Prototype = Routine.Prototype;
-      if not IsAsciiString(Prototype) or (Prototypes.IndexOf(Prototype) >= 0) then
-        Continue;
-      Prototypes.Add(Prototype);
-      var HeaderKind: TScriptFuncHeaderKind;
-      if Routine.Kind = rkFunction then
-        HeaderKind := hkFunction
-      else
-        HeaderKind := hkProcedure;
-      var UserDefinedFunctionDefinition: TFunctionDefinitionWithName;
-      UserDefinedFunctionDefinition.Name := Routine.Name;
-      UserDefinedFunctionDefinition.Definition :=
-        TFunctionDefinition.CreateUserDefined(Prototype, HeaderKind);
-      Result := Result + [UserDefinedFunctionDefinition];
+    const Section = FAutoCompleteAndCallTipsLiveCodeSection.Section;
+    if AClassMember then begin
+      for var I := 0 to Section.InterfaceMethodCount-1 do begin
+        const Method = Section.InterfaceMethods[I];
+        AddDefinition(Prototypes, Method.Name, Method.Kind, Method.Prototype);
+      end;
+    end else begin
+      for var I := 0 to Section.RoutineCount-1 do begin
+        const Routine = Section.Routines[I];
+        AddDefinition(Prototypes, Routine.Name, Routine.Kind, Routine.Prototype);
+      end;
     end;
   finally
     Prototypes.Free;
@@ -735,10 +749,9 @@ begin
   if FCallTipState.ISPPExpressionContext then
     FunctionDefinition := GetISPPFunctionDefinition(CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips)
   else begin
-    var UserDefined: TFunctionDefinitionsWithName := [];
-    if not FCallTipState.ClassOrRecordMember then
-      UserDefined := BuildUserDefinedFunctionDefinitions(AMemo,
-        AMemo.GetLineFromPosition(FCallTipState.LastPosCallTip));
+    const UserDefined = BuildUserDefinedFunctionDefinitions(AMemo,
+      AMemo.GetLineFromPosition(FCallTipState.LastPosCallTip),
+      FCallTipState.ClassOrRecordMember);
     FunctionDefinition := GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, CurrentCallTipWord, FCallTipState.CurrentCallTip, UserDefined, FCallTipState.MaxCallTips);
   end;
   if ((FCallTipState.MaxCallTips = 1) and FunctionDefinition.HasParams) or //if there's a single definition then only show if it has a parameter

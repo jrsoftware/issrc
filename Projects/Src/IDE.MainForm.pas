@@ -5626,13 +5626,13 @@ begin
       end else begin
         var ClassMember := False;
         const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
-        var UserDefined := BuildUserDefinedFunctionDefinitions(FActiveMemo, Line);
+        var UserDefined := BuildUserDefinedFunctionDefinitions(FActiveMemo, Line, ClassMember);
         var Index := 0;
         var Count: Integer;
         var FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, UserDefined, Count);
         if Count = 0 then begin
           ClassMember := not ClassMember;
-          UserDefined := [];
+          UserDefined := BuildUserDefinedFunctionDefinitions(FActiveMemo, Line, ClassMember);
           FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, UserDefined, Count);
         end;
         while Index < Count do begin
