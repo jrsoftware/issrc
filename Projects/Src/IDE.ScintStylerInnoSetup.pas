@@ -63,6 +63,7 @@ type
     class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrISPPStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean; static;
+    class function IsPascalNumberStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
     class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupSection): Boolean; static;
     class function LineSpans(const S: TScintRawString): Boolean; static;
@@ -736,6 +737,11 @@ end;
 class function TInnoSetupStyler.IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
 begin
   Result := Style in [Ord(stComment), Ord(stPascalString)];
+end;
+
+class function TInnoSetupStyler.IsPascalNumberStyle(const Style: TScintStyleNumber): Boolean;
+begin
+  Result := Style = Ord(stPascalNumber);
 end;
 
 class function TInnoSetupStyler.IsSymbolStyle(const Style: TScintStyleNumber): Boolean;

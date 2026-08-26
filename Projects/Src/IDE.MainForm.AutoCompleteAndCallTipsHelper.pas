@@ -455,6 +455,18 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     end;
   end;
 
+  function DotIsPartOfNumberOrRange(const LinePos, DotPos: Integer): Boolean;
+  begin
+    { Ask the styler if the dot is part of a number }
+    AMemo.StyleNeeded(DotPos);
+    if TInnoSetupStyler.IsPascalNumberStyle(AMemo.GetStyleAtPosition(DotPos)) then
+      Exit(True);
+    { Checking if the dot is part of a range ourselves }
+    const PositionBeforeDotPos = AMemo.GetPositionBefore(DotPos);
+    Result := (PositionBeforeDotPos >= LinePos) and
+      (AMemo.GetByteAtPosition(PositionBeforeDotPos) = '.');
+  end;
+
   function ChooseCodeWordList(const LinePos, WordStartPos: Integer;
     out WordList: AnsiString): Boolean;
   begin
@@ -488,7 +500,12 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       types, etc, or class members if the current word has a dot before it,
       merging in the current section's own routines or interface methods }
     if WordList = '' then begin
-      const ClassOrRecordMember = (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
+      var ClassOrRecordMember := False;
+      if (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.') then begin
+        if DotIsPartOfNumberOrRange(LinePos, PositionBeforeWordStartPos) then
+          Exit;
+        ClassOrRecordMember := True;
+      end;
       WordList := MergeAutoCompleteWordLists(GetScriptAutoCompleteWordList(ClassOrRecordMember),
         BuildUserDefinedWordList(AMemo.GetLineFromPosition(LinePos), ClassOrRecordMember));
     end;
