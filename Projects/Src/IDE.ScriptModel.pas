@@ -231,14 +231,14 @@ type
   private
     FName: String;
     FKind: TCodeSectionRoutineKind;
-    FInterfaceName: String;
+    FDeclarationTypeIndex: Integer; { For anonymous interfaces this is the type it is nested in, so not an interface }
     FResultTypeText: String;
     FPrototype: String;
     FLine: Integer;
   public
     property Name: String read FName;
     property Kind: TCodeSectionRoutineKind read FKind;
-    property InterfaceName: String read FInterfaceName;
+    property DeclarationTypeIndex: Integer read FDeclarationTypeIndex;
     property ResultTypeText: String read FResultTypeText;
     property Prototype: String read FPrototype;
     property Line: Integer read FLine;
@@ -1844,7 +1844,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
 
   procedure ParseTypeBlock(const AParser: TPSPascalParser;
     const AText: AnsiString; const ALineOffset: Integer;
-    var ALastTokenID: TPSPasToken; var AAnonymousInterfaceCount: Integer);
+    var ALastTokenID: TPSPasToken);
   { Parses a type block until a token that does not continue the block.
     Known limitation: an inline 'interface' type elsewhere (ROPS allows one in
     a var declaration) is not consumed, so its methods are seen as routines. }
@@ -1863,7 +1863,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
 
       { Add type with its name, line and type }
       const Declaration = TCodeSectionDeclaration.Create;
-      FTypes.Add(Declaration);
+      const DeclarationIndex = Integer(FTypes.Add(Declaration));
       Declaration.FName := Name;
       Declaration.FLine := Line;
       case AParser.CurrTokenID of
@@ -1876,11 +1876,6 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         CSTI_OpenRound: Declaration.FTypeText := 'enumeration';
         CSTI_Identifier: Declaration.FTypeText := UTF8ToString(AParser.OriginalToken);
       end;
-
-      { An interface nested in another type has no name in ROPS either }
-      var InterfaceName := '';
-      if AParser.CurrTokenID = CSTII_interface then
-        InterfaceName := Name;
 
       { Parse the rest of the definition, without remembering anything
         about it }
@@ -1903,13 +1898,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             FInterfaceMethods.Add(Method);
             Method.FName := Header.Name;
             Method.FKind := Header.Kind;
-            { Number the nested ones to keep them apart. Note that currently
-              ROPS errors when there's more than one anonymous interface. }
-            if InterfaceName = '' then begin
-              InterfaceName := Format('<anonymous_%d>', [AAnonymousInterfaceCount]);
-              Inc(AAnonymousInterfaceCount);
-            end;
-            Method.FInterfaceName := InterfaceName;
+            Method.FDeclarationTypeIndex := DeclarationIndex;
             Method.FResultTypeText := Header.ResultTypeText;
             Method.FPrototype := Header.Prototype;
             Method.FLine := Header.FirstLine;
@@ -1953,7 +1942,6 @@ begin
     var LastTokenID := CSTI_EOF;
     var OpenRoutine: TCodeSectionRoutine := nil;
     var OpenRoutineBeginFound := False;
-    var AnonymousInterfaceCount := 0;
     while True do begin
       while Parser.CurrTokenID <> CSTI_EOF do begin { CSTI_EOF means error or EOF, told apart below }
         const TokenID = Parser.CurrTokenID;
@@ -1972,8 +1960,7 @@ begin
           ParseRoutine(Parser, Text, LineOffset, LastTokenID, OpenRoutine,
             OpenRoutineBeginFound)
         else if TokenID = CSTII_type then
-          ParseTypeBlock(Parser, Text, LineOffset, LastTokenID,
-            AnonymousInterfaceCount)
+          ParseTypeBlock(Parser, Text, LineOffset, LastTokenID)
         else begin
           LastTokenID := TokenID;
           Parser.Next;

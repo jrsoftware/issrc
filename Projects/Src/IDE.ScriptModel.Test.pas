@@ -3441,7 +3441,7 @@ begin
   const Section = TScriptModelCodeSection.Create;
   try
     { Every method of an interface definition, in source order, with its name,
-      kind, result type, prototype, owning interface and line. The parent
+      kind, result type, prototype, declaring type and line. The parent
       interface and the GUID string are tolerated, and trailing decoration
       such as 'safecall' stays out of the prototype. }
     Section.Parse([
@@ -3458,14 +3458,14 @@ begin
     Assert(Section.InterfaceMethodCount = 2);
     Assert(Section.InterfaceMethods[0].Name = 'Save');
     Assert(Section.InterfaceMethods[0].Kind = rkProcedure);
-    Assert(Section.InterfaceMethods[0].InterfaceName = 'IPersistFile');
+    Assert(Section.InterfaceMethods[0].DeclarationTypeIndex = 0);
     Assert(Section.InterfaceMethods[0].ResultTypeText = '');
     Assert(Section.InterfaceMethods[0].Prototype =
       'procedure Save(pszFileName: String; fRemember: BOOL);');
     Assert(Section.InterfaceMethods[0].Line = 3);
     Assert(Section.InterfaceMethods[1].Name = 'GetCurFile');
     Assert(Section.InterfaceMethods[1].Kind = rkFunction);
-    Assert(Section.InterfaceMethods[1].InterfaceName = 'IPersistFile');
+    Assert(Section.InterfaceMethods[1].DeclarationTypeIndex = 0);
     Assert(Section.InterfaceMethods[1].ResultTypeText = 'String');
     Assert(Section.InterfaceMethods[1].Prototype = 'function GetCurFile: String;');
     Assert(Section.InterfaceMethods[1].Line = 4);
@@ -3505,13 +3505,13 @@ begin
     Assert(Section.TypeCount = 2);
     Assert(Section.InterfaceMethodCount = 3);
     Assert(Section.InterfaceMethods[0].Name = 'A');
-    Assert(Section.InterfaceMethods[0].InterfaceName = 'IFirst');
+    Assert(Section.InterfaceMethods[0].DeclarationTypeIndex = 0);
     Assert(Section.InterfaceMethods[0].Line = 2);
     Assert(Section.InterfaceMethods[1].Name = 'B');
-    Assert(Section.InterfaceMethods[1].InterfaceName = 'ISecond');
+    Assert(Section.InterfaceMethods[1].DeclarationTypeIndex = 1);
     Assert(Section.InterfaceMethods[1].Line = 5);
     Assert(Section.InterfaceMethods[2].Name = 'C');
-    Assert(Section.InterfaceMethods[2].InterfaceName = 'ISecond');
+    Assert(Section.InterfaceMethods[2].DeclarationTypeIndex = 1);
     Assert(Section.InterfaceMethods[2].ResultTypeText = 'Integer');
     Assert(Section.InterfaceMethods[2].Line = 6);
 
@@ -3577,7 +3577,7 @@ begin
     Assert(Section.InterfaceMethods[1].Name = 'P');
 
     { An interface nested in an array type is anonymous, like in ROPS, so its
-      methods get no interface name }
+      methods point to the array type instead }
     Section.Parse([
       'type',                                             { 0 }
       '  TItems = array of interface(IUnknown)',          { 1 }
@@ -3590,7 +3590,7 @@ begin
     Assert(Section.RoutineCount = 0);
     Assert(Section.InterfaceMethodCount = 1);
     Assert(Section.InterfaceMethods[0].Name = 'Foo');
-    Assert(Section.InterfaceMethods[0].InterfaceName = '<anonymous_0>');
+    Assert(Section.InterfaceMethods[0].DeclarationTypeIndex = 0);
     Assert(Section.InterfaceMethods[0].Line = 3);
 
     { The same for one nested in a record type }
@@ -3607,10 +3607,24 @@ begin
     Assert(Section.RoutineCount = 0);
     Assert(Section.InterfaceMethodCount = 1);
     Assert(Section.InterfaceMethods[0].Name = 'Foo');
-    Assert(Section.InterfaceMethods[0].InterfaceName = '<anonymous_0>');
+    Assert(Section.InterfaceMethods[0].DeclarationTypeIndex = 0);
 
-    { Two of them are numbered apart, a state ROPS itself rejects as a
-      duplicate identifier but the model still keeps apart while typing }
+    { A type without methods before it still takes an index }
+    Section.Parse([
+      'type',                              { 0 }
+      '  TRecA = record A: Integer; end;', { 1 }
+      '  TRecB = record',                  { 2 }
+      '    F: interface',                  { 3 }
+      '      procedure Foo;',              { 4 }
+      '    end;',                          { 5 }
+      '  end;']);                          { 6 }
+    Assert(Section.TypeCount = 2);
+    Assert(Section.InterfaceMethodCount = 1);
+    Assert(Section.InterfaceMethods[0].Name = 'Foo');
+    Assert(Section.InterfaceMethods[0].DeclarationTypeIndex = 1);
+
+    { Two of them stay apart through their types, a state ROPS itself rejects
+      as a duplicate identifier but the model still keeps apart while typing }
     Section.Parse([
       'type',                           { 0 }
       '  TFirst = array of interface',  { 1 }
@@ -3621,11 +3635,10 @@ begin
       '  end;']);                       { 6 }
     Assert(Section.TypeCount = 2);
     Assert(Section.InterfaceMethodCount = 2);
-    Assert(Section.InterfaceMethods[0].InterfaceName = '<anonymous_0>');
-    Assert(Section.InterfaceMethods[1].InterfaceName = '<anonymous_1>');
+    Assert(Section.InterfaceMethods[0].DeclarationTypeIndex = 0);
+    Assert(Section.InterfaceMethods[1].DeclarationTypeIndex = 1);
 
-    { The numbering counts only the anonymous ones, so the named types around
-      them do not shift it }
+    { A named and an anonymous one in a single block }
     Section.Parse([
       'type',                           { 0 }
       '  IFoo = interface',             { 1 }
@@ -3636,10 +3649,10 @@ begin
       '  end;']);                       { 6 }
     Assert(Section.TypeCount = 2);
     Assert(Section.InterfaceMethodCount = 2);
-    Assert(Section.InterfaceMethods[0].InterfaceName = 'IFoo');
-    Assert(Section.InterfaceMethods[1].InterfaceName = '<anonymous_0>');
+    Assert(Section.InterfaceMethods[0].DeclarationTypeIndex = 0);
+    Assert(Section.InterfaceMethods[1].DeclarationTypeIndex = 1);
 
-    { The numbering also runs across type blocks }
+    { The indexes also run across type blocks }
     Section.Parse([
       'type',                           { 0 }
       '  TFirst = array of interface',  { 1 }
@@ -3650,8 +3663,8 @@ begin
       '    procedure Bar;',             { 6 }
       '  end;']);                       { 7 }
     Assert(Section.InterfaceMethodCount = 2);
-    Assert(Section.InterfaceMethods[0].InterfaceName = '<anonymous_0>');
-    Assert(Section.InterfaceMethods[1].InterfaceName = '<anonymous_1>');
+    Assert(Section.InterfaceMethods[0].DeclarationTypeIndex = 0);
+    Assert(Section.InterfaceMethods[1].DeclarationTypeIndex = 1);
 
     { The interface's 'end' also cuts a method whose parameter list is left
       open, so the routines below it stay top-level }
@@ -3668,7 +3681,7 @@ begin
     Assert(Section.InterfaceMethodCount = 2);
     Assert(Section.InterfaceMethods[1].Name = 'M2');
     Assert(Section.InterfaceMethods[1].Prototype = 'procedure M2(');
-    Assert(Section.InterfaceMethods[1].InterfaceName = 'IFoo');
+    Assert(Section.InterfaceMethods[1].DeclarationTypeIndex = 0);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'P');
     Assert(Section.Routines[0].FirstLine = 5);

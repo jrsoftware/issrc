@@ -21,8 +21,9 @@ uses
 type
   TInspectorRowKind = (irkParameter, irkParameterFlag, irkKey,
     irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits,
-    irkDebugCaretAt, irkDebugCaretRoutine, irkDebugRoutine,
-    irkDebugType, irkDebugInterface, irkDebugInterfaceMethod {$ENDIF});
+    irkDebugCaretAt, irkDebugCaretRoutine, irkDebugRoutine, irkDebugRoutineResult,
+    irkDebugType, irkDebugInterface, irkDebugInterfaceMethod,
+    irkDebugInterfaceMethodResult {$ENDIF});
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
@@ -865,13 +866,13 @@ procedure TInspector.UpdateFromCaret;
     if AItem is TJvInspectorCustomCategoryItem then
       Result := 'C|' + AItem.DisplayName
     else begin
-      Result := 'R|' + AItem.DisplayName;
-      if AIncludeIndex then begin
-        var Row: TInspectorRow;
-        if not TryGetRow(AItem, Row) then
-          raise Exception.Create('Internal error: ItemID: Row not found');
+      var Row: TInspectorRow;
+      if not TryGetRow(AItem, Row) then
+        raise Exception.Create('Internal error: ItemID: Row not found');
+      { The kind may help separating rows sharing a name }
+      Result := 'R|' + IntToStr(Ord(Row.Kind)) + '|' + AItem.DisplayName;
+      if AIncludeIndex then
         Result := Result + '|' + IntToStr(Row.Index);
-      end;
     end;
   end;
 
@@ -1307,44 +1308,61 @@ procedure TInspector.UpdateFromCaret;
   {$IFDEF DEBUG}
   procedure AddCodeSectionRoutineRows;
   begin
-    if FLiveCodeSection.Section.RoutineCount > 0 then begin
+    const Section = FLiveCodeSection.Section;
+    if Section.RoutineCount > 0 then begin
       const RoutinesCategory = NewCategory('Routines');
-      for var I := 0 to FLiveCodeSection.Section.RoutineCount-1 do begin
-        const Routine = FLiveCodeSection.Section.Routines[I];
-        AddDebugRow(RoutinesCategory,
+      for var I := 0 to Section.RoutineCount-1 do begin
+        const Routine = Section.Routines[I];
+        const Item = AddDebugRow(RoutinesCategory,
           CodeSectionRowName(Routine.Name, Routine.FirstLine), irkDebugRoutine, I);
+        if Routine.Kind = rkFunction then
+          AddDebugRow(Item, 'Result', irkDebugRoutineResult, I); { Adds a child to Item }
       end;
+    end;
+  end;
+
+  procedure AddCodeSectionInterfaceMethodRows(const ACategory,
+    ATypeItem: TJvCustomInspectorItem; const ATypeIndex: Integer);
+  { Adds the methods of the interface declared by type ATypeIndex, if any, as
+    children of its row. An anonymous interface has no type of its own and
+    gets a row of its own in ACategory instead. }
+  begin
+    const Section = FLiveCodeSection.Section;
+    var Item: TJvCustomInspectorItem := nil;
+    for var I := 0 to Section.InterfaceMethodCount-1 do begin
+      const Method = Section.InterfaceMethods[I];
+      if Method.DeclarationTypeIndex <> ATypeIndex then
+        Continue;
+      if Item = nil then begin
+        const Declaration = Section.Types[ATypeIndex];
+        if Declaration.TypeText = 'interface' then
+          Item := ATypeItem
+        else begin
+          { A row is identified by its display name, so name it after the type
+            as well: two type declarations can share a line }
+          Item := AddDebugRow(ACategory,
+            CodeSectionRowName(Declaration.Name + '.<anonymous>', Declaration.Line),
+            irkDebugInterface, ATypeIndex);
+        end;
+      end;
+      const MethodItem = AddDebugRow(Item, { Adds a child to Item }
+        CodeSectionRowName(Method.Name, Method.Line),
+        irkDebugInterfaceMethod, I);
+      if Method.Kind = rkFunction then
+        AddDebugRow(MethodItem, 'Result', irkDebugInterfaceMethodResult, I);
     end;
   end;
 
   procedure AddCodeSectionTypeRows;
   begin
-    if FLiveCodeSection.Section.TypeCount > 0 then begin
+    const Section = FLiveCodeSection.Section;
+    if Section.TypeCount > 0 then begin
       const TypesCategory = NewCategory('Types');
-      for var I := 0 to FLiveCodeSection.Section.TypeCount-1 do begin
-        const Declaration = FLiveCodeSection.Section.Types[I];
-        AddDebugRow(TypesCategory,
+      for var I := 0 to Section.TypeCount-1 do begin
+        const Declaration = Section.Types[I];
+        const TypeItem = AddDebugRow(TypesCategory,
           CodeSectionRowName(Declaration.Name, Declaration.Line), irkDebugType, I);
-      end;
-    end;
-  end;
-
-  procedure AddCodeSectionInterfaceMethodRows;
-  begin
-    if FLiveCodeSection.Section.InterfaceMethodCount > 0 then begin
-      const InterfaceMethodsCategory = NewCategory('Interface methods');
-      var Item: TJvCustomInspectorItem := nil;
-      var InterfaceName := '';
-      for var I := 0 to FLiveCodeSection.Section.InterfaceMethodCount-1 do begin
-        const Method = FLiveCodeSection.Section.InterfaceMethods[I];
-        if (Item = nil) or (Method.InterfaceName <> InterfaceName) then begin
-          InterfaceName := Method.InterfaceName;
-          Item := AddDebugRow(InterfaceMethodsCategory, InterfaceName,
-            irkDebugInterface);
-          Item.Expanded := True;
-        end;
-        AddDebugRow(Item, CodeSectionRowName(Method.Name, Method.Line),
-          irkDebugInterfaceMethod, I); { Adds a child to Item }
+        AddCodeSectionInterfaceMethodRows(TypesCategory, TypeItem, I);
       end;
     end;
   end;
@@ -1410,7 +1428,6 @@ procedure TInspector.UpdateFromCaret;
         if FLiveCodeSection <> nil then begin
           AddCodeSectionRoutineRows;
           AddCodeSectionTypeRows;
-          AddCodeSectionInterfaceMethodRows;
         end;
         {$ENDIF}
 
@@ -1703,16 +1720,28 @@ begin
         const Routine = Model.Routines[I];
         RowSetSignature := RowSetSignature + '|R' + IntToStr(I) + ':' +
           CodeSectionRowName(Routine.Name, Routine.FirstLine);
+        { Put AddCodeSectionRoutineRows' Result row decision into the structure }
+        if Routine.Kind = rkFunction then
+          RowSetSignature := RowSetSignature + '!';
       end;
       for var I := 0 to Model.TypeCount-1 do begin
         const Declaration = Model.Types[I];
         RowSetSignature := RowSetSignature + '|T' + IntToStr(I) + ':' +
           CodeSectionRowName(Declaration.Name, Declaration.Line);
+        { Put AddCodeSectionInterfaceMethodRows' anonymous interface decision
+          into the structure }
+        if Declaration.TypeText = 'interface' then
+          RowSetSignature := RowSetSignature + '!';
       end;
       for var I := 0 to Model.InterfaceMethodCount-1 do begin
         const Method = Model.InterfaceMethods[I];
         RowSetSignature := RowSetSignature + '|I' + IntToStr(I) + ':' +
-          Method.InterfaceName + '.' + CodeSectionRowName(Method.Name, Method.Line);
+          IntToStr(Method.DeclarationTypeIndex) + '.' +
+          CodeSectionRowName(Method.Name, Method.Line);
+        { Put AddCodeSectionInterfaceMethodRows' Result row decision into the
+          structure }
+        if Method.Kind = rkFunction then
+          RowSetSignature := RowSetSignature + '!';
       end;
     end
     {$ENDIF}
@@ -1940,6 +1969,10 @@ begin
       if (FLiveCodeSection <> nil) and
          (ARow.Index < FLiveCodeSection.Section.RoutineCount) then
         Result := FLiveCodeSection.Section.Routines[ARow.Index].Prototype;
+    irkDebugRoutineResult:
+      if (FLiveCodeSection <> nil) and
+         (ARow.Index < FLiveCodeSection.Section.RoutineCount) then
+        Result := FLiveCodeSection.Section.Routines[ARow.Index].ResultTypeText;
     irkDebugType:
       if (FLiveCodeSection <> nil) and
          (ARow.Index < FLiveCodeSection.Section.TypeCount) then
@@ -1948,6 +1981,10 @@ begin
       if (FLiveCodeSection <> nil) and
          (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) then
         Result := FLiveCodeSection.Section.InterfaceMethods[ARow.Index].Prototype;
+    irkDebugInterfaceMethodResult:
+      if (FLiveCodeSection <> nil) and
+         (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) then
+        Result := FLiveCodeSection.Section.InterfaceMethods[ARow.Index].ResultTypeText;
     {$ENDIF}
   end;
 end;
