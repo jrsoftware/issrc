@@ -226,6 +226,24 @@ type
     property BodilessType: TCodeSectionRoutineBodilessType read FBodilessType;
   end;
 
+  { A method of a user-defined interface type }
+  TCodeSectionInterfaceMethod = class
+  private
+    FName: String;
+    FKind: TCodeSectionRoutineKind;
+    FInterfaceName: String;
+    FResultTypeText: String;
+    FPrototype: String;
+    FLine: Integer;
+  public
+    property Name: String read FName;
+    property Kind: TCodeSectionRoutineKind read FKind;
+    property InterfaceName: String read FInterfaceName;
+    property ResultTypeText: String read FResultTypeText;
+    property Prototype: String read FPrototype;
+    property Line: Integer read FLine;
+  end;
+
   { A user-defined declaration other than a routine }
   TCodeSectionDeclaration = class
   private
@@ -247,18 +265,22 @@ type
   private
     FRoutines: TObjectList<TCodeSectionRoutine>;
     FTypes: TObjectList<TCodeSectionDeclaration>;
+    FInterfaceMethods: TObjectList<TCodeSectionInterfaceMethod>;
     function GetRoutine(Index: Integer): TCodeSectionRoutine;
     function GetType(Index: Integer): TCodeSectionDeclaration;
+    function GetInterfaceMethod(Index: Integer): TCodeSectionInterfaceMethod;
   public
     constructor Create;
     destructor Destroy; override;
     procedure Parse(const ALines: array of String);
     function RoutineCount: Integer;
     function TypeCount: Integer;
+    function InterfaceMethodCount: Integer;
     function TryGetRoutine(const ALine: Integer;
       out ARoutine: TCodeSectionRoutine): Boolean;
     property Routines[Index: Integer]: TCodeSectionRoutine read GetRoutine;
     property Types[Index: Integer]: TCodeSectionDeclaration read GetType;
+    property InterfaceMethods[Index: Integer]: TCodeSectionInterfaceMethod read GetInterfaceMethod;
   end;
 
 function ClassifyScriptLine(const S: String): TScriptLineKind;
@@ -1537,10 +1559,12 @@ begin
   inherited Create;
   FRoutines := TObjectList<TCodeSectionRoutine>.Create;
   FTypes := TObjectList<TCodeSectionDeclaration>.Create;
+  FInterfaceMethods := TObjectList<TCodeSectionInterfaceMethod>.Create;
 end;
 
 destructor TScriptModelCodeSection.Destroy;
 begin
+  FInterfaceMethods.Free;
   FTypes.Free;
   FRoutines.Free;
   inherited;
@@ -1629,6 +1653,89 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
     Result := ATokenID in [CSTII_const, CSTII_type, CSTII_var, CSTII_Label];
   end;
 
+  type
+    TParsedRoutineHeader = record
+      Name: String;
+      Kind: TCodeSectionRoutineKind;
+      ResultTypeText: String;
+      Prototype: String;
+      FirstLine: Integer;
+      Terminated: Boolean;
+    end;
+
+  function ParseRoutineHeader(const AParser: TPSPascalParser;
+    const AText: AnsiString; const ALineOffset: Integer;
+    const AStopAtEnd: Boolean; var ALastTokenID: TPSPasToken;
+    out AHeader: TParsedRoutineHeader): Boolean;
+  begin
+    const TokenID = AParser.CurrTokenID;
+    const FirstLine = ALineOffset + Integer(AParser.Row)-1;
+    const StartPos = Integer(AParser.CurrTokenPos);
+    AParser.Next;
+    if AParser.CurrTokenID <> CSTI_Identifier then begin
+      ALastTokenID := TokenID;
+      Exit(False);
+    end;
+
+    AHeader := Default(TParsedRoutineHeader);
+    AHeader.Name := UTF8ToString(AParser.OriginalToken);
+    if TokenID = CSTII_function then
+      AHeader.Kind := rkFunction
+    else
+      AHeader.Kind := rkProcedure;
+    AHeader.FirstLine := FirstLine;
+    ALastTokenID := CSTI_Identifier;
+    AParser.Next;
+
+    { Parse the rest of the prototype until the terminating ';',
+      remembering the position of a function's result type }
+    var BraceDepth := 0;
+    var ResultTypeColonSeen := False;
+    var ResultTypeStartPos := -1;
+    var EndPos := -1;
+    while AParser.CurrTokenID <> CSTI_EOF do begin
+      const PrototypeTokenID = AParser.CurrTokenID;
+      if ResultTypeColonSeen and (ResultTypeStartPos < 0) then
+        ResultTypeStartPos := Integer(AParser.CurrTokenPos);
+      if IsRoutineHeaderStart(PrototypeTokenID, ALastTokenID) or
+         (PrototypeTokenID = CSTII_begin) or
+         (AStopAtEnd and (PrototypeTokenID = CSTII_end)) or
+         (IsDeclarationBlockStart(PrototypeTokenID) and (BraceDepth = 0)) then
+        Break; { Unterminated: cut by a new declaration, its own 'begin', the 'end' of the interface it is a method of, or a declaration block (last only outside parameter lists because those may contain 'const' and 'var') }
+      if PrototypeTokenID = CSTI_OpenRound then
+        Inc(BraceDepth)
+      else if (PrototypeTokenID = CSTI_CloseRound) and (BraceDepth > 0) then
+        Dec(BraceDepth)
+      else if (PrototypeTokenID = CSTI_Colon) and (BraceDepth = 0) then
+        ResultTypeColonSeen := True;
+      { Known limitation: for a function using an inline structured result type
+        such as 'function F: record A: Integer; end;' it takes the first ';'
+        as the end of the type, truncating Prototype and ResultTypeText.
+        The body is still found: the 'begin' search skips 'end;'. }
+      const Terminated = (PrototypeTokenID = CSTI_Semicolon) and (BraceDepth = 0);
+      if Terminated then
+        EndPos := Integer(AParser.CurrTokenPos)+1; { Skip ';' }
+      ALastTokenID := PrototypeTokenID;
+      AParser.Next;
+      if Terminated then
+        Break;
+    end;
+
+    var ResultTypeEndPos: Integer;
+    AHeader.Terminated := EndPos >= 0;
+    if AHeader.Terminated then
+      ResultTypeEndPos := EndPos-1 { Move back before ';' }
+    else begin
+      { Malformed or unterminated header; keep what is there }
+      EndPos := Integer(AParser.CurrTokenPos);
+      ResultTypeEndPos := EndPos;
+    end;
+    AHeader.Prototype := SliceCleanText(AText, StartPos, EndPos);
+    if (AHeader.Kind = rkFunction) and (ResultTypeStartPos >= 0) then
+      AHeader.ResultTypeText := SliceCleanText(AText, ResultTypeStartPos, ResultTypeEndPos);
+    Result := True;
+  end;
+
   procedure ParseRoutine(const AParser: TPSPascalParser;
     const AText: AnsiString; const ALineOffset: Integer;
     var ALastTokenID: TPSPasToken; out AOpenRoutine: TCodeSectionRoutine;
@@ -1639,73 +1746,21 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
   begin
     AOpenRoutine := nil;
     ABeginFound := False;
-    const TokenID = AParser.CurrTokenID;
-    const FirstLine = ALineOffset + Integer(AParser.Row)-1;
-    const StartPos = Integer(AParser.CurrTokenPos);
-    AParser.Next;
-    if AParser.CurrTokenID = CSTI_Identifier then begin
-      { Add routine with its name, kind and first line }
+    var Header: TParsedRoutineHeader;
+    if ParseRoutineHeader(AParser, AText, ALineOffset, False, ALastTokenID,
+         Header) then begin
       const Routine = TCodeSectionRoutine.Create;
       FRoutines.Add(Routine);
       Routine.FBodyFirstLine := -1;
       Routine.FBodyLastLine := -1;
       Routine.FLastLine := -1;
-      Routine.FName := UTF8ToString(AParser.OriginalToken);
-      if TokenID = CSTII_function then
-        Routine.FKind := rkFunction
-      else
-        Routine.FKind := rkProcedure;
-      Routine.FFirstLine := FirstLine;
-      ALastTokenID := CSTI_Identifier;
-      AParser.Next;
+      Routine.FName := Header.Name;
+      Routine.FKind := Header.Kind;
+      Routine.FFirstLine := Header.FirstLine;
+      Routine.FPrototype := Header.Prototype;
+      Routine.FResultTypeText := Header.ResultTypeText;
 
-      { Parse the rest of the prototype until the terminating ';',
-        remembering the position of a function's result type }
-      var BraceDepth := 0;
-      var ResultTypeColonSeen := False;
-      var ResultTypeStartPos := -1;
-      var EndPos := -1;
-      while AParser.CurrTokenID <> CSTI_EOF do begin
-        const PrototypeTokenID = AParser.CurrTokenID;
-        if ResultTypeColonSeen and (ResultTypeStartPos < 0) then
-          ResultTypeStartPos := Integer(AParser.CurrTokenPos);
-        if IsRoutineHeaderStart(PrototypeTokenID, ALastTokenID) or
-           (PrototypeTokenID = CSTII_begin) or
-           (IsDeclarationBlockStart(PrototypeTokenID) and (BraceDepth = 0)) then
-          Break; { Unterminated: cut by a new declaration, its own 'begin', or a declaration block (last only outside parameter lists because those may contain 'const' and 'var') }
-        if PrototypeTokenID = CSTI_OpenRound then
-          Inc(BraceDepth)
-        else if (PrototypeTokenID = CSTI_CloseRound) and (BraceDepth > 0) then
-          Dec(BraceDepth)
-        else if (PrototypeTokenID = CSTI_Colon) and (BraceDepth = 0) then
-          ResultTypeColonSeen := True;
-        { Known limitation: for a function using an inline structured result type
-          such as 'function F: record A: Integer; end;' it takes the first ';'
-          as the end of the type, truncating Prototype and ResultTypeText.
-          The body is still found: the 'begin' search skips 'end;'. }
-        const Terminated = (PrototypeTokenID = CSTI_Semicolon) and (BraceDepth = 0);
-        if Terminated then
-          EndPos := Integer(AParser.CurrTokenPos)+1; { Skip ';' }
-        ALastTokenID := PrototypeTokenID;
-        AParser.Next;
-        if Terminated then
-          Break;
-      end;
-
-      var ResultTypeEndPos: Integer;
-      const HeaderTerminated = EndPos >= 0;
-      if HeaderTerminated then
-        ResultTypeEndPos := EndPos-1 { Move back before ';' }
-      else begin
-        { Malformed or unterminated header; keep what is there }
-        EndPos := Integer(AParser.CurrTokenPos);
-        ResultTypeEndPos := EndPos;
-      end;
-      Routine.FPrototype := SliceCleanText(AText, StartPos, EndPos);
-      if (Routine.FKind = rkFunction) and (ResultTypeStartPos >= 0) then
-        Routine.FResultTypeText := SliceCleanText(AText, ResultTypeStartPos, ResultTypeEndPos);
-
-      if HeaderTerminated or
+      if Header.Terminated or
          (AParser.CurrTokenID = CSTII_begin) or IsDeclarationBlockStart(AParser.CurrTokenID) then begin { A header cut by its own 'begin' or a declaration block still gets its body searched for and parsed }
         { Handle trailing decoration }
         var DecorationLastLine := -1;
@@ -1784,12 +1839,12 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             Routine.FLastLine := Routine.FFirstLine;
         end;
       end;
-    end else
-      ALastTokenID := TokenID;
+    end;
   end;
 
   procedure ParseTypeBlock(const AParser: TPSPascalParser;
-    const ALineOffset: Integer; var ALastTokenID: TPSPasToken);
+    const AText: AnsiString; const ALineOffset: Integer;
+    var ALastTokenID: TPSPasToken; var AAnonymousInterfaceCount: Integer);
   { Parses a type block until a token that does not continue the block.
     Known limitation: an inline 'interface' type elsewhere (ROPS allows one in
     a var declaration) is not consumed, so its methods are seen as routines. }
@@ -1822,6 +1877,11 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         CSTI_Identifier: Declaration.FTypeText := UTF8ToString(AParser.OriginalToken);
       end;
 
+      { An interface nested in another type has no name in ROPS either }
+      var InterfaceName := '';
+      if AParser.CurrTokenID = CSTII_interface then
+        InterfaceName := Name;
+
       { Parse the rest of the definition, without remembering anything
         about it }
       var BraceDepth := 0;
@@ -1835,6 +1895,26 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             (OpenStructs[High(OpenStructs)] = CSTII_interface);
           if not InOpenInterface then
             Break;
+          { Trailing decoration such as 'safecall' is left out of the prototype }
+          var Header: TParsedRoutineHeader;
+          if ParseRoutineHeader(AParser, AText, ALineOffset, True, ALastTokenID,
+               Header) then begin
+            const Method = TCodeSectionInterfaceMethod.Create;
+            FInterfaceMethods.Add(Method);
+            Method.FName := Header.Name;
+            Method.FKind := Header.Kind;
+            { Number the nested ones to keep them apart. Note that currently
+              ROPS errors when there's more than one anonymous interface. }
+            if InterfaceName = '' then begin
+              InterfaceName := Format('<anonymous_%d>', [AAnonymousInterfaceCount]);
+              Inc(AAnonymousInterfaceCount);
+            end;
+            Method.FInterfaceName := InterfaceName;
+            Method.FResultTypeText := Header.ResultTypeText;
+            Method.FPrototype := Header.Prototype;
+            Method.FLine := Header.FirstLine;
+          end;
+          Continue;
         end else if IsDeclarationBlockStart(DefinitionTokenID) and
                     (BraceDepth = 0) then begin
           { Also ends an unterminated definition, with no interface exemption:
@@ -1863,6 +1943,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
 begin
   FRoutines.Clear;
   FTypes.Clear;
+  FInterfaceMethods.Clear;
 
   var Text := PrepareCodeSectionText(ALines);
   const Parser = TPSPascalParser.Create;
@@ -1872,6 +1953,7 @@ begin
     var LastTokenID := CSTI_EOF;
     var OpenRoutine: TCodeSectionRoutine := nil;
     var OpenRoutineBeginFound := False;
+    var AnonymousInterfaceCount := 0;
     while True do begin
       while Parser.CurrTokenID <> CSTI_EOF do begin { CSTI_EOF means error or EOF, told apart below }
         const TokenID = Parser.CurrTokenID;
@@ -1890,7 +1972,8 @@ begin
           ParseRoutine(Parser, Text, LineOffset, LastTokenID, OpenRoutine,
             OpenRoutineBeginFound)
         else if TokenID = CSTII_type then
-          ParseTypeBlock(Parser, LineOffset, LastTokenID)
+          ParseTypeBlock(Parser, Text, LineOffset, LastTokenID,
+            AnonymousInterfaceCount)
         else begin
           LastTokenID := TokenID;
           Parser.Next;
@@ -1947,6 +2030,17 @@ function TScriptModelCodeSection.GetType(
   Index: Integer): TCodeSectionDeclaration;
 begin
   Result := FTypes[Index];
+end;
+
+function TScriptModelCodeSection.InterfaceMethodCount: Integer;
+begin
+  Result := Integer(FInterfaceMethods.Count);
+end;
+
+function TScriptModelCodeSection.GetInterfaceMethod(
+  Index: Integer): TCodeSectionInterfaceMethod;
+begin
+  Result := FInterfaceMethods[Index];
 end;
 
 function TScriptModelCodeSection.TryGetRoutine(const ALine: Integer;

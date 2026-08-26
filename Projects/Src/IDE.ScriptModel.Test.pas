@@ -2803,6 +2803,18 @@ begin
       'procedure P(var A: Integer; const B: String);');
     Assert(Section.Routines[0].BodyFirstLine = 1);
 
+    { Nor does the 'end' of an inline record parameter type, which ROPS accepts }
+    Section.Parse([
+      'procedure P(A: record X: Integer; end);',  { 0 }
+      'begin',                                    { 1 }
+      'end;']);                                   { 2 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype =
+      'procedure P(A: record X: Integer; end);');
+    Assert(Section.Routines[0].BodyFirstLine = 1);
+    Assert(Section.Routines[0].BodyLastLine = 2);
+    Assert(Section.Routines[0].LastLine = 2);
+
     { A header left unterminated inside its parameter list is cut by the next
       routine's keyword, which is never legal there, so the routines below a
       half-typed 'procedure X(' survive }
@@ -3424,6 +3436,247 @@ begin
   end;
 end;
 
+procedure TestCodeSectionInterfaceMethods;
+begin
+  const Section = TScriptModelCodeSection.Create;
+  try
+    { Every method of an interface definition, in source order, with its name,
+      kind, result type, prototype, owning interface and line. The parent
+      interface and the GUID string are tolerated, and trailing decoration
+      such as 'safecall' stays out of the prototype. }
+    Section.Parse([
+      'type',                                                                  { 0 }
+      '  IPersistFile = interface(IPersist)',                                  { 1 }
+      '    ''{0000010B-0000-0000-C000-000000000046}''',                        { 2 }
+      '    procedure Save(pszFileName: String; fRemember: BOOL); safecall;',   { 3 }
+      '    function GetCurFile: String; safecall;',                            { 4 }
+      '  end;']);                                                              { 5 }
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'IPersistFile');
+    Assert(Section.Types[0].TypeText = 'interface');
+    Assert(Section.RoutineCount = 0);
+    Assert(Section.InterfaceMethodCount = 2);
+    Assert(Section.InterfaceMethods[0].Name = 'Save');
+    Assert(Section.InterfaceMethods[0].Kind = rkProcedure);
+    Assert(Section.InterfaceMethods[0].InterfaceName = 'IPersistFile');
+    Assert(Section.InterfaceMethods[0].ResultTypeText = '');
+    Assert(Section.InterfaceMethods[0].Prototype =
+      'procedure Save(pszFileName: String; fRemember: BOOL);');
+    Assert(Section.InterfaceMethods[0].Line = 3);
+    Assert(Section.InterfaceMethods[1].Name = 'GetCurFile');
+    Assert(Section.InterfaceMethods[1].Kind = rkFunction);
+    Assert(Section.InterfaceMethods[1].InterfaceName = 'IPersistFile');
+    Assert(Section.InterfaceMethods[1].ResultTypeText = 'String');
+    Assert(Section.InterfaceMethods[1].Prototype = 'function GetCurFile: String;');
+    Assert(Section.InterfaceMethods[1].Line = 4);
+
+    { The next Parse replaces the previous items }
+    Section.Parse(['type', '  IOnly = interface', '    procedure M;', '  end;']);
+    Assert(Section.InterfaceMethodCount = 1);
+    Assert(Section.InterfaceMethods[0].Name = 'M');
+    Section.Parse([]);
+    Assert(Section.InterfaceMethodCount = 0);
+
+    { A method header spanning lines: Line is the keyword's line and the
+      prototype's line breaks collapse to single spaces }
+    Section.Parse([
+      'type',                                                     { 0 }
+      '  IShellLinkW = interface(IUnknown)',                      { 1 }
+      '    procedure GetIconLocation(pszIconPath: String;',       { 2 }
+      '      cchIconPath: Integer); safecall;',                   { 3 }
+      '  end;']);                                                 { 4 }
+    Assert(Section.InterfaceMethodCount = 1);
+    Assert(Section.InterfaceMethods[0].Name = 'GetIconLocation');
+    Assert(Section.InterfaceMethods[0].Prototype =
+      'procedure GetIconLocation(pszIconPath: String; cchIconPath: Integer);');
+    Assert(Section.InterfaceMethods[0].Line = 2);
+
+    { Several interfaces in one block keep their methods apart, and the list
+      is flat across them }
+    Section.Parse([
+      'type',                   { 0 }
+      '  IFirst = interface',   { 1 }
+      '    procedure A;',       { 2 }
+      '  end;',                 { 3 }
+      '  ISecond = interface',  { 4 }
+      '    procedure B;',       { 5 }
+      '    function C: Integer;', { 6 }
+      '  end;']);               { 7 }
+    Assert(Section.TypeCount = 2);
+    Assert(Section.InterfaceMethodCount = 3);
+    Assert(Section.InterfaceMethods[0].Name = 'A');
+    Assert(Section.InterfaceMethods[0].InterfaceName = 'IFirst');
+    Assert(Section.InterfaceMethods[0].Line = 2);
+    Assert(Section.InterfaceMethods[1].Name = 'B');
+    Assert(Section.InterfaceMethods[1].InterfaceName = 'ISecond');
+    Assert(Section.InterfaceMethods[1].Line = 5);
+    Assert(Section.InterfaceMethods[2].Name = 'C');
+    Assert(Section.InterfaceMethods[2].InterfaceName = 'ISecond');
+    Assert(Section.InterfaceMethods[2].ResultTypeText = 'Integer');
+    Assert(Section.InterfaceMethods[2].Line = 6);
+
+    { A record contributes nothing, not even its procedural fields }
+    Section.Parse([
+      'type',
+      '  TRec = record',
+      '    A: Integer;',
+      '    P: procedure(X: Integer);',
+      '  end;']);
+    Assert(Section.TypeCount = 1);
+    Assert(Section.RoutineCount = 0);
+    Assert(Section.InterfaceMethodCount = 0);
+
+    { An unterminated method header is cut by the next method's keyword,
+      keeping what is there }
+    Section.Parse([
+      'type',                { 0 }
+      '  IFoo = interface',  { 1 }
+      '    procedure M1',    { 2 }
+      '    procedure M2;',   { 3 }
+      '  end;']);            { 4 }
+    Assert(Section.InterfaceMethodCount = 2);
+    Assert(Section.InterfaceMethods[0].Name = 'M1');
+    Assert(Section.InterfaceMethods[0].Prototype = 'procedure M1');
+    Assert(Section.InterfaceMethods[1].Name = 'M2');
+    Assert(Section.InterfaceMethods[1].Prototype = 'procedure M2;');
+
+    { It is also cut by the interface's own 'end', so a method being typed
+      does not swallow the routines below }
+    Section.Parse([
+      'type',                { 0 }
+      '  IFoo = interface',  { 1 }
+      '    procedure M1;',   { 2 }
+      '    function GetX',   { 3 }
+      '  end;',              { 4 }
+      'procedure P;',        { 5 }
+      'begin',               { 6 }
+      'end;']);              { 7 }
+    Assert(Section.TypeCount = 1);
+    Assert(Section.InterfaceMethodCount = 2);
+    Assert(Section.InterfaceMethods[1].Name = 'GetX');
+    Assert(Section.InterfaceMethods[1].Prototype = 'function GetX');
+    Assert(Section.InterfaceMethods[1].ResultTypeText = '');
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 5);
+
+    { An interface left unterminated does take the routines below it as its
+      methods: they are indistinguishable from method declarations }
+    Section.Parse([
+      'type',                { 0 }
+      '  IFoo = interface',  { 1 }
+      '    procedure M1;',   { 2 }
+      '',                    { 3 }
+      'procedure P;',        { 4 }
+      'begin',               { 5 }
+      'end;']);              { 6 }
+    Assert(Section.TypeCount = 1);
+    Assert(Section.RoutineCount = 0);
+    Assert(Section.InterfaceMethodCount = 2);
+    Assert(Section.InterfaceMethods[0].Name = 'M1');
+    Assert(Section.InterfaceMethods[1].Name = 'P');
+
+    { An interface nested in an array type is anonymous, like in ROPS, so its
+      methods get no interface name }
+    Section.Parse([
+      'type',                                             { 0 }
+      '  TItems = array of interface(IUnknown)',          { 1 }
+      '    ''{148BD527-A2AB-11CE-B11F-00AA00530503}''',   { 2 }
+      '    procedure Foo;',                               { 3 }
+      '  end;']);                                         { 4 }
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].Name = 'TItems');
+    Assert(Section.Types[0].TypeText = 'array');
+    Assert(Section.RoutineCount = 0);
+    Assert(Section.InterfaceMethodCount = 1);
+    Assert(Section.InterfaceMethods[0].Name = 'Foo');
+    Assert(Section.InterfaceMethods[0].InterfaceName = '<anonymous_0>');
+    Assert(Section.InterfaceMethods[0].Line = 3);
+
+    { The same for one nested in a record type }
+    Section.Parse([
+      'type',                                             { 0 }
+      '  TRec = record',                                  { 1 }
+      '    F: interface(IUnknown)',                       { 2 }
+      '      ''{148BD527-A2AB-11CE-B11F-00AA00530503}''', { 3 }
+      '      procedure Foo;',                             { 4 }
+      '    end;',                                         { 5 }
+      '  end;']);                                         { 6 }
+    Assert(Section.TypeCount = 1);
+    Assert(Section.Types[0].TypeText = 'record');
+    Assert(Section.RoutineCount = 0);
+    Assert(Section.InterfaceMethodCount = 1);
+    Assert(Section.InterfaceMethods[0].Name = 'Foo');
+    Assert(Section.InterfaceMethods[0].InterfaceName = '<anonymous_0>');
+
+    { Two of them are numbered apart, a state ROPS itself rejects as a
+      duplicate identifier but the model still keeps apart while typing }
+    Section.Parse([
+      'type',                           { 0 }
+      '  TFirst = array of interface',  { 1 }
+      '    procedure Foo;',             { 2 }
+      '  end;',                         { 3 }
+      '  TSecond = array of interface', { 4 }
+      '    procedure Bar;',             { 5 }
+      '  end;']);                       { 6 }
+    Assert(Section.TypeCount = 2);
+    Assert(Section.InterfaceMethodCount = 2);
+    Assert(Section.InterfaceMethods[0].InterfaceName = '<anonymous_0>');
+    Assert(Section.InterfaceMethods[1].InterfaceName = '<anonymous_1>');
+
+    { The numbering counts only the anonymous ones, so the named types around
+      them do not shift it }
+    Section.Parse([
+      'type',                           { 0 }
+      '  IFoo = interface',             { 1 }
+      '    procedure Foo;',             { 2 }
+      '  end;',                         { 3 }
+      '  TItems = array of interface',  { 4 }
+      '    procedure Bar;',             { 5 }
+      '  end;']);                       { 6 }
+    Assert(Section.TypeCount = 2);
+    Assert(Section.InterfaceMethodCount = 2);
+    Assert(Section.InterfaceMethods[0].InterfaceName = 'IFoo');
+    Assert(Section.InterfaceMethods[1].InterfaceName = '<anonymous_0>');
+
+    { The numbering also runs across type blocks }
+    Section.Parse([
+      'type',                           { 0 }
+      '  TFirst = array of interface',  { 1 }
+      '    procedure Foo;',             { 2 }
+      '  end;',                         { 3 }
+      'type',                           { 4 }
+      '  TSecond = array of interface', { 5 }
+      '    procedure Bar;',             { 6 }
+      '  end;']);                       { 7 }
+    Assert(Section.InterfaceMethodCount = 2);
+    Assert(Section.InterfaceMethods[0].InterfaceName = '<anonymous_0>');
+    Assert(Section.InterfaceMethods[1].InterfaceName = '<anonymous_1>');
+
+    { The interface's 'end' also cuts a method whose parameter list is left
+      open, so the routines below it stay top-level }
+    Section.Parse([
+      'type',                { 0 }
+      '  IFoo = interface',  { 1 }
+      '    procedure M1;',   { 2 }
+      '    procedure M2(',   { 3 }
+      '  end;',              { 4 }
+      'procedure P;',        { 5 }
+      'begin',               { 6 }
+      'end;']);              { 7 }
+    Assert(Section.TypeCount = 1);
+    Assert(Section.InterfaceMethodCount = 2);
+    Assert(Section.InterfaceMethods[1].Name = 'M2');
+    Assert(Section.InterfaceMethods[1].Prototype = 'procedure M2(');
+    Assert(Section.InterfaceMethods[1].InterfaceName = 'IFoo');
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Assert(Section.Routines[0].FirstLine = 5);
+  finally
+    Section.Free;
+  end;
+end;
+
 procedure TestCodeSectionRoutineAtLine;
 begin
   const Section = TScriptModelCodeSection.Create;
@@ -3780,6 +4033,7 @@ begin
   TestPrepareCodeSectionText;
   TestCodeSection;
   TestCodeSectionTypes;
+  TestCodeSectionInterfaceMethods;
   TestCodeSectionRoutineAtLine;
   TestCodeSectionResync;
   {$IFDEF ISTESTTOOLPROJ}

@@ -22,7 +22,7 @@ type
   TInspectorRowKind = (irkParameter, irkParameterFlag, irkKey,
     irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits,
     irkDebugCaretAt, irkDebugCaretRoutine, irkDebugRoutine,
-    irkDebugType {$ENDIF});
+    irkDebugType, irkDebugInterface, irkDebugInterfaceMethod {$ENDIF});
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
@@ -1012,15 +1012,15 @@ procedure TInspector.UpdateFromCaret;
   end;
 
   {$IFDEF DEBUG}
-  procedure AddDebugRow(const AParent: TJvCustomInspectorItem;
+  function AddDebugRow(const AParent: TJvCustomInspectorItem;
     const ADisplayName: String; const AKind: TInspectorRowKind;
-    const AIndex: Integer = -1);
+    const AIndex: Integer = -1): TJvCustomInspectorItem;
   begin
     var Row := Default(TInspectorRow);
     Row.Kind := AKind;
     Row.Index := AIndex;
-    const Item = AddRow(AParent, ADisplayName, False, Row);
-    Item.Flags := Item.Flags + [iifReadonly];
+    Result := AddRow(AParent, ADisplayName, False, Row);
+    Result.Flags := Result.Flags + [iifReadonly];
   end;
   {$ENDIF}
 
@@ -1328,6 +1328,26 @@ procedure TInspector.UpdateFromCaret;
       end;
     end;
   end;
+
+  procedure AddCodeSectionInterfaceMethodRows;
+  begin
+    if FLiveCodeSection.Section.InterfaceMethodCount > 0 then begin
+      const InterfaceMethodsCategory = NewCategory('Interface methods');
+      var Item: TJvCustomInspectorItem := nil;
+      var InterfaceName := '';
+      for var I := 0 to FLiveCodeSection.Section.InterfaceMethodCount-1 do begin
+        const Method = FLiveCodeSection.Section.InterfaceMethods[I];
+        if (Item = nil) or (Method.InterfaceName <> InterfaceName) then begin
+          InterfaceName := Method.InterfaceName;
+          Item := AddDebugRow(InterfaceMethodsCategory, InterfaceName,
+            irkDebugInterface);
+          Item.Expanded := True;
+        end;
+        AddDebugRow(Item, CodeSectionRowName(Method.Name, Method.Line),
+          irkDebugInterfaceMethod, I); { Adds a child to Item }
+      end;
+    end;
+  end;
   {$ENDIF}
 
   function FindItemByID(const AID: String; const AIDIncludesIndex: Boolean;
@@ -1390,6 +1410,7 @@ procedure TInspector.UpdateFromCaret;
         if FLiveCodeSection <> nil then begin
           AddCodeSectionRoutineRows;
           AddCodeSectionTypeRows;
+          AddCodeSectionInterfaceMethodRows;
         end;
         {$ENDIF}
 
@@ -1688,6 +1709,11 @@ begin
         RowSetSignature := RowSetSignature + '|T' + IntToStr(I) + ':' +
           CodeSectionRowName(Declaration.Name, Declaration.Line);
       end;
+      for var I := 0 to Model.InterfaceMethodCount-1 do begin
+        const Method = Model.InterfaceMethods[I];
+        RowSetSignature := RowSetSignature + '|I' + IntToStr(I) + ':' +
+          Method.InterfaceName + '.' + CodeSectionRowName(Method.Name, Method.Line);
+      end;
     end
     {$ENDIF}
     else begin
@@ -1918,6 +1944,10 @@ begin
       if (FLiveCodeSection <> nil) and
          (ARow.Index < FLiveCodeSection.Section.TypeCount) then
         Result := FLiveCodeSection.Section.Types[ARow.Index].TypeText;
+    irkDebugInterfaceMethod:
+      if (FLiveCodeSection <> nil) and
+         (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) then
+        Result := FLiveCodeSection.Section.InterfaceMethods[ARow.Index].Prototype;
     {$ENDIF}
   end;
 end;
