@@ -3942,7 +3942,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Expand the selected row</td><td>Numpad + or Ctrl+Numpad +</td>
 </tr>
 <tr>
-  <td>Collapse the selected row</td><td>Numpad - or Ctrl+Numpad -</td>
+  <td>Collapse the selected row</td><td>Numpad &minus; or Ctrl+Numpad &minus;</td>
 </tr>
 <tr>
   <td>Expand or collapse the selected row</td><td>Enter or Space</td>
@@ -5078,7 +5078,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support (5.3).</li>
 
-<li>Motaz Alnuweiri: 128x128 and 256x256 sizes of the Compiler IDE and document icons (5.5.3).</li>
+<li>Motaz Alnuweiri: 128&times;128 and 256&times;256 sizes of the Compiler IDE and document icons (5.5.3).</li>
 
 <li>DRON: Code for the improved image stretching (5.6).</li>
 
@@ -5618,7 +5618,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p><tt>zstd</tt> is the method of compression employed by the <extlink href="https://facebook.github.io/zstd/">Zstandard</extlink> compressor. It almost always compresses better than <tt>zip</tt> and <tt>bzip</tt>, and at its highest levels its compression ratio approaches that of <tt>lzma</tt> and <tt>lzma2</tt> while compressing faster. Decompression is extremely fast at every level. Optionally it can compress multiple parts of large files in parallel, greatly increasing compression speed with almost no reduction in compression ratio (see <sd>ZstdNumThreads</sd>). The following table summarizes the approximate memory requirements for the most meaningful <tt>zstd</tt> compression levels. If a compression level isn't specified, it defaults to 19.</p>
 <indent>
 <table>
-<tr><th>Level</th><th>Decompression<br/>(window size + 0.5 MB)</th><th>Compression<br/>(1 MB + match tables + 2 * window size)</th></tr>
+<tr><th>Level</th><th>Decompression<br/>(window size + 0.5 MB)</th><th>Compression<br/>(1 MB + match tables + 2 &times; window size)</th></tr>
 <tr><td><tt>1</tt></td><td>1 MB</td><td>2 MB</td></tr>
 <tr><td><tt>3</tt></td><td>2.5 MB</td><td>6 MB</td></tr>
 <tr><td><tt>6</tt></td><td>2.5 MB</td><td>7.5 MB</td></tr>
@@ -5636,7 +5636,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods, and somewhat better than <tt>zstd</tt>. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <indent>
 <table>
-<tr><th>Level</th><th>Decompression<br/>(dictionary size)</th><th>Compression<br/>(6 MB + 11.5 * dictionary size)</th></tr>
+<tr><th>Level</th><th>Decompression<br/>(dictionary size)</th><th>Compression<br/>(6 MB + 11.5 &times; dictionary size)</th></tr>
 <tr><td><tt>fast</tt> (worst)</td><td>32 KB</td><td>6 MB</td></tr>
 <tr><td><tt>normal</tt></td><td>2 MB</td><td>29 MB</td></tr>
 <tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>98 MB</td></tr>
@@ -6249,31 +6249,31 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>Specifies the name(s) of the image file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
 <p>Supports <tt>.bmp</tt> and <tt>.png</tt> images, including those with transparency. Use <sd>WizardImageBackColor</sd> to customize the background color. Even transparent <tt>.bmp</tt> files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardImageOpacity</sd> to increase transparency.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used. In all cases, an aspect ratio of 164:314 is maintained. The specified image should have the same aspect ratio.</p>
-<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 202x386 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
+<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 202&times;386 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240&times;459.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
-<tr><td>100%</td><td>202x386</td></tr>
-<tr><td>125%</td><td>269x515</td></tr>
-<tr><td>150%</td><td>336x643</td></tr>
-<tr><td>175%</td><td>403x772</td></tr>
-<tr><td>200%</td><td>430x824</td></tr>
-<tr><td>225%</td><td>498x953</td></tr>
-<tr><td>250%</td><td>534x1022</td></tr>
+<tr><td>100%</td><td>202&times;386</td></tr>
+<tr><td>125%</td><td>269&times;515</td></tr>
+<tr><td>150%</td><td>336&times;643</td></tr>
+<tr><td>175%</td><td>403&times;772</td></tr>
+<tr><td>200%</td><td>430&times;824</td></tr>
+<tr><td>225%</td><td>498&times;953</td></tr>
+<tr><td>250%</td><td>534&times;1022</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
-<p>If this directive is not specified, a single built-in 240x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>If this directive is not specified, a single built-in 240&times;459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>If this directive is set to a blank value, no wizard image will be used. This does not change the layout of the wizard.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
-<tr><td>100%</td><td>164x314</td></tr>
-<tr><td>125%</td><td>202x386</td></tr>
-<tr><td>150%</td><td>240x459</td></tr>
-<tr><td>175%</td><td>290x556</td></tr>
-<tr><td>200%</td><td>315x604</td></tr>
-<tr><td>225%</td><td>366x700</td></tr>
-<tr><td>250%</td><td>416x797</td></tr>
+<tr><td>100%</td><td>164&times;314</td></tr>
+<tr><td>125%</td><td>202&times;386</td></tr>
+<tr><td>150%</td><td>240&times;459</td></tr>
+<tr><td>175%</td><td>290&times;556</td></tr>
+<tr><td>200%</td><td>315&times;604</td></tr>
+<tr><td>225%</td><td>366&times;700</td></tr>
+<tr><td>250%</td><td>416&times;797</td></tr>
 </table>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicImage.bmp</tt>.</p>
 <example><pre><key>WizardImageFile</key>=myimage.bmp,myimage2.bmp</pre></example>
@@ -6301,32 +6301,32 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>Specifies the name(s) of the image file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
 <p>Supports <tt>.bmp</tt> and <tt>.png</tt> images, including those with transparency. Use <sd>WizardSmallImageBackColor</sd> to customize the background color. Even transparent <tt>.bmp</tt> files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardImageOpacity</sd> to increase transparency.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. In all cases, the area is square; thus, the specified image should be square as well.</p>
-<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
+<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 58&times;58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147&times;147.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
-<tr><td>100%</td><td>58x58</td></tr>
-<tr><td>125%</td><td>77x77</td></tr>
-<tr><td>150%</td><td>97x97</td></tr>
-<tr><td>175%</td><td>116x116</td></tr>
-<tr><td>200%</td><td>124x124</td></tr>
-<tr><td>225%</td><td>143x143</td></tr>
-<tr><td>250%</td><td>159x159</td></tr>
+<tr><td>100%</td><td>58&times;58</td></tr>
+<tr><td>125%</td><td>77&times;77</td></tr>
+<tr><td>150%</td><td>97&times;97</td></tr>
+<tr><td>175%</td><td>116&times;116</td></tr>
+<tr><td>200%</td><td>124&times;124</td></tr>
+<tr><td>225%</td><td>143&times;143</td></tr>
+<tr><td>250%</td><td>159&times;159</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
-<p>Backward compatibility note: If a single image smaller than 58x58 is specified, the image will not be stretched to fill the entire image area; instead, it will be centered.</p>
-<p>If this directive is not specified, a single built-in 147x147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>Backward compatibility note: If a single image smaller than 58&times;58 is specified, the image will not be stretched to fill the entire image area; instead, it will be centered.</p>
+<p>If this directive is not specified, a single built-in 147&times;147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>If this directive is set to a blank value, no wizard image will be used. This does not change the layout of the wizard.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
-<tr><td>100%</td><td>58x58</td></tr>
-<tr><td>125%</td><td>71x71</td></tr>
-<tr><td>150%</td><td>85x85</td></tr>
-<tr><td>175%</td><td>103x103</td></tr>
-<tr><td>200%</td><td>112x112</td></tr>
-<tr><td>225%</td><td>129x129</td></tr>
-<tr><td>250%</td><td>147x147</td></tr>
+<tr><td>100%</td><td>58&times;58</td></tr>
+<tr><td>125%</td><td>71&times;71</td></tr>
+<tr><td>150%</td><td>85&times;85</td></tr>
+<tr><td>175%</td><td>103&times;103</td></tr>
+<tr><td>200%</td><td>112&times;112</td></tr>
+<tr><td>225%</td><td>129&times;129</td></tr>
+<tr><td>250%</td><td>147&times;147</td></tr>
 </table>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicSmallImage.bmp</tt>.</p>
 <example><pre><key>WizardSmallImageFile</key>=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
@@ -6354,17 +6354,17 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>Specifies the name(s) of the image file(s) to display as the background of wizard pages in Setup, but not in Uninstall. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
 <p>Supports <tt>.bmp</tt> and <tt>.png</tt> images, including those with transparency. Use <sd>WizardBackColor</sd> to customize the background color. Even transparent <tt>.bmp</tt> files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardBackImageOpacity</sd> to increase transparency.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used. If <sd>WizardKeepAspectRatio</sd> is set to <tt>yes</tt>, which is the default, an aspect ratio of 497:360 is maintained. The specified image should have the same aspect ratio.</p>
-<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 596x432 is recommended to avoid the image looking blurry on higher-DPI systems.</p>
+<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 596&times;432 is recommended to avoid the image looking blurry on higher-DPI systems.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
-<tr><td>100%</td><td>596x432</td></tr>
-<tr><td>125%</td><td>796x576</td></tr>
-<tr><td>150%</td><td>994x720</td></tr>
-<tr><td>175%</td><td>1193x864</td></tr>
-<tr><td>200%</td><td>1272x922</td></tr>
-<tr><td>225%</td><td>1471x1066</td></tr>
-<tr><td>250%</td><td>1630x1148</td></tr>
+<tr><td>100%</td><td>596&times;432</td></tr>
+<tr><td>125%</td><td>796&times;576</td></tr>
+<tr><td>150%</td><td>994&times;720</td></tr>
+<tr><td>175%</td><td>1193&times;864</td></tr>
+<tr><td>200%</td><td>1272&times;922</td></tr>
+<tr><td>225%</td><td>1471&times;1066</td></tr>
+<tr><td>250%</td><td>1630&times;1148</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is set to a blank value, no background image will be used.</p>
@@ -6844,7 +6844,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies a custom program icon to use for Setup/Uninstall. The file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
-<p>It is recommended to include at least the following sizes in your icon: 16x16, 32x32, 48x48, 64x64, and 256x256.</p>
+<p>It is recommended to include at least the following sizes in your icon: 16&times;16, 32&times;32, 48&times;48, 64&times;64, and 256&times;256.</p>
 <p>If this directive is not specified or is blank, a built-in icon supporting the above sizes will be used.</p>
 <p>To use the old default icon set this directive to <tt>compiler:SetupClassicIcon.ico</tt>.</p>
 <example><pre><key>SetupIconFile</key>=MyProgSetup.ico</pre></example>
@@ -7346,7 +7346,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 
 <setuptopic directive="LZMABlockSize">
 <setupvalid><tt>1024</tt> through <tt>262144</tt></setupvalid>
-<setupdefault>4 * <sd>LZMADictionarySize</sd> with a minimum of 1024 and a maximum of 262144</setupdefault>
+<setupdefault>4 &times; <sd>LZMADictionarySize</sd> with a minimum of 1024 and a maximum of 262144</setupdefault>
 <body>
 <p>Controls the block size used by the LZMA2 compressor, in kilobytes, when <sd>LZMANumBlockThreads</sd> is set to <tt>2</tt> or higher.</p>
 <p>Note that setting this too high can negate the benefits of using multiple block threads. Typically, the block size should be no more than the total size of your data divided by the number of block threads.</p>
@@ -7392,7 +7392,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <body>
 <p>When compressing a large file, the LZMA2 compressor has the ability to divide its data into "blocks" and compress two or more of these blocks in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the maximum number of threads to use -- that is, the maximum number of blocks that the LZMA2 compressor may compress in parallel. Using a high maximum requires a very large file before this maximum is fully used.</p>
 <p>The memory required during compression when multiple block threads are used is roughly:</p>
-<indent><p><tt>LZMANumBlockThreads</tt> * (<link topic="setup_compression">Normal memory usage</link> + (<sd>LZMABlockSize</sd> * 2))</p></indent>
+<indent><p><tt>LZMANumBlockThreads</tt> &times; (<link topic="setup_compression">Normal memory usage</link> + (<sd>LZMABlockSize</sd> &times; 2))</p></indent>
 <p>Since LZMA2 (and LZMA) uses two threads for match-finding by default (see <sd>CompressionThreads</sd>), there ideally should be two processor cores available for each block thread. Thus, to see the maximum benefit from a value of <tt>2</tt>, four cores are needed.</p>
 <p>Dividing the data into multiple blocks can reduce the compression ratio, as the compressor cannot find matches across blocks. Using a large <link topic="setup_lzmablocksize">block size</link> can help to mitigate this.</p>
 <p><link topic="64bit">32-bit compiler</link>: If an "Out of memory" error is seen when multiple block threads are enabled in combination with a compression level that uses a large dictionary size (such as <tt>ultra64</tt>), <sd>LZMAUseSeparateProcess</sd> may need to be set.</p>
@@ -7407,7 +7407,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <body>
 <p>When compressing a large file, the zstd compressor has the ability to divide its data into "jobs" and compress two or more of these jobs in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the maximum number of threads to use -- that is, the maximum number of jobs that the zstd compressor may compress in parallel. Using a high maximum requires a very large file before this maximum is fully used. At the default setting of <tt>1</tt>, the data is not divided into jobs and a single thread is used.</p>
 <p>The memory required during compression when multiple threads are used is roughly:</p>
-<indent><p><tt>ZstdNumThreads</tt> * (<link topic="setup_compression">Normal memory usage</link> + (job size * 2)) + (job size * 4)</p></indent>
+<indent><p><tt>ZstdNumThreads</tt> &times; (<link topic="setup_compression">Normal memory usage</link> + (job size &times; 2)) + (job size &times; 4)</p></indent>
 <p>The job size is 2 MB at level 1, 4 MB at level 2, 8 MB at levels 3-8, 16 MB at levels 9-16, and 32 MB at levels 17-20. At level 20, the compiler lowers the zstd compressor's default job size from 128 MB to 32 MB. This reduces memory use and allows compression to be aborted in a timely manner.</p>
 <p>Dividing the data into multiple jobs has almost no effect on the compression ratio, as consecutive jobs overlap and the compressor can still find nearby matches across job boundaries.</p>
 <p>Setting this directive to <tt>2</tt> or higher is not supported at <link topic="setup_compression">compression levels</link> 21 and 22, because at those levels compression cannot be aborted in a timely manner.</p>
