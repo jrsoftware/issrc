@@ -65,6 +65,8 @@ function BuildAutoCompleteWordList(const Values: array of AnsiString;
   const Typ: Integer; const Sort: Boolean = True): AnsiString; overload;
 function MergeAutoCompleteWordLists(const BaseWordList,
   ExtraWordList: AnsiString): AnsiString;
+function MergeScopedAutoCompleteWordLists(const BroaderWordList,
+  NarrowerWordList: AnsiString): AnsiString;
 
 { Word lists for other purposes }
 
@@ -173,6 +175,67 @@ begin
     else
       Result := Result + AutoCompleteWordListSeparator + AnsiString(Entry);
     LastMergedEntry := Entry;
+  end;
+end;
+
+function MergeScopedAutoCompleteWordLists(const BroaderWordList,
+  NarrowerWordList: AnsiString): AnsiString;
+
+  function EntryWord(const AEntry: String): String;
+  begin
+    const P = Pos(AutoCompleteWordListTypeSeparator, AEntry);
+    if P > 0 then
+      Result := Copy(AEntry, 1, P-1)
+    else
+      Result := AEntry;
+  end;
+
+begin
+  { Merges two word lists which are both in BuildAutoCompleteWordList's
+    sort order into one list in that order, resolving shadowing: when both
+    lists have entries for a word, only the narrower list's entries for it
+    survive (usually just one entry) }
+  if BroaderWordList = '' then
+    Exit(NarrowerWordList);
+  if NarrowerWordList = '' then
+    Exit(BroaderWordList);
+
+  const BroaderEntries = SplitString(String(BroaderWordList), AutoCompleteWordListSeparator);
+  const NarrowerEntries = SplitString(String(NarrowerWordList), AutoCompleteWordListSeparator);
+
+  Result := '';
+  var BroaderIndex := 0;
+  var NarrowerIndex := 0;
+  while (BroaderIndex < Length(BroaderEntries)) or (NarrowerIndex < Length(NarrowerEntries)) do begin
+    var Entry: String;
+    if NarrowerIndex >= Length(NarrowerEntries) then begin
+      Entry := BroaderEntries[BroaderIndex];
+      Inc(BroaderIndex);
+    end else if BroaderIndex >= Length(BroaderEntries) then begin
+      Entry := NarrowerEntries[NarrowerIndex];
+      Inc(NarrowerIndex);
+    end else begin
+      const NarrowerWord = EntryWord(NarrowerEntries[NarrowerIndex]);
+      const Compare = CompareText(EntryWord(BroaderEntries[BroaderIndex]), NarrowerWord);
+      if Compare < 0 then begin
+        Entry := BroaderEntries[BroaderIndex];
+        Inc(BroaderIndex);
+      end else begin
+        if Compare = 0 then begin
+          { The narrower list shadows this word: drop the broader entries }
+          repeat
+            Inc(BroaderIndex);
+          until (BroaderIndex >= Length(BroaderEntries)) or
+                (CompareText(EntryWord(BroaderEntries[BroaderIndex]), NarrowerWord) <> 0);
+        end;
+        Entry := NarrowerEntries[NarrowerIndex];
+        Inc(NarrowerIndex);
+      end;
+    end;
+    if Result = '' then
+      Result := AnsiString(Entry)
+    else
+      Result := Result + AutoCompleteWordListSeparator + AnsiString(Entry);
   end;
 end;
 

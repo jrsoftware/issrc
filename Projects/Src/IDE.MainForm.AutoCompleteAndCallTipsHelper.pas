@@ -465,19 +465,29 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         for var I := 0 to Section.GlobalVariableCount-1 do
           AddAutoCompleteWordToList(Words,
             AnsiString(Section.GlobalVariables[I].Name), awtScriptVariable);
-        var Routine: TCodeSectionRoutine;
-        if FAutoCompleteAndCallTipsLiveCodeSection.TryGetRoutine(Line, Routine, True) then begin
-          for var I := 0 to Routine.ParameterCount-1 do
-            AddAutoCompleteWordToList(Words,
-              AnsiString(Routine.Parameters[I].Name), awtScriptFunctionParameter);
-          for var I := 0 to Routine.LocalCount-1 do
-            AddAutoCompleteWordToList(Words,
-              AnsiString(Routine.Locals[I].Name), awtScriptFunctionVariable);
-        end;
       end;
       Result := BuildAutoCompleteWordList(Words, False);
     finally
       Words.Free;
+    end;
+
+    var Routine: TCodeSectionRoutine;
+    if not ClassMember and
+       FAutoCompleteAndCallTipsLiveCodeSection.TryGetRoutine(Line, Routine, True) then begin
+      const RoutineWords = CreateSortedCaseInsensitiveStringList;
+      try
+        for var I := 0 to Routine.ParameterCount-1 do
+          AddAutoCompleteWordToList(RoutineWords,
+            AnsiString(Routine.Parameters[I].Name), awtScriptFunctionParameter);
+        for var I := 0 to Routine.LocalCount-1 do
+          AddAutoCompleteWordToList(RoutineWords,
+            AnsiString(Routine.Locals[I].Name), awtScriptFunctionVariable);
+        { RoutineWords (locals) shadows Result (globals) }
+        Result := MergeScopedAutoCompleteWordLists(Result,
+          BuildAutoCompleteWordList(RoutineWords, False));
+      finally
+        RoutineWords.Free;
+      end;
     end;
   end;
 
@@ -532,8 +542,16 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           Exit;
         ClassOrRecordMember := True;
       end;
-      WordList := MergeAutoCompleteWordLists(GetScriptAutoCompleteWordList(ClassOrRecordMember),
-        BuildUserDefinedWordList(AMemo.GetLineFromPosition(LinePos), ClassOrRecordMember));
+      const UserDefinedWordList = BuildUserDefinedWordList(
+        AMemo.GetLineFromPosition(LinePos), ClassOrRecordMember);
+      if ClassOrRecordMember then
+        WordList := MergeAutoCompleteWordLists(
+          GetScriptAutoCompleteWordList(True), UserDefinedWordList)
+      else begin
+        { UserDefinedWordList (globals shadowed by locals) shadows GetScriptAutoCompleteWordList (built-ins) }
+        WordList := MergeScopedAutoCompleteWordLists(
+          GetScriptAutoCompleteWordList(False), UserDefinedWordList);
+      end;
     end;
 
     if WordList = '' then

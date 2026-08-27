@@ -2390,6 +2390,57 @@ begin
   Assert(MergeAutoCompleteWordLists(BaseList, '') = BaseList);
   Assert(MergeAutoCompleteWordLists('', '') = '');
 
+  { MergeScopedAutoCompleteWordLists resolves shadowing instead of deduping:
+    when both lists have entries for a word, only the narrower (second)
+    list's entries for it survive, whatever their types }
+  const ScriptVariableType = AnsiString(IntToStr(awtScriptVariable));
+  const ScriptFunctionParameterType = AnsiString(IntToStr(awtScriptFunctionParameter));
+  const ScriptFunctionVariableType = AnsiString(IntToStr(awtScriptFunctionVariable));
+  const BroaderList = BuildAutoCompleteWordList(['Beta', 'Echo'], awtScriptVariable);
+  Assert(MergeScopedAutoCompleteWordLists(BroaderList,
+    BuildAutoCompleteWordList(['Echo'], awtScriptFunctionParameter)) =
+    'Beta' + TypeSeparator + ScriptVariableType + ListSeparator +
+    'Echo' + TypeSeparator + ScriptFunctionParameterType);
+
+  { Words in one list only merge in sort order, and a word extending another
+    is not a collision }
+  Assert(MergeScopedAutoCompleteWordLists(BroaderList,
+    BuildAutoCompleteWordList(['Alpha', 'Beta2', 'Zulu'], awtScriptFunctionParameter)) =
+    'Alpha' + TypeSeparator + ScriptFunctionParameterType + ListSeparator +
+    'Beta' + TypeSeparator + ScriptVariableType + ListSeparator +
+    'Beta2' + TypeSeparator + ScriptFunctionParameterType + ListSeparator +
+    'Echo' + TypeSeparator + ScriptVariableType + ListSeparator +
+    'Zulu' + TypeSeparator + ScriptFunctionParameterType);
+
+  { A shadowed word's broader entries are all dropped whatever their types,
+    and the narrower list's own multiple entries for it are all kept }
+  const ShadowedList = MergeAutoCompleteWordLists(BroaderList,
+    BuildAutoCompleteWordList(['Beta'], awtScriptFunction));
+  const ScopedWordsList = TStringList.Create;
+  try
+    AddAutoCompleteWordToList(ScopedWordsList, 'Beta', awtScriptFunctionParameter);
+    AddAutoCompleteWordToList(ScopedWordsList, 'Beta', awtScriptFunctionVariable);
+    Assert(MergeScopedAutoCompleteWordLists(ShadowedList,
+      BuildAutoCompleteWordList(ScopedWordsList)) =
+      'Beta' + TypeSeparator + ScriptFunctionParameterType + ListSeparator +
+      'Beta' + TypeSeparator + ScriptFunctionVariableType + ListSeparator +
+      'Echo' + TypeSeparator + ScriptVariableType);
+  finally
+    ScopedWordsList.Free;
+  end;
+
+  { Collisions are case-insensitive, keeping the narrower entry's spelling,
+    and an entry without a type suffix counts as its word alone }
+  Assert(MergeScopedAutoCompleteWordLists(
+    BuildAutoCompleteWordList(['Beta', 'Echo'], -1),
+    BuildAutoCompleteWordList(['BETA'], awtScriptFunctionParameter)) =
+    'BETA' + TypeSeparator + ScriptFunctionParameterType + ListSeparator +
+    'Echo');
+
+  { An empty list returns the other list unchanged }
+  Assert(MergeScopedAutoCompleteWordLists('', BroaderList) = BroaderList);
+  Assert(MergeScopedAutoCompleteWordLists(BroaderList, '') = BroaderList);
+
   { The sections word list, without the sections SectionMap excludes }
   Assert(ListHasEntry(SectionsAutoCompleteWordList, '[Files]', awtSectionName));
   Assert(ListHasEntry(SectionsAutoCompleteWordList, '[Code]', awtSectionName));
