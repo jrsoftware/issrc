@@ -47,7 +47,7 @@ object MainForm: TMainForm
       Align = alBottom
       BevelOuter = bvNone
       FullRepaint = False
-      TabOrder = 1
+      TabOrder = 3
       Visible = False
       StyleName = 'Windows'
       OnMouseMove = StatusSplitPanelMouseMove
@@ -60,7 +60,7 @@ object MainForm: TMainForm
       Align = alBottom
       BevelOuter = bvNone
       FullRepaint = False
-      TabOrder = 0
+      TabOrder = 4
       Visible = False
       object FindResultsList: TListBox
         Left = 0
@@ -146,7 +146,7 @@ object MainForm: TMainForm
       Align = alRight
       BevelOuter = bvNone
       FullRepaint = False
-      TabOrder = 2
+      TabOrder = 1
       Visible = False
       StyleName = 'Windows'
       OnMouseMove = InspectorSplitPanelMouseMove
@@ -159,7 +159,7 @@ object MainForm: TMainForm
       Align = alRight
       BevelOuter = bvNone
       FullRepaint = False
-      TabOrder = 3
+      TabOrder = 2
       Visible = False
       StyleElements = []
       OnResize = InspectorPanelResize
@@ -233,7 +233,7 @@ object MainForm: TMainForm
       Align = alClient
       BevelOuter = bvNone
       FullRepaint = False
-      TabOrder = 4
+      TabOrder = 0
       object NavigatorPanel: TPanel
         Left = 0
         Top = 0
@@ -528,7 +528,7 @@ object MainForm: TMainForm
       Margins.Bottom = 8
       Align = alRight
       Caption = 'Close Banner'
-      TabOrder = 1
+      TabOrder = 2
       OnClick = UpdatePanelCloseBitBtnClick
       OnPaint = UpdatePanelCloseBitBtnPaint
     end
@@ -545,7 +545,7 @@ object MainForm: TMainForm
       Align = alRight
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 2
+      TabOrder = 1
       OnClick = UpdatePanelDonateBitBtnClick
     end
     object UpdateLinkLabel: TLinkLabel

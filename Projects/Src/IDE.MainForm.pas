@@ -1656,7 +1656,7 @@ begin
         AddControlToArray(ControlToAdd, StatusPanel, Controls, RegionControls, NControls);
     end;
     if UpdatePanel.Visible then begin
-      if FUpdatePanelMessages[UpdateLinkLabel.Tag].HasLink then
+      if UpdateLinkLabel.TabStop then
         AddControlToArray(UpdateLinkLabel, UpdatePanel, Controls, RegionControls, NControls)
       else
         AddControlToArray(UpdatePanelDonateBitBtn, UpdatePanel, Controls, RegionControls, NControls);
@@ -6494,6 +6494,7 @@ begin
     var MessageToShowIndex := FUpdatePanelMessages.Count-1;
     UpdateLinkLabel.Tag := MessageToShowIndex;
     UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
+    UpdateLinkLabel.TabStop := FUpdatePanelMessages[MessageToShowIndex].HasLink;
     if not FHighContrastActive then
       UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
     if FUpdatePanelMessages[MessageToShowIndex].ConfigIdent.StartsWith('Purchase') then
