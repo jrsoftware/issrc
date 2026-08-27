@@ -23,41 +23,40 @@ type
     irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugParseTime,
     irkDebugSections, irkDebugEarlyExits,
     irkDebugCaretAt, irkDebugCaretRoutine, irkDebugRoutine, irkDebugRoutineResult,
-    irkDebugParameters, irkDebugRoutineParameter, irkDebugLocals,
-    irkDebugRoutineLocal, irkDebugType, irkDebugInterface,
-    irkDebugInterfaceMethod, irkDebugInterfaceMethodResult,
-    irkDebugInterfaceMethodParameter, irkDebugConstant, irkDebugGlobalVariable {$ENDIF});
+    irkDebugRoutineParametersLabel, irkDebugRoutineParameter,
+    irkDebugRoutineLocalsLabel, irkDebugRoutineLocal, irkDebugType,
+    irkDebugInterface, irkDebugInterfaceMethod, irkDebugInterfaceMethodResult,
+    irkDebugInterfaceMethodParametersLabel, irkDebugInterfaceMethodParameter,
+    irkDebugConstant, irkDebugGlobalVariable {$ENDIF});
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
     Name: String;            { irkParameter, irkParameterFlag: the parameter name,
                                irkKey, irkKeyFlag: key name,
-                               '' otherwise }
+                               other: same as the display name }
     Index: Integer;          { irkParameter, irkParameterFlag: the parameter index, or -1 if
                                known but not present in the script, or if multi-entry editing,
                                irkKey, irkKeyFlag: the line index for a key, or -1 if known
                                but not present in the script,
                                irkDebugRoutine and later:
                                  irkDebugRoutine, irkDebugRoutineResult,
-                                 irkDebugRoutineParameter, irkDebugLocals and
+                                 irkDebugRoutineParametersLabel,
+                                 irkDebugRoutineParameter,
+                                 irkDebugRoutineLocalsLabel and
                                  irkDebugRoutineLocal: the routine index,
-                                 irkDebugParameters: the routine index, or the
-                                 interface method index if the row belongs to a
-                                 method,
                                  irkDebugType and irkDebugInterface: the type index,
-                                 irkDebugInterfaceMethod, irkDebugInterfaceMethodResult
-                                 and irkDebugInterfaceMethodParameter: the interface
+                                 irkDebugInterfaceMethod, irkDebugInterfaceMethodResult,
+                                 irkDebugInterfaceMethodParametersLabel and
+                                 irkDebugInterfaceMethodParameter: the interface
                                  method index,
                                  irkDebugConstant: the constant index,
                                  irkDebugGlobalVariable: the global variable index,
-                               -1 otherwise }
-    {$IFDEF DEBUG}
+                               other: -1 }
     SubIndex: Integer;       { irkDebugRoutineParameter,
                                irkDebugRoutineLocal and
                                irkDebugInterfaceMethodParameter: the parameter or local index,
                                with Index the routine's or method's,
-                               unused otherwise }
-    {$ENDIF}
+                               other: 0 or -1 }
     FlagName: String;        { irkParameterFlag and irkKeyFlag }
     LastValueSignature: String;
     CheckBox: Boolean;
@@ -888,7 +887,7 @@ procedure TInspector.UpdateFromCaret;
 
   function ItemID(const AItem: TJvCustomInspectorItem;
     const AIncludeIndex: Boolean): String;
-  { AIncludeIndex: Include the row index so the id is unique even for duplicated member names }
+  { AIncludeIndex: Ensures the id is unique even for duplicate siblings }
   begin
     if AItem is TJvInspectorCustomCategoryItem then
       Result := 'C|' + AItem.DisplayName
@@ -896,16 +895,14 @@ procedure TInspector.UpdateFromCaret;
       var Row: TInspectorRow;
       if not TryGetRow(AItem, Row) then
         raise Exception.Create('Internal error: ItemID: Row not found');
-      { The kind may help separating rows sharing a name }
-      Result := 'R|' + IntToStr(Ord(Row.Kind)) + '|' + AItem.DisplayName;
-      {$IFDEF DEBUG}
-      { The Parameters and Locals parent rows all share one display name, so
-        qualify them by their routine's or method's row }
-      if Row.Kind in [irkDebugParameters, irkDebugLocals] then
-        Result := Result + '|' + AItem.Parent.DisplayName;
-      {$ENDIF}
+      Result := 'R|' + IntToStr(Ord(Row.Kind)) + '|' + Row.Name + '|' + Row.FlagName;
       if AIncludeIndex then
-        Result := Result + '|' + IntToStr(Row.Index);
+        Result := Result + '|' + IntToStr(Row.Index) + '|' + IntToStr(Row.SubIndex);
+      { Chain the parents' ids to keep the index-less id unique except for
+        duplicate siblings, and to keep a stale indexed id from matching a
+        different row after indexes shifted }
+      if not (Row.Kind in [irkParameter, irkParameterFlag, irkKey, irkKeyFlag]) then
+        Result := Result + '|' + ItemID(AItem.Parent, AIncludeIndex);
     end;
   end;
 
@@ -1011,11 +1008,6 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
-  function CodeSectionRowName(const AName: String; const ALine: Integer): String;
-  begin
-    Result := AName + '@' + IntToStr(FLiveCodeSection.FirstLine + ALine + 1);
-  end;
-
   procedure UpdateDebugCaretRoutineRowString(const ACaretLine: Integer);
   begin
     FDebugCaretRoutineRowString := 'None';
@@ -1053,6 +1045,7 @@ procedure TInspector.UpdateFromCaret;
   begin
     var Row := Default(TInspectorRow);
     Row.Kind := AKind;
+    Row.Name := ADisplayName; { For ItemID }
     Row.Index := AIndex;
     Row.SubIndex := ASubIndex;
     Result := AddRow(AParent, ADisplayName, False, Row);
@@ -1348,26 +1341,25 @@ procedure TInspector.UpdateFromCaret;
       const RoutinesCategory = NewCategory(SInspectorCategoryRoutines);
       for var I := 0 to Section.RoutineCount-1 do begin
         const Routine = Section.Routines[I];
-        const Item = AddDebugRow(RoutinesCategory,
-          CodeSectionRowName(Routine.Name, Routine.FirstLine), irkDebugRoutine, I);
+        const Item = AddDebugRow(RoutinesCategory, Routine.Name, irkDebugRoutine, I);
         if Routine.ParameterCount > 0 then begin
           const ParametersItem = AddDebugRow(Item, { Adds a child to Item }
-            LFmtMessage(SInspectorParametersRow), irkDebugParameters, I);
+            LFmtMessage(SInspectorParametersRow), irkDebugRoutineParametersLabel, I);
+          ParametersItem.Expanded := True;
           for var J := 0 to Routine.ParameterCount-1 do begin
             const Parameter = Routine.Parameters[J];
             AddDebugRow(ParametersItem, { Adds a child to ParametersItem }
-              CodeSectionRowName(Parameter.Name, Parameter.Line),
-              irkDebugRoutineParameter, I, J);
+              Parameter.Name, irkDebugRoutineParameter, I, J);
           end;
         end;
         if Routine.LocalCount > 0 then begin
           const LocalsItem = AddDebugRow(Item, { Adds a child to Item }
-            LFmtMessage(SInspectorLocalsRow), irkDebugLocals, I);
+            LFmtMessage(SInspectorLocalsRow), irkDebugRoutineLocalsLabel, I);
+          LocalsItem.Expanded := True;
           for var J := 0 to Routine.LocalCount-1 do begin
             const Local = Routine.Locals[J];
             AddDebugRow(LocalsItem, { Adds a child to LocalsItem }
-              CodeSectionRowName(Local.Name, Local.Line),
-              irkDebugRoutineLocal, I, J);
+              Local.Name, irkDebugRoutineLocal, I, J);
           end;
         end;
         if Routine.Kind = rkFunction then
@@ -1393,24 +1385,21 @@ procedure TInspector.UpdateFromCaret;
         if Declaration.TypeText = 'interface' then
           Item := ATypeItem
         else begin
-          { A row is identified by its display name, so name it after the type
-            as well: two type declarations can share a line }
-          Item := AddDebugRow(ACategory,
-            CodeSectionRowName(Declaration.Name + '.<anonymous>', Declaration.Line),
+          { The interface itself is anonymous, so name the row after its type }
+          Item := AddDebugRow(ACategory, Declaration.Name + '.<anonymous>',
             irkDebugInterface, ATypeIndex);
         end;
       end;
       const MethodItem = AddDebugRow(Item, { Adds a child to Item }
-        CodeSectionRowName(Method.Name, Method.Line),
-        irkDebugInterfaceMethod, I);
+        Method.Name, irkDebugInterfaceMethod, I);
       if Method.ParameterCount > 0 then begin
         const ParametersItem = AddDebugRow(MethodItem, { Adds a child to MethodItem }
-          LFmtMessage(SInspectorParametersRow), irkDebugParameters, I);
+          LFmtMessage(SInspectorParametersRow), irkDebugInterfaceMethodParametersLabel, I);
+        ParametersItem.Expanded := True;
         for var J := 0 to Method.ParameterCount-1 do begin
           const Parameter = Method.Parameters[J];
           AddDebugRow(ParametersItem, { Adds a child to ParametersItem }
-            CodeSectionRowName(Parameter.Name, Parameter.Line),
-            irkDebugInterfaceMethodParameter, I, J);
+            Parameter.Name, irkDebugInterfaceMethodParameter, I, J);
         end;
       end;
       if Method.Kind = rkFunction then
@@ -1425,8 +1414,8 @@ procedure TInspector.UpdateFromCaret;
       const TypesCategory = NewCategory(SInspectorCategoryTypes);
       for var I := 0 to Section.TypeCount-1 do begin
         const Declaration = Section.Types[I];
-        const TypeItem = AddDebugRow(TypesCategory,
-          CodeSectionRowName(Declaration.Name, Declaration.Line), irkDebugType, I);
+        const TypeItem = AddDebugRow(TypesCategory, Declaration.Name,
+          irkDebugType, I);
         AddCodeSectionInterfaceMethodRows(TypesCategory, TypeItem, I);
       end;
     end;
@@ -1439,15 +1428,11 @@ procedure TInspector.UpdateFromCaret;
       const SymbolsCategory = NewCategory(SInspectorCategorySymbols);
       for var I := 0 to Section.ConstantCount-1 do begin
         const Declaration = Section.Constants[I];
-        AddDebugRow(SymbolsCategory,
-          CodeSectionRowName(Declaration.Name, Declaration.Line),
-          irkDebugConstant, I);
+        AddDebugRow(SymbolsCategory, Declaration.Name, irkDebugConstant, I);
       end;
       for var I := 0 to Section.GlobalVariableCount-1 do begin
         const Declaration = Section.GlobalVariables[I];
-        AddDebugRow(SymbolsCategory,
-          CodeSectionRowName(Declaration.Name, Declaration.Line),
-          irkDebugGlobalVariable, I);
+        AddDebugRow(SymbolsCategory, Declaration.Name, irkDebugGlobalVariable, I);
       end;
     end;
   end;
@@ -1728,14 +1713,14 @@ begin
     {$ENDIF}
     { Rows address parameters by index, so the signature includes each entry's
       indexes, with '@' separating the entries }
-    RowSetSignature := 'E|' + SectionName;
+    RowSetSignature := Format('E|%s', [SectionName]);
     for var I := 0 to FLiveParameterSectionEntries.Count-1 do begin
       RowSetSignature := RowSetSignature + '|@';
       const Entry = FLiveParameterSectionEntries.Entries[I].Entry;
       for var J := 0 to Entry.Count-1 do begin
         const Parameter = Entry.Parameters[J];
         if Parameter.Kind = pkParameter then
-          RowSetSignature := RowSetSignature + '|' + IntToStr(J) + ':' + Parameter.Name;
+          RowSetSignature := RowSetSignature + Format('|%d|%s', [J, Parameter.Name]);
       end;
     end;
   end else begin
@@ -1774,12 +1759,12 @@ begin
       { Like the entry signature above, plus the occurrence count and
         whether unspecified known directives are offered, which also
         decide the row set }
-      RowSetSignature := 'D|' + IntToStr(OccurrenceCount) + '|' +
-        IntToStr(Ord(FShowAllKnownDirectives)) + '|' + Header.Name;
+      RowSetSignature := Format('D|%d|%d|%s',
+        [OccurrenceCount, Ord(FShowAllKnownDirectives), Header.Name]);
       const Model = FLiveKeyValueSection.Section;
       for var I := 0 to Model.Count-1 do begin
         if Model.Lines[I].Kind = lkKeyValue then begin
-          RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Model.Lines[I].Name;
+          RowSetSignature := RowSetSignature + Format('|%d|%s', [I, Model.Lines[I].Name]);
           { Put AddKeyRow's decision into the structure }
           var Definition: TMemberDefinition;
           if Model.TryGetDefinition(Model.Lines[I].Name, Definition) and
@@ -1805,17 +1790,14 @@ begin
       const Model = FLiveCodeSection.Section;
       for var I := 0 to Model.RoutineCount-1 do begin
         const Routine = Model.Routines[I];
-        RowSetSignature := RowSetSignature + '|R' + IntToStr(I) + ':' +
-          CodeSectionRowName(Routine.Name, Routine.FirstLine);
+        RowSetSignature := RowSetSignature + Format('|R%d|%s', [I, Routine.Name]);
         for var J := 0 to Routine.ParameterCount-1 do begin
           const Parameter = Routine.Parameters[J];
-          RowSetSignature := RowSetSignature + '|R' + IntToStr(I) + 'P' +
-            IntToStr(J) + ':' + CodeSectionRowName(Parameter.Name, Parameter.Line);
+          RowSetSignature := RowSetSignature + Format('|R%dP%d|%s', [I, J, Parameter.Name]);
         end;
         for var J := 0 to Routine.LocalCount-1 do begin
           const Local = Routine.Locals[J];
-          RowSetSignature := RowSetSignature + '|R' + IntToStr(I) + 'L' +
-            IntToStr(J) + ':' + CodeSectionRowName(Local.Name, Local.Line);
+          RowSetSignature := RowSetSignature + Format('|R%dL%d|%s', [I, J, Local.Name]);
         end;
         { Put AddCodeSectionRoutineRows' Result row decision into the structure }
         if Routine.Kind = rkFunction then
@@ -1823,8 +1805,7 @@ begin
       end;
       for var I := 0 to Model.TypeCount-1 do begin
         const Declaration = Model.Types[I];
-        RowSetSignature := RowSetSignature + '|T' + IntToStr(I) + ':' +
-          CodeSectionRowName(Declaration.Name, Declaration.Line);
+        RowSetSignature := RowSetSignature + Format('|T%d|%s', [I, Declaration.Name]);
         { Put AddCodeSectionInterfaceMethodRows' anonymous interface decision
           into the structure }
         if Declaration.TypeText = 'interface' then
@@ -1832,13 +1813,11 @@ begin
       end;
       for var I := 0 to Model.InterfaceMethodCount-1 do begin
         const Method = Model.InterfaceMethods[I];
-        RowSetSignature := RowSetSignature + '|I' + IntToStr(I) + ':' +
-          IntToStr(Method.DeclarationTypeIndex) + '.' +
-          CodeSectionRowName(Method.Name, Method.Line);
+        RowSetSignature := RowSetSignature + Format('|I%d|%d|%s',
+          [I, Method.DeclarationTypeIndex, Method.Name]);
         for var J := 0 to Method.ParameterCount-1 do begin
           const Parameter = Method.Parameters[J];
-          RowSetSignature := RowSetSignature + '|I' + IntToStr(I) + 'P' +
-            IntToStr(J) + ':' + CodeSectionRowName(Parameter.Name, Parameter.Line);
+          RowSetSignature := RowSetSignature + Format('|I%dP%d|%s', [I, J, Parameter.Name]);
         end;
         { Put AddCodeSectionInterfaceMethodRows' Result row decision into the
           structure }
@@ -1847,13 +1826,11 @@ begin
       end;
       for var I := 0 to Model.ConstantCount-1 do begin
         const Declaration = Model.Constants[I];
-        RowSetSignature := RowSetSignature + '|C' + IntToStr(I) + ':' +
-          CodeSectionRowName(Declaration.Name, Declaration.Line);
+        RowSetSignature := RowSetSignature + Format('|C%d|%s', [I, Declaration.Name]);
       end;
       for var I := 0 to Model.GlobalVariableCount-1 do begin
         const Declaration = Model.GlobalVariables[I];
-        RowSetSignature := RowSetSignature + '|V' + IntToStr(I) + ':' +
-          CodeSectionRowName(Declaration.Name, Declaration.Line);
+        RowSetSignature := RowSetSignature + Format('|V%d|%s', [I, Declaration.Name]);
       end;
     end
     {$ENDIF}
@@ -1866,7 +1843,7 @@ begin
       {$IFDEF DEBUG}
       FDebugStatusRowString := RefusalReasonToString(EntryRefusalReason);
       {$ENDIF}
-      RowSetSignature := 'N|' + IntToStr(Ord(EntryRefusalReason));
+      RowSetSignature := Format('N|%d', [Ord(EntryRefusalReason)]);
     end;
   end;
 
