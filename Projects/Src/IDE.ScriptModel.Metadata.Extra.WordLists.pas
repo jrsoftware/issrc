@@ -38,6 +38,8 @@ const
   awtScriptEvent = 16;
   awtScriptKeyword = 17;
   awtScriptEnumValue = 18;
+  awtScriptFunctionParameter = 19;
+  awtScriptFunctionVariable = 20;
   awtISPPFunction = 30;
   awtISPPVariable = 31;
   awtISPPConstant = 32;

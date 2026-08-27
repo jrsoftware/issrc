@@ -469,10 +469,10 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         if FAutoCompleteAndCallTipsLiveCodeSection.TryGetRoutine(Line, Routine, True) then begin
           for var I := 0 to Routine.ParameterCount-1 do
             AddAutoCompleteWordToList(Words,
-              AnsiString(Routine.Parameters[I].Name), awtScriptVariable);
+              AnsiString(Routine.Parameters[I].Name), awtScriptFunctionParameter);
           for var I := 0 to Routine.LocalCount-1 do
             AddAutoCompleteWordToList(Words,
-              AnsiString(Routine.Locals[I].Name), awtScriptVariable);
+              AnsiString(Routine.Locals[I].Name), awtScriptFunctionVariable);
         end;
       end;
       Result := BuildAutoCompleteWordList(Words, False);
