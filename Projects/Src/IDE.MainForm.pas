@@ -4400,8 +4400,8 @@ begin
           NNT(awtISPPVariable, 'ac\constant-filled'),              { Green }
           NNT(awtConstant, 'ac\constant-filled_2'),                { Purple }
           NNT(awtMemberValue, 'ac\constant-filled_3'),             { Blue }
-          NNT(awtScriptFunctionVariable, 'ac\constant-filled_4'),  { Red}
-          NNT(awtScriptFunctionParameter, 'ac\constant-filled_5'), { Orange }
+          NNT(awtScriptFunctionParameter, 'ac\constant-filled_4'), { Orange}
+          NNT(awtScriptFunctionVariable, 'ac\constant-filled_5'),  { Yellow }
           NNT(awtScriptConstant, 'ac\constant-filled_6'),          { Gray }
           NNT(awtScriptEnumValue, 'ac\constant-filled_6'),         { Gray }
           NNT(awtISPPConstant, 'ac\constant-filled_6'),            { Gray }
