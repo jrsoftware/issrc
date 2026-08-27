@@ -1996,9 +1996,10 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         Break;
     end;
     if InParameterList then begin
-      { Header cut inside parameter list, don't forget to add found parameters }
-      AddParsedParameters(AText, ParameterNames, ParameterNameLines,
-        ParameterTypeStartPos, Integer(AParser.CurrTokenPos), AHeader.Parameters);
+      { Header cut inside parameter list, so it could have swallowed a 'var' or
+        'const' block below it, because such a block looks like a parameter
+        group. Keep no parameters at all instead of the ones found. }
+      AHeader.Parameters := [];
     end;
 
     var ResultTypeEndPos: Integer;

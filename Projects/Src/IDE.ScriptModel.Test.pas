@@ -4523,24 +4523,40 @@ begin
     Assert(Section.Routines[0].Parameters[0].Name = 'N');
     Assert(Section.Routines[0].Parameters[0].TypeText = 'Integer');
 
-    { A parameter list left open is cut by the next routine's keyword,
-      keeping the parameters found, with an open group untyped }
+    { A parameter list left open takes no parameters: it could have swallowed
+      the text below the header. The routine below it is still kept. }
     Section.Parse([
       'procedure Typing(A: Integer; B', { 0 }
       'procedure P;',                   { 1 }
       'begin',                          { 2 }
       'end;']);                         { 3 }
     Assert(Section.RoutineCount = 2);
-    Assert(Section.Routines[0].ParameterCount = 2);
-    Assert(Section.Routines[0].Parameters[0].Name = 'A');
-    Assert(Section.Routines[0].Parameters[0].TypeText = 'Integer');
-    Assert(Section.Routines[0].Parameters[1].Name = 'B');
-    Assert(Section.Routines[0].Parameters[1].TypeText = '');
+    Assert(Section.Routines[0].ParameterCount = 0);
     Assert(Section.Routines[1].Name = 'P');
 
-    { One left open at the end of the section keeps what is there of the
-      open group's type }
+    { The same at the end of the section }
     Section.Parse(['procedure Typing2(A: Integer']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].ParameterCount = 0);
+
+    { A 'var' block below an open list is shaped like a parameter group, so
+      keeping the parameters found would take its variables for parameters }
+    Section.Parse([
+      'function InitializeSetup(: Boolean;', { 0 }
+      'var',                                 { 1 }
+      '  X: Integer;',                       { 2 }
+      'begin',                               { 3 }
+      'end;']);                              { 4 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'InitializeSetup');
+    Assert(Section.Routines[0].ParameterCount = 0);
+
+    { A closed list does keep its parameters, also when the header itself is
+      left unterminated }
+    Section.Parse([
+      'procedure Closed(A: Integer)', { 0 }
+      'begin',                        { 1 }
+      'end;']);                       { 2 }
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].ParameterCount = 1);
     Assert(Section.Routines[0].Parameters[0].Name = 'A');
