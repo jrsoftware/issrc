@@ -30,16 +30,33 @@ type
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
-    Name: String;            { The parameter or key name }
-    Index: Integer;          { The parameter index, or the line index for a
-                               key, or -1 if known but not present in the
-                               script. Also used in various ways for [Code]. }
+    Name: String;            { irkParameter, irkParameterFlag: the parameter name,
+                               irkKey, irkKeyFlag: key name,
+                               '' otherwise }
+    Index: Integer;          { irkParameter, irkParameterFlag: the parameter index, or -1 if
+                               known but not present in the script, or if multi-entry editing,
+                               irkKey, irkKeyFlag: the line index for a key, or -1 if known
+                               but not present in the script,
+                               irkDebugRoutine and later:
+                                 irkDebugRoutine, irkDebugRoutineResult,
+                                 irkDebugRoutineParameter, irkDebugLocals and
+                                 irkDebugRoutineLocal: the routine index,
+                                 irkDebugParameters: the routine index, or the
+                                 interface method index if the row belongs to a
+                                 method,
+                                 irkDebugType and irkDebugInterface: the type index,
+                                 irkDebugInterfaceMethod, irkDebugInterfaceMethodResult
+                                 and irkDebugInterfaceMethodParameter: the interface
+                                 method index,
+                                 irkDebugConstant: the constant index,
+                                 irkDebugGlobalVariable: the global variable index,
+                               -1 otherwise }
     {$IFDEF DEBUG}
     SubIndex: Integer;       { irkDebugRoutineParameter,
                                irkDebugRoutineLocal and
-                               irkDebugInterfaceMethodParameter: the parameter
-                               or local index, with Index the routine's or
-                               method's }
+                               irkDebugInterfaceMethodParameter: the parameter or local index,
+                               with Index the routine's or method's,
+                               unused otherwise }
     {$ENDIF}
     FlagName: String;        { irkParameterFlag and irkKeyFlag }
     LastValueSignature: String;
@@ -2275,6 +2292,8 @@ begin
   var Row: TInspectorRow;
   if not TryGetRow(Item, Row) then
     Exit;
+  if not (Row.Kind in [irkParameter, irkKey]) then
+    raise Exception.Create('Internal error: ChoiceRowGetValueList: unexpected row kind');
   var Definition: TMemberDefinition;
   if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid then begin
     if not FLiveParameterSectionEntries.PrimaryEntry.TryGetDefinition(Row.Name, Definition) then
