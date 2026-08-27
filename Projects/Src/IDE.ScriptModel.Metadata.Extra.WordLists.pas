@@ -61,8 +61,6 @@ function BuildAutoCompleteWordList(const WordStringList: TStringList;
   const Sort: Boolean = True): AnsiString; overload;
 function BuildAutoCompleteWordList(const Values: array of AnsiString;
   const Typ: Integer; const Sort: Boolean = True): AnsiString; overload;
-function BuildAutoCompleteWordList(const Values: TStrings;
-  const Typ: Integer; const Sort: Boolean = True): AnsiString; overload;
 function MergeAutoCompleteWordLists(const BaseWordList,
   ExtraWordList: AnsiString): AnsiString;
 
@@ -132,19 +130,6 @@ begin
   try
     for var Value in Values do
       AddAutoCompleteWordToList(SL, Value, Typ);
-    Result := BuildAutoCompleteWordList(SL, Sort);
-  finally
-    SL.Free;
-  end;
-end;
-
-function BuildAutoCompleteWordList(const Values: TStrings;
-  const Typ: Integer; const Sort: Boolean = True): AnsiString;
-begin
-  const SL = TStringList.Create;
-  try
-    for var Value in Values do
-      AddAutoCompleteWordToList(SL, AnsiString(Value), Typ);
     Result := BuildAutoCompleteWordList(SL, Sort);
   finally
     SL.Free;

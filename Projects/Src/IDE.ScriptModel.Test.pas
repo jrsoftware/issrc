@@ -2330,6 +2330,7 @@ begin
   const TypeSeparator: AnsiString = AutoCompleteWordListTypeSeparator;
   const ListSeparator: AnsiString = AutoCompleteWordListSeparator;
   const MemberValueType = AnsiString(IntToStr(awtMemberValue));
+  const ScriptFunctionType = AnsiString(IntToStr(awtScriptFunction));
   Assert(BuildAutoCompleteWordList(['abc', '_x', 'ab', 'Def'], awtMemberValue) =
     'ab' + TypeSeparator + MemberValueType + ListSeparator +
     'abc' + TypeSeparator + MemberValueType + ListSeparator +
@@ -2343,14 +2344,18 @@ begin
     'abc' + TypeSeparator + MemberValueType + ListSeparator +
     'ab' + TypeSeparator + MemberValueType);
 
-  { The TStrings overload takes the words from a string list }
+  { AddAutoCompleteWordToList and the string list overload build a list of
+    words which do not all have the same type }
   const WordsList = TStringList.Create;
   try
-    WordsList.Add('abc');
-    WordsList.Add('ab');
-    Assert(BuildAutoCompleteWordList(WordsList, awtMemberValue) =
+    AddAutoCompleteWordToList(WordsList, 'abc', awtScriptFunction);
+    AddAutoCompleteWordToList(WordsList, 'ab', awtMemberValue);
+    Assert(BuildAutoCompleteWordList(WordsList, False) =
+      'abc' + TypeSeparator + ScriptFunctionType + ListSeparator +
+      'ab' + TypeSeparator + MemberValueType);
+    Assert(BuildAutoCompleteWordList(WordsList) =
       'ab' + TypeSeparator + MemberValueType + ListSeparator +
-      'abc' + TypeSeparator + MemberValueType);
+      'abc' + TypeSeparator + ScriptFunctionType);
   finally
     WordsList.Free;
   end;
@@ -2376,7 +2381,6 @@ begin
 
   { The same word under a different type digit is a different entry, and '1'
     sorting before '3' puts the awtScriptFunction entry first }
-  const ScriptFunctionType = AnsiString(IntToStr(awtScriptFunction));
   Assert(MergeAutoCompleteWordLists(BaseList,
     BuildAutoCompleteWordList(['Beta'], awtScriptFunction)) =
     'Beta' + TypeSeparator + ScriptFunctionType + ListSeparator + BaseList);

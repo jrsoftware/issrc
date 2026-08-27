@@ -440,18 +440,35 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     if not _TryAcquireAndHoldCodeSectionAtLine(AMemo, Line) then
       Exit;
 
-    const Names = CreateSortedCaseInsensitiveStringList;
+    const Words = CreateSortedCaseInsensitiveStringList;
     try
       const Section = FAutoCompleteAndCallTipsLiveCodeSection.Section;
       if ClassMember then begin
         for var I := 0 to Section.InterfaceMethodCount-1 do
-          Names.Add(Section.InterfaceMethods[I].Name)
-      end else
+          AddAutoCompleteWordToList(Words,
+            AnsiString(Section.InterfaceMethods[I].Name), awtScriptFunction);
+      end else begin
         for var I := 0 to Section.RoutineCount-1 do
-          Names.Add(Section.Routines[I].Name);
-      Result := BuildAutoCompleteWordList(Names, awtScriptFunction);
+          AddAutoCompleteWordToList(Words,
+            AnsiString(Section.Routines[I].Name), awtScriptFunction);
+        for var I := 0 to Section.TypeCount-1 do begin
+          const Declaration = Section.Types[I];
+          AddAutoCompleteWordToList(Words, AnsiString(Declaration.Name),
+            IfThen(Declaration.TypeText = 'interface', awtScriptInterface, awtScriptType));
+        end;
+        for var I := 0 to Section.EnumerationValueCount-1 do
+          AddAutoCompleteWordToList(Words,
+            AnsiString(Section.EnumerationValues[I].Name), awtScriptEnumValue);
+        for var I := 0 to Section.ConstantCount-1 do
+          AddAutoCompleteWordToList(Words,
+            AnsiString(Section.Constants[I].Name), awtScriptConstant);
+        for var I := 0 to Section.GlobalVariableCount-1 do
+          AddAutoCompleteWordToList(Words,
+            AnsiString(Section.GlobalVariables[I].Name), awtScriptVariable);
+      end;
+      Result := BuildAutoCompleteWordList(Words, False);
     finally
-      Names.Free;
+      Words.Free;
     end;
   end;
 
@@ -498,7 +515,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
 
     { If no event function was found then autocomplete script functions,
       types, etc, or class members if the current word has a dot before it,
-      merging in the current section's own routines or interface methods }
+      merging in the current section's own functions, types, etc. }
     if WordList = '' then begin
       var ClassOrRecordMember := False;
       if (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.') then begin
