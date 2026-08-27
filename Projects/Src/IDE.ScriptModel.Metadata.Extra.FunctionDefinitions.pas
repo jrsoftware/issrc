@@ -19,12 +19,12 @@ type
   TFunctionDefinition = record
     ScriptFuncWithoutHeader: AnsiString;
     HeaderKind: TScriptFuncHeaderKind;
-    HasParams: Boolean;
+    HasParameters: Boolean;
     constructor Create(const ScriptFunc: AnsiString);
     {$WARN DUPLICATE_CTOR_DTOR OFF} { Don't care about C++ }
     constructor CreateISPP(const ISPPScriptFunc: AnsiString);
     constructor CreateUserDefined(const ScriptFunc: String;
-      const AHeaderKind: TScriptFuncHeaderKind);
+      const AHeaderKind: TScriptFuncHeaderKind; const AHasParameters: Boolean);
     {.$WARN DUPLICATE_CTOR_DTOR ON} { Restoring doesn't work }
   end;
   TFunctionDefinitions = array of TFunctionDefinition;
@@ -67,17 +67,17 @@ var
 constructor TFunctionDefinition.Create(const ScriptFunc: AnsiString);
 begin
   ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc, HeaderKind);
-  HasParams := ScriptFuncHasParameters(ScriptFunc);
+  HasParameters := ScriptFuncHasParameters(ScriptFunc);
 end;
 
 constructor TFunctionDefinition.CreateISPP(const ISPPScriptFunc: AnsiString);
 begin
   ScriptFuncWithoutHeader := RemoveISPPScriptFuncHeader(ISPPScriptFunc, HeaderKind);
-  HasParams := ScriptFuncHasParameters(ISPPScriptFunc);
+  HasParameters := ScriptFuncHasParameters(ISPPScriptFunc);
 end;
 
 constructor TFunctionDefinition.CreateUserDefined(const ScriptFunc: String;
-  const AHeaderKind: TScriptFuncHeaderKind);
+  const AHeaderKind: TScriptFuncHeaderKind; const AHasParameters: Boolean);
 begin
   var HeaderLength: Integer;
   case AHeaderKind of
@@ -89,7 +89,7 @@ begin
 
   ScriptFuncWithoutHeader := AnsiString(TrimLeft(Copy(ScriptFunc, HeaderLength+1, MaxInt)));
   HeaderKind := AHeaderKind;
-  HasParams := ScriptFuncHasParameters(ScriptFuncWithoutHeader);
+  HasParameters := AHasParameters;
 end;
 
 { --- }

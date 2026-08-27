@@ -23,15 +23,21 @@ type
     irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugParseTime,
     irkDebugSections, irkDebugEarlyExits,
     irkDebugCaretAt, irkDebugCaretRoutine, irkDebugRoutine, irkDebugRoutineResult,
-    irkDebugType, irkDebugInterface, irkDebugInterfaceMethod,
-    irkDebugInterfaceMethodResult, irkDebugConstant, irkDebugGlobalVariable {$ENDIF});
+    irkDebugRoutineParameter, irkDebugType, irkDebugInterface,
+    irkDebugInterfaceMethod, irkDebugInterfaceMethodResult,
+    irkDebugInterfaceMethodParameter, irkDebugConstant, irkDebugGlobalVariable {$ENDIF});
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
     Name: String;            { The parameter or key name }
     Index: Integer;          { The parameter index, or the line index for a
                                key, or -1 if known but not present in the
-                               script }
+                               script. Also used in various ways for [Code]. }
+    {$IFDEF DEBUG}
+    SubIndex: Integer;       { irkDebugRoutineParameter and
+                               irkDebugInterfaceMethodParameter: the parameter
+                               index, with Index the routine's or method's }
+    {$ENDIF}
     FlagName: String;        { irkParameterFlag and irkKeyFlag }
     LastValueSignature: String;
     CheckBox: Boolean;
@@ -1016,11 +1022,13 @@ procedure TInspector.UpdateFromCaret;
   {$IFDEF DEBUG}
   function AddDebugRow(const AParent: TJvCustomInspectorItem;
     const ADisplayName: String; const AKind: TInspectorRowKind;
-    const AIndex: Integer = -1): TJvCustomInspectorItem;
+    const AIndex: Integer = -1;
+    const ASubIndex: Integer = -1): TJvCustomInspectorItem;
   begin
     var Row := Default(TInspectorRow);
     Row.Kind := AKind;
     Row.Index := AIndex;
+    Row.SubIndex := ASubIndex;
     Result := AddRow(AParent, ADisplayName, False, Row);
     Result.Flags := Result.Flags + [iifReadonly];
   end;
@@ -1316,6 +1324,11 @@ procedure TInspector.UpdateFromCaret;
         const Routine = Section.Routines[I];
         const Item = AddDebugRow(RoutinesCategory,
           CodeSectionRowName(Routine.Name, Routine.FirstLine), irkDebugRoutine, I);
+        for var J := 0 to Routine.ParameterCount-1 do begin
+          const Parameter = Routine.Parameters[J];
+          AddDebugRow(Item, CodeSectionRowName(Parameter.Name, Parameter.Line),
+            irkDebugRoutineParameter, I, J); { Adds a child to Item }
+        end;
         if Routine.Kind = rkFunction then
           AddDebugRow(Item, 'Result', irkDebugRoutineResult, I); { Adds a child to Item }
       end;
@@ -1349,8 +1362,14 @@ procedure TInspector.UpdateFromCaret;
       const MethodItem = AddDebugRow(Item, { Adds a child to Item }
         CodeSectionRowName(Method.Name, Method.Line),
         irkDebugInterfaceMethod, I);
+      for var J := 0 to Method.ParameterCount-1 do begin
+        const Parameter = Method.Parameters[J];
+        AddDebugRow(MethodItem, { Adds a child to MethodItem }
+          CodeSectionRowName(Parameter.Name, Parameter.Line),
+          irkDebugInterfaceMethodParameter, I, J); { Adds a child to MethodItem }
+      end;
       if Method.Kind = rkFunction then
-        AddDebugRow(MethodItem, 'Result', irkDebugInterfaceMethodResult, I);
+        AddDebugRow(MethodItem, 'Result', irkDebugInterfaceMethodResult, I); { Adds a child to MethodItem }
     end;
   end;
 
@@ -1743,6 +1762,11 @@ begin
         const Routine = Model.Routines[I];
         RowSetSignature := RowSetSignature + '|R' + IntToStr(I) + ':' +
           CodeSectionRowName(Routine.Name, Routine.FirstLine);
+        for var J := 0 to Routine.ParameterCount-1 do begin
+          const Parameter = Routine.Parameters[J];
+          RowSetSignature := RowSetSignature + '|R' + IntToStr(I) + 'P' +
+            IntToStr(J) + ':' + CodeSectionRowName(Parameter.Name, Parameter.Line);
+        end;
         { Put AddCodeSectionRoutineRows' Result row decision into the structure }
         if Routine.Kind = rkFunction then
           RowSetSignature := RowSetSignature + '!';
@@ -1761,6 +1785,11 @@ begin
         RowSetSignature := RowSetSignature + '|I' + IntToStr(I) + ':' +
           IntToStr(Method.DeclarationTypeIndex) + '.' +
           CodeSectionRowName(Method.Name, Method.Line);
+        for var J := 0 to Method.ParameterCount-1 do begin
+          const Parameter = Method.Parameters[J];
+          RowSetSignature := RowSetSignature + '|I' + IntToStr(I) + 'P' +
+            IntToStr(J) + ':' + CodeSectionRowName(Parameter.Name, Parameter.Line);
+        end;
         { Put AddCodeSectionInterfaceMethodRows' Result row decision into the
           structure }
         if Method.Kind = rkFunction then
@@ -2025,6 +2054,11 @@ begin
       if (FLiveCodeSection <> nil) and
          (ARow.Index < FLiveCodeSection.Section.RoutineCount) then
         Result := FLiveCodeSection.Section.Routines[ARow.Index].ResultTypeText;
+    irkDebugRoutineParameter:
+      if (FLiveCodeSection <> nil) and
+         (ARow.Index < FLiveCodeSection.Section.RoutineCount) and
+         (ARow.SubIndex < FLiveCodeSection.Section.Routines[ARow.Index].ParameterCount) then
+        Result := FLiveCodeSection.Section.Routines[ARow.Index].Parameters[ARow.SubIndex].TypeText;
     irkDebugType:
       if (FLiveCodeSection <> nil) and
          (ARow.Index < FLiveCodeSection.Section.TypeCount) then begin
@@ -2055,6 +2089,11 @@ begin
       if (FLiveCodeSection <> nil) and
          (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) then
         Result := FLiveCodeSection.Section.InterfaceMethods[ARow.Index].ResultTypeText;
+    irkDebugInterfaceMethodParameter:
+      if (FLiveCodeSection <> nil) and
+         (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) and
+         (ARow.SubIndex < FLiveCodeSection.Section.InterfaceMethods[ARow.Index].ParameterCount) then
+        Result := FLiveCodeSection.Section.InterfaceMethods[ARow.Index].Parameters[ARow.SubIndex].TypeText;
     irkDebugConstant:
       if (FLiveCodeSection <> nil) and
          (ARow.Index < FLiveCodeSection.Section.ConstantCount) then

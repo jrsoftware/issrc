@@ -2179,47 +2179,48 @@ begin
   var Definition := TFunctionDefinition.Create(
     'function MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;');
   Assert(Definition.HeaderKind = hkFunction);
-  Assert(Definition.HasParams);
+  Assert(Definition.HasParameters);
   Assert(Definition.ScriptFuncWithoutHeader =
     'MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;');
   Definition := TFunctionDefinition.Create('procedure InitializeWizard;');
   Assert(Definition.HeaderKind = hkProcedure);
-  Assert(not Definition.HasParams);
+  Assert(not Definition.HasParameters);
   Definition := TFunctionDefinition.Create('constructor Create(AOwner: TComponent);');
   Assert(Definition.HeaderKind = hkConstructor);
-  Assert(Definition.HasParams);
+  Assert(Definition.HasParameters);
   Definition := TFunctionDefinition.CreateISPP('str GetEnv(str Name)');
   Assert(Definition.HeaderKind = hkISPPStr);
-  Assert(Definition.HasParams);
+  Assert(Definition.HasParameters);
   Assert(Definition.ScriptFuncWithoutHeader = 'GetEnv(str Name)');
   Definition := TFunctionDefinition.CreateISPP('int FindCode');
   Assert(Definition.HeaderKind = hkISPPInt);
-  Assert(not Definition.HasParams);
+  Assert(not Definition.HasParameters);
   Definition := TFunctionDefinition.CreateISPP('void EmitLanguagesSection');
   Assert(Definition.HeaderKind = hkISPPVoid);
-  Assert(not Definition.HasParams);
+  Assert(not Definition.HasParameters);
 
-  { HasParams tests ')', so a header cut short inside its parameter list
-    counts as parameterless and the single-definition rule hides its call tip }
-  Definition := TFunctionDefinition.Create('procedure Foo(');
-  Assert(Definition.ScriptFuncWithoutHeader = 'Foo(');
-  Assert(not Definition.HasParams);
-
-  { CreateUserDefined takes the kind from the caller and separates the header
-    on any whitespace, not just the single space a cleaned prototype has }
-  Definition := TFunctionDefinition.CreateUserDefined('procedure'#9'Foo(const A: Integer);', hkProcedure);
+  { CreateUserDefined takes the kind and the parameter presence from the
+    caller, and separates the header on any whitespace, not just the single
+    space a cleaned prototype has }
+  Definition := TFunctionDefinition.CreateUserDefined('procedure'#9'Foo(const A: Integer);', hkProcedure, True);
   Assert(Definition.HeaderKind = hkProcedure);
   Assert(Definition.ScriptFuncWithoutHeader = 'Foo(const A: Integer);');
-  Assert(Definition.HasParams);
-  Definition := TFunctionDefinition.CreateUserDefined('function  Bar: Boolean;', hkFunction);
+  Assert(Definition.HasParameters);
+  Definition := TFunctionDefinition.CreateUserDefined('function  Bar: Boolean;', hkFunction, False);
   Assert(Definition.HeaderKind = hkFunction);
   Assert(Definition.ScriptFuncWithoutHeader = 'Bar: Boolean;');
-  Assert(not Definition.HasParams);
+  Assert(not Definition.HasParameters);
+
+  { The caller's parameter presence wins over the prototype text, so an empty
+    parameter list still counts as parameterless and the single-definition
+    rule hides its call tip }
+  Definition := TFunctionDefinition.CreateUserDefined('procedure Foo();', hkProcedure, False);
+  Assert(not Definition.HasParameters);
 
   { Only a procedure or a function can be user-defined }
   var CaughtInvalidHeaderKind := False;
   try
-    Definition := TFunctionDefinition.CreateUserDefined('constructor Create;', hkConstructor);
+    Definition := TFunctionDefinition.CreateUserDefined('constructor Create;', hkConstructor, False);
   except
     CaughtInvalidHeaderKind := True;
   end;
@@ -4438,6 +4439,152 @@ begin
   end;
 end;
 
+procedure TestCodeSectionParameters;
+begin
+  const Section = TScriptModelCodeSection.Create;
+  try
+    { Parameters of a routine, in source order: modifiers stay out of name
+      and type, a multi-name group splits into one parameter per name, and
+      an untyped 'var' parameter gets an empty type }
+    Section.Parse([
+      'procedure Foo(const A: String; var B, C: Integer; var D; out E: Boolean);', { 0 }
+      'begin',                                                                     { 1 }
+      'end;']);                                                                    { 2 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].ParameterCount = 5);
+    Assert(Section.Routines[0].Parameters[0].Name = 'A');
+    Assert(Section.Routines[0].Parameters[0].TypeText = 'String');
+    Assert(Section.Routines[0].Parameters[0].Line = 0);
+    Assert(Section.Routines[0].Parameters[1].Name = 'B');
+    Assert(Section.Routines[0].Parameters[1].TypeText = 'Integer');
+    Assert(Section.Routines[0].Parameters[2].Name = 'C');
+    Assert(Section.Routines[0].Parameters[2].TypeText = 'Integer');
+    Assert(Section.Routines[0].Parameters[3].Name = 'D');
+    Assert(Section.Routines[0].Parameters[3].TypeText = '');
+    Assert(Section.Routines[0].Parameters[4].Name = 'E');
+    Assert(Section.Routines[0].Parameters[4].TypeText = 'Boolean');
+
+    { A parameterless routine, without and with parentheses }
+    Section.Parse([
+      'procedure NoParams;',              { 0 }
+      'begin',                            { 1 }
+      'end;',                             { 2 }
+      'function EmptyParams(): Boolean;', { 3 }
+      'begin',                            { 4 }
+      'end;']);                           { 5 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].ParameterCount = 0);
+    Assert(Section.Routines[1].ParameterCount = 0);
+    Assert(Section.Routines[1].ResultTypeText = 'Boolean');
+
+    { A header spanning physical lines: each parameter reports the line its
+      name sits on }
+    Section.Parse([
+      'function Bar(const A: String;', { 0 }
+      '  var B: Integer): Boolean;',   { 1 }
+      'begin',                         { 2 }
+      'end;']);                        { 3 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].ParameterCount = 2);
+    Assert(Section.Routines[0].Parameters[0].Name = 'A');
+    Assert(Section.Routines[0].Parameters[0].Line = 0);
+    Assert(Section.Routines[0].Parameters[1].Name = 'B');
+    Assert(Section.Routines[0].Parameters[1].Line = 1);
+
+    { A procedural-type parameter: its own parameters stay inside its type
+      instead of joining the routine's }
+    Section.Parse([
+      'procedure Callback(Handler: procedure(A: Integer); const B: String);', { 0 }
+      'begin',                                                                { 1 }
+      'end;']);                                                               { 2 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].ParameterCount = 2);
+    Assert(Section.Routines[0].Parameters[0].Name = 'Handler');
+    Assert(Section.Routines[0].Parameters[0].TypeText = 'procedure(A: Integer)');
+    Assert(Section.Routines[0].Parameters[1].Name = 'B');
+    Assert(Section.Routines[0].Parameters[1].TypeText = 'String');
+
+    { A procedural result type keeps its own parameters out of the routine's:
+      the header's own list can only come before the result-type colon }
+    Section.Parse([
+      'function GetHandler: function(A, B: Integer): Boolean;', { 0 }
+      'begin',                                                  { 1 }
+      'end;']);                                                 { 2 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].ParameterCount = 0);
+
+    { The same with a parameter list of its own before it }
+    Section.Parse([
+      'function Mixed(N: Integer): function(A, B: Integer): Boolean;', { 0 }
+      'begin',                                                         { 1 }
+      'end;']);                                                        { 2 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].ParameterCount = 1);
+    Assert(Section.Routines[0].Parameters[0].Name = 'N');
+    Assert(Section.Routines[0].Parameters[0].TypeText = 'Integer');
+
+    { A parameter list left open is cut by the next routine's keyword,
+      keeping the parameters found, with an open group untyped }
+    Section.Parse([
+      'procedure Typing(A: Integer; B', { 0 }
+      'procedure P;',                   { 1 }
+      'begin',                          { 2 }
+      'end;']);                         { 3 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].ParameterCount = 2);
+    Assert(Section.Routines[0].Parameters[0].Name = 'A');
+    Assert(Section.Routines[0].Parameters[0].TypeText = 'Integer');
+    Assert(Section.Routines[0].Parameters[1].Name = 'B');
+    Assert(Section.Routines[0].Parameters[1].TypeText = '');
+    Assert(Section.Routines[1].Name = 'P');
+
+    { One left open at the end of the section keeps what is there of the
+      open group's type }
+    Section.Parse(['procedure Typing2(A: Integer']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].ParameterCount = 1);
+    Assert(Section.Routines[0].Parameters[0].Name = 'A');
+    Assert(Section.Routines[0].Parameters[0].TypeText = 'Integer');
+
+    { Parameters of interface methods, following the same rules, with a
+      parameterless method written both without and with parentheses }
+    Section.Parse([
+      'type',                                       { 0 }
+      '  IFoo = interface',                         { 1 }
+      '    procedure M1(const A: String; var B);',  { 2 }
+      '    function M2(X, Y: Integer): Boolean;',   { 3 }
+      '    procedure M3;',                          { 4 }
+      '    procedure M4();',                        { 5 }
+      '  end;']);                                   { 6 }
+    Assert(Section.InterfaceMethodCount = 4);
+    Assert(Section.InterfaceMethods[0].ParameterCount = 2);
+    Assert(Section.InterfaceMethods[0].Parameters[0].Name = 'A');
+    Assert(Section.InterfaceMethods[0].Parameters[0].TypeText = 'String');
+    Assert(Section.InterfaceMethods[0].Parameters[0].Line = 2);
+    Assert(Section.InterfaceMethods[0].Parameters[1].Name = 'B');
+    Assert(Section.InterfaceMethods[0].Parameters[1].TypeText = '');
+    Assert(Section.InterfaceMethods[1].ParameterCount = 2);
+    Assert(Section.InterfaceMethods[1].Parameters[0].Name = 'X');
+    Assert(Section.InterfaceMethods[1].Parameters[0].TypeText = 'Integer');
+    Assert(Section.InterfaceMethods[1].Parameters[1].Name = 'Y');
+    Assert(Section.InterfaceMethods[1].Parameters[1].TypeText = 'Integer');
+    Assert(Section.InterfaceMethods[1].Parameters[1].Line = 3);
+    Assert(Section.InterfaceMethods[2].ParameterCount = 0);
+    Assert(Section.InterfaceMethods[3].ParameterCount = 0);
+
+    { A method's procedural result type keeps its parameters out too }
+    Section.Parse([
+      'type',                                                     { 0 }
+      '  IFoo = interface',                                       { 1 }
+      '    function GetHandler: function(A: Integer): Boolean;',  { 2 }
+      '  end;']);                                                 { 3 }
+    Assert(Section.InterfaceMethodCount = 1);
+    Assert(Section.InterfaceMethods[0].ParameterCount = 0);
+  finally
+    Section.Free;
+  end;
+end;
+
 procedure TestCodeSectionRoutineAtLine;
 begin
   const Section = TScriptModelCodeSection.Create;
@@ -4928,6 +5075,7 @@ begin
   TestCodeSectionConstants;
   TestCodeSectionGlobalVariables;
   TestCodeSectionInterfaceMethods;
+  TestCodeSectionParameters;
   TestCodeSectionRoutineAtLine;
   TestCodeSectionResync;
   {$IFDEF ISTESTTOOLPROJ}

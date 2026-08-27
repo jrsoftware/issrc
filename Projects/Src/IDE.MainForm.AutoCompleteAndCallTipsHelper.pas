@@ -715,7 +715,8 @@ function TMainFormAutoCompleteAndCallTipsHelper.BuildUserDefinedFunctionDefiniti
   end;
 
   procedure AddDefinition(const Prototypes: TStringList; const Name: String;
-    const Kind: TCodeSectionRoutineKind; const Prototype: String);
+    const Kind: TCodeSectionRoutineKind; const Prototype: String;
+    const HasParameters: Boolean);
   begin
     if not IsAsciiString(Prototype) or (Prototypes.IndexOf(Prototype) >= 0) then
       Exit;
@@ -728,7 +729,7 @@ function TMainFormAutoCompleteAndCallTipsHelper.BuildUserDefinedFunctionDefiniti
     var UserDefinedFunctionDefinition: TFunctionDefinitionWithName;
     UserDefinedFunctionDefinition.Name := Name;
     UserDefinedFunctionDefinition.Definition :=
-      TFunctionDefinition.CreateUserDefined(Prototype, HeaderKind);
+      TFunctionDefinition.CreateUserDefined(Prototype, HeaderKind, HasParameters);
     Result := Result + [UserDefinedFunctionDefinition];
   end;
 
@@ -743,12 +744,14 @@ begin
     if AClassMember then begin
       for var I := 0 to Section.InterfaceMethodCount-1 do begin
         const Method = Section.InterfaceMethods[I];
-        AddDefinition(Prototypes, Method.Name, Method.Kind, Method.Prototype);
+        AddDefinition(Prototypes, Method.Name, Method.Kind, Method.Prototype,
+          Method.ParameterCount > 0);
       end;
     end else begin
       for var I := 0 to Section.RoutineCount-1 do begin
         const Routine = Section.Routines[I];
-        AddDefinition(Prototypes, Routine.Name, Routine.Kind, Routine.Prototype);
+        AddDefinition(Prototypes, Routine.Name, Routine.Kind, Routine.Prototype,
+          Routine.ParameterCount > 0);
       end;
     end;
   finally
@@ -775,7 +778,7 @@ begin
       FCallTipState.ClassOrRecordMember);
     FunctionDefinition := GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, CurrentCallTipWord, FCallTipState.CurrentCallTip, UserDefined, FCallTipState.MaxCallTips);
   end;
-  if ((FCallTipState.MaxCallTips = 1) and FunctionDefinition.HasParams) or //if there's a single definition then only show if it has a parameter
+  if ((FCallTipState.MaxCallTips = 1) and FunctionDefinition.HasParameters) or //if there's a single definition then only show if it has a parameter
      (FCallTipState.MaxCallTips > 1) then begin                            //if there's multiple then show always just like MemoHintShow, so even the one without parameters if it exists
     FCallTipState.FunctionDefinition := FunctionDefinition.ScriptFuncWithoutHeader;
     if FCallTipState.MaxCallTips > 1 then

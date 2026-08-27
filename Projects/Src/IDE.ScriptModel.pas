@@ -204,6 +204,19 @@ type
   TCodeSectionRoutineKind = (rkProcedure, rkFunction);
   TCodeSectionRoutineBodilessType = (btNo, btForward, btExternal);
 
+  { A user-defined type, constant or global variable, or a parameter of a
+    user-defined routine or interface method }
+  TCodeSectionDeclaration = class
+  private
+    FName: String;
+    FTypeText: String; { Constants: 'String' even for characters, 'Integer' for any width, '' when not inferable. Parameters: '' when untyped. }
+    FLine: Integer;
+  public
+    property Name: String read FName;
+    property TypeText: String read FTypeText;
+    property Line: Integer read FLine;
+  end;
+
   { A user-defined procedure or function }
   TCodeSectionRoutine = class
   private
@@ -211,14 +224,20 @@ type
     FKind: TCodeSectionRoutineKind;
     FResultTypeText: String;
     FPrototype: String;
+    FParameters: TObjectList<TCodeSectionDeclaration>;
     FFirstLine, FLastLine: Integer;         { Always set }
     FBodyFirstLine, FBodyLastLine: Integer; { -1/-1 for a bodiless routine and while no matching 'end' is found }
     FBodilessType: TCodeSectionRoutineBodilessType;
+    function GetParameter(Index: Integer): TCodeSectionDeclaration;
   public
+    constructor Create;
+    destructor Destroy; override;
+    function ParameterCount: Integer;
     property Name: String read FName;
     property Kind: TCodeSectionRoutineKind read FKind;
     property ResultTypeText: String read FResultTypeText;
     property Prototype: String read FPrototype;
+    property Parameters[Index: Integer]: TCodeSectionDeclaration read GetParameter;
     property FirstLine: Integer read FFirstLine;
     property BodyFirstLine: Integer read FBodyFirstLine;
     property BodyLastLine: Integer read FBodyLastLine;
@@ -234,13 +253,19 @@ type
     FDeclarationTypeIndex: Integer; { For anonymous interfaces this is the type it is nested in, so not an interface }
     FResultTypeText: String;
     FPrototype: String;
+    FParameters: TObjectList<TCodeSectionDeclaration>;
     FLine: Integer;
+    function GetParameter(Index: Integer): TCodeSectionDeclaration;
   public
+    constructor Create;
+    destructor Destroy; override;
+    function ParameterCount: Integer;
     property Name: String read FName;
     property Kind: TCodeSectionRoutineKind read FKind;
     property DeclarationTypeIndex: Integer read FDeclarationTypeIndex;
     property ResultTypeText: String read FResultTypeText;
     property Prototype: String read FPrototype;
+    property Parameters[Index: Integer]: TCodeSectionDeclaration read GetParameter;
     property Line: Integer read FLine;
   end;
 
@@ -253,18 +278,6 @@ type
   public
     property Name: String read FName;
     property DeclarationTypeIndex: Integer read FDeclarationTypeIndex;
-    property Line: Integer read FLine;
-  end;
-
-  { A user-defined type, constant or global variable }
-  TCodeSectionDeclaration = class
-  private
-    FName: String;
-    FTypeText: String; { Constants: 'String' even for characters, 'Integer' for any width, '' when not inferable }
-    FLine: Integer;
-  public
-    property Name: String read FName;
-    property TypeText: String read FTypeText;
     property Line: Integer read FLine;
   end;
 
@@ -1520,6 +1533,56 @@ begin
     Result := Definition.DefaultValue;
 end;
 
+{ TCodeSectionRoutine }
+
+constructor TCodeSectionRoutine.Create;
+begin
+  inherited Create;
+  FParameters := TObjectList<TCodeSectionDeclaration>.Create;
+end;
+
+destructor TCodeSectionRoutine.Destroy;
+begin
+  FParameters.Free;
+  inherited;
+end;
+
+function TCodeSectionRoutine.ParameterCount: Integer;
+begin
+  Result := Integer(FParameters.Count);
+end;
+
+function TCodeSectionRoutine.GetParameter(
+  Index: Integer): TCodeSectionDeclaration;
+begin
+  Result := FParameters[Index];
+end;
+
+{ TCodeSectionInterfaceMethod }
+
+constructor TCodeSectionInterfaceMethod.Create;
+begin
+  inherited Create;
+  FParameters := TObjectList<TCodeSectionDeclaration>.Create;
+end;
+
+destructor TCodeSectionInterfaceMethod.Destroy;
+begin
+  FParameters.Free;
+  inherited;
+end;
+
+function TCodeSectionInterfaceMethod.ParameterCount: Integer;
+begin
+  Result := Integer(FParameters.Count);
+end;
+
+function TCodeSectionInterfaceMethod.GetParameter(
+  Index: Integer): TCodeSectionDeclaration;
+begin
+  Result := FParameters[Index];
+end;
+
 { TScriptModelCodeSection }
 
 function PrepareCodeSectionText(const ALines: array of String): AnsiString;
@@ -1772,14 +1835,38 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
   end;
 
   type
+    TParsedParameter = record
+      Name: String;
+      TypeText: String; { '' when untyped }
+      Line: Integer;
+    end;
+
     TParsedRoutineHeader = record
       Name: String;
       Kind: TCodeSectionRoutineKind;
       ResultTypeText: String;
       Prototype: String;
+      Parameters: TArray<TParsedParameter>;
       FirstLine: Integer;
       Terminated: Boolean;
     end;
+
+  procedure AddParsedParameters(const AText: AnsiString;
+    const ANames: TArray<String>; const ANameLines: TArray<Integer>;
+    const ATypeStartPos, ATypeEndPos: Integer;
+    var AParameters: TArray<TParsedParameter>);
+  begin
+    var TypeText := '';
+    if ATypeStartPos >= 0 then
+      TypeText := SliceCleanText(AText, ATypeStartPos, ATypeEndPos);
+    for var I := 0 to High(ANames) do begin
+      var Parameter: TParsedParameter;
+      Parameter.Name := ANames[I];
+      Parameter.TypeText := TypeText;
+      Parameter.Line := ANameLines[I];
+      AParameters := AParameters + [Parameter];
+    end;
+  end;
 
   function ParseRoutineHeader(const AParser: TPSPascalParser;
     const AText: AnsiString; const ALineOffset: Integer;
@@ -1805,16 +1892,26 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
     ALastTokenID := CSTI_Identifier;
     AParser.Next;
 
-    { Parse the rest of the prototype until the terminating ';',
-      remembering the position of a function's result type }
+    { Parse the rest of the prototype until the terminating ';', remembering
+      the position of a function's result type and collecting the parameter
+      list's name groups on the way }
+    var ParameterListSeen := False;
+    var InParameterList := False;
     var BraceDepth := 0;
     var ResultTypeColonSeen := False;
     var ResultTypeStartPos := -1;
     var EndPos := -1;
+    { Next 4 collect the group of names which share one type, as in 'A, B: Integer', reset each time }
+    var ParameterNames: TArray<String> := [];
+    var ParameterNameLines: TArray<Integer> := [];
+    var ParameterColonSeen := False;
+    var ParameterTypeStartPos := -1;
     while AParser.CurrTokenID <> CSTI_EOF do begin
       const PrototypeTokenID = AParser.CurrTokenID;
       if ResultTypeColonSeen and (ResultTypeStartPos < 0) then
         ResultTypeStartPos := Integer(AParser.CurrTokenPos);
+      if ParameterColonSeen and (ParameterTypeStartPos < 0) then
+        ParameterTypeStartPos := Integer(AParser.CurrTokenPos);
       { Unterminated: cut by a new declaration, its own 'begin', the 'end' of
         the interface it is a method of, or a declaration block. 'const' and
         'var' cut only outside parameter lists because they may be parameter
@@ -1825,12 +1922,49 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
          (IsDeclarationBlockStart(PrototypeTokenID) and
           (not IsParameterModifier(PrototypeTokenID) or (BraceDepth = 0))) then
         Break;
-      if PrototypeTokenID = CSTI_OpenRound then
-        Inc(BraceDepth)
-      else if (PrototypeTokenID = CSTI_CloseRound) and (BraceDepth > 0) then
-        Dec(BraceDepth)
-      else if (PrototypeTokenID = CSTI_Colon) and (BraceDepth = 0) then
-        ResultTypeColonSeen := True;
+      if PrototypeTokenID = CSTI_OpenRound then begin
+        Inc(BraceDepth);
+        { The first '(' before the result-type colon starts the parameter list;
+          one after it belongs to a procedural result type }
+        if (BraceDepth = 1) and not ParameterListSeen and
+           not ResultTypeColonSeen then begin
+          ParameterListSeen := True;
+          InParameterList := True;
+        end;
+      end else if (PrototypeTokenID = CSTI_CloseRound) and (BraceDepth > 0) then begin
+        Dec(BraceDepth);
+        if InParameterList and (BraceDepth = 0) then begin
+          { Parameter list done, add final found parameters }
+          AddParsedParameters(AText, ParameterNames, ParameterNameLines,
+            ParameterTypeStartPos, Integer(AParser.CurrTokenPos),
+            AHeader.Parameters);
+          InParameterList := False;
+        end;
+      end else if (PrototypeTokenID = CSTI_Colon) and (BraceDepth = 0) then
+        ResultTypeColonSeen := True
+      else if InParameterList and (BraceDepth = 1) then begin
+        { Collect the group's names until its ':', after which its type runs
+          to the group's ';' or the list's ')'. The 'const', 'var' and 'out'
+          modifiers fall through, keeping them out of name and type. }
+        if PrototypeTokenID = CSTI_Identifier then begin
+          if not ParameterColonSeen then begin
+            ParameterNames := ParameterNames + [UTF8ToString(AParser.OriginalToken)];
+            ParameterNameLines := ParameterNameLines + [ALineOffset + Integer(AParser.Row)-1];
+          end;
+        end else if PrototypeTokenID = CSTI_Colon then
+          ParameterColonSeen := True
+        else if PrototypeTokenID = CSTI_Semicolon then begin
+          { Parameter group done, add found parameters }
+          AddParsedParameters(AText, ParameterNames, ParameterNameLines,
+            ParameterTypeStartPos, Integer(AParser.CurrTokenPos),
+            AHeader.Parameters);
+          { Reset for next group }
+          ParameterNames := [];
+          ParameterNameLines := [];
+          ParameterColonSeen := False;
+          ParameterTypeStartPos := -1;
+        end;
+      end;
       { Known limitation: for a function using an inline structured result type
         such as 'function F: record A: Integer; end;' it takes the first ';'
         as the end of the type, truncating Prototype and ResultTypeText.
@@ -1842,6 +1976,11 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
       AParser.Next;
       if Terminated then
         Break;
+    end;
+    if InParameterList then begin
+      { Header cut inside parameter list, don't forget to add found parameters }
+      AddParsedParameters(AText, ParameterNames, ParameterNameLines,
+        ParameterTypeStartPos, Integer(AParser.CurrTokenPos), AHeader.Parameters);
     end;
 
     var ResultTypeEndPos: Integer;
@@ -1857,6 +1996,18 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
     if (AHeader.Kind = rkFunction) and (ResultTypeStartPos >= 0) then
       AHeader.ResultTypeText := SliceCleanText(AText, ResultTypeStartPos, ResultTypeEndPos);
     Result := True;
+  end;
+
+  procedure RoutineHeaderParametersToRoutineParameters(const AHeader: TParsedRoutineHeader;
+    const AParameters: TObjectList<TCodeSectionDeclaration>);
+  begin
+    for var HeaderParameter in AHeader.Parameters do begin
+      const Declaration = TCodeSectionDeclaration.Create;
+      AParameters.Add(Declaration);
+      Declaration.FName := HeaderParameter.Name;
+      Declaration.FTypeText := HeaderParameter.TypeText;
+      Declaration.FLine := HeaderParameter.Line;
+    end;
   end;
 
   procedure ParseRoutine(const AParser: TPSPascalParser;
@@ -1885,6 +2036,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
       Routine.FFirstLine := Header.FirstLine;
       Routine.FPrototype := Header.Prototype;
       Routine.FResultTypeText := Header.ResultTypeText;
+      RoutineHeaderParametersToRoutineParameters(Header, Routine.FParameters);
 
       if Header.Terminated or
          (AParser.CurrTokenID = CSTII_begin) or IsDeclarationBlockStart(AParser.CurrTokenID) then begin { A header cut by its own 'begin' or a declaration block still gets its body searched for and parsed }
@@ -2112,6 +2264,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             Method.FResultTypeText := Header.ResultTypeText;
             Method.FPrototype := Header.Prototype;
             Method.FLine := Header.FirstLine;
+            RoutineHeaderParametersToRoutineParameters(Header, Method.FParameters);
           end;
           Continue;
         end else if IsDeclarationBlockStart(DefinitionTokenID) and
