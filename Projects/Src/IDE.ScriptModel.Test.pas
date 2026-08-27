@@ -2548,7 +2548,6 @@ begin
     Assert(Section.Routines[0].Prototype = 'function InitializeSetup: Boolean;');
     Assert(Section.Routines[0].ResultTypeText = 'Boolean');
     Assert(Section.Routines[0].BodyFirstLine = 4);
-    Assert(Section.Routines[0].BodyLastLine = 6);
     Assert(Section.Routines[0].LastLine = 6);
     Assert(Section.Routines[0].BodilessType = btNo);
     Assert(Section.Routines[1].Name = 'DoSomething');
@@ -2557,7 +2556,6 @@ begin
     Assert(Section.Routines[1].Prototype = 'procedure DoSomething(const A: Integer);');
     Assert(Section.Routines[1].ResultTypeText = '');
     Assert(Section.Routines[1].BodyFirstLine = 9);
-    Assert(Section.Routines[1].BodyLastLine = 10);
     Assert(Section.Routines[1].LastLine = 10);
 
     { The next Parse replaces the previous items }
@@ -2621,7 +2619,7 @@ begin
       Assert(Section.Routines[0].Name = 'Existing');
       Assert(Section.Routines[0].FirstLine = 1);
       Assert(Section.Routines[0].BodyFirstLine = 2);
-      Assert(Section.Routines[0].BodyLastLine = 3);
+      Assert(Section.Routines[0].LastLine = 3);
     end;
 
     { Also not after ':' inside a parameter list or as a procedural return
@@ -2757,11 +2755,9 @@ begin
     Assert(Section.Routines[0].Prototype = 'function Foo(A: Integer): Boolean');
     Assert(Section.Routines[0].ResultTypeText = 'Boolean');
     Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
     Assert(Section.Routines[0].LastLine = 0); { Line before the next declaration }
     Assert(Section.Routines[1].Name = 'Bar');
     Assert(Section.Routines[1].BodyFirstLine = 2);
-    Assert(Section.Routines[1].BodyLastLine = 3);
     Assert(Section.Routines[1].LastLine = 3);
     Section.Parse(['function Typing(A: Integer): Str']);
     Assert(Section.RoutineCount = 1);
@@ -2785,7 +2781,6 @@ begin
     Assert(Section.Routines[0].Prototype = 'function NoSemicolon: Boolean');
     Assert(Section.Routines[0].ResultTypeText = 'Boolean');
     Assert(Section.Routines[0].BodyFirstLine = 1);
-    Assert(Section.Routines[0].BodyLastLine = 3);
     Assert(Section.Routines[0].LastLine = 3);
     Assert(Section.Routines[1].Name = 'After');
     Assert(Section.Routines[1].BodyFirstLine = 5);
@@ -2798,7 +2793,6 @@ begin
     Assert(Section.Routines[0].Prototype = 'procedure NoSemicolon');
     Assert(Section.Routines[0].ResultTypeText = '');
     Assert(Section.Routines[0].BodyFirstLine = 1);
-    Assert(Section.Routines[0].BodyLastLine = 2);
     Assert(Section.Routines[0].LastLine = 2);
 
     { A header missing its ';' is also cut by a declaration block start,
@@ -2814,7 +2808,6 @@ begin
     Assert(Section.Routines[0].Prototype = 'function Foo: Boolean');
     Assert(Section.Routines[0].ResultTypeText = 'Boolean');
     Assert(Section.Routines[0].BodyFirstLine = 3);
-    Assert(Section.Routines[0].BodyLastLine = 4);
     Assert(Section.Routines[0].LastLine = 4);
     Assert(Section.Routines[0].LocalCount = 1);
     Assert(Section.Routines[0].Locals[0].Name = 'X');
@@ -2838,7 +2831,6 @@ begin
     Assert(Section.Routines[0].Prototype =
       'procedure P(A: record X: Integer; end);');
     Assert(Section.Routines[0].BodyFirstLine = 1);
-    Assert(Section.Routines[0].BodyLastLine = 2);
     Assert(Section.Routines[0].LastLine = 2);
 
     { A header left unterminated inside its parameter list is cut by the next
@@ -2860,7 +2852,6 @@ begin
     Assert(Section.Routines[1].Prototype = 'function InitializeSetup: Boolean;');
     Assert(Section.Routines[1].FirstLine = 2);
     Assert(Section.Routines[1].BodyFirstLine = 3);
-    Assert(Section.Routines[1].BodyLastLine = 5);
     Assert(Section.Routines[1].LastLine = 5);
     Section.Parse([
       'procedure X(A: Integer;',  { 0 }
@@ -2892,7 +2883,6 @@ begin
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Prototype = 'procedure X(');
     Assert(Section.Routines[0].BodyFirstLine = 1);
-    Assert(Section.Routines[0].BodyLastLine = 2);
     Assert(Section.Routines[0].LastLine = 2);
 
     { An open parameter list does not swallow the type block below it:
@@ -2948,7 +2938,7 @@ begin
     Assert(Section.Routines[0].LocalCount = 1);
     Assert(Section.Routines[0].Locals[0].Name = 'A');
     Assert(Section.GlobalVariableCount = 0);
-    Assert(Section.Routines[0].BodyLastLine = 4);
+    Assert(Section.Routines[0].LastLine = 4);
     Assert(Section.TypeCount = 0);
 
     { A routine whose body is still missing does not swallow the type block
@@ -3061,9 +3051,9 @@ begin
     Assert(Section.Routines[0].Name = 'Current');
     Assert(Section.Routines[0].FirstLine = 2);
 
-    { Body ranges: BodyFirstLine is the 'begin' line, BodyLastLine its
+    { Body ranges: BodyFirstLine is the 'begin' line, and LastLine the
       matching 'end' line found by depth counting: 'begin', 'case' and 'try'
-      nest. LastLine is then BodyLastLine. }
+      nest }
     Section.Parse([
       'procedure Nested(A: Integer);',
       'begin',
@@ -3082,11 +3072,9 @@ begin
       'end;']);
     Assert(Section.RoutineCount = 2);
     Assert(Section.Routines[0].BodyFirstLine = 1);
-    Assert(Section.Routines[0].BodyLastLine = 10);
     Assert(Section.Routines[0].LastLine = 10);
     Assert(Section.Routines[0].BodilessType = btNo);
     Assert(Section.Routines[1].BodyFirstLine = 13);
-    Assert(Section.Routines[1].BodyLastLine = 14);
     Assert(Section.Routines[1].LastLine = 14);
 
     { Bodiless routines: 'forward' and 'external' mean no body. LastLine is
@@ -3105,7 +3093,6 @@ begin
     Assert(Section.Routines[0].Name = 'Later');
     Assert(Section.Routines[0].BodilessType = btForward);
     Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
     Assert(Section.Routines[0].LastLine = 0);
     Assert(Section.Routines[0].Prototype = 'procedure Later(A: Integer);');
     Assert(Section.Routines[1].Name = 'GetSysDir');
@@ -3117,7 +3104,6 @@ begin
     Assert(Section.Routines[2].Name = 'Later');
     Assert(Section.Routines[2].BodilessType = btNo);
     Assert(Section.Routines[2].BodyFirstLine = 6);
-    Assert(Section.Routines[2].BodyLastLine = 7);
     Assert(Section.Routines[2].LastLine = 7);
 
     { 'export' says nothing about the body }
@@ -3128,7 +3114,6 @@ begin
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].BodilessType = btNo);
     Assert(Section.Routines[0].BodyFirstLine = 1);
-    Assert(Section.Routines[0].BodyLastLine = 2);
     Assert(Section.Routines[0].LastLine = 2);
 
     { 'label' and 'var' blocks before the body do not hide it: the 'label'
@@ -3145,7 +3130,6 @@ begin
       'end;']);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].BodyFirstLine = 5);
-    Assert(Section.Routines[0].BodyLastLine = 8);
     Assert(Section.Routines[0].LastLine = 8);
     Assert(Section.Routines[0].LocalCount = 1);
     Assert(Section.Routines[0].Locals[0].Name = 'A');
@@ -3161,14 +3145,12 @@ begin
     Assert(Section.RoutineCount = 2);
     Assert(Section.Routines[0].Name = 'NewProc');
     Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
     Assert(Section.Routines[0].LastLine = 1);
     Assert(Section.Routines[0].BodilessType = btNo);
     Assert(Section.Routines[1].Name = 'Existing');
     Section.Parse(['procedure NewProc;', '']);
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
     Assert(Section.Routines[0].LastLine = 1);
     Assert(Section.Routines[0].BodilessType = btNo);
     Section.Parse(['procedure A; procedure B; begin end;']);
@@ -3177,11 +3159,12 @@ begin
     Assert(Section.Routines[0].LastLine = 0); { Clamped to FirstLine }
     Assert(Section.Routines[1].Name = 'B');
     Assert(Section.Routines[1].BodyFirstLine = 0);
-    Assert(Section.Routines[1].BodyLastLine = 0);
+    Assert(Section.Routines[1].LastLine = 0);
 
-    { An unterminated body gives -1/-1 and a span running to the line before
-      the next declaration, or to the section's last line, so a caret query
-      inside a body still being typed reports the routine }
+    { An unterminated body keeps its 'begin' line and gives a span running
+      to the line before the next declaration, or to the section's last
+      line, so a caret query inside a body still being typed reports the
+      routine }
     Section.Parse([
       'procedure Typing;',
       'begin',
@@ -3192,13 +3175,11 @@ begin
       'end;']);
     Assert(Section.RoutineCount = 2);
     Assert(Section.Routines[0].Name = 'Typing');
-    Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].BodyFirstLine = 1);
     Assert(Section.Routines[0].LastLine = 3);
     Assert(Section.Routines[0].BodilessType = btNo);
     Assert(Section.Routines[1].Name = 'Next');
     Assert(Section.Routines[1].BodyFirstLine = 5);
-    Assert(Section.Routines[1].BodyLastLine = 6);
     Assert(Section.Routines[1].LastLine = 6);
     Section.Parse([
       'procedure Typing;',
@@ -3207,13 +3188,12 @@ begin
       '  end;',
       '']);
     Assert(Section.RoutineCount = 1);
-    Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].BodyFirstLine = 1);
     Assert(Section.Routines[0].LastLine = 4);
 
-    { A declaration block also ends an unterminated body, so the block is not
-      swallowed as body text: a type block still gets its types, and a
-      record's 'end' inside it does not pose as the body's 'end' }
+    { A declaration block also ends an unterminated body's span, so the
+      block is not swallowed as body text: a type block still gets its types,
+      and a record's 'end' inside it does not pose as the body's 'end' }
     Section.Parse([
       'procedure Typing;',  { 0 }
       'begin',              { 1 }
@@ -3227,8 +3207,7 @@ begin
       '  V: Integer;']);    { 9 }
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'Typing');
-    Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].BodyFirstLine = 1);
     Assert(Section.Routines[0].LastLine = 3);
     Assert(Section.TypeCount = 1);
     Assert(Section.Types[0].Name = 'TFoo');
@@ -3240,9 +3219,14 @@ begin
       'var',                { 2 }
       '  V: Integer;']);    { 3 }
     Assert(Section.RoutineCount = 1);
-    Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].BodyFirstLine = 1);
     Assert(Section.Routines[0].LastLine = 1);
+    Section.Parse([
+      'procedure Typing;',        { 0 }
+      'begin var A: Integer;']);  { 1 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].BodyFirstLine = 1);
+    Assert(Section.Routines[0].LastLine = 1); { Clamped to BodyFirstLine }
 
     { Malformed input never raises: declarations before a tokenize error are
       kept, and the scan resyncs past the error (see TestCodeSectionResync) }
@@ -3346,7 +3330,7 @@ begin
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'UseState');
     Assert(Section.Routines[0].FirstLine = 2);
-    Assert(Section.Routines[0].BodyLastLine = 4);
+    Assert(Section.Routines[0].LastLine = 4);
 
     { A routine header also ends an unterminated definition, keeping the type }
     Section.Parse([
@@ -4825,6 +4809,51 @@ begin
     Assert(Section.RoutineCount = 2);
     Assert(Section.TryGetRoutine(0, Routine));
     Assert(Routine = Section.Routines[0]);
+    Assert(Section.TryGetRoutine(0, Routine, True)); { A has no 'begin' }
+    Assert(Routine = Section.Routines[1]);
+
+    { TryGetRoutine with AFromBodyOnly matches from the body's 'begin'
+      onwards: not the header, not the local declarations, not a bodiless
+      routine, and not the lines between routines. A body missing its 'end'
+      matches to the end of the routine's span. }
+    Section.Parse([
+      'procedure Bodiless(A: Integer); forward;',   { 0 }
+      '',                                           { 1 }
+      'function Closed(const A: String): Boolean;', { 2 }
+      'var',                                        { 3 }
+      '  L: Integer;',                              { 4 }
+      'begin',                                      { 5 }
+      '  Result := True;',                          { 6 }
+      'end;',                                       { 7 }
+      '',                                           { 8 }
+      'procedure Typing;',                          { 9 }
+      'begin',                                      { 10 }
+      '  X := 1;',                                  { 11 }
+      '']);                                         { 12 }
+    Assert(Section.RoutineCount = 3);
+    Assert(not Section.TryGetRoutine(0, Routine, True)); { Bodiless }
+    Assert(Routine = nil);
+    Assert(not Section.TryGetRoutine(1, Routine, True)); { Between routines }
+    Assert(not Section.TryGetRoutine(2, Routine, True)); { Header }
+    Assert(not Section.TryGetRoutine(3, Routine, True)); { Local 'var' block }
+    Assert(not Section.TryGetRoutine(4, Routine, True));
+    Assert(Section.TryGetRoutine(5, Routine, True)); { The 'begin' line }
+    Assert(Routine = Section.Routines[1]);
+    Assert(Section.TryGetRoutine(6, Routine, True));
+    Assert(Routine = Section.Routines[1]);
+    Assert(Section.TryGetRoutine(7, Routine, True)); { The 'end;' line }
+    Assert(Routine = Section.Routines[1]);
+    Assert(not Section.TryGetRoutine(8, Routine, True)); { Between routines }
+    Assert(not Section.TryGetRoutine(9, Routine, True)); { Header of an open body }
+    Assert(Section.TryGetRoutine(10, Routine, True)); { The open body's 'begin' }
+    Assert(Routine = Section.Routines[2]);
+    Assert(Section.TryGetRoutine(11, Routine, True));
+    Assert(Routine = Section.Routines[2]);
+    Assert(Section.TryGetRoutine(12, Routine, True)); { To the span's end }
+    Assert(Routine = Section.Routines[2]);
+    Section.Parse(['procedure Foo;', 'begin var A: Integer;']);
+    Assert(Section.TryGetRoutine(1, Routine, True)); { A cut on the 'begin' line itself still matches it }
+    Assert(Routine = Section.Routines[0]);
   finally
     Section.Free;
   end;
@@ -4852,11 +4881,11 @@ begin
     Assert(Section.Routines[1].FirstLine = 4);
     Assert(Section.Routines[1].Prototype = 'procedure After;');
     Assert(Section.Routines[1].BodyFirstLine = 5);
-    Assert(Section.Routines[1].BodyLastLine = 6);
     Assert(Section.Routines[1].LastLine = 6);
 
-    { An error inside a body: the routine keeps -1/-1 and its span ends on
-      the line before the next declaration found after the resync }
+    { An error inside a body: the routine keeps its 'begin' line and its
+      span ends on the line before the next declaration found after the
+      resync }
     Section.Parse([
       'procedure Typing;',      { 0 }
       'begin',                  { 1 }
@@ -4868,8 +4897,7 @@ begin
       'end;']);                 { 7 }
     Assert(Section.RoutineCount = 2);
     Assert(Section.Routines[0].Name = 'Typing');
-    Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].BodyFirstLine = 1);
     Assert(Section.Routines[0].LastLine = 4);
     Assert(Section.Routines[1].Name = 'After');
     Assert(Section.Routines[1].FirstLine = 5);
@@ -4889,8 +4917,7 @@ begin
       '  TAfter = Integer;']);  { 4 }
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'Typing');
-    Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].BodyFirstLine = 1);
     Assert(Section.Routines[0].LastLine = 2);
     Assert(Section.TypeCount = 1);
     Assert(Section.Types[0].Name = 'TAfter');
@@ -5029,8 +5056,7 @@ begin
       '  X := 1;',              { 3 }
       '']);                     { 4 }
     Assert(Section.RoutineCount = 1);
-    Assert(Section.Routines[0].BodyFirstLine = -1);
-    Assert(Section.Routines[0].BodyLastLine = -1);
+    Assert(Section.Routines[0].BodyFirstLine = 1);
     Assert(Section.Routines[0].LastLine = 4);
 
     { An unterminated header cut by an error keeps the text up to the cut }

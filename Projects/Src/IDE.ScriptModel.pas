@@ -227,8 +227,8 @@ type
     FPrototype: String;
     FParameters: TObjectList<TCodeSectionDeclaration>;
     FLocals: TObjectList<TCodeSectionDeclaration>;
-    FFirstLine, FLastLine: Integer;         { Always set }
-    FBodyFirstLine, FBodyLastLine: Integer; { -1/-1 for a bodiless routine and while no matching 'end' is found }
+    FFirstLine, FLastLine: Integer; { Always set }
+    FBodyFirstLine: Integer;        { -1 for a bodiless routine and until its 'begin' is seen }
     FBodilessType: TCodeSectionRoutineBodilessType;
     function GetParameter(Index: Integer): TCodeSectionDeclaration;
     function GetLocal(Index: Integer): TCodeSectionDeclaration;
@@ -245,7 +245,6 @@ type
     property Locals[Index: Integer]: TCodeSectionDeclaration read GetLocal;
     property FirstLine: Integer read FFirstLine;
     property BodyFirstLine: Integer read FBodyFirstLine;
-    property BodyLastLine: Integer read FBodyLastLine;
     property LastLine: Integer read FLastLine;
     property BodilessType: TCodeSectionRoutineBodilessType read FBodilessType;
   end;
@@ -316,7 +315,8 @@ type
     function ConstantCount: Integer;
     function GlobalVariableCount: Integer;
     function TryGetRoutine(const ALine: Integer;
-      out ARoutine: TCodeSectionRoutine): Boolean;
+      out ARoutine: TCodeSectionRoutine;
+      const AFromBodyOnly: Boolean = False): Boolean;
     property Routines[Index: Integer]: TCodeSectionRoutine read GetRoutine;
     property Types[Index: Integer]: TCodeSectionDeclaration read GetType;
     property EnumerationValues[Index: Integer]: TCodeSectionEnumerationValue read GetEnumerationValue;
@@ -2047,7 +2047,6 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
       const Routine = TCodeSectionRoutine.Create;
       FRoutines.Add(Routine);
       Routine.FBodyFirstLine := -1;
-      Routine.FBodyLastLine := -1;
       Routine.FLastLine := -1;
       Routine.FName := Header.Name;
       Routine.FKind := Header.Kind;
@@ -2116,18 +2115,14 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
                 Inc(BlockDepth)
               else if BodyTokenID = CSTII_end then begin
                 Dec(BlockDepth);
-                if BlockDepth = 0 then begin
-                  Routine.FBodyLastLine := ALineOffset + Integer(AParser.Row)-1;
-                  Routine.FLastLine := Routine.FBodyLastLine;
-                end;
+                if BlockDepth = 0 then
+                  Routine.FLastLine := ALineOffset + Integer(AParser.Row)-1;
               end;
               ALastTokenID := BodyTokenID;
               AParser.Next;
               if BlockDepth = 0 then
                 Break;
             end;
-            if Routine.FBodyLastLine < 0 then
-              Routine.FBodyFirstLine := -1; { No matching 'end' found }
           end;
         end;
       end;
@@ -2142,6 +2137,8 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
           Routine.FLastLine := ALineOffset + Integer(AParser.Row)-2;
           if Routine.FLastLine < Routine.FFirstLine then
             Routine.FLastLine := Routine.FFirstLine;
+          if Routine.FLastLine < Routine.FBodyFirstLine then
+            Routine.FLastLine := Routine.FBodyFirstLine; { A cut on the 'begin' line itself }
         end;
       end;
     end;
@@ -2665,8 +2662,8 @@ begin
 
         Known limitation: when a tokenizer error cut a routine before its
         'begin', that 'begin' and its 'end' are never taken as the routine's
-        body, so BodyFirstLine and BodyLastLine stay -1. Fixing that would
-        add too much complexity for little gain. }
+        body, so BodyFirstLine stays -1. Fixing that would add too much
+        complexity for little gain. }
 
       { Some other error: keep what was found so far, and search for
         start of the next line }
@@ -2769,11 +2766,17 @@ begin
 end;
 
 function TScriptModelCodeSection.TryGetRoutine(const ALine: Integer;
-  out ARoutine: TCodeSectionRoutine): Boolean;
+  out ARoutine: TCodeSectionRoutine; const AFromBodyOnly: Boolean): Boolean;
 begin
-  { Multiple routines on one physical line: the first one wins }
+  { Multiple routines on one physical line: the first one wins. AFromBodyOnly
+    matches from the body's 'begin' onwards but still ends at LastLine, so a
+    body missing its 'end' matches to the end of the routine's span }
   for var Routine in FRoutines do begin
-    if (ALine >= Routine.FirstLine) and (ALine <= Routine.LastLine) then begin
+    var MatchFirstLine := Routine.FirstLine;
+    if AFromBodyOnly then
+      MatchFirstLine := Routine.BodyFirstLine;
+    if (MatchFirstLine >= 0) and (ALine >= MatchFirstLine) and
+       (ALine <= Routine.LastLine) then begin
       ARoutine := Routine;
       Exit(True);
     end;
