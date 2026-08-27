@@ -2798,7 +2798,8 @@ begin
     Assert(Section.Routines[0].LastLine = 2);
 
     { A header missing its ';' is also cut by a declaration block start,
-      possibly its own local blocks, which the 'begin' search then skips }
+      possibly its own local blocks, which the 'begin' search then parses
+      into its locals }
     Section.Parse([
       'function Foo: Boolean',  { 0 }
       'var',                    { 1 }
@@ -2811,6 +2812,8 @@ begin
     Assert(Section.Routines[0].BodyFirstLine = 3);
     Assert(Section.Routines[0].BodyLastLine = 4);
     Assert(Section.Routines[0].LastLine = 4);
+    Assert(Section.Routines[0].LocalCount = 1);
+    Assert(Section.Routines[0].Locals[0].Name = 'X');
 
     { 'var' and 'const' in a parameter list do not cut the header }
     Section.Parse([
@@ -2928,7 +2931,8 @@ begin
     Assert(Section.Routines[1].Name = 'Baz');
     Assert(Section.Routines[1].BodyFirstLine = 4);
 
-    { A 'var' block is a local one, so it is still searched through }
+    { A 'var' block is the routine's own, parsed into its locals, and the
+      search for 'begin' goes on past it }
     Section.Parse([
       'procedure Foo;',   { 0 }
       'var',              { 1 }
@@ -2937,6 +2941,9 @@ begin
       'end;']);           { 4 }
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].BodyFirstLine = 3);
+    Assert(Section.Routines[0].LocalCount = 1);
+    Assert(Section.Routines[0].Locals[0].Name = 'A');
+    Assert(Section.GlobalVariableCount = 0);
     Assert(Section.Routines[0].BodyLastLine = 4);
     Assert(Section.TypeCount = 0);
 
@@ -3120,7 +3127,8 @@ begin
     Assert(Section.Routines[0].BodyLastLine = 2);
     Assert(Section.Routines[0].LastLine = 2);
 
-    { 'label' and 'var' blocks before the body are skipped }
+    { 'label' and 'var' blocks before the body do not hide it: the 'label'
+      block is skipped and the 'var' block parses into the locals }
     Section.Parse([
       'procedure WithLabel;',
       'label',
@@ -3135,6 +3143,8 @@ begin
     Assert(Section.Routines[0].BodyFirstLine = 5);
     Assert(Section.Routines[0].BodyLastLine = 8);
     Assert(Section.Routines[0].LastLine = 8);
+    Assert(Section.Routines[0].LocalCount = 1);
+    Assert(Section.Routines[0].Locals[0].Name = 'A');
 
     { A terminated header with no body yet: the begin search stops at the
       next declaration, or at the section's end }
@@ -4039,6 +4049,8 @@ begin
     Assert(Section.GlobalVariables[1].Name = 'B');
     Assert(Section.GlobalVariables[1].TypeText = 'Boolean');
     Assert(Section.GlobalVariables[1].Line = 8);
+    Assert(Section.Routines[0].LocalCount = 1);
+    Assert(Section.Routines[0].Locals[0].Name = 'Local');
 
     { A type still being typed is ended by the next group: a name followed
       by ':' or ',' in it is that group's first name }
@@ -4585,6 +4597,147 @@ begin
   end;
 end;
 
+procedure TestCodeSectionLocals;
+begin
+  const Section = TScriptModelCodeSection.Create;
+  try
+    { 'var' blocks between a routine's header and its 'begin' are the
+      routine's locals, following the global variable rules: one item per
+      name with the type as written, multi-name groups split }
+    Section.Parse([
+      'procedure Foo;',    { 0 }
+      'var',               { 1 }
+      '  A: Integer;',     { 2 }
+      '  B, C: String;',   { 3 }
+      'begin',             { 4 }
+      'end;']);            { 5 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.GlobalVariableCount = 0);
+    Assert(Section.Routines[0].LocalCount = 3);
+    Assert(Section.Routines[0].Locals[0].Name = 'A');
+    Assert(Section.Routines[0].Locals[0].TypeText = 'Integer');
+    Assert(Section.Routines[0].Locals[0].Line = 2);
+    Assert(Section.Routines[0].Locals[1].Name = 'B');
+    Assert(Section.Routines[0].Locals[1].TypeText = 'String');
+    Assert(Section.Routines[0].Locals[1].Line = 3);
+    Assert(Section.Routines[0].Locals[2].Name = 'C');
+    Assert(Section.Routines[0].Locals[2].TypeText = 'String');
+    Assert(Section.Routines[0].Locals[2].Line = 3);
+    Assert(Section.Routines[0].BodyFirstLine = 4);
+
+    { The next Parse replaces the previous items }
+    Section.Parse(['procedure Foo;', 'var', '  X: Integer;', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].LocalCount = 1);
+    Section.Parse([]);
+    Assert(Section.RoutineCount = 0);
+
+    { Several blocks all fill the same routine's list, and a 'label' block
+      between them is skipped }
+    Section.Parse([
+      'function Bar: Boolean;', { 0 }
+      'var',                    { 1 }
+      '  A: Integer;',          { 2 }
+      'label',                  { 3 }
+      '  Skip;',                { 4 }
+      'var',                    { 5 }
+      '  B: String;',           { 6 }
+      'begin',                  { 7 }
+      'end;']);                 { 8 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.GlobalVariableCount = 0);
+    Assert(Section.Routines[0].LocalCount = 2);
+    Assert(Section.Routines[0].Locals[0].Name = 'A');
+    Assert(Section.Routines[0].Locals[0].TypeText = 'Integer');
+    Assert(Section.Routines[0].Locals[0].Line = 2);
+    Assert(Section.Routines[0].Locals[1].Name = 'B');
+    Assert(Section.Routines[0].Locals[1].TypeText = 'String');
+    Assert(Section.Routines[0].Locals[1].Line = 6);
+    Assert(Section.Routines[0].BodyFirstLine = 7);
+
+    { Locals leak neither into the global list nor across routines }
+    Section.Parse([
+      'var',               { 0 }
+      '  G1: Integer;',    { 1 }
+      'procedure P1;',     { 2 }
+      'var',               { 3 }
+      '  L1: String;',     { 4 }
+      'begin',             { 5 }
+      'end;',              { 6 }
+      'procedure P2;',     { 7 }
+      'var',               { 8 }
+      '  L2: Boolean;',    { 9 }
+      'begin',             { 10 }
+      'end;',              { 11 }
+      'var',               { 12 }
+      '  G2: Integer;']);  { 13 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.GlobalVariableCount = 2);
+    Assert(Section.GlobalVariables[0].Name = 'G1');
+    Assert(Section.GlobalVariables[1].Name = 'G2');
+    Assert(Section.Routines[0].LocalCount = 1);
+    Assert(Section.Routines[0].Locals[0].Name = 'L1');
+    Assert(Section.Routines[0].Locals[0].TypeText = 'String');
+    Assert(Section.Routines[0].Locals[0].Line = 4);
+    Assert(Section.Routines[1].LocalCount = 1);
+    Assert(Section.Routines[1].Locals[0].Name = 'L2');
+    Assert(Section.Routines[1].Locals[0].TypeText = 'Boolean');
+    Assert(Section.Routines[1].Locals[0].Line = 9);
+
+    { A block of a routine whose 'begin' is still missing keeps its locals }
+    Section.Parse([
+      'procedure Typing;',  { 0 }
+      'var',                { 1 }
+      '  A: Integer;']);    { 2 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].BodyFirstLine = -1);
+    Assert(Section.Routines[0].LocalCount = 1);
+    Assert(Section.Routines[0].Locals[0].Name = 'A');
+    Assert(Section.GlobalVariableCount = 0);
+
+    { A group still being typed does not swallow the routine below, which
+      keeps its own empty list }
+    Section.Parse([
+      'procedure P;',   { 0 }
+      'var',            { 1 }
+      '  X: Intege',    { 2 }
+      'procedure Q;',   { 3 }
+      'begin',          { 4 }
+      'end;']);         { 5 }
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].LocalCount = 1);
+    Assert(Section.Routines[0].Locals[0].Name = 'X');
+    Assert(Section.Routines[0].Locals[0].TypeText = 'Intege');
+    Assert(Section.Routines[1].Name = 'Q');
+    Assert(Section.Routines[1].BodyFirstLine = 4);
+    Assert(Section.Routines[1].LocalCount = 0);
+    Assert(Section.GlobalVariableCount = 0);
+
+    { A tokenizer error inside a local block resumes it after the resync,
+      still into the same routine's locals (also see TestCodeSectionResync) }
+    Section.Parse([
+      'procedure P;',           { 0 }
+      'var',                    { 1 }
+      '  Bad: ''unterminated',  { 2 }
+      '  Kept: Integer;',       { 3 }
+      'begin',                  { 4 }
+      'end;']);                 { 5 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.GlobalVariableCount = 0);
+    Assert(Section.Routines[0].LocalCount = 2);
+    Assert(Section.Routines[0].Locals[0].Name = 'Bad');
+    Assert(Section.Routines[0].Locals[0].TypeText = '');
+    Assert(Section.Routines[0].Locals[0].Line = 2);
+    Assert(Section.Routines[0].Locals[1].Name = 'Kept');
+    Assert(Section.Routines[0].Locals[1].TypeText = 'Integer');
+    Assert(Section.Routines[0].Locals[1].Line = 3);
+    Assert(Section.Routines[0].BodyFirstLine = -1);
+    Assert(Section.Routines[0].LastLine = 5);
+  finally
+    Section.Free;
+  end;
+end;
+
 procedure TestCodeSectionRoutineAtLine;
 begin
   const Section = TScriptModelCodeSection.Create;
@@ -4767,8 +4920,8 @@ begin
 
     { But when the error hit before the routine's 'begin', the span stays
       open whatever block follows: the 'begin' may still follow it. A 'var'
-      block can be the routine's own local block, so it is not parsed as a
-      top-level one, while a 'const' or 'type' block always is. }
+      block can be the routine's own local block, so it is parsed into its
+      locals, while a 'const' or 'type' block is always a top-level one. }
     Section.Parse([
       'procedure Typing;',     { 0 }
       'const',                 { 1 }
@@ -4783,6 +4936,10 @@ begin
     Assert(Section.Constants[0].Name = 'C');
     Assert(Section.Constants[0].TypeText = '');
     Assert(Section.GlobalVariableCount = 0);
+    Assert(Section.Routines[0].LocalCount = 1);
+    Assert(Section.Routines[0].Locals[0].Name = 'X');
+    Assert(Section.Routines[0].Locals[0].TypeText = 'Integer');
+    Assert(Section.Routines[0].Locals[0].Line = 4);
     Assert(Section.TryGetRoutine(5, Routine));
     Assert(Routine = Section.Routines[0]);
     Section.Parse([
@@ -5076,6 +5233,7 @@ begin
   TestCodeSectionGlobalVariables;
   TestCodeSectionInterfaceMethods;
   TestCodeSectionParameters;
+  TestCodeSectionLocals;
   TestCodeSectionRoutineAtLine;
   TestCodeSectionResync;
   {$IFDEF ISTESTTOOLPROJ}

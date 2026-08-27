@@ -243,6 +243,11 @@ const
   SInspectorMixedSelectionNote = 'Select entries of one section type, and no other content';
   SInspectorSiblingOccurrencesNote = 'Unspecified directives are hidden because this section occurs more than once';
   SInspectorShowAllKnownDirectivesSuppressedNote = 'Unspecified directives are hidden because this is not the main script file';
+  SInspectorCategoryRoutines = 'Routines';
+  SInspectorCategoryTypes = 'Types';
+  SInspectorCategorySymbols = 'Symbols';
+  SInspectorParametersRow = 'Parameters';
+  SInspectorLocalsRow = 'Locals';
 
   { Tools }
   SToolsInsertGuidConfirm = 'The generated GUID will be inserted into the editor at the cursor position. Continue?';

@@ -204,8 +204,9 @@ type
   TCodeSectionRoutineKind = (rkProcedure, rkFunction);
   TCodeSectionRoutineBodilessType = (btNo, btForward, btExternal);
 
-  { A user-defined type, constant or global variable, or a parameter of a
-    user-defined routine or interface method }
+  { A user-defined type, constant or global variable, a parameter of a
+    user-defined routine or interface method, or a local variable of a
+    user-defined routine }
   TCodeSectionDeclaration = class
   private
     FName: String;
@@ -225,19 +226,23 @@ type
     FResultTypeText: String;
     FPrototype: String;
     FParameters: TObjectList<TCodeSectionDeclaration>;
+    FLocals: TObjectList<TCodeSectionDeclaration>;
     FFirstLine, FLastLine: Integer;         { Always set }
     FBodyFirstLine, FBodyLastLine: Integer; { -1/-1 for a bodiless routine and while no matching 'end' is found }
     FBodilessType: TCodeSectionRoutineBodilessType;
     function GetParameter(Index: Integer): TCodeSectionDeclaration;
+    function GetLocal(Index: Integer): TCodeSectionDeclaration;
   public
     constructor Create;
     destructor Destroy; override;
     function ParameterCount: Integer;
+    function LocalCount: Integer;
     property Name: String read FName;
     property Kind: TCodeSectionRoutineKind read FKind;
     property ResultTypeText: String read FResultTypeText;
     property Prototype: String read FPrototype;
     property Parameters[Index: Integer]: TCodeSectionDeclaration read GetParameter;
+    property Locals[Index: Integer]: TCodeSectionDeclaration read GetLocal;
     property FirstLine: Integer read FFirstLine;
     property BodyFirstLine: Integer read FBodyFirstLine;
     property BodyLastLine: Integer read FBodyLastLine;
@@ -1539,10 +1544,12 @@ constructor TCodeSectionRoutine.Create;
 begin
   inherited Create;
   FParameters := TObjectList<TCodeSectionDeclaration>.Create;
+  FLocals := TObjectList<TCodeSectionDeclaration>.Create;
 end;
 
 destructor TCodeSectionRoutine.Destroy;
 begin
+  FLocals.Free;
   FParameters.Free;
   inherited;
 end;
@@ -1556,6 +1563,17 @@ function TCodeSectionRoutine.GetParameter(
   Index: Integer): TCodeSectionDeclaration;
 begin
   Result := FParameters[Index];
+end;
+
+function TCodeSectionRoutine.LocalCount: Integer;
+begin
+  Result := Integer(FLocals.Count);
+end;
+
+function TCodeSectionRoutine.GetLocal(
+  Index: Integer): TCodeSectionDeclaration;
+begin
+  Result := FLocals[Index];
 end;
 
 { TCodeSectionInterfaceMethod }
@@ -1801,18 +1819,21 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
 
   procedure ParseVarBlock(const AParser: TPSPascalParser;
     const AText: AnsiString; const ALineOffset: Integer;
+    const AVariables: TObjectList<TCodeSectionDeclaration>;
     var ALastTokenID: TPSPasToken;
     const AResumedAfterError: Boolean = False); forward;
 
   function TryParseDeclarationBlock(const AParser: TPSPascalParser;
     const AText: AnsiString; const ALineOffset: Integer;
-    const AVarBlockIsRoutineLocal: Boolean; var ALastTokenID: TPSPasToken;
+    const AVarBlockVariables: TObjectList<TCodeSectionDeclaration>;
+    var ALastTokenID: TPSPasToken;
     out AResumeBlockTokenID: TPSPasToken): Boolean;
   { Parses the block the parser is on, and returns False without moving the
     parser when it is not on a block this keeps declarations from. ROPS has
     no local 'type' or 'const' blocks, so those are always top-level ones.
-    AVarBlockIsRoutineLocal says the 'var' block is a routine's own, whose
-    variables are not kept yet.
+    AVarBlockVariables is the list a 'var' block's variables are added to:
+    a routine's locals when the block sits between its header and its
+    'begin', and the global list otherwise.
     AResumeBlockTokenID is the block's keyword when the block ended on what
     may be a tokenizer error, and CSTI_EOF otherwise. }
   begin
@@ -1822,11 +1843,8 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
     case BlockTokenID of
       CSTII_type: ParseTypeBlock(AParser, AText, ALineOffset, ALastTokenID);
       CSTII_const: ParseConstBlock(AParser, ALineOffset, ALastTokenID);
-      CSTII_var:
-        if AVarBlockIsRoutineLocal then
-          Result := False
-        else
-          ParseVarBlock(AParser, AText, ALineOffset, ALastTokenID);
+      CSTII_var: ParseVarBlock(AParser, AText, ALineOffset, AVarBlockVariables,
+        ALastTokenID);
     else
       Result := False;
     end;
@@ -2070,14 +2088,15 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
           Routine.FLastLine := DecorationLastLine
         else begin
           { Search for 'begin'. A block on the way whose declarations are
-            kept is parsed rather than skipped, so they survive a body still
-            being typed. The search goes on past the block either way,
-            because the 'begin' may still follow. }
+            kept is parsed rather than skipped, a 'var' block into the
+            routine's locals, so they survive a body still being typed. The
+            search goes on past the block either way, because the 'begin'
+            may still follow. }
           while (AParser.CurrTokenID <> CSTI_EOF) and
                 (AParser.CurrTokenID <> CSTII_begin) and
                 not IsRoutineHeaderStart(AParser, ALastTokenID) do begin
-            if not TryParseDeclarationBlock(AParser, AText, ALineOffset, True,
-                     ALastTokenID, AResumeBlockTokenID) then begin
+            if not TryParseDeclarationBlock(AParser, AText, ALineOffset,
+                     Routine.FLocals, ALastTokenID, AResumeBlockTokenID) then begin
               ALastTokenID := AParser.CurrTokenID;
               AParser.Next;
             end;
@@ -2460,8 +2479,10 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
 
   procedure ParseVarBlock(const AParser: TPSPascalParser;
     const AText: AnsiString; const ALineOffset: Integer;
+    const AVariables: TObjectList<TCodeSectionDeclaration>;
     var ALastTokenID: TPSPasToken; const AResumedAfterError: Boolean = False);
-  { Parses a var block. Known limitation: an inline structured type such
+  { Parses a var block, adding its variables to AVariables: the global list
+    or a routine's locals. Known limitation: an inline structured type such
     as 'record A: Integer; end;' is not consumed as a whole, so its fields
     become groups of their own. }
   begin
@@ -2549,16 +2570,27 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
           TypeEndPos := Integer(AParser.CurrTokenPos); { Unterminated at the end: keep what is there }
       end;
 
-      { Add one global variable per name, with the group's type }
+      { Add one variable per name, with the group's type }
       for var I := 0 to High(Names) do begin
         const Declaration = TCodeSectionDeclaration.Create;
-        FGlobalVariables.Add(Declaration);
+        AVariables.Add(Declaration);
         Declaration.FName := Names[I];
         Declaration.FLine := NameLines[I];
         if TypeStartPos >= 0 then
           Declaration.FTypeText := SliceCleanText(AText, TypeStartPos, TypeEndPos);
       end;
     end;
+  end;
+
+  function VarBlockVariables(const AOpenRoutine: TCodeSectionRoutine):
+    TObjectList<TCodeSectionDeclaration>;
+  { The list a 'var' block parses into: the open routine's locals while its
+    'begin' is still missing, and the global list otherwise }
+  begin
+    if AOpenRoutine <> nil then
+      Result := AOpenRoutine.FLocals
+    else
+      Result := FGlobalVariables;
   end;
 
 begin
@@ -2613,7 +2645,7 @@ begin
           ParseRoutine(Parser, Text, LineOffset, LastTokenID, OpenRoutine,
             OpenRoutineBeginFound, ResumeBlockTokenID)
         else if not TryParseDeclarationBlock(Parser, Text, LineOffset,
-                    OpenRoutine <> nil, LastTokenID, ResumeBlockTokenID) then begin
+                    VarBlockVariables(OpenRoutine), LastTokenID, ResumeBlockTokenID) then begin
           LastTokenID := TokenID;
           Parser.Next;
         end;
@@ -2658,7 +2690,8 @@ begin
         case ResumeBlockTokenID of
           CSTII_type: ParseTypeBlock(Parser, Text, LineOffset, LastTokenID, True);
           CSTII_const: ParseConstBlock(Parser, LineOffset, LastTokenID, True);
-          CSTII_var: ParseVarBlock(Parser, Text, LineOffset, LastTokenID, True);
+          CSTII_var: ParseVarBlock(Parser, Text, LineOffset,
+            VarBlockVariables(OpenRoutine), LastTokenID, True);
         end;
         if Parser.CurrTokenID <> CSTI_EOF then
           ResumeBlockTokenID := CSTI_EOF;
