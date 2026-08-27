@@ -1142,7 +1142,7 @@ function CollectParameterValuesFromFactories(
 { Collects the distinct values which are valid for the AParameterName parameter
   from the given factories' script. nil and duplicate factories are skipped.
   Sorts using same sort as autocompletion and Scintilla, so using CompareText.
-  Also see InternalBuildAutoCompleteWordList. }
+  Also see BuildAutoCompleteWordList. }
 
   function FactoryAlreadyProcessed(const AIndex: NativeInt): Boolean;
   begin
