@@ -369,8 +369,6 @@ var
 
 const
   PascalVariables: array of AnsiString = [
-    { ROPS }
-    'Result',
     { ScriptClasses }
     'WizardForm', 'MainForm', 'UninstallProgressForm'
   ];

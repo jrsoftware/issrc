@@ -482,6 +482,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         for var I := 0 to Routine.LocalCount-1 do
           AddAutoCompleteWordToList(RoutineWords,
             AnsiString(Routine.Locals[I].Name), awtScriptFunctionVariable);
+        if Routine.Kind = rkFunction then
+          AddAutoCompleteWordToList(RoutineWords, 'Result', awtScriptFunctionVariable);
         { RoutineWords (locals) shadows Result (globals) }
         Result := MergeScopedAutoCompleteWordLists(Result,
           BuildAutoCompleteWordList(RoutineWords, False));
