@@ -465,6 +465,15 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         for var I := 0 to Section.GlobalVariableCount-1 do
           AddAutoCompleteWordToList(Words,
             AnsiString(Section.GlobalVariables[I].Name), awtScriptVariable);
+        var Routine: TCodeSectionRoutine;
+        if FAutoCompleteAndCallTipsLiveCodeSection.TryGetRoutine(Line, Routine, True) then begin
+          for var I := 0 to Routine.ParameterCount-1 do
+            AddAutoCompleteWordToList(Words,
+              AnsiString(Routine.Parameters[I].Name), awtScriptVariable);
+          for var I := 0 to Routine.LocalCount-1 do
+            AddAutoCompleteWordToList(Words,
+              AnsiString(Routine.Locals[I].Name), awtScriptVariable);
+        end;
       end;
       Result := BuildAutoCompleteWordList(Words, False);
     finally
