@@ -499,7 +499,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     AMemo.StyleNeeded(DotPos);
     if TInnoSetupStyler.IsPascalNumberStyle(AMemo.GetStyleAtPosition(DotPos)) then
       Exit(True);
-    { Checking if the dot is part of a range ourselves }
+    { Check if the dot is part of a range ourselves }
     const PositionBeforeDotPos = AMemo.GetPositionBefore(DotPos);
     Result := (PositionBeforeDotPos >= LinePos) and
       (AMemo.GetByteAtPosition(PositionBeforeDotPos) = '.');
