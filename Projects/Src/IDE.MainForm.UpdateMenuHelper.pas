@@ -430,7 +430,7 @@ begin
   VReopenTabs.Visible := VReopenTab.Visible;
   VNavigatorFocus.Enabled := NavigatorPanel.Visible;
   VNavigatorFocusAndSelect.Enabled := VNavigatorFocus.Enabled;
-  VHide.Checked := not StatusPanel.Visible;
+  VHideStatusPanel.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiCompilerOutput);
   VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);

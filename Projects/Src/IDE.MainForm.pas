@@ -234,7 +234,7 @@ type
     OutputTabSet: TNewTabSet;
     DebugOutputList: TListBox;
     VDebugOutput: TMenuItem;
-    VHide: TMenuItem;
+    VHideStatusPanel: TMenuItem;
     N11: TMenuItem;
     TMenu: TMenuItem;
     TAddRemovePrograms: TMenuItem;
@@ -426,7 +426,7 @@ type
     procedure DebugOutputListDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
     procedure OutputTabSetClick(Sender: TObject);
-    procedure VHideClick(Sender: TObject);
+    procedure VHideStatusPanelClick(Sender: TObject);
     procedure VDebugOutputClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure TAddRemoveProgramsClick(Sender: TObject);
@@ -3573,7 +3573,7 @@ begin
   FocusNavigator(Sender = VNavigatorFocusAndSelect);
 end;
 
-procedure TMainForm.VHideClick(Sender: TObject);
+procedure TMainForm.VHideStatusPanelClick(Sender: TObject);
 begin
   SetStatusPanelVisible(False);
 end;

@@ -870,10 +870,10 @@ object MainForm: TMainForm
         RadioItem = True
         OnClick = VFindResultsClick
       end
-      object VHide: TMenuItem
+      object VHideStatusPanel: TMenuItem
         Caption = '&Hide Bottom Pane'
         RadioItem = True
-        OnClick = VHideClick
+        OnClick = VHideStatusPanelClick
       end
       object N24: TMenuItem
         Caption = '-'
