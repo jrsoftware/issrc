@@ -82,6 +82,17 @@ constructor TNavigator.Create(const AComboBox, AComboBox2: TComboBox;
   const AOnCaretInCodeSectionChange: TNotifyEvent;
   const AOnComboBoxItemsChanged: TNavigatorComboBoxItemsChangedEvent);
 { Doesn't take ownership of the comboboxes }
+
+  procedure InitComboBox(const AComboBox: TComboBox;
+    const AWindowProc: TWndMethod; out ASavedWindowProc: TWndMethod);
+  begin
+    AComboBox.OnDropDown := ComboBoxDropDown;
+    AComboBox.OnCloseUp := ComboBoxCloseUp;
+    AComboBox.OnSelect := ComboBoxSelect;
+    ASavedWindowProc := AComboBox.WindowProc;
+    AComboBox.WindowProc := AWindowProc;
+  end;
+
 begin
   inherited Create;
 
@@ -92,29 +103,25 @@ begin
   FOnComboBoxItemsChanged := AOnComboBoxItemsChanged;
   FChangeCountAtSectionsSet := -1;
   FMessagesWnd := AllocateHWnd(MessagesWndProc);
-  FComboBox.OnDropDown := ComboBoxDropDown;
-  FComboBox.OnCloseUp := ComboBoxCloseUp;
-  FComboBox.OnSelect := ComboBoxSelect;
-  FComboBox2.OnDropDown := ComboBoxDropDown;
-  FComboBox2.OnCloseUp := ComboBoxCloseUp;
-  FComboBox2.OnSelect := ComboBoxSelect;
-  FSavedComboBoxWindowProc := FComboBox.WindowProc;
-  FComboBox.WindowProc := ComboBoxWindowProc;
-  FSavedComboBox2WindowProc := FComboBox2.WindowProc;
-  FComboBox2.WindowProc := ComboBox2WindowProc;
+  InitComboBox(FComboBox, ComboBoxWindowProc, FSavedComboBoxWindowProc);
+  InitComboBox(FComboBox2, ComboBox2WindowProc, FSavedComboBox2WindowProc);
 end;
 
 destructor TNavigator.Destroy;
+
+  procedure DeInitComboBox(const AComboBox: TComboBox;
+    const ASavedWindowProc: TWndMethod);
+  begin
+    AComboBox.OnDropDown := nil;
+    AComboBox.OnCloseUp := nil;
+    AComboBox.OnSelect := nil;
+    AComboBox.WindowProc := ASavedWindowProc;
+  end;
+
 begin
   TThread.RemoveQueuedEvents(HandleCloseUpDone);
-  FComboBox.OnDropDown := nil;
-  FComboBox.OnCloseUp := nil;
-  FComboBox.OnSelect := nil;
-  FComboBox.WindowProc := FSavedComboBoxWindowProc;
-  FComboBox2.OnDropDown := nil;
-  FComboBox2.OnCloseUp := nil;
-  FComboBox2.OnSelect := nil;
-  FComboBox2.WindowProc := FSavedComboBox2WindowProc;
+  DeInitComboBox(FComboBox, FSavedComboBoxWindowProc);
+  DeInitComboBox(FComboBox2, FSavedComboBox2WindowProc);
   if FMessagesWnd <> 0 then
     DeallocateHWnd(FMessagesWnd);
   TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
@@ -301,12 +308,9 @@ procedure TNavigator.GoToComboBoxItem(const AComboBox: TComboBox;
 
   function TryFocusMemo: Boolean;
   begin
-    Result := True;
-    if AFocusMemo then begin
-      const Memo = FFactory.Memo;
-      Memo.SetFocus;
-      Result := Memo.Focused; { False if validation rejected the focus change }
-    end;
+    const Memo = FFactory.Memo;
+    Memo.SetFocus;
+    Result := Memo.Focused; { False if validation rejected the focus change }
   end;
 
   procedure GoToLine(const ALine: Integer);
@@ -321,7 +325,7 @@ procedure TNavigator.GoToComboBoxItem(const AComboBox: TComboBox;
     if AIndex < 0 then
       Exit;
 
-    if not TryFocusMemo then
+    if AFocusMemo and not TryFocusMemo then
       Exit;
 
     if AIndex >= FFactory.SectionCount then
@@ -338,7 +342,7 @@ procedure TNavigator.GoToComboBoxItem(const AComboBox: TComboBox;
     if FRebuildRoutinesPending or (FLiveCodeSection = nil) or not FLiveCodeSection.Valid then
       Exit;
 
-    if not TryFocusMemo then
+    if AFocusMemo and not TryFocusMemo then
       Exit;
 
     if AIndex >= FLiveCodeSection.Section.RoutineCount then
