@@ -2420,7 +2420,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             HasBooleanOperand := True
           else begin
             { If an already declared constant is used, lookup its type.
-              On dplicate names (invalid in ROPS), we just take the newest. }
+              On duplicate names (invalid in ROPS), we just take the newest. }
             var FoundTypeText := '';
             for var I := FConstants.Count-2 downto 0 do begin
               if SameText(FConstants[I].Name, NextName) then begin
