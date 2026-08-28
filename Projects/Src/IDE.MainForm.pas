@@ -775,6 +775,7 @@ var
   CommandLineWizard: Boolean;
   CommandLineLanguage: TIDELanguage;
   CommandLineLanguageSet: Boolean;
+  CommandLineNoRecentlyOpened: Boolean;
 
 implementation
 

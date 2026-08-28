@@ -4154,6 +4154,22 @@ iside --language <i>&lt;language&gt;</i></precode>
 <p>Short options accept both <tt>-</tt> and <tt>/</tt> as a prefix and are case-insensitive. Long <tt>--</tt> options are case-sensitive and do not accept <tt>//</tt> as a prefix.</p>
 </li>
 
+<li>
+<p>The Compiler IDE can be told not to add the script file named on the command line to the list of recently opened files. Command-line usage is as follows:</p>
+
+<precode>iside -norecent <i>&lt;script name&gt;</i>
+iside --no-recently-opened <i>&lt;script name&gt;</i></precode>
+<indent>
+<example><pre>iside -norecent "c:\isetup\samples\my script.iss"</pre></example>
+</indent>
+
+<p>The file is also kept out of the list if you reopen or save it later in the same session. Other files you open yourself are still added.</p>
+
+<p>This option is ignored if no script file is specified on the command line.</p>
+
+<p>Short options accept both <tt>-</tt> and <tt>/</tt> as a prefix and are case-insensitive. Long <tt>--</tt> options are case-sensitive and do not accept <tt>//</tt> as a prefix.</p>
+</li>
+
 </ul>
 
 </body>

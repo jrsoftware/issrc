@@ -177,6 +177,9 @@ begin
     if CommandLineLanguageSet then
       CommandLine := TrimRight('-lang ' + IDELanguageNames[CommandLineLanguage] + ' ' + CommandLine);
 
+    if CommandLineNoRecentlyOpened then
+      CommandLine := TrimRight('-norecent ' + CommandLine);
+
     if Length(CommandLine) > RESTART_MAX_CMD_LINE then
       CommandLine := '';
 
@@ -222,7 +225,9 @@ procedure CheckParams;
       'iside -wizard <%s> <%1:s>' + SNewLine +
       'iside --new-script-wizard <%2:s> <%1:s>' + SNewLine +
       'iside -lang <' + LanguageNames + '>' + SNewLine +
-      'iside --language <' + LanguageNames + '>' + SNewLine2 +
+      'iside --language <' + LanguageNames + '>' + SNewLine +
+      'iside -norecent <%1:s>' + SNewLine +
+      'iside --no-recently-opened <%1:s>' + SNewLine2 +
       '%3:s' + SNewLine +
       'iside -cc "C:\Inno Setup\Sample32\%s.iss"' + SNewLine +
       'iside -wizard "%s" c:\temp.iss';
@@ -268,6 +273,8 @@ begin
       CommandLineLanguageSet := True;
       Inc(I);
     end
+    else if IsParam(S, 'norecent', 'no-recently-opened') then
+      CommandLineNoRecentlyOpened := True
     else if IsParam(S, 'assoc', 'associate') then begin
       try
         RegisterISSFileAssociation(False, Dummy);

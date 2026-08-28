@@ -125,6 +125,11 @@ end;
 procedure TMainFormMRUHelper.ModifyMRUMainFilesList(const AFilename: String;
   const AddNewItem: Boolean);
 begin
+  { The file named on the command line stays out of the list if --no-recently-opened
+    was used, also when it is reopened or saved later on }
+  if AddNewItem and CommandLineNoRecentlyOpened and
+     (CommandLineFilename <> '') and PathSame(AFilename, CommandLineFilename) then
+    Exit;
   { Load most recent items first, just in case they've changed }
   ReadMRUMainFilesList;
   try
