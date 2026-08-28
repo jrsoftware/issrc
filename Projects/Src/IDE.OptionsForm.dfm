@@ -140,7 +140,7 @@ object OptionsForm: TOptionsForm
       Width = 209
       Height = 21
       Style = csDropDownList
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akTop, akRight]
       TabOrder = 15
     end
     object AutoreloadCheck: TCheckBox
@@ -185,7 +185,7 @@ object OptionsForm: TOptionsForm
       Width = 209
       Height = 21
       Style = csDropDownList
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akTop, akRight]
       TabOrder = 17
     end
   end
@@ -325,7 +325,7 @@ object OptionsForm: TOptionsForm
       Top = 330
       Width = 129
       Height = 32
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akTop, akRight]
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'AaBbXxZz'
@@ -353,9 +353,9 @@ object OptionsForm: TOptionsForm
     object TabWidthEdit: TEdit
       Left = 104
       Top = 370
-      Width = 50
+      Width = 30
       Height = 21
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akTop, akRight]
       TabOrder = 20
       OnChange = TabWidthEditChange
     end
@@ -383,7 +383,7 @@ object OptionsForm: TOptionsForm
       Width = 209
       Height = 21
       Style = csDropDownList
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akTop, akRight]
       TabOrder = 15
     end
     object HighlightSelTextOccurrencesCheck: TCheckBox
@@ -419,13 +419,13 @@ object OptionsForm: TOptionsForm
       Width = 209
       Height = 21
       Style = csDropDownList
-      Anchors = [akLeft, akTop, akRight]
+      Anchors = [akTop, akRight]
       TabOrder = 13
     end
     object ShowWhiteSpaceCheck: TCheckBox
-      Left = 160
+      Left = 140
       Top = 372
-      Width = 153
+      Width = 173
       Height = 17
       Anchors = [akTop, akRight]
       Caption = 'Show whitespace'

@@ -106,6 +106,16 @@ begin
   ChangeFontButton.Width := W;
   FontPanel.Width := FontPanel.Width - Diff;
 
+  if GetActiveLanguage = ilFrench then begin
+    { French needs even more space than the form already provides }
+    const ExtraWidth = MulDiv(GroupBox1.Width, 10, 100);
+    GroupBox1.Width := GroupBox1.Width + ExtraWidth;
+    GroupBox2.Width := GroupBox2.Width + ExtraWidth;
+    GroupBox3.Left := GroupBox3.Left + ExtraWidth;
+    GroupBox3.Width := GroupBox3.Width + ExtraWidth;
+    ClientWidth := ClientWidth + 2*ExtraWidth;
+  end;
+
   { Order must match IDE.HelperFunc.TKeyMappingType }
   KeyMappingComboBox.Items.Add(LFmtMessage(SOptionsKeyMappingDelphi));
   KeyMappingComboBox.Items.Add(LFmtMessage(SOptionsKeyMappingVisualStudio));
@@ -125,6 +135,7 @@ begin
   LanguageComboBox.Items.Add('Nederlands');
   LanguageComboBox.Items.Add('Deutsch');
   LanguageComboBox.Items.Add(#$65E5#$672C#$8A9E);
+  LanguageComboBox.Items.Add('Fran'#$00E7'ais');
 end;
 
 procedure TOptionsForm.FormShow(Sender: TObject);
