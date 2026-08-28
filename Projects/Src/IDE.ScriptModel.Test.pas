@@ -2936,6 +2936,38 @@ begin
     Assert(Section.Routines[0].BodyFirstLine = 1);
     Assert(Section.Routines[0].LastLine = 2);
 
+    { A ':' or ';' with no names before it in the parameter list also cuts:
+      a group must start with a name. This happens when '(' was just typed
+      in front of an existing ':' or ';', and keeps the 'var' block below
+      as locals. }
+    Section.Parse([
+      'function Func(: Boolean;',  { 0 }
+      'var',                       { 1 }
+      '  X: String;',              { 2 }
+      'begin',                     { 3 }
+      '  Result := True;',         { 4 }
+      'end;']);                    { 5 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'function Func(');
+    Assert(Section.Routines[0].ParameterCount = 0);
+    Assert(Section.Routines[0].LocalCount = 1);
+    Assert(Section.Routines[0].Locals[0].Name = 'X');
+    Assert(Section.Routines[0].BodyFirstLine = 3);
+    Assert(Section.Routines[0].LastLine = 5);
+    Assert(Section.GlobalVariableCount = 0);
+    Section.Parse([
+      'procedure Proc(;',  { 0 }
+      'var',               { 1 }
+      '  X: String;',      { 2 }
+      'begin',             { 3 }
+      'end;']);            { 4 }
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Prototype = 'procedure Proc(');
+    Assert(Section.Routines[0].LocalCount = 1);
+    Assert(Section.Routines[0].Locals[0].Name = 'X');
+    Assert(Section.Routines[0].BodyFirstLine = 3);
+    Assert(Section.Routines[0].LastLine = 4);
+
     { An open parameter list does not swallow the type block below it:
       'type' never appears inside one }
     Section.Parse([
@@ -4593,11 +4625,11 @@ begin
     { A 'var' block below an open list is shaped like a parameter group, so
       keeping the parameters found would take its variables for parameters }
     Section.Parse([
-      'function InitializeSetup(: Boolean;', { 0 }
-      'var',                                 { 1 }
-      '  X: Integer;',                       { 2 }
-      'begin',                               { 3 }
-      'end;']);                              { 4 }
+      'function InitializeSetup(A: Integer;', { 0 }
+      'var',                                  { 1 }
+      '  X: Integer;',                        { 2 }
+      'begin',                                { 3 }
+      'end;']);                               { 4 }
     Assert(Section.RoutineCount = 1);
     Assert(Section.Routines[0].Name = 'InitializeSetup');
     Assert(Section.Routines[0].ParameterCount = 0);

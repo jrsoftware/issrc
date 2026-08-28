@@ -1867,6 +1867,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
       Parameters: TArray<TParsedParameter>;
       FirstLine: Integer;
       Terminated: Boolean;
+      CutInParameterList: Boolean;
     end;
 
   procedure AddParsedParameters(const AText: AnsiString;
@@ -1940,6 +1941,16 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
          (IsDeclarationBlockStart(PrototypeTokenID) and
           (not IsParameterModifier(PrototypeTokenID) or (BraceDepth = 0))) then
         Break;
+      { A parameter group must start with a name, so a ':' or ';' with no
+        names yet is always invalid: cut, typically a '(' was just typed in
+        front of an existing ':' or ';'.
+        Known limitation: an inline record parameter followed by another
+        parameter is cut at the ';' after its 'end', because the record's
+        own ';' already ended the name group. }
+      if InParameterList and (BraceDepth = 1) and
+         (Length(ParameterNames) = 0) and
+         (PrototypeTokenID in [CSTI_Colon, CSTI_Semicolon]) then
+        Break;
       if PrototypeTokenID = CSTI_OpenRound then begin
         Inc(BraceDepth);
         { The first '(' before the result-type colon starts the parameter list;
@@ -2000,6 +2011,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
         'const' block below it, because such a block looks like a parameter
         group. Keep no parameters at all instead of the ones found. }
       AHeader.Parameters := [];
+      AHeader.CutInParameterList := True;
     end;
 
     var ResultTypeEndPos: Integer;
@@ -2057,7 +2069,8 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
       RoutineHeaderParametersToRoutineParameters(Header, Routine.FParameters);
 
       if Header.Terminated or
-         (AParser.CurrTokenID = CSTII_begin) or IsDeclarationBlockStart(AParser.CurrTokenID) then begin { A header cut by its own 'begin' or a declaration block still gets its body searched for and parsed }
+         (AParser.CurrTokenID = CSTII_begin) or IsDeclarationBlockStart(AParser.CurrTokenID) or
+         Header.CutInParameterList then begin { A header cut by its own 'begin', by a declaration block, or inside its parameter list still gets its body searched for and parsed }
         { Handle trailing decoration }
         var DecorationLastLine := -1;
         while AParser.CurrTokenID in [CSTII_Forward, CSTII_External, CSTII_Export] do begin
