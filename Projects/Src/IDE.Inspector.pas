@@ -19,45 +19,50 @@ uses
   IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra;
 
 type
-  TInspectorRowKind = (irkParameter, irkParameterFlag, irkKey,
-    irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugParseTime,
-    irkDebugSections, irkDebugEarlyExits,
-    irkDebugCaretAt, irkDebugCaretRoutine, irkDebugRoutine, irkDebugRoutineResult,
-    irkDebugRoutineParametersLabel, irkDebugRoutineParameter,
-    irkDebugRoutineLocalsLabel, irkDebugRoutineLocal, irkDebugType,
-    irkDebugInterface, irkDebugInterfaceMethod, irkDebugInterfaceMethodResult,
-    irkDebugInterfaceMethodParametersLabel, irkDebugInterfaceMethodParameter,
-    irkDebugConstant, irkDebugGlobalVariable {$ENDIF});
+  TInspectorRowKind = (rkParameter, rkParameterFlag, rkKey,
+    rkKeyFlag {$IFDEF DEBUG}, rkDebugStatus, rkDebugParseTime,
+    rkDebugSections, rkDebugEarlyExits,
+    rkDebugCaretAt, rkDebugCaretRoutine, rkCode {$ENDIF});
+
+  { Kinds sharing a declaration must stay together: RowGetAsString looks
+    them up by range }
+  TInspectorRowCodeKind = (ckNone, ckRoutine, ckRoutineResult,
+    ckRoutineParametersLabel, ckRoutineParameter,
+    ckRoutineLocalsLabel, ckRoutineLocal, ckType,
+    ckInterface, ckInterfaceMethod, ckInterfaceMethodResult,
+    ckInterfaceMethodParametersLabel, ckInterfaceMethodParameter,
+    ckConstant, ckGlobalVariable);
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
-    Name: String;            { irkParameter, irkParameterFlag: the parameter name,
-                               irkKey, irkKeyFlag: key name,
+    CodeKind: TInspectorRowCodeKind; { rkCode: the kind, other: ckNone }
+    Name: String;            { rkParameter, rkParameterFlag: the parameter name,
+                               rkKey, rkKeyFlag: key name,
                                other: same as the display name }
-    Index: Integer;          { irkParameter, irkParameterFlag: the parameter index, or -1 if
+    Index: Integer;          { rkParameter, rkParameterFlag: the parameter index, or -1 if
                                known but not present in the script, or if multi-entry editing,
-                               irkKey, irkKeyFlag: the line index for a key, or -1 if known
+                               rkKey, rkKeyFlag: the line index for a key, or -1 if known
                                but not present in the script,
-                               irkDebugRoutine and later:
-                                 irkDebugRoutine, irkDebugRoutineResult,
-                                 irkDebugRoutineParametersLabel,
-                                 irkDebugRoutineParameter,
-                                 irkDebugRoutineLocalsLabel and
-                                 irkDebugRoutineLocal: the routine index,
-                                 irkDebugType and irkDebugInterface: the type index,
-                                 irkDebugInterfaceMethod, irkDebugInterfaceMethodResult,
-                                 irkDebugInterfaceMethodParametersLabel and
-                                 irkDebugInterfaceMethodParameter: the interface
-                                 method index,
-                                 irkDebugConstant: the constant index,
-                                 irkDebugGlobalVariable: the global variable index,
+                               rkCode:
+                                 ckRoutine, ckRoutineResult,
+                                 ckRoutineParametersLabel,
+                                 ckRoutineParameter,
+                                 ckRoutineLocalsLabel and
+                                 ckRoutineLocal: the routine index,
+                                 ckType and ckInterface: the type index,
+                                 ckInterfaceMethod, ckInterfaceMethodResult,
+                                 ckInterfaceMethodParametersLabel and
+                                 ckInterfaceMethodParameter: the method index,
+                                 ckConstant: the constant index,
+                                 ckGlobalVariable: the global variable index,
                                other: -1 }
-    SubIndex: Integer;       { irkDebugRoutineParameter,
-                               irkDebugRoutineLocal and
-                               irkDebugInterfaceMethodParameter: the parameter or local index,
-                               with Index the routine's or method's,
+    SubIndex: Integer;       { rkCode:
+                                 ckRoutineParameter,
+                                 ckRoutineLocal and
+                                 ckInterfaceMethodParameter: the parameter or local index,
+                                 with Index the routine's or method's,
                                other: 0 or -1 }
-    FlagName: String;        { irkParameterFlag and irkKeyFlag }
+    FlagName: String;        { rkParameterFlag and rkKeyFlag }
     LastValueSignature: String;
     CheckBox: Boolean;
   end;
@@ -349,20 +354,20 @@ function TInspector.ItemShouldBeBold(
   begin
     Result := False;
     case ARow.Kind of
-      irkParameter:
+      rkParameter:
         Result := (FLiveParameterSectionEntries <> nil) and
           FLiveParameterSectionEntries.MemberPresent(ARow.Name, ARow.Index);
-      irkParameterFlag:
+      rkParameterFlag:
         Result := (FLiveParameterSectionEntries <> nil) and
           (FLiveParameterSectionEntries.GetFlagCheckState(ARow.Name, ARow.Index,
              ARow.FlagName) <> fcsNone);
-      irkKey:
+      rkKey:
         { Without ShowAllKnownDirectives only directives which are in the
           script get a row, so bold would say nothing }
         if FShowAllKnownDirectives then
           Result := (FLiveKeyValueSection <> nil) and
             FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index);
-      irkKeyFlag:
+      rkKeyFlag:
         { See above }
         if FShowAllKnownDirectives then
           Result := (FLiveKeyValueSection <> nil) and
@@ -400,9 +405,9 @@ begin
   var Row: TInspectorRow;
   if (Item <> nil) and TryGetRow(Item, Row) then begin
     case Row.Kind of
-      irkParameter:
+      rkParameter:
         Result := Row.Name;
-      irkKey:
+      rkKey:
         begin
           Result := Row.Name;
           if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
@@ -412,8 +417,8 @@ begin
               Result := Definition.Name;
           end;
         end;
-      irkParameterFlag, irkKeyFlag:
-        if (Row.Kind = irkParameterFlag) and SameText(Row.Name, 'Flags') then
+      rkParameterFlag, rkKeyFlag:
+        if (Row.Kind = rkParameterFlag) and SameText(Row.Name, 'Flags') then
           Result := Row.FlagName { Keyword presence guaranteed }
         else
           Result := Row.Name;
@@ -475,7 +480,7 @@ begin
   if (Item = nil) or not TryGetRow(Item, Row) then
     Exit;
   case Row.Kind of
-    irkParameter, irkParameterFlag:
+    rkParameter, rkParameterFlag:
       if (FLiveParameterSectionEntries <> nil) and
          FLiveParameterSectionEntries.Valid then begin
         for var I := 0 to FLiveParameterSectionEntries.Count-1 do begin
@@ -492,7 +497,7 @@ begin
           end;
         end;
       end;
-    irkKey, irkKeyFlag:
+    rkKey, rkKeyFlag:
       if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
         const Section = FLiveKeyValueSection.Section;
         var Index := Row.Index;
@@ -597,13 +602,13 @@ begin
   var SectionName := '';
   var Known := False;
   case Row.Kind of
-    irkParameter:
+    rkParameter:
       if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid then begin
         Known := FLiveParameterSectionEntries.PrimaryEntry.TryGetDefinition(Row.Name, Definition);
         if Known then
           SectionName := FLiveParameterSectionEntries.PrimaryEntry.Metadata.SectionName;
       end;
-    irkKey:
+    rkKey:
       if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
         Known := FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition);
         if Known then
@@ -744,10 +749,10 @@ function TInspector.RowResolves(const ARow: TInspectorRow): Boolean;
 begin
   Result := False;
   case ARow.Kind of
-    irkParameter, irkParameterFlag:
+    rkParameter, rkParameterFlag:
       Result := (FLiveParameterSectionEntries <> nil) and
         FLiveParameterSectionEntries.MemberPresent(ARow.Name, ARow.Index);
-    irkKey, irkKeyFlag:
+    rkKey, rkKeyFlag:
       Result := (FLiveKeyValueSection <> nil) and
         FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index);
   end;
@@ -895,13 +900,14 @@ procedure TInspector.UpdateFromCaret;
       var Row: TInspectorRow;
       if not TryGetRow(AItem, Row) then
         raise Exception.Create('Internal error: ItemID: Row not found');
-      Result := 'R|' + IntToStr(Ord(Row.Kind)) + '|' + Row.Name + '|' + Row.FlagName;
+      Result := 'R|' + IntToStr(Ord(Row.Kind)) + '|' + IntToStr(Ord(Row.CodeKind)) +
+        '|' + Row.Name + '|' + Row.FlagName;
       if AIncludeIndex then
         Result := Result + '|' + IntToStr(Row.Index) + '|' + IntToStr(Row.SubIndex);
       { Chain the parents' ids to keep the index-less id unique except for
         duplicate siblings, and to keep a stale indexed id from matching a
         different row after indexes shifted }
-      if not (Row.Kind in [irkParameter, irkParameterFlag, irkKey, irkKeyFlag]) then
+      if not (Row.Kind in [rkParameter, rkParameterFlag, rkKey, rkKeyFlag]) then
         Result := Result + '|' + ItemID(AItem.Parent, AIncludeIndex);
     end;
   end;
@@ -1039,15 +1045,13 @@ procedure TInspector.UpdateFromCaret;
 
   {$IFDEF DEBUG}
   function AddDebugRow(const AParent: TJvCustomInspectorItem;
-    const ADisplayName: String; const AKind: TInspectorRowKind;
-    const AIndex: Integer = -1;
-    const ASubIndex: Integer = -1): TJvCustomInspectorItem;
+    const ADisplayName: String; const AKind: TInspectorRowKind): TJvCustomInspectorItem;
   begin
     var Row := Default(TInspectorRow);
     Row.Kind := AKind;
     Row.Name := ADisplayName; { For ItemID }
-    Row.Index := AIndex;
-    Row.SubIndex := ASubIndex;
+    Row.Index := -1;
+    Row.SubIndex := -1;
     Result := AddRow(AParent, ADisplayName, False, Row);
     Result.Flags := Result.Flags + [iifReadonly];
   end;
@@ -1057,7 +1061,7 @@ procedure TInspector.UpdateFromCaret;
     const AIndex: Integer): TInspectorRow;
   begin
     Result := Default(TInspectorRow);
-    Result.Kind := irkParameter;
+    Result.Kind := rkParameter;
     Result.Name := AName;
     Result.Index := AIndex;
   end;
@@ -1066,7 +1070,7 @@ procedure TInspector.UpdateFromCaret;
     const AParameterName, AFlagName: String; const AIndex: Integer);
   begin
     var Row := Default(TInspectorRow);
-    Row.Kind := irkParameterFlag;
+    Row.Kind := rkParameterFlag;
     Row.Name := AParameterName;
     Row.FlagName := AFlagName;
     Row.Index := AIndex;
@@ -1135,7 +1139,7 @@ procedure TInspector.UpdateFromCaret;
     const AIndex: Integer): TInspectorRow;
   begin
     Result := Default(TInspectorRow);
-    Result.Kind := irkKey;
+    Result.Kind := rkKey;
     Result.Name := AName;
     Result.Index := AIndex;
   end;
@@ -1155,7 +1159,7 @@ procedure TInspector.UpdateFromCaret;
     const AKeyName, AFlagName: String; const AIndex: Integer);
   begin
     var Row := Default(TInspectorRow);
-    Row.Kind := irkKeyFlag;
+    Row.Kind := rkKeyFlag;
     Row.Name := AKeyName;
     Row.FlagName := AFlagName;
     Row.Index := AIndex;
@@ -1334,41 +1338,56 @@ procedure TInspector.UpdateFromCaret;
   end;
 
   {$IFDEF DEBUG}
-  procedure AddCodeSectionRoutineRows;
+  function AddCodeRow(const AParent: TJvCustomInspectorItem;
+    const ADisplayName: String; const ACodeKind: TInspectorRowCodeKind;
+    const AIndex: Integer;
+    const ASubIndex: Integer = -1): TJvCustomInspectorItem;
+  begin
+    var Row := Default(TInspectorRow);
+    Row.Kind := rkCode;
+    Row.CodeKind := ACodeKind;
+    Row.Name := ADisplayName; { For ItemID }
+    Row.Index := AIndex;
+    Row.SubIndex := ASubIndex;
+    Result := AddRow(AParent, ADisplayName, False, Row);
+    Result.Flags := Result.Flags + [iifReadonly];
+  end;
+
+  procedure AddCodeRoutineRows;
   begin
     const Section = FLiveCodeSection.Section;
     if Section.RoutineCount > 0 then begin
       const RoutinesCategory = NewCategory(SInspectorCategoryRoutines);
       for var I := 0 to Section.RoutineCount-1 do begin
         const Routine = Section.Routines[I];
-        const Item = AddDebugRow(RoutinesCategory, Routine.Name, irkDebugRoutine, I);
+        const Item = AddCodeRow(RoutinesCategory, Routine.Name, ckRoutine, I);
         if Routine.ParameterCount > 0 then begin
-          const ParametersItem = AddDebugRow(Item, { Adds a child to Item }
-            LFmtMessage(SInspectorParametersRow), irkDebugRoutineParametersLabel, I);
+          const ParametersItem = AddCodeRow(Item, { Adds a child to Item }
+            LFmtMessage(SInspectorParametersRow), ckRoutineParametersLabel, I);
           ParametersItem.Expanded := True;
           for var J := 0 to Routine.ParameterCount-1 do begin
             const Parameter = Routine.Parameters[J];
-            AddDebugRow(ParametersItem, { Adds a child to ParametersItem }
-              Parameter.Name, irkDebugRoutineParameter, I, J);
+            AddCodeRow(ParametersItem, { Adds a child to ParametersItem }
+              Parameter.Name, ckRoutineParameter, I, J);
           end;
         end;
         if Routine.LocalCount > 0 then begin
-          const LocalsItem = AddDebugRow(Item, { Adds a child to Item }
-            LFmtMessage(SInspectorLocalsRow), irkDebugRoutineLocalsLabel, I);
+          const LocalsItem = AddCodeRow(Item, { Adds a child to Item }
+            LFmtMessage(SInspectorLocalsRow), ckRoutineLocalsLabel, I);
           LocalsItem.Expanded := True;
           for var J := 0 to Routine.LocalCount-1 do begin
             const Local = Routine.Locals[J];
-            AddDebugRow(LocalsItem, { Adds a child to LocalsItem }
-              Local.Name, irkDebugRoutineLocal, I, J);
+            AddCodeRow(LocalsItem, { Adds a child to LocalsItem }
+              Local.Name, ckRoutineLocal, I, J);
           end;
         end;
         if Routine.Kind = rkFunction then
-          AddDebugRow(Item, 'Result', irkDebugRoutineResult, I); { Adds a child to Item }
+          AddCodeRow(Item, 'Result', ckRoutineResult, I); { Adds a child to Item }
       end;
     end;
   end;
 
-  procedure AddCodeSectionInterfaceMethodRows(const ACategory,
+  procedure AddCodeInterfaceMethodRows(const ACategory,
     ATypeItem: TJvCustomInspectorItem; const ATypeIndex: Integer);
   { Adds the methods of the interface declared by type ATypeIndex, if any, as
     children of its row. An anonymous interface has no type of its own and
@@ -1386,53 +1405,53 @@ procedure TInspector.UpdateFromCaret;
           Item := ATypeItem
         else begin
           { The interface itself is anonymous, so name the row after its type }
-          Item := AddDebugRow(ACategory, Declaration.Name + '.<anonymous>',
-            irkDebugInterface, ATypeIndex);
+          Item := AddCodeRow(ACategory, Declaration.Name + '.<anonymous>',
+            ckInterface, ATypeIndex);
         end;
       end;
-      const MethodItem = AddDebugRow(Item, { Adds a child to Item }
-        Method.Name, irkDebugInterfaceMethod, I);
+      const MethodItem = AddCodeRow(Item, { Adds a child to Item }
+        Method.Name, ckInterfaceMethod, I);
       if Method.ParameterCount > 0 then begin
-        const ParametersItem = AddDebugRow(MethodItem, { Adds a child to MethodItem }
-          LFmtMessage(SInspectorParametersRow), irkDebugInterfaceMethodParametersLabel, I);
+        const ParametersItem = AddCodeRow(MethodItem, { Adds a child to MethodItem }
+          LFmtMessage(SInspectorParametersRow), ckInterfaceMethodParametersLabel, I);
         ParametersItem.Expanded := True;
         for var J := 0 to Method.ParameterCount-1 do begin
           const Parameter = Method.Parameters[J];
-          AddDebugRow(ParametersItem, { Adds a child to ParametersItem }
-            Parameter.Name, irkDebugInterfaceMethodParameter, I, J);
+          AddCodeRow(ParametersItem, { Adds a child to ParametersItem }
+            Parameter.Name, ckInterfaceMethodParameter, I, J);
         end;
       end;
       if Method.Kind = rkFunction then
-        AddDebugRow(MethodItem, 'Result', irkDebugInterfaceMethodResult, I); { Adds a child to MethodItem }
+        AddCodeRow(MethodItem, 'Result', ckInterfaceMethodResult, I); { Adds a child to MethodItem }
     end;
   end;
 
-  procedure AddCodeSectionTypeRows;
+  procedure AddCodeTypeRows;
   begin
     const Section = FLiveCodeSection.Section;
     if Section.TypeCount > 0 then begin
       const TypesCategory = NewCategory(SInspectorCategoryTypes);
       for var I := 0 to Section.TypeCount-1 do begin
         const Declaration = Section.Types[I];
-        const TypeItem = AddDebugRow(TypesCategory, Declaration.Name,
-          irkDebugType, I);
-        AddCodeSectionInterfaceMethodRows(TypesCategory, TypeItem, I);
+        const TypeItem = AddCodeRow(TypesCategory, Declaration.Name,
+          ckType, I);
+        AddCodeInterfaceMethodRows(TypesCategory, TypeItem, I);
       end;
     end;
   end;
 
-  procedure AddCodeSectionSymbolRows;
+  procedure AddCodeSymbolRows;
   begin
     const Section = FLiveCodeSection.Section;
     if (Section.ConstantCount > 0) or (Section.GlobalVariableCount > 0) then begin
       const SymbolsCategory = NewCategory(SInspectorCategorySymbols);
       for var I := 0 to Section.ConstantCount-1 do begin
         const Declaration = Section.Constants[I];
-        AddDebugRow(SymbolsCategory, Declaration.Name, irkDebugConstant, I);
+        AddCodeRow(SymbolsCategory, Declaration.Name, ckConstant, I);
       end;
       for var I := 0 to Section.GlobalVariableCount-1 do begin
         const Declaration = Section.GlobalVariables[I];
-        AddDebugRow(SymbolsCategory, Declaration.Name, irkDebugGlobalVariable, I);
+        AddCodeRow(SymbolsCategory, Declaration.Name, ckGlobalVariable, I);
       end;
     end;
   end;
@@ -1490,16 +1509,16 @@ procedure TInspector.UpdateFromCaret;
 
         {$IFDEF DEBUG}
         const DebugCategory = NewCategory('Debug');
-        AddDebugRow(DebugCategory, 'Status', irkDebugStatus);
-        AddDebugRow(DebugCategory, 'Parse time', irkDebugParseTime);
-        AddDebugRow(DebugCategory, 'Sections', irkDebugSections);
-        AddDebugRow(DebugCategory, 'Caret routine', irkDebugCaretRoutine);
-        AddDebugRow(DebugCategory, 'Early exits', irkDebugEarlyExits);
-        AddDebugRow(DebugCategory, 'Caret at', irkDebugCaretAt);
+        AddDebugRow(DebugCategory, 'Status', rkDebugStatus);
+        AddDebugRow(DebugCategory, 'Parse time', rkDebugParseTime);
+        AddDebugRow(DebugCategory, 'Sections', rkDebugSections);
+        AddDebugRow(DebugCategory, 'Caret routine', rkDebugCaretRoutine);
+        AddDebugRow(DebugCategory, 'Early exits', rkDebugEarlyExits);
+        AddDebugRow(DebugCategory, 'Caret at', rkDebugCaretAt);
         if FLiveCodeSection <> nil then begin
-          AddCodeSectionTypeRows;
-          AddCodeSectionSymbolRows;
-          AddCodeSectionRoutineRows;
+          AddCodeTypeRows;
+          AddCodeSymbolRows;
+          AddCodeRoutineRows;
         end;
         {$ENDIF}
 
@@ -1799,14 +1818,14 @@ begin
           const Local = Routine.Locals[J];
           RowSetSignature := RowSetSignature + Format('|R%dL%d|%s', [I, J, Local.Name]);
         end;
-        { Put AddCodeSectionRoutineRows' Result row decision into the structure }
+        { Put AddCodeRoutineRows' Result row decision into the structure }
         if Routine.Kind = rkFunction then
           RowSetSignature := RowSetSignature + '!';
       end;
       for var I := 0 to Model.TypeCount-1 do begin
         const Declaration = Model.Types[I];
         RowSetSignature := RowSetSignature + Format('|T%d|%s', [I, Declaration.Name]);
-        { Put AddCodeSectionInterfaceMethodRows' anonymous interface decision
+        { Put AddCodeInterfaceMethodRows' anonymous interface decision
           into the structure }
         if Declaration.TypeText = 'interface' then
           RowSetSignature := RowSetSignature + '!';
@@ -1819,7 +1838,7 @@ begin
           const Parameter = Method.Parameters[J];
           RowSetSignature := RowSetSignature + Format('|I%dP%d|%s', [I, J, Parameter.Name]);
         end;
-        { Put AddCodeSectionInterfaceMethodRows' Result row decision into the
+        { Put AddCodeInterfaceMethodRows' Result row decision into the
           structure }
         if Method.Kind = rkFunction then
           RowSetSignature := RowSetSignature + '!';
@@ -1870,7 +1889,7 @@ end;
 function TInspector.RowMatchesCaretAt(const ARow: TInspectorRow): Boolean;
 const
   RowKindForCaretAtKind: array [TCaretAtKind] of TInspectorRowKind =
-    (irkParameter, irkKey);
+    (rkParameter, rkKey);
 begin
   Result := FCaretAt.Valid and
     (ARow.Kind = RowKindForCaretAtKind[FCaretAt.Kind]) and
@@ -1975,7 +1994,7 @@ function TInspector.RowGetAsOrdinal(const ARow: TInspectorRow): Int64;
 begin
   Result := 0;
   case ARow.Kind of
-    irkParameterFlag:
+    rkParameterFlag:
       if FLiveParameterSectionEntries <> nil then begin
         case FLiveParameterSectionEntries.GetFlagCheckState(ARow.Name, ARow.Index,
                ARow.FlagName) of
@@ -1983,7 +2002,7 @@ begin
           fcsAll: Result := 1;
         end;
       end;
-    irkKey:
+    rkKey:
       if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
         if FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index) then begin
           var BoolValue := False;
@@ -1994,7 +2013,7 @@ begin
                       SYes) then
           Result := 1;
       end;
-    irkKeyFlag:
+    rkKeyFlag:
       if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
         if FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index) then begin
           if FLiveKeyValueSection.GetFlagCheckState(ARow.Name, ARow.Index,
@@ -2018,6 +2037,10 @@ begin
 end;
 
 function TInspector.RowGetAsString(const ARow: TInspectorRow): String;
+{$IFDEF DEBUG}
+const
+  RoutineKindNames: array[Boolean] of String = ('procedure', 'function'); { Do not localize }
+{$ENDIF}
 
   {$IFDEF DEBUG}
   function DebugParseTimeRowString: String;
@@ -2038,12 +2061,12 @@ function TInspector.RowGetAsString(const ARow: TInspectorRow): String;
 begin
   Result := '';
   case ARow.Kind of
-    irkParameter:
+    rkParameter:
       { A parameter not present in the script, or without a common value,
         shows empty }
       if FLiveParameterSectionEntries <> nil then
         Result := FLiveParameterSectionEntries.GetValue(ARow.Name, ARow.Index);
-    irkKey:
+    rkKey:
       if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
         if FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index) then
           Result := FLiveKeyValueSection.GetValue(ARow.Name, ARow.Index)
@@ -2051,11 +2074,11 @@ begin
           Result := FLiveKeyValueSection.Section.DefaultValue(ARow.Name); { Not present in the script: show the compiler default }
       end;
     {$IFDEF DEBUG}
-    irkDebugStatus:
+    rkDebugStatus:
       Result := FDebugStatusRowString;
-    irkDebugParseTime:
+    rkDebugParseTime:
       Result := DebugParseTimeRowString;
-    irkDebugSections:
+    rkDebugSections:
       begin
         for var I := 0 to FFactory.SectionCount-1 do begin
           const Header = FFactory.SectionHeaders[I];
@@ -2064,76 +2087,75 @@ begin
           Result := Result + Header.Name + '@' + IntToStr(Header.Line+1);
         end;
       end;
-    irkDebugEarlyExits:
+    rkDebugEarlyExits:
       Result := IntToStr(FUpdateFromCaretEarlyExitCount);
-    irkDebugCaretAt:
+    rkDebugCaretAt:
       if FCaretAt.Valid then
         Result := FCaretAt.Name + '@' + IntToStr(FCaretAt.Index)
       else
         Result := 'None';
-    irkDebugCaretRoutine:
+    rkDebugCaretRoutine:
       Result := FDebugCaretRoutineRowString;
-    irkDebugRoutine:
-      if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.RoutineCount) then
-        Result := FLiveCodeSection.Section.Routines[ARow.Index].Prototype;
-    irkDebugRoutineResult:
-      if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.RoutineCount) then
-        Result := FLiveCodeSection.Section.Routines[ARow.Index].ResultTypeText;
-    irkDebugRoutineParameter:
-      if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.RoutineCount) and
-         (ARow.SubIndex < FLiveCodeSection.Section.Routines[ARow.Index].ParameterCount) then
-        Result := FLiveCodeSection.Section.Routines[ARow.Index].Parameters[ARow.SubIndex].TypeText;
-    irkDebugRoutineLocal:
-      if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.RoutineCount) and
-         (ARow.SubIndex < FLiveCodeSection.Section.Routines[ARow.Index].LocalCount) then
-        Result := FLiveCodeSection.Section.Routines[ARow.Index].Locals[ARow.SubIndex].TypeText;
-    irkDebugType:
-      if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.TypeCount) then begin
-        const Section = FLiveCodeSection.Section;
-        Result := Section.Types[ARow.Index].TypeText;
-        if Result = 'enumeration' then begin
-          { Fold the values into the value text. A type merely containing an
-            anonymous enumeration owns its values too, but showing them would
-            read as if the type itself were the enumeration. }
-          var Values := '';
-          for var I := 0 to Section.EnumerationValueCount-1 do begin
-            const Value = Section.EnumerationValues[I];
-            if Value.DeclarationTypeIndex = ARow.Index then begin
-              if Values <> '' then
-                Values := Values + ', ';
-              Values := Values + Value.Name;
+    rkCode:
+      case ARow.CodeKind of
+        ckRoutine..ckRoutineLocal:
+          if (FLiveCodeSection <> nil) and
+             (ARow.Index < FLiveCodeSection.Section.RoutineCount) then begin
+            const Routine = FLiveCodeSection.Section.Routines[ARow.Index];
+            case ARow.CodeKind of
+              ckRoutine: Result := RoutineKindNames[Routine.Kind = rkFunction];
+              ckRoutineResult: Result := Routine.ResultTypeText;
+              ckRoutineParameter:
+                if ARow.SubIndex < Routine.ParameterCount then
+                  Result := Routine.Parameters[ARow.SubIndex].TypeText;
+              ckRoutineLocal:
+                if ARow.SubIndex < Routine.LocalCount then
+                  Result := Routine.Locals[ARow.SubIndex].TypeText;
             end;
           end;
-          if Values <> '' then
-            Result := Result + ' (' + Values + ')';
-        end;
+        ckType:
+          if (FLiveCodeSection <> nil) and
+             (ARow.Index < FLiveCodeSection.Section.TypeCount) then begin
+            const Section = FLiveCodeSection.Section;
+            Result := Section.Types[ARow.Index].TypeText;
+            if Result = 'enumeration' then begin
+              { Fold the values into the value text. A type merely containing an
+                anonymous enumeration owns its values too, but showing them would
+                read as if the type itself were the enumeration. }
+              var Values := '';
+              for var I := 0 to Section.EnumerationValueCount-1 do begin
+                const Value = Section.EnumerationValues[I];
+                if Value.DeclarationTypeIndex = ARow.Index then begin
+                  if Values <> '' then
+                    Values := Values + ', ';
+                  Values := Values + Value.Name;
+                end;
+              end;
+              if Values <> '' then
+                Result := Result + ' (' + Values + ')';
+            end;
+          end;
+        ckInterfaceMethod..ckInterfaceMethodParameter:
+          if (FLiveCodeSection <> nil) and
+             (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) then begin
+            const Method = FLiveCodeSection.Section.InterfaceMethods[ARow.Index];
+            case ARow.CodeKind of
+              ckInterfaceMethod: Result := RoutineKindNames[Method.Kind = rkFunction];
+              ckInterfaceMethodResult: Result := Method.ResultTypeText;
+              ckInterfaceMethodParameter:
+                if ARow.SubIndex < Method.ParameterCount then
+                  Result := Method.Parameters[ARow.SubIndex].TypeText;
+            end;
+          end;
+        ckConstant:
+          if (FLiveCodeSection <> nil) and
+             (ARow.Index < FLiveCodeSection.Section.ConstantCount) then
+            Result := FLiveCodeSection.Section.Constants[ARow.Index].TypeText;
+        ckGlobalVariable:
+          if (FLiveCodeSection <> nil) and
+             (ARow.Index < FLiveCodeSection.Section.GlobalVariableCount) then
+            Result := FLiveCodeSection.Section.GlobalVariables[ARow.Index].TypeText;
       end;
-    irkDebugInterfaceMethod:
-      if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) then
-        Result := FLiveCodeSection.Section.InterfaceMethods[ARow.Index].Prototype;
-    irkDebugInterfaceMethodResult:
-      if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) then
-        Result := FLiveCodeSection.Section.InterfaceMethods[ARow.Index].ResultTypeText;
-    irkDebugInterfaceMethodParameter:
-      if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.InterfaceMethodCount) and
-         (ARow.SubIndex < FLiveCodeSection.Section.InterfaceMethods[ARow.Index].ParameterCount) then
-        Result := FLiveCodeSection.Section.InterfaceMethods[ARow.Index].Parameters[ARow.SubIndex].TypeText;
-    irkDebugConstant:
-      if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.ConstantCount) then
-        Result := FLiveCodeSection.Section.Constants[ARow.Index].TypeText;
-    irkDebugGlobalVariable:
-      if (FLiveCodeSection <> nil) and
-         (ARow.Index < FLiveCodeSection.Section.GlobalVariableCount) then
-        Result := FLiveCodeSection.Section.GlobalVariables[ARow.Index].TypeText;
     {$ENDIF}
   end;
 end;
@@ -2158,19 +2180,19 @@ begin
   FInEdit := True;
   try
     case Row.Kind of
-      irkParameterFlag:
+      rkParameterFlag:
         { May adjust related flags as well }
         if FLiveParameterSectionEntries <> nil then
           FLiveParameterSectionEntries.SetFlag(Row.Name, Row.Index,
             Row.FlagName, Value <> 0);
-      irkKey:
+      rkKey:
         if FLiveKeyValueSection <> nil then begin
           var NewValue := SNo;
           if Value <> 0 then
             NewValue := SYes;
           FLiveKeyValueSection.SetValue(Row.Name, Row.Index, NewValue);
         end;
-      irkKeyFlag:
+      rkKeyFlag:
         { May adjust related flags as well }
         if FLiveKeyValueSection <> nil then
           FLiveKeyValueSection.SetFlag(Row.Name, Row.Index, Row.FlagName,
@@ -2212,7 +2234,7 @@ begin
   FInEdit := True;
   try
     case Row.Kind of
-      irkParameter:
+      rkParameter:
         if (FLiveParameterSectionEntries <> nil) and
            FLiveParameterSectionEntries.Valid then begin
           var Definition: TMemberDefinition;
@@ -2220,7 +2242,7 @@ begin
             ValidateValue(Row.Name, Value, Definition);
           FLiveParameterSectionEntries.SetValue(Row.Name, Row.Index, Value);
         end;
-      irkKey:
+      rkKey:
         if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
           var Definition: TMemberDefinition;
           if FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition) then
@@ -2241,9 +2263,9 @@ begin
   FInEdit := True; { See RowSetAsString }
   try
     case ARow.Kind of
-      irkParameter, irkParameterFlag:
+      rkParameter, rkParameterFlag:
         FLiveParameterSectionEntries.Remove(ARow.Name, ARow.Index);
-      irkKey, irkKeyFlag:
+      rkKey, rkKeyFlag:
         FLiveKeyValueSection.Remove(ARow.Name, ARow.Index);
     end;
   finally
@@ -2269,7 +2291,7 @@ begin
   var Row: TInspectorRow;
   if not TryGetRow(Item, Row) then
     Exit;
-  if not (Row.Kind in [irkParameter, irkKey]) then
+  if not (Row.Kind in [rkParameter, rkKey]) then
     raise Exception.Create('Internal error: ChoiceRowGetValueList: unexpected row kind');
   var Definition: TMemberDefinition;
   if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid then begin
