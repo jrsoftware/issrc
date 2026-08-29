@@ -25,7 +25,8 @@ type
 const
   { Names of the languages as accepted by the command line, not localized }
   IDELanguageNames: array [TIDELanguage] of String =
-    ('english', 'czech', 'dutch', 'german', 'japanese', 'french', 'spanish');
+    ('english', 'czech', 'dutch', 'german', 'japanese', 'french', 'spanish',
+     'italian');
 
 procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);

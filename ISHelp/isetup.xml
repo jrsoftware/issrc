@@ -4147,7 +4147,7 @@ iside --language <i>&lt;language&gt;</i></precode>
 <example><pre>iside -lang english "c:\isetup\samples\my script.iss"</pre></example>
 </indent>
 
-<p>The supported languages are <tt>english</tt>, <tt>czech</tt>, <tt>dutch</tt>, <tt>german</tt>, <tt>japanese</tt>, <tt>french</tt>, and <tt>spanish</tt>. The language name is case-insensitive.</p>
+<p>The supported languages are <tt>english</tt>, <tt>czech</tt>, <tt>dutch</tt>, <tt>german</tt>, <tt>japanese</tt>, <tt>french</tt>, <tt>spanish</tt>, and <tt>italian</tt>. The language name is case-insensitive.</p>
 
 <p>This option can be combined with the options above. It overrides the <i>Language</i> option. Not remembered for next session.</p>
 
