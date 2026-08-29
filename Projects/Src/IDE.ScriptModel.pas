@@ -169,6 +169,7 @@ type
     procedure BeginUpdate;
     procedure Changed;
     procedure EndUpdate;
+    function GetEmpty: Boolean;
     function GetNamedLine(const AIndex: Integer): TKeyValueSectionLine;
     function GetLine(Index: Integer): TKeyValueSectionLine;
     procedure SetFlagInternal(const AIndex: Integer; const AFlagName: String;
@@ -195,6 +196,7 @@ type
     function TryGetValuePosition(const AIndex: Integer;
       out APosition: TValuePosition): Boolean;
     function DefaultValue(const AName: String): String;
+    property Empty: Boolean read GetEmpty;
     property Lines[Index: Integer]: TKeyValueSectionLine read GetLine;
     property Metadata: TScriptModelSectionMetadata read FMetadata;
     property QuoteNewValues: Boolean read FQuoteNewValues write FQuoteNewValues;
@@ -1331,6 +1333,15 @@ end;
 function TScriptModelKeyValueSection.Count: Integer;
 begin
   Result := Integer(FLines.Count);
+end;
+
+function TScriptModelKeyValueSection.GetEmpty: Boolean;
+begin
+  { Comments, blank lines and ISPP lines don't count }
+  for var I := 0 to Count-1 do
+    if FLines[I].Kind = lkKeyValue then
+      Exit(False);
+  Result := True;
 end;
 
 function TScriptModelKeyValueSection.GetLine(

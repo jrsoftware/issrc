@@ -340,9 +340,13 @@ begin
       ShowNote(LFmtMessage(SInspectorSiblingOccurrencesNote))
     else if FShowAllKnownDirectivesSuppressedNote then
       ShowNote(LFmtMessage(SInspectorShowAllKnownDirectivesSuppressedNote))
+    else if FLiveKeyValueSection.Section.Empty and not FShowAllKnownDirectives then 
+      ShowNote(LFmtMessage(SInspectorNothingToInspectNote))
     else
       HideNote;
-  end else
+  end else if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Section.Empty then
+    ShowNote(LFmtMessage(SInspectorNothingToInspectNote))
+  else
     HideNote;
 end;
 

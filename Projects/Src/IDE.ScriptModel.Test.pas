@@ -1765,6 +1765,36 @@ begin
   end;
 end;
 
+procedure TestKeyValueSectionEmpty;
+begin
+  const Section = TScriptModelKeyValueSection.Create(nil);
+  try
+    Section.Parse([]);
+    Assert(Section.Empty);
+
+    { Lines holding no key don't end it }
+    Section.Parse(['', '; comment', '#define X 1']);
+    Assert(Section.Count = 3);
+    Assert(Section.Empty);
+
+    Section.Parse(['AppName=Foo']);
+    Assert(not Section.Empty);
+
+    { Unknown keys count just as known ones do }
+    Section.Parse(['Unknown=1']);
+    Assert(not Section.Empty);
+
+    { Adding and removing keys keeps it up to date }
+    Section.Parse(['; comment']);
+    const Index = Section.Add('AppName', 'Foo');
+    Assert(not Section.Empty);
+    Section.Remove(Index);
+    Assert(Section.Empty);
+  finally
+    Section.Free;
+  end;
+end;
+
 procedure TestEntrySpanning;
 begin
   const Entry = TScriptModelParameterSectionEntry.Create(nil);
@@ -5475,6 +5505,7 @@ begin
   TestEntryExcludeRules;
   TestKeyValueSection;
   TestKeyValueSectionFlags;
+  TestKeyValueSectionEmpty;
   TestEntrySpanning;
   TestEntryParameterIndex;
   TestEntryValuePosition;
