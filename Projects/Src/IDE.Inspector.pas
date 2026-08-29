@@ -20,9 +20,9 @@ uses
 
 type
   TInspectorRowKind = (rkParameter, rkParameterFlag, rkKey,
-    rkKeyFlag {$IFDEF DEBUG}, rkDebugStatus, rkDebugParseTime,
+    rkKeyFlag, rkCode {$IFDEF DEBUG}, rkDebugStatus, rkDebugParseTime,
     rkDebugSections, rkDebugEarlyExits,
-    rkDebugCaretAt, rkDebugCaretRoutine, rkCode {$ENDIF});
+    rkDebugCaretAt, rkDebugCaretRoutine {$ENDIF});
 
   { Kinds sharing a declaration must stay together: RowGetAsString looks
     them up by range }
@@ -104,6 +104,8 @@ type
       FLiveKeyValueSectionIsDirectiveSection: Boolean;
       FLiveKeyValueSectionHasSiblingOccurrences: Boolean;
       FLiveKeyValueSectionIndex: Integer; { Factory section index it was created for }
+      FLiveCodeSection: TLiveScriptCodeSection;
+      FLiveCodeSectionIndex: Integer; { Factory section index it was acquired for }
       FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
       FSelectionLineRangesAtCreation: TArray<TScintLineRange>; { GetSelectionLineRanges result at the live object's creation }
       FIndividualSelectionLineRangesAtCreation: TArray<TScintLineRange>; { Same but the individual line ranges }
@@ -116,8 +118,6 @@ type
       {$IFDEF DEBUG}
       FDebugStatusRowString: String;
       FDebugCaretRoutineRowString: String;
-      FLiveCodeSection: TLiveScriptCodeSection;
-      FLiveCodeSectionIndex: Integer; { Factory section index it was created for }
       FUpdateFromCaretEarlyExitCount: Integer;
       {$ENDIF}
       FInEdit: Boolean;
@@ -306,9 +306,7 @@ begin
   FJvInspector.Free;
   FLiveParameterSectionEntries.Free;
   FLiveKeyValueSection.Free;
-  {$IFDEF DEBUG}
   TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
-  {$ENDIF}
   FRows.Free;
   if FMessagesWnd <> 0 then
     DeallocateHWnd(FMessagesWnd);
@@ -330,8 +328,8 @@ procedure TInspector.UpdateNote;
   end;
 
 begin
-  if (FLiveParameterSectionEntries = nil) and (FLiveKeyValueSection = nil)
-     {$IFDEF DEBUG} and (FLiveCodeSection = nil) {$ENDIF} then begin
+  if (FLiveParameterSectionEntries = nil) and (FLiveKeyValueSection = nil) and
+     (FLiveCodeSection = nil) then begin
     if FMixedSelection then
       ShowNote(LFmtMessage(SInspectorMixedSelectionNote))
     else
@@ -1337,7 +1335,6 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
-  {$IFDEF DEBUG}
   function AddCodeRow(const AParent: TJvCustomInspectorItem;
     const ADisplayName: String; const ACodeKind: TInspectorRowCodeKind;
     const AIndex: Integer;
@@ -1455,7 +1452,6 @@ procedure TInspector.UpdateFromCaret;
       end;
     end;
   end;
-  {$ENDIF}
 
   function FindItemByID(const AID: String; const AIDIncludesIndex: Boolean;
     const AParent: TJvCustomInspectorItem): TJvCustomInspectorItem;
@@ -1515,17 +1511,17 @@ procedure TInspector.UpdateFromCaret;
         AddDebugRow(DebugCategory, 'Caret routine', rkDebugCaretRoutine);
         AddDebugRow(DebugCategory, 'Early exits', rkDebugEarlyExits);
         AddDebugRow(DebugCategory, 'Caret at', rkDebugCaretAt);
-        if FLiveCodeSection <> nil then begin
-          AddCodeTypeRows;
-          AddCodeSymbolRows;
-          AddCodeRoutineRows;
-        end;
         {$ENDIF}
 
         if FLiveParameterSectionEntries <> nil then
           AddParameterSectionEntryRows
         else if FLiveKeyValueSection <> nil then
-          AddKeyValueSectionRows;
+          AddKeyValueSectionRows
+        else if FLiveCodeSection <> nil then begin
+          AddCodeTypeRows;
+          AddCodeSymbolRows;
+          AddCodeRoutineRows;
+        end;
 
         RestoreExpandedStates(ExpandedStates, FJvInspector.Root);
         if FFilterText <> '' then
@@ -1690,26 +1686,26 @@ begin
       Exit;
     end;
   end;
-  {$IFDEF DEBUG}
   if (FLiveCodeSection <> nil) and FLiveCodeSection.Valid and
      (FRowSetSignature <> '') and not LiveObjectTextChanged and
      (SelectionTestPassed or not UseSelectionTest) then begin
     var SectionIndex: Integer;
     if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
        (SectionIndex = FLiveCodeSectionIndex) then begin
-      UpdateDebugCaretRoutineRowString(CaretLine);
       UpdateCaretAt;
+      {$IFDEF DEBUG}
+      UpdateDebugCaretRoutineRowString(CaretLine);
       Inc(FUpdateFromCaretEarlyExitCount);
       InvalidateChangedRows; { See above }
+      {$ENDIF}
       Exit;
     end;
   end;
-  {$ENDIF}
 
   FreeAndNil(FLiveParameterSectionEntries);
   FreeAndNil(FLiveKeyValueSection);
-  {$IFDEF DEBUG}
   TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
+  {$IFDEF DEBUG}
   FUpdateFromCaretEarlyExitCount := 0;
   FDebugCaretRoutineRowString := 'None';
   {$ENDIF}
@@ -1792,19 +1788,20 @@ begin
         end;
       end;
     end
-    {$IFDEF DEBUG}
     else if (EntryRefusalReason <> rrMixedSelection) and
             FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
             FFactory.TryAcquireCodeSection(SectionIndex, FLiveCodeSection) then begin
-      const Header = FFactory.SectionHeaders[SectionIndex];
       FLiveCodeSectionIndex := SectionIndex;
       FChangeCountAtCreation := FFactory.ChangeCount;
       FSelectionLineRangesAtCreation := SelectionLineRanges;
       FIndividualSelectionLineRangesAtCreation := IndividualSelectionLineRanges;
       FCaretLineAtCreation := CaretLine;
+      {$IFDEF DEBUG}
+      const Header = FFactory.SectionHeaders[SectionIndex];
       FDebugStatusRowString := Format('[%s] section at line %d',
         [Header.Name, Header.Line+1]);
       UpdateDebugCaretRoutineRowString(CaretLine);
+      {$ENDIF}
       RowSetSignature := 'C';
       const Model = FLiveCodeSection.Section;
       for var I := 0 to Model.RoutineCount-1 do begin
@@ -1852,7 +1849,6 @@ begin
         RowSetSignature := RowSetSignature + Format('|V%d|%s', [I, Declaration.Name]);
       end;
     end
-    {$ENDIF}
     else begin
       { Prefer the entry refusal }
       FSelectionLineRangesAtCreation := [];
@@ -2037,10 +2033,8 @@ begin
 end;
 
 function TInspector.RowGetAsString(const ARow: TInspectorRow): String;
-{$IFDEF DEBUG}
 const
   RoutineKindNames: array[Boolean] of String = ('procedure', 'function'); { Do not localize }
-{$ENDIF}
 
   {$IFDEF DEBUG}
   function DebugParseTimeRowString: String;
@@ -2096,6 +2090,7 @@ begin
         Result := 'None';
     rkDebugCaretRoutine:
       Result := FDebugCaretRoutineRowString;
+    {$ENDIF}
     rkCode:
       case ARow.CodeKind of
         ckRoutine..ckRoutineLocal:
@@ -2156,7 +2151,6 @@ begin
              (ARow.Index < FLiveCodeSection.Section.GlobalVariableCount) then
             Result := FLiveCodeSection.Section.GlobalVariables[ARow.Index].TypeText;
       end;
-    {$ENDIF}
   end;
 end;
 
