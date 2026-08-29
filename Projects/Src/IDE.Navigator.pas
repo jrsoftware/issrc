@@ -466,17 +466,8 @@ begin
 
       { Determine caret routine index }
       var NewRoutineIndex := -1;
-      if FLiveCodeSection <> nil then begin
-        var CaretRoutine: TCodeSectionRoutine;
-        if FLiveCodeSection.TryGetRoutine(CaretLine, CaretRoutine) then begin
-          for var I := 0 to FLiveCodeSection.Section.RoutineCount-1 do begin
-            if FLiveCodeSection.Section.Routines[I] = CaretRoutine then begin
-              NewRoutineIndex := I;
-              Break;
-            end;
-          end;
-        end;
-      end;
+      if FLiveCodeSection <> nil then
+        FLiveCodeSection.TryGetRoutineIndex(CaretLine, NewRoutineIndex);
 
       if RebuildNow then begin
         { Update to new routines }

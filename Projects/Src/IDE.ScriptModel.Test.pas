@@ -4853,44 +4853,44 @@ begin
       '']);                                                       { 20 }
     Assert(Section.RoutineCount = 4);
 
-    var Routine: TCodeSectionRoutine;
+    var RoutineIndex: Integer;
 
     { Lines outside every span: the global var block, the gaps between
       routines, the trailing empty line, and lines outside the section }
-    Assert(not Section.TryGetRoutine(0, Routine));
-    Assert(Routine = nil);
-    Assert(not Section.TryGetRoutine(1, Routine));
-    Assert(not Section.TryGetRoutine(2, Routine));
-    Assert(not Section.TryGetRoutine(4, Routine));
-    Assert(not Section.TryGetRoutine(7, Routine));
-    Assert(not Section.TryGetRoutine(16, Routine));
-    Assert(not Section.TryGetRoutine(20, Routine));
-    Assert(not Section.TryGetRoutine(-1, Routine));
-    Assert(not Section.TryGetRoutine(21, Routine));
+    Assert(not Section.TryGetRoutineIndex(0, RoutineIndex));
+    Assert(RoutineIndex = -1);
+    Assert(not Section.TryGetRoutineIndex(1, RoutineIndex));
+    Assert(not Section.TryGetRoutineIndex(2, RoutineIndex));
+    Assert(not Section.TryGetRoutineIndex(4, RoutineIndex));
+    Assert(not Section.TryGetRoutineIndex(7, RoutineIndex));
+    Assert(not Section.TryGetRoutineIndex(16, RoutineIndex));
+    Assert(not Section.TryGetRoutineIndex(20, RoutineIndex));
+    Assert(not Section.TryGetRoutineIndex(-1, RoutineIndex));
+    Assert(not Section.TryGetRoutineIndex(21, RoutineIndex));
 
     { Bodiless routines: the span is the header plus a trailing directive }
-    Assert(Section.TryGetRoutine(3, Routine));
-    Assert(Routine = Section.Routines[0]);
-    Assert(Section.TryGetRoutine(5, Routine));
-    Assert(Routine = Section.Routines[1]);
-    Assert(Section.TryGetRoutine(6, Routine)); { The directive's own line }
-    Assert(Routine = Section.Routines[1]);
+    Assert(Section.TryGetRoutineIndex(3, RoutineIndex));
+    Assert(RoutineIndex = 0);
+    Assert(Section.TryGetRoutineIndex(5, RoutineIndex));
+    Assert(RoutineIndex = 1);
+    Assert(Section.TryGetRoutineIndex(6, RoutineIndex)); { The directive's own line }
+    Assert(RoutineIndex = 1);
 
     { Inside the header, the local declarations, and the body }
-    Assert(Section.TryGetRoutine(8, Routine));
-    Assert(Routine = Section.Routines[2]);
-    Assert(Section.TryGetRoutine(9, Routine));
-    Assert(Routine = Section.Routines[2]);
-    Assert(Section.TryGetRoutine(10, Routine));
-    Assert(Routine = Section.Routines[2]);
-    Assert(Section.TryGetRoutine(11, Routine));
-    Assert(Routine = Section.Routines[2]);
-    Assert(Section.TryGetRoutine(13, Routine));
-    Assert(Routine = Section.Routines[2]);
-    Assert(Section.TryGetRoutine(15, Routine));
-    Assert(Routine = Section.Routines[2]);
-    Assert(Section.TryGetRoutine(18, Routine));
-    Assert(Routine = Section.Routines[3]);
+    Assert(Section.TryGetRoutineIndex(8, RoutineIndex));
+    Assert(RoutineIndex = 2);
+    Assert(Section.TryGetRoutineIndex(9, RoutineIndex));
+    Assert(RoutineIndex = 2);
+    Assert(Section.TryGetRoutineIndex(10, RoutineIndex));
+    Assert(RoutineIndex = 2);
+    Assert(Section.TryGetRoutineIndex(11, RoutineIndex));
+    Assert(RoutineIndex = 2);
+    Assert(Section.TryGetRoutineIndex(13, RoutineIndex));
+    Assert(RoutineIndex = 2);
+    Assert(Section.TryGetRoutineIndex(15, RoutineIndex));
+    Assert(RoutineIndex = 2);
+    Assert(Section.TryGetRoutineIndex(18, RoutineIndex));
+    Assert(RoutineIndex = 3);
 
     { Multiple routines on one physical line: the first one wins }
     Section.Parse([
@@ -4902,16 +4902,16 @@ begin
     Assert(Section.RoutineCount = 2);
     Assert(Section.Routines[0].LastLine = 2);
     Assert(Section.Routines[1].FirstLine = 2);
-    Assert(Section.TryGetRoutine(2, Routine));
-    Assert(Routine = Section.Routines[0]);
+    Assert(Section.TryGetRoutineIndex(2, RoutineIndex));
+    Assert(RoutineIndex = 0);
     Section.Parse(['procedure A; procedure B; begin end;']);
     Assert(Section.RoutineCount = 2);
-    Assert(Section.TryGetRoutine(0, Routine));
-    Assert(Routine = Section.Routines[0]);
-    Assert(Section.TryGetRoutine(0, Routine, True)); { A has no 'begin' }
-    Assert(Routine = Section.Routines[1]);
+    Assert(Section.TryGetRoutineIndex(0, RoutineIndex));
+    Assert(RoutineIndex = 0);
+    Assert(Section.TryGetRoutineIndex(0, RoutineIndex, True)); { A has no 'begin' }
+    Assert(RoutineIndex = 1);
 
-    { TryGetRoutine with AFromBodyOnly matches from the body's 'begin'
+    { TryGetRoutineIndex with AFromBodyOnly matches from the body's 'begin'
       onwards: not the header, not the local declarations, not a bodiless
       routine, and not the lines between routines. A body missing its 'end'
       matches to the end of the routine's span. }
@@ -4930,29 +4930,154 @@ begin
       '  X := 1;',                                  { 11 }
       '']);                                         { 12 }
     Assert(Section.RoutineCount = 3);
-    Assert(not Section.TryGetRoutine(0, Routine, True)); { Bodiless }
-    Assert(Routine = nil);
-    Assert(not Section.TryGetRoutine(1, Routine, True)); { Between routines }
-    Assert(not Section.TryGetRoutine(2, Routine, True)); { Header }
-    Assert(not Section.TryGetRoutine(3, Routine, True)); { Local 'var' block }
-    Assert(not Section.TryGetRoutine(4, Routine, True));
-    Assert(Section.TryGetRoutine(5, Routine, True)); { The 'begin' line }
-    Assert(Routine = Section.Routines[1]);
-    Assert(Section.TryGetRoutine(6, Routine, True));
-    Assert(Routine = Section.Routines[1]);
-    Assert(Section.TryGetRoutine(7, Routine, True)); { The 'end;' line }
-    Assert(Routine = Section.Routines[1]);
-    Assert(not Section.TryGetRoutine(8, Routine, True)); { Between routines }
-    Assert(not Section.TryGetRoutine(9, Routine, True)); { Header of an open body }
-    Assert(Section.TryGetRoutine(10, Routine, True)); { The open body's 'begin' }
-    Assert(Routine = Section.Routines[2]);
-    Assert(Section.TryGetRoutine(11, Routine, True));
-    Assert(Routine = Section.Routines[2]);
-    Assert(Section.TryGetRoutine(12, Routine, True)); { To the span's end }
-    Assert(Routine = Section.Routines[2]);
+    Assert(not Section.TryGetRoutineIndex(0, RoutineIndex, True)); { Bodiless }
+    Assert(RoutineIndex = -1);
+    Assert(not Section.TryGetRoutineIndex(1, RoutineIndex, True)); { Between routines }
+    Assert(not Section.TryGetRoutineIndex(2, RoutineIndex, True)); { Header }
+    Assert(not Section.TryGetRoutineIndex(3, RoutineIndex, True)); { Local 'var' block }
+    Assert(not Section.TryGetRoutineIndex(4, RoutineIndex, True));
+    Assert(Section.TryGetRoutineIndex(5, RoutineIndex, True)); { The 'begin' line }
+    Assert(RoutineIndex = 1);
+    Assert(Section.TryGetRoutineIndex(6, RoutineIndex, True));
+    Assert(RoutineIndex = 1);
+    Assert(Section.TryGetRoutineIndex(7, RoutineIndex, True)); { The 'end;' line }
+    Assert(RoutineIndex = 1);
+    Assert(not Section.TryGetRoutineIndex(8, RoutineIndex, True)); { Between routines }
+    Assert(not Section.TryGetRoutineIndex(9, RoutineIndex, True)); { Header of an open body }
+    Assert(Section.TryGetRoutineIndex(10, RoutineIndex, True)); { The open body's 'begin' }
+    Assert(RoutineIndex = 2);
+    Assert(Section.TryGetRoutineIndex(11, RoutineIndex, True));
+    Assert(RoutineIndex = 2);
+    Assert(Section.TryGetRoutineIndex(12, RoutineIndex, True)); { To the span's end }
+    Assert(RoutineIndex = 2);
     Section.Parse(['procedure Foo;', 'begin var A: Integer;']);
-    Assert(Section.TryGetRoutine(1, Routine, True)); { A cut on the 'begin' line itself still matches it }
-    Assert(Routine = Section.Routines[0]);
+    Assert(Section.TryGetRoutineIndex(1, RoutineIndex, True)); { A cut on the 'begin' line itself still matches it }
+    Assert(RoutineIndex = 0);
+  finally
+    Section.Free;
+  end;
+end;
+
+procedure TestCodeSectionEmpty;
+begin
+  const Section = TScriptModelCodeSection.Create;
+  try
+    Section.Parse([]);
+    Assert(Section.Empty);
+    Section.Parse(['', '{ Just a comment }']);
+    Assert(Section.Empty);
+
+    { Any declaration ends it. An enumeration value and an interface method
+      come with the type declaring them. }
+    Section.Parse(['procedure P;', 'begin', 'end;']);
+    Assert(not Section.Empty);
+    Section.Parse(['type', '  TInt = Integer;']);
+    Assert(not Section.Empty);
+    Section.Parse(['type', '  TState = (sOne, sTwo);']);
+    Assert(Section.EnumerationValueCount = 2);
+    Assert(not Section.Empty);
+    Section.Parse(['type', '  IMy = interface', '    procedure M;', '  end;']);
+    Assert(Section.InterfaceMethodCount = 1);
+    Assert(not Section.Empty);
+    Section.Parse(['const', '  MyConst = 5;']);
+    Assert(not Section.Empty);
+    Section.Parse(['var', '  MyVar: Integer;']);
+    Assert(not Section.Empty);
+  finally
+    Section.Free;
+  end;
+end;
+
+procedure TestCodeSectionDeclarationAtLine;
+begin
+  const Section = TScriptModelCodeSection.Create;
+  try
+    Section.Parse([
+      'type',                            { 0 }
+      '  TInt = Integer;',               { 1 }
+      '  IMy = interface',               { 2 }
+      '    procedure Save(A: Integer);', { 3 }
+      '  end;',                          { 4 }
+      'const',                           { 5 }
+      '  MyConst = 5;',                  { 6 }
+      'var',                             { 7 }
+      '  MyVar: Integer;',               { 8 }
+      '',                                { 9 }
+      'procedure P;',                    { 10 }
+      'begin',                           { 11 }
+      'end;']);                          { 12 }
+    Assert(Section.TypeCount = 2);
+    Assert(Section.InterfaceMethodCount = 1);
+    Assert(Section.ConstantCount = 1);
+    Assert(Section.GlobalVariableCount = 1);
+
+    var Index: Integer;
+
+    { The line the declaration's name is on }
+    Assert(Section.TryGetTypeIndex(1, Index));
+    Assert(Index = 0);
+    Assert(Section.TryGetTypeIndex(2, Index));
+    Assert(Index = 1);
+    Assert(Section.TryGetInterfaceMethodIndex(3, Index));
+    Assert(Index = 0);
+    Assert(Section.TryGetConstantIndex(6, Index));
+    Assert(Index = 0);
+    Assert(Section.TryGetGlobalVariableIndex(8, Index));
+    Assert(Index = 0);
+
+    { A line holding another kind, a block keyword line, the interface's
+      'end;', a line inside a routine, and lines outside the section }
+    Assert(not Section.TryGetTypeIndex(6, Index));
+    Assert(Index = -1);
+    Assert(not Section.TryGetConstantIndex(8, Index));
+    Assert(not Section.TryGetGlobalVariableIndex(6, Index));
+    Assert(not Section.TryGetTypeIndex(0, Index));
+    Assert(not Section.TryGetInterfaceMethodIndex(4, Index));
+    Assert(Index = -1);
+    Assert(not Section.TryGetGlobalVariableIndex(11, Index));
+    Assert(not Section.TryGetTypeIndex(-1, Index));
+    Assert(not Section.TryGetTypeIndex(13, Index));
+
+    { Multiple declarations on one physical line: the first one wins }
+    Section.Parse([
+      'var',                { 0 }
+      '  A, B: Integer;']); { 1 }
+    Assert(Section.GlobalVariableCount = 2);
+    Assert(Section.TryGetGlobalVariableIndex(1, Index));
+    Assert(Index = 0);
+
+    { An enumeration spread over lines: the type matches its own name line and
+      each value the line it sits on }
+    Section.Parse([
+      'type',           { 0 }
+      '  TState = (',   { 1 }
+      '    sOne,',      { 2 }
+      '    sTwo);']);   { 3 }
+    Assert(Section.TypeCount = 1);
+    Assert(Section.EnumerationValueCount = 2);
+    Assert(Section.TryGetTypeIndex(1, Index));
+    Assert(Index = 0);
+    Assert(not Section.TryGetEnumerationValueIndex(1, Index));
+    Assert(Index = -1);
+    Assert(Section.TryGetEnumerationValueIndex(2, Index));
+    Assert(Index = 0);
+    Assert(Section.EnumerationValues[Index].DeclarationTypeIndex = 0);
+    Assert(Section.TryGetEnumerationValueIndex(3, Index));
+    Assert(Index = 1);
+    Assert(Section.EnumerationValues[Index].DeclarationTypeIndex = 0);
+    Assert(not Section.TryGetEnumerationValueIndex(0, Index));
+
+    { An anonymous enumeration's values belong to the type declaring it }
+    Section.Parse([
+      'type',                  { 0 }
+      '  TRec = record',       { 1 }
+      '    F: (aOne, aTwo);',  { 2 }
+      '  end;']);              { 3 }
+    Assert(Section.TypeCount = 1);
+    Assert(Section.EnumerationValueCount = 2);
+    Assert(Section.TryGetEnumerationValueIndex(2, Index));
+    Assert(Index = 0);
+    Assert(Section.EnumerationValues[Index].DeclarationTypeIndex = 0);
   finally
     Section.Free;
   end;
@@ -5001,11 +5126,11 @@ begin
     Assert(Section.Routines[1].Name = 'After');
     Assert(Section.Routines[1].FirstLine = 5);
     Assert(Section.Routines[1].LastLine = 7);
-    var Routine: TCodeSectionRoutine;
-    Assert(Section.TryGetRoutine(3, Routine)); { The leftover 'end;' line }
-    Assert(Routine = Section.Routines[0]);
-    Assert(Section.TryGetRoutine(6, Routine));
-    Assert(Routine = Section.Routines[1]);
+    var RoutineIndex: Integer;
+    Assert(Section.TryGetRoutineIndex(3, RoutineIndex)); { The leftover 'end;' line }
+    Assert(RoutineIndex = 0);
+    Assert(Section.TryGetRoutineIndex(6, RoutineIndex));
+    Assert(RoutineIndex = 1);
 
     { A type block found after the resync also ends the cut routine's span }
     Section.Parse([
@@ -5021,10 +5146,10 @@ begin
     Assert(Section.TypeCount = 1);
     Assert(Section.Types[0].Name = 'TAfter');
     Assert(Section.Types[0].Line = 4);
-    Assert(Section.TryGetRoutine(2, Routine));
-    Assert(Routine = Section.Routines[0]);
-    Assert(not Section.TryGetRoutine(3, Routine));
-    Assert(not Section.TryGetRoutine(4, Routine));
+    Assert(Section.TryGetRoutineIndex(2, RoutineIndex));
+    Assert(RoutineIndex = 0);
+    Assert(not Section.TryGetRoutineIndex(3, RoutineIndex));
+    Assert(not Section.TryGetRoutineIndex(4, RoutineIndex));
 
     { 'const', 'var' and 'label' blocks also end the span, and 'const' and
       'var' blocks after it are top-level ones: the 'var' block's name counts
@@ -5040,7 +5165,7 @@ begin
         '  X']);                  { 4 }
       Assert(Section.RoutineCount = 1);
       Assert(Section.Routines[0].LastLine = 2);
-      Assert(not Section.TryGetRoutine(3, Routine));
+      Assert(not Section.TryGetRoutineIndex(3, RoutineIndex));
       Assert(Section.ConstantCount = 0);
       if BlockKeyword = 'var' then
         Assert(Section.GlobalVariableCount = 1)
@@ -5070,8 +5195,8 @@ begin
     Assert(Section.Routines[0].Locals[0].Name = 'X');
     Assert(Section.Routines[0].Locals[0].TypeText = 'Integer');
     Assert(Section.Routines[0].Locals[0].Line = 4);
-    Assert(Section.TryGetRoutine(5, Routine));
-    Assert(Routine = Section.Routines[0]);
+    Assert(Section.TryGetRoutineIndex(5, RoutineIndex));
+    Assert(RoutineIndex = 0);
     Section.Parse([
       'procedure Typing;',     { 0 }
       'const',                 { 1 }
@@ -5084,8 +5209,8 @@ begin
     Assert(Section.TypeCount = 1);
     Assert(Section.Types[0].Name = 'T');
     Assert(Section.Types[0].Line = 4);
-    Assert(Section.TryGetRoutine(4, Routine));
-    Assert(Routine = Section.Routines[0]);
+    Assert(Section.TryGetRoutineIndex(4, RoutineIndex));
+    Assert(RoutineIndex = 0);
 
     { A 'begin' met after the resync ends the search for it, so the span ends
       at the next block and that block's variables are global ones }
@@ -5106,8 +5231,8 @@ begin
     Assert(Section.GlobalVariables[0].Name = 'G');
     Assert(Section.GlobalVariables[0].TypeText = 'Integer');
     Assert(Section.GlobalVariables[0].Line = 6);
-    Assert(Section.TryGetRoutine(4, Routine));
-    Assert(not Section.TryGetRoutine(6, Routine));
+    Assert(Section.TryGetRoutineIndex(4, RoutineIndex));
+    Assert(not Section.TryGetRoutineIndex(6, RoutineIndex));
 
     { The same when the error cut the header itself, which keeps the text up
       to the cut }
@@ -5364,6 +5489,8 @@ begin
   TestCodeSectionParameters;
   TestCodeSectionLocals;
   TestCodeSectionRoutineAtLine;
+  TestCodeSectionEmpty;
+  TestCodeSectionDeclarationAtLine;
   TestCodeSectionResync;
   {$IFDEF ISTESTTOOLPROJ}
   { ISTestTool only: under the ISIDE DEBUG self-test the initializers would

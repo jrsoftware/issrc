@@ -165,6 +165,8 @@ type
     function TryGetRoutine(const AMemoLine: Integer;
       out ARoutine: TCodeSectionRoutine;
       const AFromBodyOnly: Boolean = False): Boolean;
+    function TryGetRoutineIndex(const AMemoLine: Integer; out AIndex: Integer;
+      const AFromBodyOnly: Boolean = False): Boolean;
     property Section: TScriptModelCodeSection read FSection;
   end;
 
@@ -649,7 +651,17 @@ function TLiveScriptCodeSection.TryGetRoutine(const AMemoLine: Integer;
   out ARoutine: TCodeSectionRoutine; const AFromBodyOnly: Boolean): Boolean;
 begin
   ARoutine := nil;
-  Result := Valid and FSection.TryGetRoutine(AMemoLine - FFirstLine, ARoutine,
+  var Index: Integer;
+  Result := TryGetRoutineIndex(AMemoLine, Index, AFromBodyOnly);
+  if Result then
+    ARoutine := FSection.Routines[Index];
+end;
+
+function TLiveScriptCodeSection.TryGetRoutineIndex(const AMemoLine: Integer;
+  out AIndex: Integer; const AFromBodyOnly: Boolean): Boolean;
+begin
+  AIndex := -1;
+  Result := Valid and FSection.TryGetRoutineIndex(AMemoLine - FFirstLine, AIndex,
     AFromBodyOnly);
 end;
 

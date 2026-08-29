@@ -304,6 +304,9 @@ type
     function GetInterfaceMethod(Index: Integer): TCodeSectionInterfaceMethod;
     function GetConstant(Index: Integer): TCodeSectionDeclaration;
     function GetGlobalVariable(Index: Integer): TCodeSectionDeclaration;
+    function GetEmpty: Boolean;
+    function TryGetDeclarationIndex(const AList: TObjectList<TCodeSectionDeclaration>;
+      const ALine: Integer; out AIndex: Integer): Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -314,9 +317,18 @@ type
     function InterfaceMethodCount: Integer;
     function ConstantCount: Integer;
     function GlobalVariableCount: Integer;
-    function TryGetRoutine(const ALine: Integer;
-      out ARoutine: TCodeSectionRoutine;
+    function TryGetRoutineIndex(const ALine: Integer; out AIndex: Integer;
       const AFromBodyOnly: Boolean = False): Boolean;
+    function TryGetTypeIndex(const ALine: Integer; out AIndex: Integer): Boolean;
+    function TryGetEnumerationValueIndex(const ALine: Integer;
+      out AIndex: Integer): Boolean;
+    function TryGetInterfaceMethodIndex(const ALine: Integer;
+      out AIndex: Integer): Boolean;
+    function TryGetConstantIndex(const ALine: Integer;
+      out AIndex: Integer): Boolean;
+    function TryGetGlobalVariableIndex(const ALine: Integer;
+      out AIndex: Integer): Boolean;
+    property Empty: Boolean read GetEmpty;
     property Routines[Index: Integer]: TCodeSectionRoutine read GetRoutine;
     property Types[Index: Integer]: TCodeSectionDeclaration read GetType;
     property EnumerationValues[Index: Integer]: TCodeSectionEnumerationValue read GetEnumerationValue;
@@ -2779,24 +2791,91 @@ begin
   Result := FGlobalVariables[Index];
 end;
 
-function TScriptModelCodeSection.TryGetRoutine(const ALine: Integer;
-  out ARoutine: TCodeSectionRoutine; const AFromBodyOnly: Boolean): Boolean;
+function TScriptModelCodeSection.GetEmpty: Boolean;
+begin
+  { Enumeration values and interface methods don't count: they come from
+    a type }
+  Result := (FRoutines.Count = 0) and (FTypes.Count = 0) and
+    (FConstants.Count = 0) and (FGlobalVariables.Count = 0);
+end;
+
+function TScriptModelCodeSection.TryGetRoutineIndex(const ALine: Integer;
+  out AIndex: Integer; const AFromBodyOnly: Boolean): Boolean;
 begin
   { Multiple routines on one physical line: the first one wins. AFromBodyOnly
     matches from the body's 'begin' onwards but still ends at LastLine, so a
     body missing its 'end' matches to the end of the routine's span }
-  for var Routine in FRoutines do begin
+  for var I := 0 to Integer(FRoutines.Count)-1 do begin
+    const Routine = FRoutines[I];
     var MatchFirstLine := Routine.FirstLine;
     if AFromBodyOnly then
       MatchFirstLine := Routine.BodyFirstLine;
     if (MatchFirstLine >= 0) and (ALine >= MatchFirstLine) and
        (ALine <= Routine.LastLine) then begin
-      ARoutine := Routine;
+      AIndex := I;
       Exit(True);
     end;
   end;
-  ARoutine := nil;
+  AIndex := -1;
   Result := False;
+end;
+
+function TScriptModelCodeSection.TryGetDeclarationIndex(
+  const AList: TObjectList<TCodeSectionDeclaration>; const ALine: Integer;
+  out AIndex: Integer): Boolean;
+begin
+  for var I := 0 to Integer(AList.Count)-1 do begin
+    if AList[I].Line = ALine then begin
+      AIndex := I;
+      Exit(True);
+    end;
+  end;
+  AIndex := -1;
+  Result := False;
+end;
+
+function TScriptModelCodeSection.TryGetTypeIndex(const ALine: Integer;
+  out AIndex: Integer): Boolean;
+begin
+  Result := TryGetDeclarationIndex(FTypes, ALine, AIndex);
+end;
+
+function TScriptModelCodeSection.TryGetEnumerationValueIndex(const ALine: Integer;
+  out AIndex: Integer): Boolean;
+begin
+  for var I := 0 to Integer(FEnumerationValues.Count)-1 do begin
+    if FEnumerationValues[I].Line = ALine then begin
+      AIndex := I;
+      Exit(True);
+    end;
+  end;
+  AIndex := -1;
+  Result := False;
+end;
+
+function TScriptModelCodeSection.TryGetInterfaceMethodIndex(const ALine: Integer;
+  out AIndex: Integer): Boolean;
+begin
+  for var I := 0 to Integer(FInterfaceMethods.Count)-1 do begin
+    if FInterfaceMethods[I].Line = ALine then begin
+      AIndex := I;
+      Exit(True);
+    end;
+  end;
+  AIndex := -1;
+  Result := False;
+end;
+
+function TScriptModelCodeSection.TryGetConstantIndex(const ALine: Integer;
+  out AIndex: Integer): Boolean;
+begin
+  Result := TryGetDeclarationIndex(FConstants, ALine, AIndex);
+end;
+
+function TScriptModelCodeSection.TryGetGlobalVariableIndex(const ALine: Integer;
+  out AIndex: Integer): Boolean;
+begin
+  Result := TryGetDeclarationIndex(FGlobalVariables, ALine, AIndex);
 end;
 
 end.

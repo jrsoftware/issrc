@@ -1386,7 +1386,7 @@ end;
 
 { TryAcquireCodeSection: acquisition on a [Code] occurrence, the refusals, an
   empty [Code] body, the overload without a refusal reason, separate shared
-  objects for multiple [Code] occurrences with TryGetRoutine using each
+  objects for multiple [Code] occurrences with TryGetRoutineIndex using each
   object's own line base, further acquires returning a still-held object, a
   new object on acquire after an edit with the still-held old object staying
   alive, line tracking and invalidation, and a release after factory
@@ -1497,13 +1497,20 @@ begin
           Assert(CodeSection1.LastLine = 3);
           Assert(CodeSection2.FirstLine = 7);
           Assert(CodeSection2.LastLine = 9);
-          { TryGetRoutine takes memo lines, on each object's own line base }
+          { TryGetRoutineIndex takes memo lines, on each object's own line base }
+          var RoutineIndex: Integer;
+          Assert(CodeSection1.TryGetRoutineIndex(2, RoutineIndex));
+          Assert(CodeSection1.Section.Routines[RoutineIndex].Name = 'A');
+          Assert(not CodeSection1.TryGetRoutineIndex(8, RoutineIndex)); { CodeSection2's routine }
+          Assert(CodeSection2.TryGetRoutineIndex(8, RoutineIndex));
+          Assert(CodeSection2.Section.Routines[RoutineIndex].Name = 'B');
+
+          { TryGetRoutine answers the same lookup with the routine itself }
           var Routine: TCodeSectionRoutine;
           Assert(CodeSection1.TryGetRoutine(2, Routine));
-          Assert(Routine.Name = 'A');
-          Assert(not CodeSection1.TryGetRoutine(8, Routine)); { CodeSection2's routine }
-          Assert(CodeSection2.TryGetRoutine(8, Routine));
-          Assert(Routine.Name = 'B');
+          Assert(Routine = CodeSection1.Section.Routines[0]);
+          Assert(not CodeSection1.TryGetRoutine(8, Routine));
+          Assert(Routine = nil);
 
           { A second acquire returns the same shared object; the preceding
             caret movement does not bump ChangeCount, so it does not prevent
@@ -1518,7 +1525,7 @@ begin
           end;
           { The object stays usable through the still-held reference }
           Assert(CodeSection1.Valid);
-          Assert(CodeSection1.TryGetRoutine(2, Routine));
+          Assert(CodeSection1.TryGetRoutineIndex(2, RoutineIndex));
         finally
           TLiveScriptObjectFactory.ReleaseAndNil(CodeSection2);
         end;
@@ -1576,17 +1583,17 @@ begin
           one, which stays alive }
         var NewCodeSection: TLiveScriptCodeSection;
         Assert(Factory.TryAcquireCodeSection(1, NewCodeSection, Reason));
-        var Routine: TCodeSectionRoutine;
+        var RoutineIndex: Integer;
         try
           Assert(NewCodeSection <> HeldCodeSection);
           Assert(NewCodeSection.FirstLine = 4);
           Assert(NewCodeSection.LastLine = 6);
-          Assert(NewCodeSection.TryGetRoutine(4, Routine));
-          Assert(Routine.Name = 'P');
+          Assert(NewCodeSection.TryGetRoutineIndex(4, RoutineIndex));
+          Assert(NewCodeSection.Section.Routines[RoutineIndex].Name = 'P');
           { The still-held stale object answers the same lookup on its own
             shifted line base }
-          Assert(HeldCodeSection.TryGetRoutine(4, Routine));
-          Assert(Routine.Name = 'P');
+          Assert(HeldCodeSection.TryGetRoutineIndex(4, RoutineIndex));
+          Assert(HeldCodeSection.Section.Routines[RoutineIndex].Name = 'P');
         finally
           TLiveScriptObjectFactory.ReleaseAndNil(NewCodeSection);
         end;
@@ -1602,7 +1609,7 @@ begin
         AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(6),
           AMemo.GetPositionFromLine(7), ''); { Delete its 'begin' line }
         Assert(not HeldCodeSection.Valid);
-        Assert(not HeldCodeSection.TryGetRoutine(4, Routine)); { Fails safe when invalid }
+        Assert(not HeldCodeSection.TryGetRoutineIndex(4, RoutineIndex)); { Fails safe when invalid }
       finally
         TLiveScriptObjectFactory.ReleaseAndNil(HeldCodeSection);
       end;
@@ -1626,9 +1633,9 @@ begin
       Context.Free;
     end;
     Assert(CodeSection.Valid);
-    var Routine: TCodeSectionRoutine;
-    Assert(CodeSection.TryGetRoutine(1, Routine));
-    Assert(Routine.Name = 'P');
+    var RoutineIndex: Integer;
+    Assert(CodeSection.TryGetRoutineIndex(1, RoutineIndex));
+    Assert(CodeSection.Section.Routines[RoutineIndex].Name = 'P');
     TLiveScriptObjectFactory.ReleaseAndNil(CodeSection);
     Assert(CodeSection = nil);
   end;

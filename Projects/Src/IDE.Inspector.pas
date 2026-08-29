@@ -67,11 +67,12 @@ type
     CheckBox: Boolean;
   end;
 
-  TCaretAtKind = (cakParameterSectionEntry, cakKeyValueSection);
+  TCaretAtKind = (cakParameterSectionEntry, cakKeyValueSection, cakCodeSection);
 
   TCaretAt = record
     Valid: Boolean;
     Kind: TCaretAtKind;
+    CodeKind: TInspectorRowCodeKind; { cakCodeSection: the kind, other: ckNone }
     Name: String;   { Protects against a stale Index. As in the script, so not cleaned. }
     Index: Integer; { Protects against duplicated Name. -1 if multi-entry editing. }
   end;
@@ -329,7 +330,7 @@ procedure TInspector.UpdateNote;
 
 begin
   if (FLiveParameterSectionEntries = nil) and (FLiveKeyValueSection = nil) and
-     (FLiveCodeSection = nil) then begin
+     ((FLiveCodeSection = nil) or FLiveCodeSection.Section.Empty) then begin
     if FMixedSelection then
       ShowNote(LFmtMessage(SInspectorMixedSelectionNote))
     else
@@ -1384,6 +1385,11 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
+  function AnonymousInterfaceRowName(const ATypeName: String): String;
+  begin
+    Result := ATypeName + '.<anonymous>';
+  end;
+
   procedure AddCodeInterfaceMethodRows(const ACategory,
     ATypeItem: TJvCustomInspectorItem; const ATypeIndex: Integer);
   { Adds the methods of the interface declared by type ATypeIndex, if any, as
@@ -1402,8 +1408,8 @@ procedure TInspector.UpdateFromCaret;
           Item := ATypeItem
         else begin
           { The interface itself is anonymous, so name the row after its type }
-          Item := AddCodeRow(ACategory, Declaration.Name + '.<anonymous>',
-            ckInterface, ATypeIndex);
+          Item := AddCodeRow(ACategory,
+            AnonymousInterfaceRowName(Declaration.Name), ckInterface, ATypeIndex);
         end;
       end;
       const MethodItem = AddCodeRow(Item, { Adds a child to Item }
@@ -1551,9 +1557,20 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
+  function CodeCaretAt(const ACodeKind: TInspectorRowCodeKind;
+    const AName: String; const AIndex: Integer): TCaretAt;
+  begin
+    Result := Default(TCaretAt);
+    Result.Valid := True;
+    Result.Kind := cakCodeSection;
+    Result.CodeKind := ACodeKind;
+    Result.Name := AName;
+    Result.Index := AIndex;
+  end;
+
   function GetCaretAt: TCaretAt;
   begin
-    Result.Valid := False;
+    Result := Default(TCaretAt);
     const CaretLine = FFactory.Memo.CaretLine;
     if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid then begin
       const Memo = FFactory.Memo;
@@ -1599,6 +1616,36 @@ procedure TInspector.UpdateFromCaret;
           end;
         end;
       end;
+    end else if (FLiveCodeSection <> nil) and FLiveCodeSection.Valid then begin
+      const Section = FLiveCodeSection.Section;
+
+      const Line = CaretLine - FLiveCodeSection.FirstLine;
+      var Index: Integer;
+      if Section.TryGetRoutineIndex(Line, Index) then
+        Exit(CodeCaretAt(ckRoutine, Section.Routines[Index].Name, Index));
+      if Section.TryGetTypeIndex(Line, Index) then
+        Exit(CodeCaretAt(ckType, Section.Types[Index].Name, Index));
+      { An enumeration value line puts the caret at the type declaring it }
+      if Section.TryGetEnumerationValueIndex(Line, Index) then begin
+        const TypeIndex = Section.EnumerationValues[Index].DeclarationTypeIndex;
+        Exit(CodeCaretAt(ckType, Section.Types[TypeIndex].Name, TypeIndex));
+      end;
+      { An interface method line puts the caret at the interface: the row of
+        the type declaring it, or the row of its own an anonymous interface
+        gets, see AddCodeInterfaceMethodRows }
+      if Section.TryGetInterfaceMethodIndex(Line, Index) then begin
+        const TypeIndex = Section.InterfaceMethods[Index].DeclarationTypeIndex;
+        const Declaration = Section.Types[TypeIndex];
+        if Declaration.TypeText = 'interface' then
+          Exit(CodeCaretAt(ckType, Declaration.Name, TypeIndex));
+        Exit(CodeCaretAt(ckInterface,
+          AnonymousInterfaceRowName(Declaration.Name), TypeIndex));
+      end;
+      if Section.TryGetConstantIndex(Line, Index) then
+        Exit(CodeCaretAt(ckConstant, Section.Constants[Index].Name, Index));
+      if Section.TryGetGlobalVariableIndex(Line, Index) then
+        Exit(CodeCaretAt(ckGlobalVariable,
+          Section.GlobalVariables[Index].Name, Index));
     end;
   end;
 
@@ -1610,6 +1657,7 @@ procedure TInspector.UpdateFromCaret;
     if (CaretAt.Valid <> FCaretAt.Valid) or
        (CaretAt.Valid and
         ((CaretAt.Kind <> FCaretAt.Kind) or
+         (CaretAt.CodeKind <> FCaretAt.CodeKind) or
          (CaretAt.Name <> FCaretAt.Name) or
          (CaretAt.Index <> FCaretAt.Index))) then begin
       { The caret moved to a different member (or no member). Update CaretAt and
@@ -1705,6 +1753,7 @@ begin
   FreeAndNil(FLiveParameterSectionEntries);
   FreeAndNil(FLiveKeyValueSection);
   TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
+  FMixedSelection := False;
   {$IFDEF DEBUG}
   FUpdateFromCaretEarlyExitCount := 0;
   FDebugCaretRoutineRowString := 'None';
@@ -1885,10 +1934,11 @@ end;
 function TInspector.RowMatchesCaretAt(const ARow: TInspectorRow): Boolean;
 const
   RowKindForCaretAtKind: array [TCaretAtKind] of TInspectorRowKind =
-    (rkParameter, rkKey);
+    (rkParameter, rkKey, rkCode);
 begin
   Result := FCaretAt.Valid and
     (ARow.Kind = RowKindForCaretAtKind[FCaretAt.Kind]) and
+    (ARow.CodeKind = FCaretAt.CodeKind) and
     (ARow.Index = FCaretAt.Index) and
     SameText(ARow.Name, FCaretAt.Name); { TInspectorRow uses clean names for known members, TCaretAt always uses names as in the script }
 end;
