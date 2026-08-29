@@ -1068,6 +1068,7 @@ constructor TMainForm.Create(AOwner: TComponent);
           LANG_GERMAN: MessageLanguage := ilGerman;
           LANG_JAPANESE: MessageLanguage := ilJapanese;
           LANG_FRENCH: MessageLanguage := ilFrench;
+          LANG_SPANISH: MessageLanguage := ilSpanish;
         end;
         if MessageLanguage <> ilEnglish then
           CheckUpdatePanelMessage(Ini, 'Language', 0, 1,

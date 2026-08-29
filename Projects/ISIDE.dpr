@@ -28,6 +28,7 @@ uses
   IDE.LocalizeFunc.French in 'Src\IDE.LocalizeFunc.French.pas',
   IDE.LocalizeFunc.German in 'Src\IDE.LocalizeFunc.German.pas',
   IDE.LocalizeFunc.Japanese in 'Src\IDE.LocalizeFunc.Japanese.pas',
+  IDE.LocalizeFunc.Spanish in 'Src\IDE.LocalizeFunc.Spanish.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
   Shared.CompilerInt.Struct in 'Src\Shared.CompilerInt.Struct.pas',
   IDE.OptionsForm in 'Src\IDE.OptionsForm.pas' {OptionsForm},

@@ -106,8 +106,8 @@ begin
   ChangeFontButton.Width := W;
   FontPanel.Width := FontPanel.Width - Diff;
 
-  if GetActiveLanguage = ilFrench then begin
-    { French needs even more space than the form already provides }
+  if GetActiveLanguage in [ilFrench, ilSpanish] then begin
+    { French and Spanish need even more space than the form already provides }
     const ExtraWidth = MulDiv(GroupBox1.Width, 10, 100);
     GroupBox1.Width := GroupBox1.Width + ExtraWidth;
     GroupBox2.Width := GroupBox2.Width + ExtraWidth;
@@ -136,6 +136,7 @@ begin
   LanguageComboBox.Items.Add('Deutsch');
   LanguageComboBox.Items.Add(#$65E5#$672C#$8A9E);
   LanguageComboBox.Items.Add('Fran'#$00E7'ais');
+  LanguageComboBox.Items.Add('Espa'#$00F1'ol');
 end;
 
 procedure TOptionsForm.FormShow(Sender: TObject);
