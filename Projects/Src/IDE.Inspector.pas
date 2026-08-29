@@ -16,7 +16,7 @@ interface
 uses
   Windows, Messages, Classes, Graphics, Controls, StdCtrls, Generics.Collections,
   JvInspector, ModernColors, NewStaticText, ScintEdit,
-  IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra;
+  IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra, IDE.Inspector.ColorItem;
 
 type
   TInspectorRowKind = (rkParameter, rkParameterFlag, rkKey,
@@ -1080,6 +1080,20 @@ procedure TInspector.UpdateFromCaret;
   procedure AddParameterRow(const AParent: TJvCustomInspectorItem;
     const ADefinition: TMemberDefinition; const AIndex: Integer);
   begin
+    if Pos('COLOR', AnsiUpperCase(ADefinition.Name)) > 0 then
+    begin
+      const Row = MakeParameterRow(ADefinition.Name, AIndex);
+      var ColorItem := TJvInspectorColorItem.Create(AParent);
+      ColorItem.DisplayName := Row.Name;
+      ColorItem.Flags := ColorItem.Flags + [iifEditButton];
+      var RowCopy := Row;
+      RowCopy.CheckBox := False;
+      RowCopy.LastValueSignature := GetRowValueSignature(RowCopy);
+      FRows.Add(RowCopy);
+      ColorItem.Tag := FRows.Count;
+      Exit;
+    end;
+
     const Row = MakeParameterRow(ADefinition.Name, AIndex);
     const Item = AddRow(AParent, Row.Name, False, Row);
     if ADefinition.ValueKind = mvkFlags then begin
@@ -1169,6 +1183,19 @@ procedure TInspector.UpdateFromCaret;
   procedure AddKeyRow(const AParent: TJvCustomInspectorItem;
     const ARow: TInspectorRow);
   begin
+    if Pos('COLOR', AnsiUpperCase(ARow.Name)) > 0 then
+    begin
+      var ColorItem := TJvInspectorColorItem.Create(AParent);
+      ColorItem.DisplayName := ARow.Name;
+      ColorItem.Flags := ColorItem.Flags + [iifEditButton];
+      var Row := ARow;
+      Row.CheckBox := False;
+      Row.LastValueSignature := GetRowValueSignature(Row);
+      FRows.Add(Row);
+      ColorItem.Tag := FRows.Count;
+      Exit;
+    end;
+
     var Definition: TMemberDefinition;
     const Known = FLiveKeyValueSection.Section.TryGetDefinition(ARow.Name, Definition);
     if Known and KeyRowIsCheckBox(Definition, ARow.Index) then

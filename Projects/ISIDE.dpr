@@ -106,6 +106,7 @@ uses
   IDE.LiveScriptObjectFactory in 'Src\IDE.LiveScriptObjectFactory.pas',
   IDE.LiveScriptObjectFactory.Test in 'Src\IDE.LiveScriptObjectFactory.Test.pas',
   IDE.Inspector in 'Src\IDE.Inspector.pas',
+  IDE.Inspector.ColorItem in 'Src\IDE.Inspector.ColorItem.pas',
   IDE.Navigator in 'Src\IDE.Navigator.pas',
   VCL.Styles,
   VCL.Themes,
