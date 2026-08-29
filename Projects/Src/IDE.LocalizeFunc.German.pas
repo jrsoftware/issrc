@@ -350,7 +350,7 @@ const
     (English: 'R&eplace...'; Localized: 'E&rsetzen...'),
     (English: 'Use Regular E&xpressions'; Localized: 'Reguläre Ausdrücke verwe&nden'),
     (English: 'Fol&d Section'; Localized: 'Abschnitt &einklappen'),
-    (English: '&Unfold Section'; Localized: 'Abschnitt auskla&ppen'),
+    (English: 'Unfold Section'; Localized: 'Abschnitt auskla&ppen'),
     (English: 'Go to File...'; Localized: 'Gehe zu Datei...'),
     (English: '&Go to Line...'; Localized: 'Gehe zu &Zeile...'),
     (English: 'Toggle Line Comment'; Localized: 'Zeilenkommentar umschalten'),

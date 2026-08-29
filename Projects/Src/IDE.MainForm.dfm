@@ -726,7 +726,7 @@ object MainForm: TMainForm
         OnClick = EFoldOrUnfoldLineClick
       end
       object EUnfoldLine: TMenuItem
-        Caption = '&Unfold Section'
+        Caption = 'Unfold Section'
         OnClick = EFoldOrUnfoldLineClick
       end
       object EGotoFile: TMenuItem

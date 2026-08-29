@@ -350,7 +350,7 @@ const
     (English: 'R&eplace...'; Localized: 'Ve&rvangen...'),
     (English: 'Use Regular E&xpressions'; Localized: 'Regu&liere expressies gebruiken'),
     (English: 'Fol&d Section'; Localized: 'Se&ctie samenvouwen'),
-    (English: '&Unfold Section'; Localized: 'Sectie &uitvouwen'),
+    (English: 'Unfold Section'; Localized: 'Sectie &uitvouwen'),
     (English: 'Go to File...'; Localized: 'Ga naar bestand...'),
     (English: '&Go to Line...'; Localized: '&Ga naar regel...'),
     (English: 'Toggle Line Comment'; Localized: 'Regelcommentaar aan/uit'),

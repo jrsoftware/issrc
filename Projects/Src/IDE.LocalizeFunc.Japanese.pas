@@ -350,7 +350,7 @@ const
     (English: 'R&eplace...'; Localized: '置換(&E)...'),
     (English: 'Use Regular E&xpressions'; Localized: '正規表現を使用(&X)'),
     (English: 'Fol&d Section'; Localized: 'セクションの折りたたみ(&D)'),
-    (English: '&Unfold Section'; Localized: 'セクションの展開(&U)'),
+    (English: 'Unfold Section'; Localized: 'セクションの展開'),
     (English: 'Go to File...'; Localized: 'ファイルに移動...'),
     (English: '&Go to Line...'; Localized: '行へ移動(&G)...'),
     (English: 'Toggle Line Comment'; Localized: '行コメントの切り替え'),

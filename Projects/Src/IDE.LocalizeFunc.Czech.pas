@@ -350,7 +350,7 @@ const
     (English: 'R&eplace...'; Localized: 'Nahrad&it...'),
     (English: 'Use Regular E&xpressions'; Localized: 'Použít re&gulární výrazy'),
     (English: 'Fol&d Section'; Localized: 'Sba&lit sekci'),
-    (English: '&Unfold Section'; Localized: 'Rozbalit sek&ci'),
+    (English: 'Unfold Section'; Localized: 'Rozbalit sek&ci'),
     (English: 'Go to File...'; Localized: 'Přejít na soubor...'),
     (English: '&Go to Line...'; Localized: 'Přejít na řád&ek...'),
     (English: 'Toggle Line Comment'; Localized: 'Přepnout komentář řádku'),
