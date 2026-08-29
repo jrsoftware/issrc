@@ -26,6 +26,7 @@ uses
   IDE.LocalizeFunc.Dutch in 'Src\IDE.LocalizeFunc.Dutch.pas',
   IDE.LocalizeFunc.German in 'Src\IDE.LocalizeFunc.German.pas',
   IDE.LocalizeFunc.Japanese in 'Src\IDE.LocalizeFunc.Japanese.pas',
+  IDE.LocalizeFunc.ChineseSimplified in 'Src\IDE.LocalizeFunc.ChineseSimplified.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
   Shared.CompilerInt.Struct in 'Src\Shared.CompilerInt.Struct.pas',
   IDE.OptionsForm in 'Src\IDE.OptionsForm.pas' {OptionsForm},
