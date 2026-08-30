@@ -20,7 +20,7 @@ type
   end;
 
   TIDELanguage = (ilEnglish, ilCzech, ilDutch, ilGerman, ilJapanese, ilFrench,
-    ilSpanish, ilItalian);
+    ilSpanish, ilItalian, ilChineseSimplified);
 
 procedure InitLocalization(const Lang: TIDELanguage; const Reverse: Boolean = False);
 
@@ -43,8 +43,9 @@ implementation
 uses
   SysUtils, Actions, Controls, StdCtrls, Menus, Generics.Collections,
   NewTabSet, ScintEdit,
-  IDE.LocalizeFunc.Czech, IDE.LocalizeFunc.Dutch, IDE.LocalizeFunc.French,
-  IDE.LocalizeFunc.German, IDE.LocalizeFunc.Italian, IDE.LocalizeFunc.Japanese,
+  IDE.LocalizeFunc.ChineseSimplified, IDE.LocalizeFunc.Czech,
+  IDE.LocalizeFunc.Dutch, IDE.LocalizeFunc.French, IDE.LocalizeFunc.German,
+  IDE.LocalizeFunc.Italian, IDE.LocalizeFunc.Japanese,
   IDE.LocalizeFunc.Spanish;
 
 var
@@ -95,6 +96,7 @@ begin
     ilFrench: AddTranslations(FrenchIDETranslations);
     ilSpanish: AddTranslations(SpanishIDETranslations);
     ilItalian: AddTranslations(ItalianIDETranslations);
+    ilChineseSimplified: AddTranslations(ChineseSimplifiedIDETranslations);
   end;
   if Reverse then
     TranslationLanguage := ilEnglish
@@ -217,6 +219,7 @@ function LFmtMessage(const Language: TIDELanguage; const Str: String;
       ilFrench: Result := GetTranslationFrom(FrenchIDETranslations, Localized);
       ilSpanish: Result := GetTranslationFrom(SpanishIDETranslations, Localized);
       ilItalian: Result := GetTranslationFrom(ItalianIDETranslations, Localized);
+      ilChineseSimplified: Result := GetTranslationFrom(ChineseSimplifiedIDETranslations, Localized);
     else
       Result := False;
     end;
@@ -233,7 +236,7 @@ end;
 function LCompareText(const S1, S2: String): Integer;
 const
   LocaleIDs: array [TIDELanguage] of TLocaleID =
-    ($0409, $0405, $0413, $0407, $0411, $040C, $0C0A, $0410);
+    ($0409, $0405, $0413, $0407, $0411, $040C, $0C0A, $0410, $0804);
 begin
   Result := String.Compare(S1, S2, [coIgnoreCase],
     LocaleIDs[TranslationLanguage]);

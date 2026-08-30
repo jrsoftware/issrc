@@ -23,6 +23,7 @@ uses
   IDE.HelperFunc.Test in 'Src\IDE.HelperFunc.Test.pas',
   IDE.Messages in 'Src\IDE.Messages.pas',
   IDE.LocalizeFunc in 'Src\IDE.LocalizeFunc.pas',
+  IDE.LocalizeFunc.ChineseSimplified in 'Src\IDE.LocalizeFunc.ChineseSimplified.pas',
   IDE.LocalizeFunc.Czech in 'Src\IDE.LocalizeFunc.Czech.pas',
   IDE.LocalizeFunc.Dutch in 'Src\IDE.LocalizeFunc.Dutch.pas',
   IDE.LocalizeFunc.French in 'Src\IDE.LocalizeFunc.French.pas',

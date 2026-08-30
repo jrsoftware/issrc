@@ -24,7 +24,7 @@ type
 
 const
   IDELanguageTags: array [TIDELanguage] of String =
-    ('en', 'cs', 'nl', 'de', 'ja', 'fr', 'es', 'it');
+    ('en', 'cs', 'nl', 'de', 'ja', 'fr', 'es', 'it', 'zh-Hans');
 
 procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);

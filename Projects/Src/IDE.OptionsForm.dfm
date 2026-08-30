@@ -186,6 +186,7 @@ object OptionsForm: TOptionsForm
       Height = 21
       Style = csDropDownList
       Anchors = [akTop, akRight]
+      DropDownCount = 16
       TabOrder = 17
     end
   end

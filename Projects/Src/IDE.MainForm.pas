@@ -1061,8 +1061,9 @@ constructor TMainForm.Create(AOwner: TComponent);
       CheckUpdatePanelMessage(Ini, 'RichEditor', 0, 1,
         LFmtMessage(SUpdatePanelRichEditorAdded, ['tricheditor']), BannerBlue, True);
       if (FOptions.Language = ilEnglish) and not CommandLineLanguageSet then begin
+        const UILanguage = GetUILanguage;
         var MessageLanguage := ilEnglish;
-        case PRIMARYLANGID(GetUILanguage) of
+        case PRIMARYLANGID(UILanguage) of
           LANG_CZECH: MessageLanguage := ilCzech;
           LANG_DUTCH: MessageLanguage := ilDutch;
           LANG_GERMAN: MessageLanguage := ilGerman;
@@ -1070,6 +1071,13 @@ constructor TMainForm.Create(AOwner: TComponent);
           LANG_FRENCH: MessageLanguage := ilFrench;
           LANG_SPANISH: MessageLanguage := ilSpanish;
           LANG_ITALIAN: MessageLanguage := ilItalian;
+          LANG_CHINESE:
+            begin
+              const SubLanguage = SUBLANGID(UILanguage);
+              if (SubLanguage = SUBLANG_CHINESE_SIMPLIFIED) or
+                 (SubLanguage = SUBLANG_CHINESE_SINGAPORE) then
+                MessageLanguage := ilChineseSimplified;
+            end;
         end;
         if MessageLanguage <> ilEnglish then
           CheckUpdatePanelMessage(Ini, 'Language', 0, 1,
