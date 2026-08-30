@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ItalianIDETranslations: array [0..1010] of TTranslationPair = (
+  ItalianIDETranslations: array [0..1015] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Uso della riga di comando:'),
     (English: 'Examples:'; Localized: 'Esempi:'),
     (English: 'script file'; Localized: 'file di script'),
@@ -183,10 +183,16 @@ const
     (English: '%1 must be an integer value'; Localized: '%1 deve essere un valore intero'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Lo script non può essere modificato perché è in sola lettura'),
     (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: 'Impossibile sfogliare per il parametro "%1" quando è in uso il flag "%2"'),
-    (English: 'Move to a key/value section or parameter entry'; Localized: 'Spostati in una sezione chiave/valore o in una voce con parametri'),
+    (English: 'Move to a parameter entry or a key/value or [Code] section'; Localized: 'Spostati in una voce con parametri o in una sezione chiave/valore o [Code]'),
+    (English: 'Move to a parameter entry or a non-empty key/value or [Code] section'; Localized: 'Spostati in una voce con parametri o in una sezione chiave/valore o [Code] non vuota'),
     (English: 'Select entries of one section type, and no other content'; Localized: 'Seleziona voci di un solo tipo di sezione, senza altro contenuto'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Le direttive non specificate sono nascoste perché questa sezione è presente più di una volta'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Le direttive non specificate sono nascoste perché questo non è il file di script principale'),
+    (English: 'Routines'; Localized: 'Routine'),
+    (English: 'Types'; Localized: 'Tipi'),
+    (English: 'Symbols'; Localized: 'Simboli'),
+    (English: 'Parameters'; Localized: 'Parametri'),
+    (English: 'Locals'; Localized: 'Variabili locali'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: 'Il GUID generato sarà inserito nell''editor alla posizione del cursore. Vuoi continuare?'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: 'Lo script Pascal generato sarà inserito nell''editor alla posizione del cursore, ma il cursore non si trova nella sezione %1. Vuoi continuare comunque?'),
     (English: 'Classic'; Localized: 'Classico'),
@@ -309,7 +315,6 @@ const
     (English: 'Filter'; Localized: 'Filtro'),
     (English: 'Inspector Menu'; Localized: 'Menu dell''Ispettore'),
     (English: 'Sections'; Localized: 'Sezioni'),
-    (English: 'Routines'; Localized: 'Routine'),
     (English: 'New Main Script (%1)'; Localized: 'Nuovo script principale (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Apri script principale (%1)'),
     (English: 'Save (%1)'; Localized: 'Salva (%1)'),

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..1010] of TTranslationPair = (
+  GermanIDETranslations: array [0..1015] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -183,10 +183,16 @@ const
     (English: '%1 must be an integer value'; Localized: '%1 muss ein ganzzahliger Wert sein'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Das Skript kann nicht bearbeitet werden, da es schreibgeschützt ist'),
     (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: 'Für den Parameter "%1" ist Durchsuchen nicht möglich, wenn das Flag "%2" verwendet wird'),
-    (English: 'Move to a key/value section or parameter entry'; Localized: 'Wechseln Sie zu einem Schlüssel/Wert-Abschnitt oder Parametereintrag'),
+    (English: 'Move to a parameter entry or a key/value or [Code] section'; Localized: 'Wechseln Sie zu einem Parametereintrag oder einem Schlüssel/Wert- oder [Code]-Abschnitt'),
+    (English: 'Move to a parameter entry or a non-empty key/value or [Code] section'; Localized: 'Wechseln Sie zu einem Parametereintrag oder einem nicht leeren Schlüssel/Wert- oder [Code]-Abschnitt'),
     (English: 'Select entries of one section type, and no other content'; Localized: 'Wählen Sie Einträge eines einzigen Abschnittstyps und keinen anderen Inhalt aus'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Nicht angegebene Direktiven sind ausgeblendet, da dieser Abschnitt mehr als einmal vorkommt'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Nicht angegebene Direktiven sind ausgeblendet, da dies nicht die Hauptskriptdatei ist'),
+    (English: 'Routines'; Localized: 'Routinen'),
+    (English: 'Types'; Localized: 'Typen'),
+    (English: 'Symbols'; Localized: 'Symbole'),
+    (English: 'Parameters'; Localized: 'Parameter'),
+    (English: 'Locals'; Localized: 'Lokale Variablen'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: 'Die generierte GUID wird an der Cursorposition in den Editor eingefügt. Fortfahren?'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: 'Das generierte Pascal-Skript wird an der Cursorposition in den Editor eingefügt, aber der Cursor befindet sich nicht im Abschnitt %1. Trotzdem fortfahren?'),
     (English: 'Classic'; Localized: 'Klassisch'),
@@ -309,7 +315,6 @@ const
     (English: 'Filter'; Localized: 'Filter'),
     (English: 'Inspector Menu'; Localized: 'Inspektormenü'),
     (English: 'Sections'; Localized: 'Abschnitte'),
-    (English: 'Routines'; Localized: 'Routinen'),
     (English: 'New Main Script (%1)'; Localized: 'Neues Hauptskript (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Hauptskript öffnen (%1)'),
     (English: 'Save (%1)'; Localized: 'Speichern (%1)'),

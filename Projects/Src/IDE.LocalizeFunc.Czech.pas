@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..1010] of TTranslationPair = (
+  CzechIDETranslations: array [0..1015] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -183,10 +183,16 @@ const
     (English: '%1 must be an integer value'; Localized: '%1 musí být celé číslo'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Skript nelze upravit, protože je pouze pro čtení'),
     (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: 'Pro parametr "%1" nelze procházet, když je použit příznak "%2"'),
-    (English: 'Move to a key/value section or parameter entry'; Localized: 'Přejděte na sekci klíč/hodnota nebo položku s parametry'),
+    (English: 'Move to a parameter entry or a key/value or [Code] section'; Localized: 'Přejděte na položku s parametry nebo na sekci klíč/hodnota či [Code]'),
+    (English: 'Move to a parameter entry or a non-empty key/value or [Code] section'; Localized: 'Přejděte na položku s parametry nebo na neprázdnou sekci klíč/hodnota či [Code]'),
     (English: 'Select entries of one section type, and no other content'; Localized: 'Vyberte položky jednoho typu sekce, bez jiného obsahu'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Nezadané direktivy jsou skryty, protože se tato sekce vyskytuje více než jednou'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Nezadané direktivy jsou skryty, protože toto není hlavní soubor skriptu'),
+    (English: 'Routines'; Localized: 'Rutiny'),
+    (English: 'Types'; Localized: 'Typy'),
+    (English: 'Symbols'; Localized: 'Symboly'),
+    (English: 'Parameters'; Localized: 'Parametry'),
+    (English: 'Locals'; Localized: 'Místní proměnné'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: 'Vygenerovaný GUID bude vložen do editoru na pozici kurzoru. Pokračovat?'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: 'Vygenerovaný skript Pascal bude vložen do editoru na pozici kurzoru, ale kurzor není v sekci %1. Přesto pokračovat?'),
     (English: 'Classic'; Localized: 'Klasické'),
@@ -309,7 +315,6 @@ const
     (English: 'Filter'; Localized: 'Filtr'),
     (English: 'Inspector Menu'; Localized: 'Nabídka Inspektoru'),
     (English: 'Sections'; Localized: 'Sekce'),
-    (English: 'Routines'; Localized: 'Rutiny'),
     (English: 'New Main Script (%1)'; Localized: 'Nový hlavní skript (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Otevřít hlavní skript (%1)'),
     (English: 'Save (%1)'; Localized: 'Uložit (%1)'),

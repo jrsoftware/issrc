@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..1010] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..1015] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -183,10 +183,16 @@ const
     (English: '%1 must be an integer value'; Localized: '%1 は整数値である必要があります'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'スクリプトは読み取り専用のため編集できません'),
     (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: '"%2" フラグが使用されている場合、"%1" パラメーターは参照できません'),
-    (English: 'Move to a key/value section or parameter entry'; Localized: 'キー/値のセクションまたはパラメーターエントリに移動してください'),
+    (English: 'Move to a parameter entry or a key/value or [Code] section'; Localized: 'パラメーターエントリまたはキー/値か [Code] のセクションに移動してください'),
+    (English: 'Move to a parameter entry or a non-empty key/value or [Code] section'; Localized: 'パラメーターエントリまたはキー/値か [Code] の空でないセクションに移動してください'),
     (English: 'Select entries of one section type, and no other content'; Localized: '1 種類のセクションのエントリを、他の内容を含めずに選択してください'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: '未指定のディレクティブは、このセクションが複数回出現するため非表示になっています'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: '未指定のディレクティブは、これがメインスクリプトファイルではないため非表示になっています'),
+    (English: 'Routines'; Localized: 'ルーチン'),
+    (English: 'Types'; Localized: '型'),
+    (English: 'Symbols'; Localized: 'シンボル'),
+    (English: 'Parameters'; Localized: 'パラメーター'),
+    (English: 'Locals'; Localized: 'ローカル変数'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: '生成された GUID は、エディターのカーソル位置に挿入されます。続行しますか？'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: '生成された Pascal スクリプトは、エディターのカーソル位置に挿入されますが、カーソルは %1 セクション内にありません。それでも続行しますか？'),
     (English: 'Classic'; Localized: 'クラシック'),
@@ -309,7 +315,6 @@ const
     (English: 'Filter'; Localized: 'フィルター'),
     (English: 'Inspector Menu'; Localized: 'インスペクターメニュー'),
     (English: 'Sections'; Localized: 'セクション'),
-    (English: 'Routines'; Localized: 'ルーチン'),
     (English: 'New Main Script (%1)'; Localized: '新しいメインスクリプト (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'メインスクリプトを開く (%1)'),
     (English: 'Save (%1)'; Localized: '保存 (%1)'),
