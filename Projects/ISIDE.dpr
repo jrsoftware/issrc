@@ -177,7 +177,7 @@ begin
     end;
 
     if CommandLineLanguageSet then
-      CommandLine := TrimRight('-lang ' + IDELanguageNames[CommandLineLanguage] + ' ' + CommandLine);
+      CommandLine := TrimRight('-lang ' + IDELanguageTags[CommandLineLanguage] + ' ' + CommandLine);
 
     if CommandLineNoRecentlyOpened then
       CommandLine := TrimRight('-norecent ' + CommandLine);
@@ -209,13 +209,13 @@ var
 
 procedure CheckParams;
 
-  function LanguageNames: String;
+  function LanguageTags: String;
   begin
     Result := '';
     for var Language := Low(TIDELanguage) to High(TIDELanguage) do begin
       if Result <> '' then
         Result := Result + '|';
-      Result := Result + IDELanguageNames[Language];
+      Result := Result + IDELanguageTags[Language];
     end;
   end;
 
@@ -226,8 +226,8 @@ procedure CheckParams;
       'iside --compile <%1:s>' + SNewLine +
       'iside -wizard <%s> <%1:s>' + SNewLine +
       'iside --new-script-wizard <%2:s> <%1:s>' + SNewLine +
-      'iside -lang <' + LanguageNames + '>' + SNewLine +
-      'iside --language <' + LanguageNames + '>' + SNewLine +
+      'iside -lang <' + LanguageTags + '>' + SNewLine +
+      'iside --language <' + LanguageTags + '>' + SNewLine +
       'iside -norecent <%1:s>' + SNewLine +
       'iside --no-recently-opened <%1:s>' + SNewLine2 +
       '%3:s' + SNewLine +

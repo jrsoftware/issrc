@@ -151,18 +151,29 @@ procedure TestTryStrToLanguage;
 begin
   var Language: TIDELanguage;
 
-  { Every name maps back to its own language }
+  { Every tag maps back to its own language }
   for var ExpectedLanguage := Low(TIDELanguage) to High(TIDELanguage) do begin
-    Assert(TryStrToLanguage(IDELanguageNames[ExpectedLanguage], Language));
+    Assert(TryStrToLanguage(IDELanguageTags[ExpectedLanguage], Language));
     Assert(Language = ExpectedLanguage);
   end;
 
   { Case-insensitive }
-  Assert(TryStrToLanguage('DuTcH', Language));
+  Assert(TryStrToLanguage('nL', Language));
   Assert(Language = ilDutch);
 
-  { Unknown names and an empty name are rejected }
+  { Extra subtags are dropped until a tag matches, or nothing is left }
+  Assert(TryStrToLanguage('en-US', Language));
+  Assert(Language = ilEnglish);
+  Assert(TryStrToLanguage('ja-Jpan-JP', Language));
+  Assert(Language = ilJapanese);
+  Assert(not TryStrToLanguage('-en', Language));
+  Assert(not TryStrToLanguage('-', Language));
+
+  { Unknown tags, an unknown name, a full language name, and an empty tag are rejected }
+  Assert(not TryStrToLanguage('tlh', Language));
+  Assert(not TryStrToLanguage('tlh-Latn', Language));
   Assert(not TryStrToLanguage('klingon', Language));
+  Assert(not TryStrToLanguage('dutch', Language));
   Assert(not TryStrToLanguage('', Language));
 end;
 

@@ -23,10 +23,8 @@ type
   TKeyMappingType = (kmtDelphi, kmtVisualStudio);
 
 const
-  { Names of the languages as accepted by the command line, not localized }
-  IDELanguageNames: array [TIDELanguage] of String =
-    ('english', 'czech', 'dutch', 'german', 'japanese', 'french', 'spanish',
-     'italian');
+  IDELanguageTags: array [TIDELanguage] of String =
+    ('en', 'cs', 'nl', 'de', 'ja', 'fr', 'es', 'it');
 
 procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
@@ -302,14 +300,28 @@ begin
 end;
 
 function TryStrToLanguage(const S: String; out Language: TIDELanguage): Boolean;
-begin
-  for var CandidateLanguage := Low(TIDELanguage) to High(TIDELanguage) do begin
-    if SameText(S, IDELanguageNames[CandidateLanguage]) then begin
-      Language := CandidateLanguage;
-      Exit(True);
+
+  function TryTagToLanguage(const Tag: String): Boolean;
+  begin
+    for var CandidateLanguage := Low(TIDELanguage) to High(TIDELanguage) do begin
+      if SameText(Tag, IDELanguageTags[CandidateLanguage]) then begin
+        Language := CandidateLanguage;
+        Exit(True);
+      end;
     end;
+    Result := False;
   end;
-  Result := False;
+
+begin
+  { Drop subtags from the right until a tag matches }
+  var Tag := S;
+  while not TryTagToLanguage(Tag) do begin
+    const P = LastDelimiter('-', Tag);
+    if P = 0 then
+      Exit(False);
+    Tag := Copy(Tag, 1, P-1);
+  end;
+  Result := True;
 end;
 
 function GetDefaultKeyMappingType: TKeyMappingType;
