@@ -333,6 +333,8 @@ begin
      ((FLiveCodeSection = nil) or FLiveCodeSection.Section.Empty) then begin
     if FMixedSelection then
       ShowNote(LFmtMessage(SInspectorMixedSelectionNote))
+    else if FLiveCodeSection <> nil then
+      ShowNote(LFmtMessage(SInspectorEmptySectionNote))
     else
       ShowNote(LFmtMessage(SInspectorNothingToInspectNote));
   end else if ShowingDirectiveSection then begin
@@ -340,12 +342,12 @@ begin
       ShowNote(LFmtMessage(SInspectorSiblingOccurrencesNote))
     else if FShowAllKnownDirectivesSuppressedNote then
       ShowNote(LFmtMessage(SInspectorShowAllKnownDirectivesSuppressedNote))
-    else if FLiveKeyValueSection.Section.Empty and not FShowAllKnownDirectives then 
-      ShowNote(LFmtMessage(SInspectorNothingToInspectNote))
+    else if FLiveKeyValueSection.Section.Empty and not FShowAllKnownDirectives then
+      ShowNote(LFmtMessage(SInspectorEmptySectionNote))
     else
       HideNote;
   end else if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Section.Empty then
-    ShowNote(LFmtMessage(SInspectorNothingToInspectNote))
+    ShowNote(LFmtMessage(SInspectorEmptySectionNote))
   else
     HideNote;
 end;

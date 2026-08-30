@@ -1767,7 +1767,9 @@ end;
 
 procedure TestKeyValueSectionEmpty;
 begin
-  const Section = TScriptModelKeyValueSection.Create(nil);
+  var Metadata: TScriptModelSectionMetadata;
+  Assert(TryGetScriptModelSectionMetadata('Setup', Metadata));
+  const Section = TScriptModelKeyValueSection.Create(Metadata);
   try
     Section.Parse([]);
     Assert(Section.Empty);
@@ -1777,11 +1779,14 @@ begin
     Assert(Section.Count = 3);
     Assert(Section.Empty);
 
+    var Definition: TMemberDefinition;
     Section.Parse(['AppName=Foo']);
+    Assert(Section.TryGetDefinition('AppName', Definition));
     Assert(not Section.Empty);
 
     { Unknown keys count just as known ones do }
     Section.Parse(['Unknown=1']);
+    Assert(not Section.TryGetDefinition('Unknown', Definition));
     Assert(not Section.Empty);
 
     { Adding and removing keys keeps it up to date }

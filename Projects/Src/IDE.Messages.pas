@@ -239,7 +239,8 @@ const
   SInspectorIntegerValueError = '%1 must be an integer value';
   SInspectorReadOnlyError = 'The script cannot be edited because it is read-only';
   SInspectorBrowseParamFlagError = 'Parameter "%1" cannot be browsed for when the "%2" flag is used';
-  SInspectorNothingToInspectNote = 'Move to a non-empty key/value section, parameter entry or [Code] section';
+  SInspectorNothingToInspectNote = 'Move to a parameter entry or a key/value or [Code] section';
+  SInspectorEmptySectionNote = 'Move to a parameter entry or a non-empty key/value or [Code] section';
   SInspectorMixedSelectionNote = 'Select entries of one section type, and no other content';
   SInspectorSiblingOccurrencesNote = 'Unspecified directives are hidden because this section occurs more than once';
   SInspectorShowAllKnownDirectivesSuppressedNote = 'Unspecified directives are hidden because this is not the main script file';
