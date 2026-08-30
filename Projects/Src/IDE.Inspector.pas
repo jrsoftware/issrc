@@ -24,8 +24,7 @@ type
     rkDebugSections, rkDebugEarlyExits,
     rkDebugCaretAt, rkDebugCaretRoutine {$ENDIF});
 
-  { Kinds sharing a declaration must stay together: RowGetAsString looks
-    them up by range }
+  { Kinds sharing a declaration must stay together }
   TInspectorRowCodeKind = (ckNone, ckRoutine, ckRoutineResult,
     ckRoutineParametersLabel, ckRoutineParameter,
     ckRoutineLocalsLabel, ckRoutineLocal, ckType,
@@ -136,6 +135,7 @@ type
     function SelectedRowResolves: Boolean;
     function GetSelectedRowValuePositions(
       const AMaxCount: Integer = 0): TArray<TValuePosition>;
+    function TryGetSelectedCodeRowMemoLine(out AMemoLine: Integer): Boolean;
     function GetRowValueSignature(const ARow: TInspectorRow): String;
     function RowGetAsOrdinal(const ARow: TInspectorRow): Int64; overload;
     procedure RowGetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64); overload;
@@ -470,7 +470,9 @@ end;
 
 function TInspector.CanGoToSelectedRow: Boolean;
 begin
-  Result := Length(GetSelectedRowValuePositions(1)) > 0;
+  var MemoLine: Integer;
+  Result := (Length(GetSelectedRowValuePositions(1)) > 0) or
+    TryGetSelectedCodeRowMemoLine(MemoLine);
 end;
 
 function TInspector.GetSelectedRowValuePositions(
@@ -518,6 +520,61 @@ begin
         end;
       end;
   end;
+end;
+
+function TInspector.TryGetSelectedCodeRowMemoLine(
+  out AMemoLine: Integer): Boolean;
+{ Fails for the rows with the Parameters and Locals labels, and for Result rows }
+begin
+  AMemoLine := -1;
+  const Item = FJvInspector.Selected;
+  var Row: TInspectorRow;
+  if (Item = nil) or not TryGetRow(Item, Row) or (Row.Kind <> rkCode) or
+     (FLiveCodeSection = nil) or not FLiveCodeSection.Valid then
+    Exit(False);
+  const Section = FLiveCodeSection.Section;
+  var Line := -1;
+  case Row.CodeKind of
+    ckRoutine..ckRoutineLocal:
+      if Row.Index < Section.RoutineCount then begin
+        const Routine = Section.Routines[Row.Index];
+        case Row.CodeKind of
+          ckRoutine: Line := Routine.FirstLine;
+          ckRoutineParameter:
+            if Row.SubIndex < Routine.ParameterCount then
+              Line := Routine.Parameters[Row.SubIndex].Line;
+          ckRoutineLocal:
+            if Row.SubIndex < Routine.LocalCount then
+              Line := Routine.Locals[Row.SubIndex].Line;
+        end;
+      end;
+    ckType, ckInterface:
+      begin
+        { An anonymous interface declares nothing of its own, so its row goes
+          to the type it is nested in, just like that type's own row }
+        if Row.Index < Section.TypeCount then
+          Line := Section.Types[Row.Index].Line;
+      end;
+    ckInterfaceMethod..ckInterfaceMethodParameter:
+      if Row.Index < Section.InterfaceMethodCount then begin
+        const Method = Section.InterfaceMethods[Row.Index];
+        case Row.CodeKind of
+          ckInterfaceMethod: Line := Method.Line;
+          ckInterfaceMethodParameter:
+            if Row.SubIndex < Method.ParameterCount then
+              Line := Method.Parameters[Row.SubIndex].Line;
+        end;
+      end;
+    ckConstant:
+      if Row.Index < Section.ConstantCount then
+        Line := Section.Constants[Row.Index].Line;
+    ckGlobalVariable:
+      if Row.Index < Section.GlobalVariableCount then
+        Line := Section.GlobalVariables[Row.Index].Line;
+  end;
+  Result := Line >= 0;
+  if Result then
+    AMemoLine := FLiveCodeSection.FirstLine + Line;
 end;
 
 procedure TInspector.JvInspectorLeafNameDblClick(Item: TJvCustomInspectorItem);
@@ -734,6 +791,16 @@ begin
   { Losing focus may have committed an edit, so need to update }
   UpdateFromCaret;
 
+  { For [Code] simply go to the line without selecting anything }
+  var MemoLine: Integer;
+  if TryGetSelectedCodeRowMemoLine(MemoLine) then begin
+    { Also see IDE.Navigator's GoToLine }
+    Memo.EnsurePositionInViewVertically(Memo.GetPositionFromLine(MemoLine));
+    Memo.CaretLine := MemoLine;
+    Exit;
+  end;
+
+  { Otherwise select the value(s) }
   const Positions = GetSelectedRowValuePositions;
   if Length(Positions) > 0 then begin
     for var I := 0 to High(Positions) do begin

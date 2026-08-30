@@ -316,6 +316,7 @@ procedure TNavigator.GoToComboBoxItem(const AComboBox: TComboBox;
   procedure GoToLine(const ALine: Integer);
   begin
     const Memo = FFactory.Memo;
+    { Also see TInspector.GoToSelectedRow }
     Memo.EnsurePositionInViewVertically(Memo.GetPositionFromLine(ALine));
     Memo.CaretLine := ALine;
   end;

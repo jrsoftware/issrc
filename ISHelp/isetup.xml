@@ -3975,7 +3975,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Browse for a path value</td><td>F4, Alt+Down, or click the "..." button</td>
 </tr>
 <tr>
-  <td>Go to and select the selected row's value(s) in the script</td><td>Ctrl+G, or (if the row is not expandable) DoubleClick the row's name</td>
+  <td>Go to and select the selected row's value(s) in the script, or go to the <sn>[Code]</sn> declaration it shows</td><td>Ctrl+G, or (if the row is not expandable) DoubleClick the row's name</td>
 </tr>
 <tr>
   <td>Remove the selected key or parameter(s) from the script</td><td>Ctrl+Del, or (if the row shows a checkbox) Del</td>
