@@ -1481,7 +1481,7 @@ begin
   end else begin // The value button is on the right of the value area:
     var ButtonWidth := GetItemHeight;
     if iifEditButton in FPaintItem.Flags then
-      ButtonWidth := MulDiv(ButtonWidth, 3, 2);
+      ButtonWidth := MulDiv(ButtonWidth, 5, 4);
     TmpRect := FPaintItem.Rects[iprValueText];
     Dec(TmpRect.Right, ButtonWidth);
     FPaintItem.Rects[iprValueEdit] := TmpRect;
