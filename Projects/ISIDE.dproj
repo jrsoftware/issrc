@@ -127,6 +127,7 @@
         <DCCReference Include="Src\IDE.Messages.pas"/>
         <DCCReference Include="Src\IDE.LocalizeFunc.pas"/>
         <DCCReference Include="Src\IDE.LocalizeFunc.ChineseSimplified.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.ChineseTraditional.pas"/>
         <DCCReference Include="Src\IDE.LocalizeFunc.Czech.pas"/>
         <DCCReference Include="Src\IDE.LocalizeFunc.Dutch.pas"/>
         <DCCReference Include="Src\IDE.LocalizeFunc.French.pas"/>

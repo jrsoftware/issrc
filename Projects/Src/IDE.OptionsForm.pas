@@ -140,6 +140,7 @@ begin
   LanguageComboBox.Items.Add('Espa'#$00F1'ol');
   LanguageComboBox.Items.Add('Italiano');
   LanguageComboBox.Items.Add(#$7B80#$4F53#$4E2D#$6587);
+  LanguageComboBox.Items.Add(#$7E41#$9AD4#$4E2D#$6587);
 end;
 
 procedure TOptionsForm.FormShow(Sender: TObject);

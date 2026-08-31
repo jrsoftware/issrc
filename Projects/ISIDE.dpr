@@ -24,6 +24,7 @@ uses
   IDE.Messages in 'Src\IDE.Messages.pas',
   IDE.LocalizeFunc in 'Src\IDE.LocalizeFunc.pas',
   IDE.LocalizeFunc.ChineseSimplified in 'Src\IDE.LocalizeFunc.ChineseSimplified.pas',
+  IDE.LocalizeFunc.ChineseTraditional in 'Src\IDE.LocalizeFunc.ChineseTraditional.pas',
   IDE.LocalizeFunc.Czech in 'Src\IDE.LocalizeFunc.Czech.pas',
   IDE.LocalizeFunc.Dutch in 'Src\IDE.LocalizeFunc.Dutch.pas',
   IDE.LocalizeFunc.French in 'Src\IDE.LocalizeFunc.French.pas',

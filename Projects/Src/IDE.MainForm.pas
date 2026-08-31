@@ -1073,10 +1073,15 @@ constructor TMainForm.Create(AOwner: TComponent);
           LANG_ITALIAN: MessageLanguage := ilItalian;
           LANG_CHINESE:
             begin
+              const SUBLANG_CHINESE_MACAU = $05; { Not defined by Windows.pas }
               const SubLanguage = SUBLANGID(UILanguage);
               if (SubLanguage = SUBLANG_CHINESE_SIMPLIFIED) or
                  (SubLanguage = SUBLANG_CHINESE_SINGAPORE) then
-                MessageLanguage := ilChineseSimplified;
+                MessageLanguage := ilChineseSimplified
+              else if (SubLanguage = SUBLANG_CHINESE_TRADITIONAL) or
+                      (SubLanguage = SUBLANG_CHINESE_HONGKONG) or
+                      (SubLanguage = SUBLANG_CHINESE_MACAU) then
+                MessageLanguage := ilChineseTraditional;
             end;
         end;
         if MessageLanguage <> ilEnglish then
