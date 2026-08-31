@@ -36,7 +36,7 @@ interface
 
 uses
   SysUtils, Classes, Generics.Collections,
-  Windows, Messages, Graphics, Controls, StdCtrls;
+  Windows, Messages, Graphics, Controls, StdCtrls, ImgList;
 
 type
   // early declarations
@@ -48,10 +48,22 @@ type
   TInspectorItemFlag = (iifReadonly, iifExpanded, iifValueList, iifEditButton);
   TInspectorItemFlags = set of TInspectorItemFlag;
 
-  TInspectorPaintRect = (iprItem, iprExpandButton, iprMarker, iprNameArea, iprNameText,
-    iprValueArea, iprValueText, iprValueEdit, iprValueButton);
+  TInspectorPaintRect = (iprItem, iprExpandButton, iprMarker, iprNameArea,
+    iprNameGlyph, iprNameText, iprValueArea, iprValueGlyph, iprValueText,
+    iprValueEdit, iprValueButton);
+
+  TInspectorGlyphKind = (igkNone, igkImage, igkColor);
+
+  { A small square painted before a row's name or value text }
+  TInspectorGlyph = record
+    Kind: TInspectorGlyphKind;
+    ImageList: TCustomImageList; { igkImage }
+    ImageName: string;           { igkImage }
+    Color: TColor;               { igkColor }
+  end;
 
   TInspectorItemEvent = procedure(Item: TJvCustomInspectorItem) of object;
+  TInspectorItemGetGlyphEvent = procedure(Item: TJvCustomInspectorItem; var Glyph: TInspectorGlyph) of object;
   TInspectorItemGetValueListEvent = procedure(Item: TJvCustomInspectorItem; Values: TStrings) of object;
   TInspectorItemEditButtonClickEvent = procedure(Item: TJvCustomInspectorItem; var Value: string) of object;
   TJvInspAsOrdinal = procedure(Sender: TJvCustomInspectorItem; var Value: Int64) of object;
@@ -100,6 +112,8 @@ type
     FOnSetAsOrdinal: TJvInspAsOrdinal;
     FOnSetAsString: TJvInspAsString;
     FOnGetValueList: TInspectorItemGetValueListEvent;
+    FOnGetNameGlyph: TInspectorItemGetGlyphEvent;
+    FOnGetValueGlyph: TInspectorItemGetGlyphEvent;
     FOnEditButtonClick: TInspectorItemEditButtonClickEvent;
     // BeforeEdit NOTE: - WAP
     //
@@ -195,6 +209,8 @@ type
     property OnSetAsOrdinal: TJvInspAsOrdinal read FOnSetAsOrdinal write FOnSetAsOrdinal;
     property OnSetAsString: TJvInspAsString read FOnSetAsString write FOnSetAsString;
     property OnGetValueList: TInspectorItemGetValueListEvent read FOnGetValueList write FOnGetValueList;
+    property OnGetNameGlyph: TInspectorItemGetGlyphEvent read FOnGetNameGlyph write FOnGetNameGlyph;
+    property OnGetValueGlyph: TInspectorItemGetGlyphEvent read FOnGetValueGlyph write FOnGetValueGlyph;
     property OnEditButtonClick: TInspectorItemEditButtonClickEvent read FOnEditButtonClick write FOnEditButtonClick;
     property BackgroundColor: TColor read GetBackgroundColor write SetBackgroundColor;
     property CategoryColor: TColor read FCategoryColor write FCategoryColor;
@@ -223,6 +239,7 @@ type
     FItems: TObjectList<TJvCustomInspectorItem>;
     FListBox: TJvInspectorListBox;
     FListBoxFilled: Boolean;
+    FNameGlyph: TInspectorGlyph;
     FOnGetValueList: TInspectorItemGetValueListEvent;
     FParent: TJvCustomInspectorItem;
     FLastPaintGen: Integer;
@@ -231,11 +248,14 @@ type
     FTag: NativeInt;
     FTracking: Boolean;
     FUpdateEditCtrl: Integer; // Used to prevent EditCtrl destruction while in Apply().
+    FValueGlyph: TInspectorGlyph;
   protected
     procedure Apply;
     procedure CancelPress; virtual;
     function CanEdit: Boolean;
     procedure CloseUp(Accept: Boolean);
+    procedure DrawGlyph(const ACanvas: TCanvas; const AGlyph: TInspectorGlyph;
+      const AGlyphRect, AClipRect: TRect);
     procedure DoDropDownKeys(var Key: Word; Shift: TShiftState);
     procedure DropDown;
     procedure EditButtonClick;
@@ -253,10 +273,12 @@ type
     function GetCount: NativeInt;
     function GetDisplayValue: string; virtual;
     function GetExpanded: Boolean;
+    function GetGlyph(const AEvent: TInspectorItemGetGlyphEvent): TInspectorGlyph;
     function GetItems(const I: NativeInt): TJvCustomInspectorItem;
     function GetLevel: Integer;
     function GetReadOnly: Boolean;
     function GetRects(const RectKind: TInspectorPaintRect): TRect;
+    function GetValueEditHitRect: TRect;
     procedure GetValueList(const Strings: TStrings);
     procedure InvalidateItem;
     procedure SetAsOrdinal(Value: Int64);
@@ -287,8 +309,10 @@ type
     property EditWndPrc: TWndMethod read FEditWndPrc;
     property LastPaintGeneration: Integer read FLastPaintGen;
     property ListBox: TJvInspectorListBox read FListBox;
+    property NameGlyph: TInspectorGlyph read FNameGlyph;
     property Pressed: Boolean read FPressed write FPressed;
     property Tracking: Boolean read FTracking write FTracking;
+    property ValueGlyph: TInspectorGlyph read FValueGlyph;
   public
     constructor Create(const AParent: TJvCustomInspectorItem);
     procedure BeforeDestruction; override;
@@ -384,6 +408,12 @@ uses
 const
   BackSpace = #8;
   Esc = #27;
+  { The checkbox size and the gap between it and its label, at 96 DPI. Both
+    glyph kinds use the gap and a color square uses the size; the value column
+    also reserves the size as its minimum glyph width, so a value row lines up
+    with a checkbox row. }
+  CheckBoxSize = 13;
+  CheckBoxLabelGap = 4;
 
 resourcestring
   RsJvInspItemValueException = 'Exception ';
@@ -891,7 +921,7 @@ begin
     if not (ssDouble in Shift) and not DraggingDivider and
        (Item <> nil) and Item.Editing and (Item.EditCtrl <> nil) and
        Item.EditCtrl.HandleAllocated and Item.EditCtrl.CanFocus and
-       PtInRect(Item.Rects[iprValueEdit], Point(X, Y)) then begin
+       PtInRect(Item.GetValueEditHitRect, Point(X, Y)) then begin
       FPressedItem := nil;
       ControlState := ControlState - [csLButtonDown, csClicked];
       MouseCapture := False;
@@ -924,7 +954,7 @@ begin
   else begin
     const Item = GetVisibleItems(CalcItemIndex(Y));
     if (Item <> nil) and Item.CanEdit and not (Item is TJvInspectorBooleanItem) and
-      not Item.Editing and PtInRect(Item.Rects[iprValueEdit], Point(X, Y)) then
+      not Item.Editing and PtInRect(Item.GetValueEditHitRect, Point(X, Y)) then
       Cursor := crIBeam
     else
       Cursor := crDefault;
@@ -1380,6 +1410,36 @@ begin
 end;
 
 procedure TJvInspector.SetupRects;
+
+  procedure LayOutGlyph(const AArea: TRect; const AGlyph: TInspectorGlyph;
+    const AMinWidth: Integer; var ATextRect: TRect; out AGlyphRect: TRect);
+  { Puts the glyph where the column's text starts and moves the text right of it.
+    AMinWidth is the width to reserve even for a narrower glyph, which centers in
+    it. }
+  begin
+    if AGlyph.Kind = igkNone then begin
+      AGlyphRect := TRect.Empty;
+      Exit;
+    end;
+    var GlyphWidth, GlyphHeight: Integer;
+    if AGlyph.Kind = igkImage then begin
+      GlyphWidth := AGlyph.ImageList.Width;
+      GlyphHeight := AGlyph.ImageList.Height;
+    end else begin
+      GlyphWidth := MulDiv(CheckBoxSize, CurrentPPI, 96);
+      GlyphHeight := GlyphWidth;
+    end;
+    var GlyphAreaWidth := AMinWidth;
+    if GlyphAreaWidth < GlyphWidth then
+      GlyphAreaWidth := GlyphWidth;
+    const GlyphAreaLeft = ATextRect.Left;
+    const GlyphLeft = GlyphAreaLeft + (GlyphAreaWidth - GlyphWidth) div 2;
+    AGlyphRect := Rect(GlyphLeft, 0, GlyphLeft + GlyphWidth, GlyphHeight);
+    OffsetRect(AGlyphRect, 0, AArea.Top + (AArea.Height - GlyphHeight) div 2);
+    ATextRect.Left := GlyphAreaLeft + GlyphAreaWidth + MulDiv(CheckBoxLabelGap, CurrentPPI, 96);
+    IntersectRect(ATextRect, ATextRect, AArea);
+  end;
+
 begin
   { Base }
   FPaintItem.Rects[iprItem] := Rect(FPaintRect.Left, FPaintRect.Top,
@@ -1458,6 +1518,16 @@ begin
     Dec(TmpRect.Bottom, 1);
   end;
   IntersectRect(TmpRect, TmpRect, FPaintItem.Rects[iprNameArea]);
+
+  { The name glyph }
+  if not FPaintItem.IsCategory and not IsRectEmpty(FPaintItem.Rects[iprNameArea]) then
+    FPaintItem.FNameGlyph := FPaintItem.GetGlyph(FOnGetNameGlyph)
+  else
+    FPaintItem.FNameGlyph := Default(TInspectorGlyph);
+  var NameGlyphRect: TRect;
+  LayOutGlyph(FPaintItem.Rects[iprNameArea], FPaintItem.FNameGlyph,
+    0, TmpRect, NameGlyphRect);
+  FPaintItem.Rects[iprNameGlyph] := NameGlyphRect;
   FPaintItem.Rects[iprNameText] := TmpRect;
 
   { The value }
@@ -1471,6 +1541,16 @@ begin
     Dec(TmpRect.Bottom, 1);
     IntersectRect(TmpRect, TmpRect, FPaintItem.Rects[iprValueArea]);
   end;
+
+  { The value glyph }
+  if not FPaintItem.IsCategory and not (FPaintItem is TJvInspectorBooleanItem) then
+    FPaintItem.FValueGlyph := FPaintItem.GetGlyph(FOnGetValueGlyph)
+  else
+    FPaintItem.FValueGlyph := Default(TInspectorGlyph);
+  var ValueGlyphRect: TRect;
+  LayOutGlyph(FPaintItem.Rects[iprValueArea], FPaintItem.FValueGlyph,
+    MulDiv(CheckBoxSize, CurrentPPI, 96), TmpRect, ValueGlyphRect); { Make it line up with a checkbox row }
+  FPaintItem.Rects[iprValueGlyph] := ValueGlyphRect;
   FPaintItem.Rects[iprValueText] := TmpRect;
 
   { The value edit and value button }
@@ -1574,6 +1654,8 @@ begin
   Canvas.FillRect(NameFillRect);
   if Assigned(FOnCustomizeItemCanvas) then
     FOnCustomizeItemCanvas(FPaintItem, Canvas);
+  FPaintItem.DrawGlyph(Canvas, FPaintItem.NameGlyph,
+    FPaintItem.Rects[iprNameGlyph], FPaintItem.Rects[iprNameArea]);
   var NameTextRect := FPaintItem.Rects[iprNameText];
   var NameText := FPaintItem.DisplayName;
   Canvas.TextRect(NameTextRect, NameText, [tfSingleLine, tfNoPrefix, tfEndEllipsis]);
@@ -2134,12 +2216,72 @@ begin
     Result := TRect.Empty;
 end;
 
+function TJvCustomInspectorItem.GetValueEditHitRect: TRect;
+{ Ensures edit hit testing is not affected by any glyph (which sits to the left
+  of the edit) }
+begin
+  Result := Rects[iprValueEdit];
+  const GlyphRect = Rects[iprValueGlyph];
+  if not IsRectEmpty(Result) and not IsRectEmpty(GlyphRect) then
+    Result.Left := GlyphRect.Left;
+end;
+
 procedure TJvCustomInspectorItem.GetValueList(const Strings: TStrings);
 begin
   if Assigned(FOnGetValueList) then
     FOnGetValueList(Self, Strings)
   else if Assigned(Inspector.FOnGetValueList) then
     Inspector.FOnGetValueList(Self, Strings);
+end;
+
+function TJvCustomInspectorItem.GetGlyph(
+  const AEvent: TInspectorItemGetGlyphEvent): TInspectorGlyph;
+begin
+  Result := Default(TInspectorGlyph);
+  if Assigned(AEvent) then begin
+    try
+      AEvent(Self, Result);
+      if (Result.Kind = igkImage) and
+         ((Result.ImageList = nil) or
+          (Result.ImageList.GetIndexByName(Result.ImageName) < 0)) then
+        Result.Kind := igkNone;
+    except
+      Result := Default(TInspectorGlyph); { Don't allow exceptions, like DrawValue }
+    end;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.DrawGlyph(const ACanvas: TCanvas;
+  const AGlyph: TInspectorGlyph; const AGlyphRect, AClipRect: TRect);
+begin
+  if AGlyph.Kind = igkNone then
+    Exit;
+
+  const SaveIndex = SaveDC(ACanvas.Handle);
+  try
+    IntersectClipRect(ACanvas.Handle, AClipRect.Left, AClipRect.Top,
+      AClipRect.Right, AClipRect.Bottom);
+    if AGlyph.Kind = igkImage then
+      AGlyph.ImageList.Draw(ACanvas, AGlyphRect.Left, AGlyphRect.Top,
+        AGlyph.ImageList.GetIndexByName(AGlyph.ImageName))
+    else begin
+      const SaveBrushColor = ACanvas.Brush.Color;
+      try
+        { FrameRect's border is always one pixel, so we don't use it }
+        ACanvas.Brush.Color := ACanvas.Font.Color;
+        ACanvas.FillRect(AGlyphRect);
+        var InnerRect := AGlyphRect;
+        const BorderWidth = MulDiv(1, Inspector.CurrentPPI, 96);
+        InflateRect(InnerRect, -BorderWidth, -BorderWidth);
+        ACanvas.Brush.Color := AGlyph.Color;
+        ACanvas.FillRect(InnerRect);
+      finally
+        ACanvas.Brush.Color := SaveBrushColor;
+      end;
+    end;
+  finally
+    RestoreDC(ACanvas.Handle, SaveIndex);
+  end;
 end;
 
 procedure TJvCustomInspectorItem.InvalidateList;
@@ -2386,13 +2528,14 @@ begin
       Exception(ExceptObject).Message;
   end;
   ARect := Rects[iprValueText];
-  if Editing then
+  if Editing then begin
     ACanvas.Brush.Color := Inspector.BackgroundColor;
+    ACanvas.FillRect(Rects[iprValueArea]);
+  end;
+  DrawGlyph(ACanvas, ValueGlyph, Rects[iprValueGlyph], Rects[iprValueArea]);
   if not Editing then
     ACanvas.TextRect(ARect, ARect.Left, ARect.Top, S)
   else begin
-    ARect := Rects[iprValueArea];
-    ACanvas.FillRect(ARect);
     // Reposition the editor if the layout changed since InitEdit placed it,
     // for example when InitEdit ran before the item was first painted
     if (EditCtrl <> nil) and (EditCtrl.BoundsRect <> Rects[iprValueEdit]) then
@@ -2774,7 +2917,7 @@ begin
   if Editing then
     ACanvas.Brush.Color := Inspector.BackgroundColor;
   ACanvas.FillRect(Rects[iprValueArea]);
-  BoxSize := MulDiv(13, Inspector.CurrentPPI, 96);
+  BoxSize := MulDiv(CheckBoxSize, Inspector.CurrentPPI, 96);
   ARect := Rects[iprValueArea];
   Inc(ARect.Left, MulDiv(2, Inspector.CurrentPPI, 96));
   Inc(ARect.Top, (ARect.Height - BoxSize) div 2);
@@ -2807,7 +2950,7 @@ begin
   else
     LabelText := 'no';
   LabelRect := Rects[iprValueArea];
-  LabelRect.Left := ARect.Right + MulDiv(4, Inspector.CurrentPPI, 96);
+  LabelRect.Left := ARect.Right + MulDiv(CheckBoxLabelGap, Inspector.CurrentPPI, 96);
   FClickRect := CheckRect;
   FClickRect.Right := LabelRect.Left + ACanvas.TextWidth(LabelText);
   IntersectRect(FClickRect, FClickRect, Rects[iprValueArea]);

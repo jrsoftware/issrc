@@ -144,6 +144,7 @@ type
     procedure RowGetAsString(Sender: TJvCustomInspectorItem; var Value: String); overload;
     procedure RowSetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
     procedure RowSetAsString(Sender: TJvCustomInspectorItem; var Value: String);
+    procedure RowGetValueGlyph(Item: TJvCustomInspectorItem; var Glyph: TInspectorGlyph);
     procedure RowRemove(const ARow: TInspectorRow);
     procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
     procedure DestDirRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
@@ -304,6 +305,7 @@ begin
   FJvInspector.OnSetAsOrdinal := RowSetAsOrdinal;
   FJvInspector.OnSetAsString := RowSetAsString;
   FJvInspector.OnGetValueList := ChoiceRowGetValueList;
+  FJvInspector.OnGetValueGlyph := RowGetValueGlyph;
 end;
 
 destructor TInspector.Destroy;
@@ -2504,6 +2506,38 @@ begin
     FInEdit := False;
   end;
   InvalidateChangedRows;
+end;
+
+procedure TInspector.RowGetValueGlyph(Item: TJvCustomInspectorItem;
+  var Glyph: TInspectorGlyph);
+begin
+  var Row: TInspectorRow;
+  if not TryGetRow(Item, Row) then
+    Exit;
+
+  var Definition: TMemberDefinition;
+  var Known := False;
+  case Row.Kind of
+    rkParameter:
+      if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid then
+        Known := FLiveParameterSectionEntries.PrimaryEntry.TryGetDefinition(Row.Name, Definition);
+    rkKey:
+      if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then
+        Known := FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition);
+  end;
+  if not Known or (Definition.ValueKind <> mvkColor) then
+    Exit;
+
+  { Values holding a constant are skipped before parsing, like ValidateValue does }
+  const Value = RowGetAsString(Row);
+  if (Value = '') or (Pos('{', Value) <> 0) then
+    Exit;
+
+  var Color: TColor;
+  if NewTryStringToColor(Value, Color) and (Color <> clNone) then begin
+    Glyph.Kind := igkColor;
+    Glyph.Color := Color;
+  end;
 end;
 
 procedure TInspector.RowRemove(const ARow: TInspectorRow);
