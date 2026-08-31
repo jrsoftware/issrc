@@ -113,6 +113,7 @@ type
       FMixedSelection: Boolean;
       FRows: TList<TInspectorRow>;
       FRowSetSignature: String;
+      FRebuildPending: Boolean;
       FFollowCaret: Boolean;
       FCaretAt: TCaretAt;
       {$IFDEF DEBUG}
@@ -163,6 +164,7 @@ type
     function RowMatchesCaretAt(const ARow: TInspectorRow): Boolean;
     procedure ApplyCaretAtTimerUpdate(const ACancel: Boolean);
     procedure ApplyCaretAt;
+    procedure RebuildTimerUpdate(const ACancel: Boolean);
     function GetDividerWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
     procedure SetFilterText(const Value: String);
@@ -171,6 +173,7 @@ type
     procedure SetQuoteNewParameterValues(const Value: Boolean);
     procedure SetShowAllKnownDirectives(const Value: Boolean);
     procedure SetShowAllKnownDirectivesSuppressedNote(const Value: Boolean);
+    procedure UpdateFromCaret(const AForceRebuildNow: Boolean); overload;
     procedure UpdateNote;
   public
     constructor Create(const AJvInspector: TJvInspector;
@@ -183,6 +186,7 @@ type
     destructor Destroy; override;
     procedure ForceFinishEdit(const AForceCancel: Boolean = False);
     function GetSelectedHelpKeyword: String;
+    procedure FlushPendingRebuild;
     function CanGoToSelectedRow: Boolean;
     function GoToSelectedRow: Boolean;
     function CanRemoveSelectedRow: Boolean;
@@ -191,7 +195,7 @@ type
     function ShowingParameterSectionEntry: Boolean;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
       const AShowAllKnownDirectives, AShowAllKnownDirectivesSuppressedNote: Boolean);
-    procedure UpdateFromCaret;
+    procedure UpdateFromCaret; overload;
     procedure UpdateReadOnly;
     procedure UpdateTheme(const ATheme: TTheme; const AHighContrastActive: Boolean);
     property FilterText: String read FFilterText write SetFilterText;
@@ -224,6 +228,7 @@ type
 const
   WM_RemoveSelectedRow = WM_USER + 1;
   ApplyCaretAtTimerID = 1;
+  RebuildTimerID = 2;
 
 { TInspector }
 
@@ -460,12 +465,26 @@ begin
   if Message.Msg = WM_RemoveSelectedRow then
     RemoveSelectedRow
   else if (Message.Msg = WM_TIMER) and (Message.WParam = ApplyCaretAtTimerID) then begin
-    if AnyInputDown then
+    if AnyInputDown or FRebuildPending then
       Exit; { Keeps timer alive }
     ApplyCaretAtTimerUpdate(True); { Kills timer }
     ApplyCaretAt;
+  end else if (Message.Msg = WM_TIMER) and (Message.WParam = RebuildTimerID) then begin
+    if AnyInputDown then
+      Exit; { Keeps timer alive }
+    RebuildTimerUpdate(True); { Kills timer }
+    UpdateFromCaret(True);
   end else
     Message.Result := DefWindowProc(FMessagesWnd, Message.Msg, Message.WParam, Message.LParam);
+end;
+
+procedure TInspector.FlushPendingRebuild;
+begin
+  if FRebuildPending then begin
+    { Also see TNavigator.ComboBoxDropDown }
+    RebuildTimerUpdate(True); { Kills timer }
+    UpdateFromCaret(True); { Force a rebuild }
+  end;
 end;
 
 function TInspector.CanGoToSelectedRow: Boolean;
@@ -530,7 +549,8 @@ begin
   const Item = FJvInspector.Selected;
   var Row: TInspectorRow;
   if (Item = nil) or not TryGetRow(Item, Row) or (Row.Kind <> rkCode) or
-     (FLiveCodeSection = nil) or not FLiveCodeSection.Valid then
+     FRebuildPending or (FLiveCodeSection = nil) or
+     not FLiveCodeSection.Valid then
     Exit(False);
   const Section = FLiveCodeSection.Section;
   var Line := -1;
@@ -779,6 +799,7 @@ end;
 
 function TInspector.GoToSelectedRow: Boolean;
 begin
+  FlushPendingRebuild;
   Result := CanGoToSelectedRow;
   if not Result then
     Exit;
@@ -914,8 +935,10 @@ begin
   FShowAllKnownDirectives := AShowAllKnownDirectives;
   FShowAllKnownDirectivesSuppressedNote := AShowAllKnownDirectivesSuppressedNote;
   FRowSetSignature := ''; { Force rebuild even if row set stayed same }
+  FChangeCountAtCreation := -1; { Signal the value can't be compared to the factory's anymore }
   FCaretAt.Valid := False;
   ApplyCaretAtTimerUpdate(True); { Cancel any queued }
+  RebuildTimerUpdate(True); { Cancel any queued }
   UpdateFromCaret;
 end;
 
@@ -932,14 +955,7 @@ begin
   end;
 end;
 
-procedure TInspector.UpdateFromCaret;
-
-  function LiveObjectTextChanged: Boolean;
-  begin
-    if FFactory.ChangeCount < FChangeCountAtCreation then
-      raise Exception.Create('Internal error: LiveObjectTextChanged: ChangeCount decreased');
-    Result := FFactory.ChangeCount > FChangeCountAtCreation;
-  end;
+procedure TInspector.UpdateFromCaret(const AForceRebuildNow: Boolean);
 
   function LineRangesCoverMultipleLines(
     const ALineRanges: TArray<TScintLineRange>): Boolean;
@@ -1792,7 +1808,7 @@ procedure TInspector.UpdateFromCaret;
 
   procedure UpdateCaretAt;
   begin
-    if not FFollowCaret then
+    if not FFollowCaret or FRebuildPending then
       Exit;
     const CaretAt = GetCaretAt;
     if (CaretAt.Valid <> FCaretAt.Valid) or
@@ -1816,6 +1832,18 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
+  procedure HandleEarlyExit(const ACaretLine: Integer;
+    const AUpdateDebugCaretRoutineRowString: Boolean);
+  begin
+    UpdateCaretAt;
+    {$IFDEF DEBUG}
+    if AUpdateDebugCaretRoutineRowString then
+      UpdateDebugCaretRoutineRowString(ACaretLine);
+    Inc(FUpdateFromCaretEarlyExitCount);
+    InvalidateChangedRows; { Repaint the early exit count }
+    {$ENDIF}
+  end;
+
 begin
   if FInEdit then
     Exit;
@@ -1823,6 +1851,7 @@ begin
   FJvInspector.ReadOnly := FFactory.Memo.ReadOnly;
 
   const CaretLine = FFactory.Memo.CaretLine;
+  const TextChanged = FFactory.ChangeCount <> FChangeCountAtCreation;
   var IndividualSelectionLineRanges: TArray<TScintLineRange>;
   const SelectionLineRanges = FFactory.Memo.GetSelectionLineRanges(
     IndividualSelectionLineRanges);
@@ -1843,54 +1872,50 @@ begin
 
   { Without a memo change or a forced rebuild, a caret move within the same
     entry or key/value section, or an unchanged multi-line selection, changes
-    nothing, so keep the model and the rows.
-    The signature check must precede LiveObjectTextChanged: right after
-    SetActiveFactory the live object still belongs to the previous factory. }
+    nothing, so keep the model and the rows }
   if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid and
-     (FRowSetSignature <> '') and not LiveObjectTextChanged and
+     (FRowSetSignature <> '') and not TextChanged and
      (SelectionTestPassed or
       (not UseSelectionTest and
        (CaretLine >= FLiveParameterSectionEntries.PrimaryFirstLine) and
        (CaretLine <= FLiveParameterSectionEntries.PrimaryLastLine))) then begin
-    UpdateCaretAt;
-    {$IFDEF DEBUG}
-    Inc(FUpdateFromCaretEarlyExitCount);
-    InvalidateChangedRows; { Repaint the early exit count }
-    {$ENDIF}
+    HandleEarlyExit(CaretLine, False);
     Exit;
   end;
   if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid and
-     (FRowSetSignature <> '') and not LiveObjectTextChanged and
+     (FRowSetSignature <> '') and not TextChanged and
      (SelectionTestPassed or not UseSelectionTest) then begin
     { Resolved by section index instead of the entry's line-range test above:
       the section's range covers the body only, so it misses the header line }
     var SectionIndex: Integer;
     if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
        (SectionIndex = FLiveKeyValueSectionIndex) then begin
-      UpdateCaretAt;
-      {$IFDEF DEBUG}
-      Inc(FUpdateFromCaretEarlyExitCount);
-      InvalidateChangedRows; { See above }
-      {$ENDIF}
+      HandleEarlyExit(CaretLine, False);
       Exit;
     end;
   end;
-  if (FLiveCodeSection <> nil) and FLiveCodeSection.Valid and
-     (FRowSetSignature <> '') and not LiveObjectTextChanged and
+  if (FLiveCodeSection <> nil) and (FRowSetSignature <> '') and
      (SelectionTestPassed or not UseSelectionTest) then begin
     var SectionIndex: Integer;
     if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
        (SectionIndex = FLiveCodeSectionIndex) then begin
-      UpdateCaretAt;
-      {$IFDEF DEBUG}
-      UpdateDebugCaretRoutineRowString(CaretLine);
-      Inc(FUpdateFromCaretEarlyExitCount);
-      InvalidateChangedRows; { See above }
-      {$ENDIF}
-      Exit;
+      { A text change keeps the stale rows until a pause in the typing, like
+        TNavigator.UpdateFromCaret. The kind test catches an edit which shifted
+        a section of another kind into the held index, such as deleting the
+        whole [Code] section at once. }
+      const CaretInCodeSection = FFactory.SectionHeaders[SectionIndex].Section = scCode;
+      const Rebuild = not FLiveCodeSection.Valid or TextChanged;
+      const RebuildNow = AForceRebuildNow or (Rebuild and not CaretInCodeSection);
+      if not RebuildNow then begin
+        if Rebuild then
+          RebuildTimerUpdate(False);
+        HandleEarlyExit(CaretLine, True);
+        Exit;
+      end;
     end;
   end;
 
+  RebuildTimerUpdate(True); { Cancel any queued }
   FreeAndNil(FLiveParameterSectionEntries);
   FreeAndNil(FLiveKeyValueSection);
   TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
@@ -2072,6 +2097,11 @@ begin
   UpdateNote;
 end;
 
+procedure TInspector.UpdateFromCaret;
+begin
+  UpdateFromCaret(False);
+end;
+
 function TInspector.RowMatchesCaretAt(const ARow: TInspectorRow): Boolean;
 const
   RowKindForCaretAtKind: array [TCaretAtKind] of TInspectorRowKind =
@@ -2153,6 +2183,17 @@ begin
       FJvInspector.MarkedItem := Item;
     end;
   end;
+end;
+
+procedure TInspector.RebuildTimerUpdate(const ACancel: Boolean);
+const
+  RebuildTimerInterval = 100;
+begin
+  if ACancel then
+    KillTimer(FMessagesWnd, RebuildTimerID)
+  else
+    SetTimer(FMessagesWnd, RebuildTimerID, RebuildTimerInterval, nil);
+  FRebuildPending := not ACancel;
 end;
 
 procedure TInspector.UpdateReadOnly;
@@ -2280,7 +2321,11 @@ begin
       else
         Result := 'None';
     rkDebugCaretRoutine:
-      Result := FDebugCaretRoutineRowString;
+      begin
+        Result := FDebugCaretRoutineRowString;
+        if FRebuildPending then
+          Result := Result + ' (rebuild pending)';
+      end;
     {$ENDIF}
     rkCode:
       case ARow.CodeKind of

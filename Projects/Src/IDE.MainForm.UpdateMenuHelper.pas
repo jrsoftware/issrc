@@ -561,6 +561,7 @@ end;
 
 procedure TMainFormUpdateMenuHelper.UpdateInspectorPopupMenu(const Menu: TMenuItem);
 begin
+  FInspector.FlushPendingRebuild;
   const ShowingDirectiveSection = FInspector.ShowingDirectiveSection;
   const ShowingParameterSectionEntry = FInspector.ShowingParameterSectionEntry;
 

@@ -36,7 +36,7 @@ type
     FLiveCodeSection: TLiveScriptCodeSection;
     FLiveCodeSectionIndex: Integer; { Factory section index it was created for }
     FMessagesWnd: HWND;
-    FRebuildRoutinesPending: Boolean;
+    FRebuildPending: Boolean;
     FCaretInCodeSection: Boolean;
     FOnCaretInCodeSectionChange: TNotifyEvent;
     FOnComboBoxItemsChanged: TNavigatorComboBoxItemsChangedEvent;
@@ -51,7 +51,7 @@ type
     procedure TrackDropDownAcceptance(const Message: TMessage);
     function HandleComboBoxKeyDown(const AComboBox: TComboBox;
       const Message: TMessage): Boolean;
-    procedure RebuildRoutinesTimerUpdate(const ACancel: Boolean);
+    procedure RebuildTimerUpdate(const ACancel: Boolean);
     procedure MessagesWndProc(var Message: TMessage);
     procedure UpdateFromCaret(const AIgnoreDroppedDown,
       AForceRebuildNow: Boolean); overload;
@@ -73,7 +73,7 @@ uses
   IDE.HelperFunc, IDE.ScriptModel, IDE.ScriptModel.Metadata.Extra;
 
 const
-  RebuildRoutinesTimerID = 1;
+  RebuildTimerID = 1;
 
 { TNavigator }
 
@@ -128,23 +128,23 @@ begin
   inherited Destroy;
 end;
 
-procedure TNavigator.RebuildRoutinesTimerUpdate(const ACancel: Boolean);
+procedure TNavigator.RebuildTimerUpdate(const ACancel: Boolean);
 const
-  RebuildRoutinesTimerInterval = 100;
+  RebuildTimerInterval = 100;
 begin
   if ACancel then
-    KillTimer(FMessagesWnd, RebuildRoutinesTimerID)
+    KillTimer(FMessagesWnd, RebuildTimerID)
   else
-    SetTimer(FMessagesWnd, RebuildRoutinesTimerID, RebuildRoutinesTimerInterval, nil);
-  FRebuildRoutinesPending := not ACancel;
+    SetTimer(FMessagesWnd, RebuildTimerID, RebuildTimerInterval, nil);
+  FRebuildPending := not ACancel;
 end;
 
 procedure TNavigator.MessagesWndProc(var Message: TMessage);
 begin
-  if (Message.Msg = WM_TIMER) and (Message.WParam = RebuildRoutinesTimerID) then begin
+  if (Message.Msg = WM_TIMER) and (Message.WParam = RebuildTimerID) then begin
     if AnyInputDown or FComboBox.DroppedDown or FComboBox2.DroppedDown then
       Exit; { Keeps timer alive }
-    RebuildRoutinesTimerUpdate(True); { Kills timer }
+    RebuildTimerUpdate(True); { Kills timer }
     UpdateFromCaret(False, True);
   end else
     Message.Result := DefWindowProc(FMessagesWnd, Message.Msg, Message.WParam, Message.LParam);
@@ -252,8 +252,9 @@ end;
 
 procedure TNavigator.ComboBoxDropDown(Sender: TObject);
 begin
-  if FRebuildRoutinesPending then begin
-    RebuildRoutinesTimerUpdate(True); { Kills timer }
+  if FRebuildPending then begin
+    { Also see TInspector.FlushPendingRebuild }
+    RebuildTimerUpdate(True); { Kills timer }
     UpdateFromCaret(True, True); { Make sure it ignores DroppedDown and force a rebuild }
     { ^ This updates the items just in time and might also have changed the width
       of the combobox (in TMainForm's NavigatorComboBoxItemsChanged). Both these
@@ -340,7 +341,7 @@ procedure TNavigator.GoToComboBoxItem(const AComboBox: TComboBox;
     if AIndex < 0 then
       Exit;
 
-    if FRebuildRoutinesPending or (FLiveCodeSection = nil) or not FLiveCodeSection.Valid then
+    if FRebuildPending or (FLiveCodeSection = nil) or not FLiveCodeSection.Valid then
       Exit;
 
     if AFocusMemo and not TryFocusMemo then
@@ -368,6 +369,7 @@ begin
   { Attach to a different factory = different memo = different tab }
   FFactory := AFactory;
   FChangeCountAtSectionsSet := -1; { Force rebuild }
+  FChangeCountAtRoutinesSet := -1; { Signal the value can't be compared to the factory's anymore }
   { A close up must not jump: the comboboxes still hold the previous tab's items }
   FDropDownAccepted := False;
   FPendingPickComboBox := nil;
@@ -377,7 +379,7 @@ begin
   if FComboBox2.DroppedDown then
     FComboBox2.DroppedDown := False;
   { Update }
-  RebuildRoutinesTimerUpdate(True); { Cancel any queued }
+  RebuildTimerUpdate(True); { Cancel any queued }
   UpdateFromCaret(False, True); { Force rebuild }
 end;
 
@@ -458,12 +460,12 @@ begin
         (Rebuild and ((FLiveCodeSection = nil) or (FLiveCodeSectionIndex <> NewSectionIndex)));
 
       if RebuildNow then begin
-        RebuildRoutinesTimerUpdate(True); { Cancel any queued }
+        RebuildTimerUpdate(True); { Cancel any queued }
         TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
         if FFactory.TryAcquireCodeSection(NewSectionIndex, FLiveCodeSection) then
           FLiveCodeSectionIndex := NewSectionIndex;
       end else if Rebuild then
-        RebuildRoutinesTimerUpdate(False);
+        RebuildTimerUpdate(False);
 
       { Determine caret routine index }
       var NewRoutineIndex := -1;
@@ -490,7 +492,7 @@ begin
       if FComboBox2.ItemIndex <> NewRoutineIndex then
         FComboBox2.ItemIndex := NewRoutineIndex;
     end else begin
-      RebuildRoutinesTimerUpdate(True); { Cancel any queued }
+      RebuildTimerUpdate(True); { Cancel any queued }
       TLiveScriptObjectFactory.ReleaseAndNil(FLiveCodeSection);
       SetComboBoxItems(FComboBox2, [], -1);
     end;
