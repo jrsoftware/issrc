@@ -3516,14 +3516,14 @@ begin
       end;
     ssWizardBackColor: begin
         try
-          SetupHeader.WizardBackColor := StringToColor(Value);
+          SetupHeader.WizardBackColor := NewStringToColor(Value);
         except
           Invalid;
         end;
       end;
     ssWizardBackColorDynamicDark: begin
         try
-          SetupHeader.WizardBackColorDynamicDark := StringToColor(Value);
+          SetupHeader.WizardBackColorDynamicDark := NewStringToColor(Value);
         except
           Invalid;
         end;
@@ -3549,28 +3549,28 @@ begin
     end;
     ssWizardImageBackColor: begin
         try
-          SetupHeader.WizardImageBackColor := StringToColor(Value);
+          SetupHeader.WizardImageBackColor := NewStringToColor(Value);
         except
           Invalid;
         end;
       end;
     ssWizardImageBackColorDynamicDark: begin
         try
-          SetupHeader.WizardImageBackColorDynamicDark := StringToColor(Value);
+          SetupHeader.WizardImageBackColorDynamicDark := NewStringToColor(Value);
         except
           Invalid;
         end;
       end;
     ssWizardSmallImageBackColor: begin
         try
-          SetupHeader.WizardSmallImageBackColor := StringToColor(Value);
+          SetupHeader.WizardSmallImageBackColor := NewStringToColor(Value);
         except
           Invalid;
         end;
       end;
     ssWizardSmallImageBackColorDynamicDark: begin
         try
-          SetupHeader.WizardSmallImageBackColorDynamicDark := StringToColor(Value);
+          SetupHeader.WizardSmallImageBackColorDynamicDark := NewStringToColor(Value);
         except
           Invalid;
         end;

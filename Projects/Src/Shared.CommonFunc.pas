@@ -14,7 +14,8 @@ unit Shared.CommonFunc;
 interface
 
 uses
-  Windows, SysUtils, Classes;
+  Windows, SysUtils, Classes, UITypes,
+  Shared.Struct;
 
 type
   TSimpleLock = record
@@ -110,6 +111,52 @@ const
 
   RegViews64Bit = [{$IFDEF WIN64} rvDefault, {$ENDIF} rv64Bit];
 
+  clScrollBar = TColors.SysScrollBar;
+  clBackground = TColors.SysBackground;
+  clActiveCaption = TColors.SysActiveCaption;
+  clInactiveCaption = TColors.SysInactiveCaption;
+  clMenu = TColors.SysMenu;
+  clWindow = TColors.SysWindow;
+  clWindowFrame = TColors.SysWindowFrame;
+  clMenuText = TColors.SysMenuText;
+  clWindowText = TColors.SysWindowText;
+  clCaptionText = TColors.SysCaptionText;
+  clActiveBorder = TColors.SysActiveBorder;
+  clInactiveBorder = TColors.SysInactiveBorder;
+  clAppWorkSpace = TColors.SysAppWorkSpace;
+  clHighlight = TColors.SysHighlight;
+  clHighlightText = TColors.SysHighlightText;
+  clBtnFace = TColors.SysBtnFace;
+  clBtnShadow = TColors.SysBtnShadow;
+  clGrayText = TColors.SysGrayText;
+  clBtnText = TColors.SysBtnText;
+  clInactiveCaptionText = TColors.SysInactiveCaptionText;
+  clBtnHighlight = TColors.SysBtnHighlight;
+  cl3DDkShadow = TColors.Sys3DDkShadow;
+  cl3DLight = TColors.Sys3DLight;
+  clInfoText = TColors.SysInfoText;
+  clInfoBk = TColors.SysInfoBk;
+
+  clBlack = TColors.Black;
+  clMaroon = TColors.Maroon;
+  clGreen = TColors.Green;
+  clOlive = TColors.Olive;
+  clNavy = TColors.Navy;
+  clPurple = TColors.Purple;
+  clTeal = TColors.Teal;
+  clGray = TColors.Gray;
+  clSilver = TColors.Silver;
+  clRed = TColors.Red;
+  clLime = TColors.Lime;
+  clYellow = TColors.Yellow;
+  clBlue = TColors.Blue;
+  clFuchsia = TColors.Fuchsia;
+  clAqua = TColors.Aqua;
+  clLtGray = TColors.LtGray;
+  clDkGray = TColors.DkGray;
+  clWhite = TColors.White;
+  clNone = TColors.SysNone;
+
 function NewFileExists(const Name: String): Boolean;
 function DirExists(const Name: String): Boolean;
 function FileOrDirExists(const Name: String): Boolean;
@@ -203,6 +250,9 @@ function BitsFrom64BitBoolean(const A64Bit: Boolean): Integer; inline;
 function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
 function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
 function SetWindowCloaked(const Wnd: HWND; const Cloaked: Boolean): Boolean;
+function NewStringToColor(const S: string): TColor;
+function NewTryStringToColor(const S: String; var Color: TColor): Boolean;
+function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData): Boolean;
 
 implementation
 
@@ -2257,6 +2307,173 @@ begin
   DoRead(FStdOut, LastRead);
   if FMode = omCapture then
     DoRead(FStdErr, LastRead);
+end;
+
+type
+  TColorEntry = record
+    Value: TColor;
+    Name: string;
+  end;
+
+const
+  Colors: array[0..43] of TColorEntry = (
+    (Value: clBlack; Name: 'clBlack'),
+    (Value: clMaroon; Name: 'clMaroon'),
+    (Value: clGreen; Name: 'clGreen'),
+    (Value: clOlive; Name: 'clOlive'),
+    (Value: clNavy; Name: 'clNavy'),
+    (Value: clPurple; Name: 'clPurple'),
+    (Value: clTeal; Name: 'clTeal'),
+    (Value: clGray; Name: 'clGray'),
+    (Value: clSilver; Name: 'clSilver'),
+    (Value: clRed; Name: 'clRed'),
+    (Value: clLime; Name: 'clLime'),
+    (Value: clYellow; Name: 'clYellow'),
+    (Value: clBlue; Name: 'clBlue'),
+    (Value: clFuchsia; Name: 'clFuchsia'),
+    (Value: clAqua; Name: 'clAqua'),
+    (Value: clLtGray; Name: 'clLtGray'),
+    (Value: clDkGray; Name: 'clDkGray'),
+    (Value: clWhite; Name: 'clWhite'),
+    (Value: clScrollBar; Name: 'clScrollBar'),
+    (Value: clBackground; Name: 'clBackground'),
+    (Value: clActiveCaption; Name: 'clActiveCaption'),
+    (Value: clInactiveCaption; Name: 'clInactiveCaption'),
+    (Value: clMenu; Name: 'clMenu'),
+    (Value: clWindow; Name: 'clWindow'),
+    (Value: clWindowFrame; Name: 'clWindowFrame'),
+    (Value: clMenuText; Name: 'clMenuText'),
+    (Value: clWindowText; Name: 'clWindowText'),
+    (Value: clCaptionText; Name: 'clCaptionText'),
+    (Value: clActiveBorder; Name: 'clActiveBorder'),
+    (Value: clInactiveBorder; Name: 'clInactiveBorder'),
+    (Value: clAppWorkSpace; Name: 'clAppWorkSpace'),
+    (Value: clHighlight; Name: 'clHighlight'),
+    (Value: clHighlightText; Name: 'clHighlightText'),
+    (Value: clBtnFace; Name: 'clBtnFace'),
+    (Value: clBtnShadow; Name: 'clBtnShadow'),
+    (Value: clGrayText; Name: 'clGrayText'),
+    (Value: clBtnText; Name: 'clBtnText'),
+    (Value: clInactiveCaptionText; Name: 'clInactiveCaptionText'),
+    (Value: clBtnHighlight; Name: 'clBtnHighlight'),
+    (Value: cl3DDkShadow; Name: 'cl3DDkShadow'),
+    (Value: cl3DLight; Name: 'cl3DLight'),
+    (Value: clInfoText; Name: 'clInfoText'),
+    (Value: clInfoBk; Name: 'clInfoBk'),
+    (Value: clNone; Name: 'clNone'));
+
+function NewStringToColor(const S: string): TColor;
+{ Not the same as the Delphi's StringToColor: this also accepts names without the
+  'cl' prefix, but it doesn't know its additional color names or its
+  '#rgb' shorthand }
+
+  function IdentToColor(Ident: string; var Color: Integer): Boolean;
+  begin
+    if not PathStartsWith(Ident, 'cl') then
+      Ident := 'cl' + Ident;
+    for var I := Low(Colors) to High(Colors) do
+      if SameText(Colors[I].Name, Ident) then begin
+        Color := Integer(Colors[I].Value);
+        Exit(True);
+      end;
+    Result := False;
+  end;
+
+begin
+  if not IdentToColor(S, Integer(Result)) then begin
+    var Hex := S;
+    if (Length(Hex) = 7) and (Hex[1] = '#') then
+      Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
+    Result := TColor(StrToInt(Hex));
+  end;
+end;
+
+function NewTryStringToColor(const S: String; var Color: TColor): Boolean;
+begin
+  try
+    Color := NewStringToColor(S);
+    Result := True;
+  except
+    on EConvertError do
+      Result := False;
+  end;
+end;
+
+function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData): Boolean;
+
+  procedure Split(const Str: String; var Ver: TSetupVersionDataVersion;
+    var ServicePack: Word);
+  var
+    I, J: Integer;
+    Z, B: String;
+    HasBuild: Boolean;
+  begin
+    Cardinal(Ver) := 0;
+    ServicePack := 0;
+    Z := Lowercase(Str);
+    I := Pos('sp', Z);
+    if I <> 0 then begin
+      J := StrToInt(Copy(Z, I+2, Maxint));
+      if (J < Low(Byte)) or (J > High(Byte)) then
+        Abort;
+      ServicePack := Word(J shl 8);
+      { ^ Shift left 8 bits because we're setting the "major" service pack
+        version number. This parser doesn't currently accept "minor" service
+        pack version numbers. }
+      SetLength(Z, I-1);
+    end;
+    I := Pos('.', Z);
+    if I = Length(Z) then Abort;
+    if I <> 0 then begin
+      J := StrToInt(Copy(Z, 1, I-1));
+      if (J < 0) or (J > 127) then
+        Abort;
+      Ver.Major := Byte(J);
+      Z := Copy(Z, I+1, Maxint);
+      I := Pos('.', Z);
+      HasBuild := I <> 0;
+      if not HasBuild then
+        I := Length(Z)+1;
+      B := Copy(Z, I+1, Maxint);
+      Z := Copy(Z, 1, I-1);
+      J := StrToInt(Z);
+      if (J < 0) or (J > 99) then Abort;
+      Ver.Minor := Byte(J);
+      if HasBuild then begin
+        J := StrToInt(B);
+        if (J < Low(Ver.Build)) or (J > High(Ver.Build)) then
+          Abort;
+        Ver.Build := Word(J);
+      end;
+    end
+    else begin  { no minor version specified }
+      J := StrToInt(Z);
+      if (J < 0) or (J > 127) then
+        Abort;
+      Ver.Major := Byte(J);
+    end;
+  end;
+var
+  I: Integer;
+  SP: Word;
+begin
+  try
+    VerData.WinVersion := 0;
+    I := Pos(',', S);
+    if I <> 0 then begin
+      Split(Trim(Copy(S, 1, I-1)),
+        TSetupVersionDataVersion(VerData.WinVersion), SP);
+      if SP <> 0 then Abort;  { only NT has service packs }
+    end;
+    Split(Trim(Copy(S, I+1, Maxint)),
+      TSetupVersionDataVersion(VerData.NTVersion), VerData.NTServicePack);
+    Result := True;
+  except
+    if (ExceptObject is EAbort) or (ExceptObject is EConvertError) then
+      Result := False
+    else
+      raise;
+  end;
 end;
 
 end.

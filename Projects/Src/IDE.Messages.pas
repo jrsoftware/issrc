@@ -236,7 +236,7 @@ const
   SSignToolInvalidCommand = 'Invalid command.';
 
   { Inspector }
-  SInspectorIntegerValueError = '%1 must be an integer value';
+  SInspectorValidationError = 'Value of "%1" is invalid';
   SInspectorReadOnlyError = 'The script cannot be edited because it is read-only';
   SInspectorBrowseParamFlagError = 'Parameter "%1" cannot be browsed for when the "%2" flag is used';
   SInspectorNothingToInspectNote = 'Move to a parameter entry or a key/value or [Code] section';

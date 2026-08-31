@@ -32,6 +32,7 @@ uses
   Shared.ConfigIniFile in 'Src\Shared.ConfigIniFile.pas',
   Shared.SignToolsFunc in 'Src\Shared.SignToolsFunc.pas',
   Shared.LicenseFunc in 'Src\Shared.LicenseFunc.pas',
+  Shared.Struct in 'Src\Shared.Struct.pas',
   SHA256 in '..\Components\SHA256.pas',
   ECDSA in '..\Components\ECDSA.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',

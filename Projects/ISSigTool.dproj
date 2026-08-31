@@ -118,6 +118,7 @@
         <DCCReference Include="..\Components\ISSigFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
+        <DCCReference Include="Src\Shared.Struct.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

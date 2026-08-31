@@ -18,7 +18,7 @@ procedure SharedCommonFuncRunTests;
 implementation
 
 uses
-  Winapi.Windows, System.SysUtils, Shared.CommonFunc;
+  Winapi.Windows, System.SysUtils, System.UITypes, Shared.CommonFunc;
 
 {$C+}
 
@@ -506,6 +506,11 @@ begin
   Assert(OpCount = 2);
   Assert(FailingCount = 1);
   Assert(FailedCount = 0);
+
+  { NewTryStringToColor: rejects instead of raising on a value which isn't a
+    color }
+  var Color: TColor;
+  Assert(not NewTryStringToColor('clNotAColor', Color));
 end;
 
 {$IFDEF DEBUG}

@@ -219,7 +219,7 @@ implementation
 uses
   SysUtils, UITypes, Themes, Forms, Generics.Defaults,
   BrowseFunc, NewUxTheme, PathFunc,
-  Shared.CommonFunc, Shared.CommonFunc.Vcl,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.Struct,
   IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
 
 type
@@ -2444,14 +2444,32 @@ procedure TInspector.RowSetAsString(Sender: TJvCustomInspectorItem;
 
   procedure ValidateValue(const ARowName, AValue: String;
     const ADefinition: TMemberDefinition);
+  { Does not trim: the script model preserves surrounding whitespace by quoting
+    the value, so validation must include the whitespace }
   begin
-    if (AValue <> '') and (Pos('{', AValue) = 0) and
-       (ADefinition.ValueKind = mvkInteger) then begin
-      { Validate if the value is a valid integer. Strips underscore digit
-        separators because the compiler accepts them for some values. }
-      var IntegerValue: Int64;
-      if not TryStrToInt64(StringReplace(AValue, '_', '', [rfReplaceAll]), IntegerValue) then
-        raise EInspectorValueRejected.Create(LFmtMessage(SInspectorIntegerValueError, [ARowName]));
+    if (Value = '') or (Pos('{', Value) <> 0) then
+      Exit;
+    case ADefinition.ValueKind of
+      mvkInteger:
+        begin
+          { Strip underscore digit separators because the compiler accepts them
+            for some values }
+          var IntegerValue: Int64;
+          if not TryStrToInt64(StringReplace(Value, '_', '', [rfReplaceAll]), IntegerValue) then
+            raise EInspectorValueRejected.Create(LFmtMessage(SInspectorValidationError, [ARowName]));
+        end;
+      mvkVersion:
+        begin
+          var VersionData: TSetupVersionData;
+          if not StrToSetupVersionData(Value, VersionData) then
+            raise EInspectorValueRejected.Create(LFmtMessage(SInspectorValidationError, [ARowName]));
+        end;
+      mvkColor:
+        begin
+          var Color: TColor;
+          if not NewTryStringToColor(Value, Color) then
+            raise EInspectorValueRejected.Create(LFmtMessage(SInspectorValidationError, [ARowName]));
+        end;
     end;
   end;
 

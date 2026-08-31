@@ -12,57 +12,9 @@ unit Compiler.HelperFunc;
 interface
 
 uses
-  Windows, Classes, SysUtils, UITypes,
+  Windows, Classes, SysUtils,
   Shared.FileClass;
 
-const
-  clScrollBar = TColors.SysScrollBar;
-  clBackground = TColors.SysBackground;
-  clActiveCaption = TColors.SysActiveCaption;
-  clInactiveCaption = TColors.SysInactiveCaption;
-  clMenu = TColors.SysMenu;
-  clWindow = TColors.SysWindow;
-  clWindowFrame = TColors.SysWindowFrame;
-  clMenuText = TColors.SysMenuText;
-  clWindowText = TColors.SysWindowText;
-  clCaptionText = TColors.SysCaptionText;
-  clActiveBorder = TColors.SysActiveBorder;
-  clInactiveBorder = TColors.SysInactiveBorder;
-  clAppWorkSpace = TColors.SysAppWorkSpace;
-  clHighlight = TColors.SysHighlight;
-  clHighlightText = TColors.SysHighlightText;
-  clBtnFace = TColors.SysBtnFace;
-  clBtnShadow = TColors.SysBtnShadow;
-  clGrayText = TColors.SysGrayText;
-  clBtnText = TColors.SysBtnText;
-  clInactiveCaptionText = TColors.SysInactiveCaptionText;
-  clBtnHighlight = TColors.SysBtnHighlight;
-  cl3DDkShadow = TColors.Sys3DDkShadow;
-  cl3DLight = TColors.Sys3DLight;
-  clInfoText = TColors.SysInfoText;
-  clInfoBk = TColors.SysInfoBk;
-
-  clBlack = TColors.Black;
-  clMaroon = TColors.Maroon;
-  clGreen = TColors.Green;
-  clOlive = TColors.Olive;
-  clNavy = TColors.Navy;
-  clPurple = TColors.Purple;
-  clTeal = TColors.Teal;
-  clGray = TColors.Gray;
-  clSilver = TColors.Silver;
-  clRed = TColors.Red;
-  clLime = TColors.Lime;
-  clYellow = TColors.Yellow;
-  clBlue = TColors.Blue;
-  clFuchsia = TColors.Fuchsia;
-  clAqua = TColors.Aqua;
-  clLtGray = TColors.LtGray;
-  clDkGray = TColors.DkGray;
-  clWhite = TColors.White;
-  clNone = TColors.SysNone;
-
-function StringToColor(const S: string): TColor;
 function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean = False;
   const OnCheckedTrust: TProc<Boolean> = nil): TMemoryStream;
 function FileSizeAndCRCIs(const Filename: String; const Size: Cardinal;
@@ -79,82 +31,6 @@ implementation
 uses
   PathFunc, TrustFunc, Shared.CommonFunc,
   Compression.Base, Compiler.Messages;
-
-type
-  TColorEntry = record
-    Value: TColor;
-    Name: string;
-  end;
-
-const
-  Colors: array[0..43] of TColorEntry = (
-    (Value: clBlack; Name: 'clBlack'),
-    (Value: clMaroon; Name: 'clMaroon'),
-    (Value: clGreen; Name: 'clGreen'),
-    (Value: clOlive; Name: 'clOlive'),
-    (Value: clNavy; Name: 'clNavy'),
-    (Value: clPurple; Name: 'clPurple'),
-    (Value: clTeal; Name: 'clTeal'),
-    (Value: clGray; Name: 'clGray'),
-    (Value: clSilver; Name: 'clSilver'),
-    (Value: clRed; Name: 'clRed'),
-    (Value: clLime; Name: 'clLime'),
-    (Value: clYellow; Name: 'clYellow'),
-    (Value: clBlue; Name: 'clBlue'),
-    (Value: clFuchsia; Name: 'clFuchsia'),
-    (Value: clAqua; Name: 'clAqua'),
-    (Value: clLtGray; Name: 'clLtGray'),
-    (Value: clDkGray; Name: 'clDkGray'),
-    (Value: clWhite; Name: 'clWhite'),
-    (Value: clScrollBar; Name: 'clScrollBar'),
-    (Value: clBackground; Name: 'clBackground'),
-    (Value: clActiveCaption; Name: 'clActiveCaption'),
-    (Value: clInactiveCaption; Name: 'clInactiveCaption'),
-    (Value: clMenu; Name: 'clMenu'),
-    (Value: clWindow; Name: 'clWindow'),
-    (Value: clWindowFrame; Name: 'clWindowFrame'),
-    (Value: clMenuText; Name: 'clMenuText'),
-    (Value: clWindowText; Name: 'clWindowText'),
-    (Value: clCaptionText; Name: 'clCaptionText'),
-    (Value: clActiveBorder; Name: 'clActiveBorder'),
-    (Value: clInactiveBorder; Name: 'clInactiveBorder'),
-    (Value: clAppWorkSpace; Name: 'clAppWorkSpace'),
-    (Value: clHighlight; Name: 'clHighlight'),
-    (Value: clHighlightText; Name: 'clHighlightText'),
-    (Value: clBtnFace; Name: 'clBtnFace'),
-    (Value: clBtnShadow; Name: 'clBtnShadow'),
-    (Value: clGrayText; Name: 'clGrayText'),
-    (Value: clBtnText; Name: 'clBtnText'),
-    (Value: clInactiveCaptionText; Name: 'clInactiveCaptionText'),
-    (Value: clBtnHighlight; Name: 'clBtnHighlight'),
-    (Value: cl3DDkShadow; Name: 'cl3DDkShadow'),
-    (Value: cl3DLight; Name: 'cl3DLight'),
-    (Value: clInfoText; Name: 'clInfoText'),
-    (Value: clInfoBk; Name: 'clInfoBk'),
-    (Value: clNone; Name: 'clNone'));
-
-function StringToColor(const S: string): TColor;
-
-  function IdentToColor(Ident: string; var Color: Integer): Boolean;
-  begin
-    if not PathStartsWith(Ident, 'cl') then
-      Ident := 'cl' + Ident;
-    for var I := Low(Colors) to High(Colors) do
-      if SameText(Colors[I].Name, Ident) then begin
-        Color := Integer(Colors[I].Value);
-        Exit(True);
-      end;
-    Result := False;
-  end;
-
-begin
-  if not IdentToColor(S, Integer(Result)) then begin
-    var Hex := S;
-    if (Length(Hex) = 7) and (Hex[1] = '#') then
-      Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
-    Result := TColor(StrToInt(Hex));
-  end;
-end;
 
 function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean;
   const OnCheckedTrust: TProc<Boolean>): TMemoryStream;

@@ -600,7 +600,7 @@ begin
   Assert(Metadata.TryGetMember('MinVersion', Definition));
   Assert(Definition.ValueKind = mvkVersion);
   Assert(Definition.DefaultValue = '6.1sp1');
-  { The color directives, whose kind like mvkVersion only prevents quoting }
+  { The color directives }
   Assert(Metadata.TryGetMember('WizardBackColor', Definition));
   Assert(Definition.ValueKind = mvkColor);
   Assert(Metadata.TryGetMember('DefaultGroupName', Definition));
