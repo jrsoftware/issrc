@@ -507,10 +507,35 @@ begin
   Assert(FailingCount = 1);
   Assert(FailedCount = 0);
 
+  { NewTryStringToColor: accepts color names with and without the 'cl' prefix,
+    ignoring case, and hexadecimal values in the '$' notation }
+  var Color: TColor;
+  Assert(NewTryStringToColor('clWhite', Color) and (Color = TColors.White));
+  Assert(NewTryStringToColor('WHITE', Color) and (Color = TColors.White));
+  Assert(NewTryStringToColor('none', Color) and (Color = TColors.SysNone));
+  Assert(NewTryStringToColor('$0080ff', Color) and (Color = $0080ff));
+
+  { NewTryStringToColor: knows the CSS colors the RTL gets wrong or misses }
+  Assert(NewTryStringToColor('skyblue', Color) and (Color = TColors.Skyblue));
+  Assert(NewTryStringToColor('rebeccapurple', Color) and (Color = $993366));
+
+  {$IF RtlVersion >= 36.0}
+  { NewTryStringToColor: accepts the web color names and the '#' notations,
+    which need the Delphi 12 RTL }
+  Assert(NewTryStringToColor('orange', Color) and (Color = TColors.Orange));
+  Assert(NewTryStringToColor('#ff8000', Color) and (Color = $0080ff));
+  Assert(NewTryStringToColor('#f80', Color) and (Color = $0088ff));
+  {$ENDIF}
+
+  {$IFDEF ISTESTTOOLPROJ}
   { NewTryStringToColor: rejects instead of raising on a value which isn't a
     color }
-  var Color: TColor;
   Assert(not NewTryStringToColor('clNotAColor', Color));
+
+  { NewTryStringToColor: rejects clDefault, by name and by value }
+  Assert(not NewTryStringToColor('clDefault', Color));
+  Assert(not NewTryStringToColor('$20000000', Color));
+  {$ENDIF}
 end;
 
 {$IFDEF DEBUG}

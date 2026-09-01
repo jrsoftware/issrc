@@ -1190,7 +1190,8 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>StrToColor</name>
         <prototype>function StrToColor(const S: String): TColor;</prototype>
-        <description><p>The <tt>StrToColor</tt> function converts the string passed in <tt>S</tt>, formatted as <tt>'#rrggbb'</tt>, into a color. Raises an exception if not successful.</p></description>
+        <description><p>The <tt>StrToColor</tt> function converts the string passed in <tt>S</tt> into a color. Raises an exception if not successful.</p>
+        <p>The same values are accepted as by the <sd>WizardBackColor</sd> <sn>[Setup]</sn> section directive: the forms <tt>#<i>rrggbb</i></tt>, <tt>#<i>rgb</i></tt>, and <tt>$<i>bbggrr</i></tt>, and color names such as <tt>orange</tt> and <tt>cornflowerblue</tt>.</p></description>
       </function>
       <function>
         <name>IntToStr</name>

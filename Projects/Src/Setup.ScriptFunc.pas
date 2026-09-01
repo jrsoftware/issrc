@@ -2032,10 +2032,7 @@ var
     end);
     RegisterScriptFunc('StrToColor', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      var Hex := Stack.GetString(PStart-1);
-      if (Length(Hex) = 7) and (Hex[1] = '#') then
-        Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
-      Stack.SetInt(PStart, SysUtils.StrToInt(Hex));
+      Stack.SetInt(PStart, NewStringToColor(Stack.GetString(PStart-1)));
     end);
     RegisterScriptFunc('RPos', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin

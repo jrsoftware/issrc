@@ -111,50 +111,7 @@ const
 
   RegViews64Bit = [{$IFDEF WIN64} rvDefault, {$ENDIF} rv64Bit];
 
-  clScrollBar = TColors.SysScrollBar;
-  clBackground = TColors.SysBackground;
-  clActiveCaption = TColors.SysActiveCaption;
-  clInactiveCaption = TColors.SysInactiveCaption;
-  clMenu = TColors.SysMenu;
   clWindow = TColors.SysWindow;
-  clWindowFrame = TColors.SysWindowFrame;
-  clMenuText = TColors.SysMenuText;
-  clWindowText = TColors.SysWindowText;
-  clCaptionText = TColors.SysCaptionText;
-  clActiveBorder = TColors.SysActiveBorder;
-  clInactiveBorder = TColors.SysInactiveBorder;
-  clAppWorkSpace = TColors.SysAppWorkSpace;
-  clHighlight = TColors.SysHighlight;
-  clHighlightText = TColors.SysHighlightText;
-  clBtnFace = TColors.SysBtnFace;
-  clBtnShadow = TColors.SysBtnShadow;
-  clGrayText = TColors.SysGrayText;
-  clBtnText = TColors.SysBtnText;
-  clInactiveCaptionText = TColors.SysInactiveCaptionText;
-  clBtnHighlight = TColors.SysBtnHighlight;
-  cl3DDkShadow = TColors.Sys3DDkShadow;
-  cl3DLight = TColors.Sys3DLight;
-  clInfoText = TColors.SysInfoText;
-  clInfoBk = TColors.SysInfoBk;
-
-  clBlack = TColors.Black;
-  clMaroon = TColors.Maroon;
-  clGreen = TColors.Green;
-  clOlive = TColors.Olive;
-  clNavy = TColors.Navy;
-  clPurple = TColors.Purple;
-  clTeal = TColors.Teal;
-  clGray = TColors.Gray;
-  clSilver = TColors.Silver;
-  clRed = TColors.Red;
-  clLime = TColors.Lime;
-  clYellow = TColors.Yellow;
-  clBlue = TColors.Blue;
-  clFuchsia = TColors.Fuchsia;
-  clAqua = TColors.Aqua;
-  clLtGray = TColors.LtGray;
-  clDkGray = TColors.DkGray;
-  clWhite = TColors.White;
   clNone = TColors.SysNone;
 
 function NewFileExists(const Name: String): Boolean;
@@ -258,6 +215,7 @@ implementation
 
 uses
   DwmApi,
+  UIConsts,
   PathFunc, UnsignedFunc,
   Shared.FileClass;
 
@@ -2309,83 +2267,27 @@ begin
     DoRead(FStdErr, LastRead);
 end;
 
-type
-  TColorEntry = record
-    Value: TColor;
-    Name: string;
-  end;
-
-const
-  Colors: array[0..43] of TColorEntry = (
-    (Value: clBlack; Name: 'clBlack'),
-    (Value: clMaroon; Name: 'clMaroon'),
-    (Value: clGreen; Name: 'clGreen'),
-    (Value: clOlive; Name: 'clOlive'),
-    (Value: clNavy; Name: 'clNavy'),
-    (Value: clPurple; Name: 'clPurple'),
-    (Value: clTeal; Name: 'clTeal'),
-    (Value: clGray; Name: 'clGray'),
-    (Value: clSilver; Name: 'clSilver'),
-    (Value: clRed; Name: 'clRed'),
-    (Value: clLime; Name: 'clLime'),
-    (Value: clYellow; Name: 'clYellow'),
-    (Value: clBlue; Name: 'clBlue'),
-    (Value: clFuchsia; Name: 'clFuchsia'),
-    (Value: clAqua; Name: 'clAqua'),
-    (Value: clLtGray; Name: 'clLtGray'),
-    (Value: clDkGray; Name: 'clDkGray'),
-    (Value: clWhite; Name: 'clWhite'),
-    (Value: clScrollBar; Name: 'clScrollBar'),
-    (Value: clBackground; Name: 'clBackground'),
-    (Value: clActiveCaption; Name: 'clActiveCaption'),
-    (Value: clInactiveCaption; Name: 'clInactiveCaption'),
-    (Value: clMenu; Name: 'clMenu'),
-    (Value: clWindow; Name: 'clWindow'),
-    (Value: clWindowFrame; Name: 'clWindowFrame'),
-    (Value: clMenuText; Name: 'clMenuText'),
-    (Value: clWindowText; Name: 'clWindowText'),
-    (Value: clCaptionText; Name: 'clCaptionText'),
-    (Value: clActiveBorder; Name: 'clActiveBorder'),
-    (Value: clInactiveBorder; Name: 'clInactiveBorder'),
-    (Value: clAppWorkSpace; Name: 'clAppWorkSpace'),
-    (Value: clHighlight; Name: 'clHighlight'),
-    (Value: clHighlightText; Name: 'clHighlightText'),
-    (Value: clBtnFace; Name: 'clBtnFace'),
-    (Value: clBtnShadow; Name: 'clBtnShadow'),
-    (Value: clGrayText; Name: 'clGrayText'),
-    (Value: clBtnText; Name: 'clBtnText'),
-    (Value: clInactiveCaptionText; Name: 'clInactiveCaptionText'),
-    (Value: clBtnHighlight; Name: 'clBtnHighlight'),
-    (Value: cl3DDkShadow; Name: 'cl3DDkShadow'),
-    (Value: cl3DLight; Name: 'cl3DLight'),
-    (Value: clInfoText; Name: 'clInfoText'),
-    (Value: clInfoBk; Name: 'clInfoBk'),
-    (Value: clNone; Name: 'clNone'));
-
 function NewStringToColor(const S: string): TColor;
-{ Not the same as the Delphi's StringToColor: this also accepts names without the
-  'cl' prefix, but it doesn't know its additional color names or its
-  '#rgb' shorthand }
-
-  function IdentToColor(Ident: string; var Color: Integer): Boolean;
-  begin
-    if not PathStartsWith(Ident, 'cl') then
-      Ident := 'cl' + Ident;
-    for var I := Low(Colors) to High(Colors) do
-      if SameText(Colors[I].Name, Ident) then begin
-        Color := Integer(Colors[I].Value);
-        Exit(True);
-      end;
-    Result := False;
-  end;
-
+{ Returns the color specified by S.
+  Differences from Delphi's StringToColor:
+  - Also accepts color names without the 'cl' prefix
+  - Knows every CSS color name: clSkyBlue is the web color instead of the
+    legacy VCL one, and clRebeccaPurple is added
+  - Rejects clDefault, which isn't an actual color but a VCL placeholder
+  Do note: requires Delphi 12 for the support of the #rrggbb and #rgb formats,
+  the web color names, and the clLtGray and clDkGray names }
 begin
-  if not IdentToColor(S, Integer(Result)) then begin
-    var Hex := S;
-    if (Length(Hex) = 7) and (Hex[1] = '#') then
-      Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
-    Result := TColor(StrToInt(Hex));
-  end;
+  var Ident := S;
+  if not PathStartsWith(Ident, 'cl') then
+    Ident := 'cl' + Ident;
+  if SameText(Ident, 'clSkyBlue') then
+    Exit(TColors.Skyblue); { StringToColor would return TColors.LegacySkyBlue }
+  if SameText(Ident, 'clRebeccaPurple') then
+    Exit($993366);  { StringToColor would raise an exception }
+  if not IdentToColor(Ident, Integer(Result)) then
+    Result := StringToColor(S);
+  if Result = TColors.SysDefault then
+    raise EConvertError.CreateFmt('''%s'' is not a valid color value', [S]);
 end;
 
 function NewTryStringToColor(const S: String; var Color: TColor): Boolean;
