@@ -2444,7 +2444,7 @@ procedure TInspector.RowSetAsString(Sender: TJvCustomInspectorItem;
   inspector's selection or end the edit. Setting FInEdit below makes
   UpdateFromCaret exit early while the memo is being changed. }
 
-  procedure ValidateValue(const ARowName, AValue: String;
+  procedure ValidateValue(const ARowName: String;
     const ADefinition: TMemberDefinition);
   { Does not trim: the script model preserves surrounding whitespace by quoting
     the value, so validation must include the whitespace }
@@ -2489,14 +2489,14 @@ begin
            FLiveParameterSectionEntries.Valid then begin
           var Definition: TMemberDefinition;
           if FLiveParameterSectionEntries.PrimaryEntry.TryGetDefinition(Row.Name, Definition) then
-            ValidateValue(Row.Name, Value, Definition);
+            ValidateValue(Row.Name, Definition);
           FLiveParameterSectionEntries.SetValue(Row.Name, Row.Index, Value);
         end;
       rkKey:
         if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
           var Definition: TMemberDefinition;
           if FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition) then
-            ValidateValue(Row.Name, Value, Definition);
+            ValidateValue(Row.Name, Definition);
           FLiveKeyValueSection.SetValue(Row.Name, Row.Index, Value);
         end;
     else

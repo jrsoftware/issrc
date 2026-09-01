@@ -29,7 +29,7 @@ function UnescapeBraces(const S: String): String;
 implementation
 
 uses
-  PathFunc, TrustFunc, Shared.CommonFunc,
+  TrustFunc, Shared.CommonFunc,
   Compression.Base, Compiler.Messages;
 
 function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean;
