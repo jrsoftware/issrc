@@ -4405,11 +4405,9 @@ begin
         AutoCompleteBkBrush := TBrush.Create;
         AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
 
-        for var WordType := awtSectionName to awtISPPConstant do begin
-          const ImageName = TImagesModule.AutoCompleteWordTypeImageName(WordType);
-          if ImageName <> '' then
-            AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, WordType, AutoCompleteBkBrush, ImageList, ImageName);
-        end;
+        for var WordType := Low(TAutoCompleteWordType) to High(TAutoCompleteWordType) do
+          AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, Ord(WordType), AutoCompleteBkBrush,
+            ImageList, TImagesModule.AutoCompleteWordTypeImageName(WordType));
 
         for var Memo in FMemos do begin
           Memo.Call(SCI_RGBAIMAGESETWIDTH, ImageList.Width, 0);

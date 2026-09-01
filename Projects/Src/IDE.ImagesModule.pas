@@ -4,7 +4,8 @@ interface
 
 uses
   System.SysUtils, System.Classes, System.ImageList, Vcl.ImgList, Vcl.Controls,
-  Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection;
+  Vcl.VirtualImageList, Vcl.BaseImageCollection, Vcl.ImageCollection,
+  IDE.ScriptModel.Metadata.Extra.WordLists;
 
 type
   TImagesModule = class(TDataModule)
@@ -14,7 +15,7 @@ type
       function GetMarkersAndACImageCollection(Dark: Boolean): TImageCollection;
       function GetToolbarImageCollection(Dark: Boolean): TImageCollection;
     public
-      class function AutoCompleteWordTypeImageName(const AWordType: Integer): String; static;
+      class function AutoCompleteWordTypeImageName(const AWordType: TAutoCompleteWordType): String; static;
       property BuildImageList[Dark: Boolean]: TImageList read GetBuildImageList;
       property ListImageCollection[Dark: Boolean]: TImageCollection read GetListImageCollection;
       property MarkersAndACImageCollection[Dark: Boolean]: TImageCollection read GetMarkersAndACImageCollection;
@@ -35,16 +36,13 @@ var
 
 implementation
 
-uses
-  IDE.ScriptModel.Metadata.Extra.WordLists;
-
 {%CLASSGROUP 'Vcl.Controls.TControl'}
 
 {$R *.dfm}
 
 { TImagesModule }
 
-class function TImagesModule.AutoCompleteWordTypeImageName(const AWordType: Integer): String;
+class function TImagesModule.AutoCompleteWordTypeImageName(const AWordType: TAutoCompleteWordType): String;
 begin
   case AWordType of
     awtSectionName: Result := 'ac\structure-filled';
@@ -69,7 +67,7 @@ begin
     awtScriptEvent: Result := 'ac\event-filled';
     awtScriptKeyword: Result := 'ac\list';
   else
-    Result := '';
+    raise Exception.Create('Internal error: AutoCompleteWordTypeImageName: unexpected word type');
   end;
 end;
 

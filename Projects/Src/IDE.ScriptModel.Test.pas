@@ -2339,10 +2339,11 @@ end;
 
 procedure TestWordLists;
 
-  function ListHasEntry(const List, Word: AnsiString; const Typ: Integer): Boolean;
+  function ListHasEntry(const List, Word: AnsiString;
+    const Typ: TAutoCompleteWordType): Boolean;
   begin
     const Entry = AutoCompleteWordListSeparator + Word +
-      AutoCompleteWordListTypeSeparator + AnsiString(IntToStr(Typ)) +
+      AutoCompleteWordListTypeSeparator + AnsiString(IntToStr(Ord(Typ))) +
       AutoCompleteWordListSeparator;
     Result := Pos(Entry, AutoCompleteWordListSeparator + List +
       AutoCompleteWordListSeparator) <> 0;
@@ -2364,8 +2365,8 @@ begin
     'a'..'z', and '_x' last because '_' sorts after the uppercased letters }
   const TypeSeparator: AnsiString = AutoCompleteWordListTypeSeparator;
   const ListSeparator: AnsiString = AutoCompleteWordListSeparator;
-  const MemberValueType = AnsiString(IntToStr(awtMemberValue));
-  const ScriptFunctionType = AnsiString(IntToStr(awtScriptFunction));
+  const MemberValueType = AnsiString(IntToStr(Ord(awtMemberValue)));
+  const ScriptFunctionType = AnsiString(IntToStr(Ord(awtScriptFunction)));
   Assert(BuildAutoCompleteWordList(['abc', '_x', 'ab', 'Def'], awtMemberValue) =
     'ab' + TypeSeparator + MemberValueType + ListSeparator +
     'abc' + TypeSeparator + MemberValueType + ListSeparator +
@@ -2414,11 +2415,13 @@ begin
     BuildAutoCompleteWordList(['Alpha', 'Alpha'], awtMemberValue)) =
     'Alpha' + TypeSeparator + MemberValueType + ListSeparator + BaseList);
 
-  { The same word under a different type digit is a different entry, and '1'
-    sorting before '3' puts the awtScriptFunction entry first }
+  { The same word under a different type digit is a different entry, and '3'
+    sorting before '7' puts the awtMemberValue entry first }
   Assert(MergeAutoCompleteWordLists(BaseList,
     BuildAutoCompleteWordList(['Beta'], awtScriptFunction)) =
-    'Beta' + TypeSeparator + ScriptFunctionType + ListSeparator + BaseList);
+    'Beta' + TypeSeparator + MemberValueType + ListSeparator +
+    'Beta' + TypeSeparator + ScriptFunctionType + ListSeparator +
+    'Echo' + TypeSeparator + MemberValueType);
 
   { An empty base or empty extras returns the other list unchanged }
   Assert(MergeAutoCompleteWordLists('', BaseList) = BaseList);
@@ -2428,9 +2431,9 @@ begin
   { MergeScopedAutoCompleteWordLists resolves shadowing instead of deduping:
     when both lists have entries for a word, only the narrower (second)
     list's entries for it survive, whatever their types }
-  const ScriptVariableType = AnsiString(IntToStr(awtScriptVariable));
-  const ScriptFunctionParameterType = AnsiString(IntToStr(awtScriptFunctionParameter));
-  const ScriptFunctionVariableType = AnsiString(IntToStr(awtScriptFunctionVariable));
+  const ScriptVariableType = AnsiString(IntToStr(Ord(awtScriptVariable)));
+  const ScriptFunctionParameterType = AnsiString(IntToStr(Ord(awtScriptFunctionParameter)));
+  const ScriptFunctionVariableType = AnsiString(IntToStr(Ord(awtScriptFunctionVariable)));
   const BroaderList = BuildAutoCompleteWordList(['Beta', 'Echo'], awtScriptVariable);
   Assert(MergeScopedAutoCompleteWordLists(BroaderList,
     BuildAutoCompleteWordList(['Echo'], awtScriptFunctionParameter)) =
@@ -2464,13 +2467,11 @@ begin
     ScopedWordsList.Free;
   end;
 
-  { Collisions are case-insensitive, keeping the narrower entry's spelling,
-    and an entry without a type suffix counts as its word alone }
-  Assert(MergeScopedAutoCompleteWordLists(
-    BuildAutoCompleteWordList(['Beta', 'Echo'], -1),
+  { Collisions are case-insensitive, keeping the narrower entry's spelling }
+  Assert(MergeScopedAutoCompleteWordLists(BroaderList,
     BuildAutoCompleteWordList(['BETA'], awtScriptFunctionParameter)) =
     'BETA' + TypeSeparator + ScriptFunctionParameterType + ListSeparator +
-    'Echo');
+    'Echo' + TypeSeparator + ScriptVariableType);
 
   { An empty list returns the other list unchanged }
   Assert(MergeScopedAutoCompleteWordLists('', BroaderList) = BroaderList);

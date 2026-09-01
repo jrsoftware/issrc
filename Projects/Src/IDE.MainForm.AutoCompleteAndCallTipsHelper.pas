@@ -435,6 +435,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
 
   function BuildUserDefinedWordList(const Line: Integer;
     const ClassMember: Boolean): AnsiString;
+  const
+    TypeWordTypes: array[Boolean] of TAutoCompleteWordType = (awtScriptType, awtScriptInterface);
   begin
     Result := '';
     if not _TryAcquireAndHoldCodeSectionAtLine(AMemo, Line) then
@@ -454,7 +456,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         for var I := 0 to Section.TypeCount-1 do begin
           const Declaration = Section.Types[I];
           AddAutoCompleteWordToList(Words, AnsiString(Declaration.Name),
-            IfThen(Declaration.TypeText = 'interface', awtScriptInterface, awtScriptType));
+            TypeWordTypes[Declaration.TypeText = 'interface']);
         end;
         for var I := 0 to Section.EnumerationValueCount-1 do
           AddAutoCompleteWordToList(Words,

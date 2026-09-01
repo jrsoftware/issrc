@@ -2518,44 +2518,45 @@ end;
 procedure TInspector.RowGetNameGlyph(Item: TJvCustomInspectorItem;
   var Glyph: TInspectorGlyph);
 
-  function CodeRowWordType(const ARow: TInspectorRow): Integer;
+  function TryGetCodeRowWordType(const ARow: TInspectorRow;
+    out AWordType: TAutoCompleteWordType): Boolean;
   begin
+    Result := True;
     case ARow.CodeKind of
       ckRoutine, ckInterfaceMethod:
-        Result := awtScriptFunction;
+        AWordType := awtScriptFunction;
       ckInterface:
-        Result := awtScriptInterface;
+        AWordType := awtScriptInterface;
       ckType:
         if (FLiveCodeSection <> nil) and
            (ARow.Index < FLiveCodeSection.Section.TypeCount) and
            (FLiveCodeSection.Section.Types[ARow.Index].TypeText = 'interface') then
-          Result := awtScriptInterface
+          AWordType := awtScriptInterface
         else
-          Result := awtScriptType;
+          AWordType := awtScriptType;
       ckConstant:
-        Result := awtScriptConstant;
+        AWordType := awtScriptConstant;
       ckGlobalVariable:
-        Result := awtScriptVariable;
+        AWordType := awtScriptVariable;
       ckRoutineParameter, ckInterfaceMethodParameter:
-        Result := awtScriptFunctionParameter;
+        AWordType := awtScriptFunctionParameter;
       ckRoutineLocal, ckRoutineResult, ckInterfaceMethodResult:
-        Result := awtScriptFunctionVariable;
+        AWordType := awtScriptFunctionVariable;
     else
-      Result := -1;
+      Result := False; { The Parameters and Locals label rows }
     end;
   end;
 
 begin
   var Row: TInspectorRow;
-  if not TryGetRow(Item, Row) or (Row.Kind <> rkCode) then
+  var WordType: TAutoCompleteWordType;
+  if not TryGetRow(Item, Row) or (Row.Kind <> rkCode) or
+     not TryGetCodeRowWordType(Row, WordType) then
     Exit;
 
-  const ImageName = TImagesModule.AutoCompleteWordTypeImageName(CodeRowWordType(Row));
-  if ImageName <> '' then begin
-    Glyph.Kind := igkImage;
-    Glyph.ImageList := FGlyphImageList;
-    Glyph.ImageName := ImageName;
-  end;
+  Glyph.Kind := igkImage;
+  Glyph.ImageList := FGlyphImageList;
+  Glyph.ImageName := TImagesModule.AutoCompleteWordTypeImageName(WordType);
 end;
 
 procedure TInspector.RowGetValueGlyph(Item: TJvCustomInspectorItem;

@@ -21,28 +21,14 @@ const
   AutoCompleteWordListSeparator = #9;
   AutoCompleteWordListTypeSeparator = '!'; { Must sort before numbers }
 
-  { AutoComplete word types }
-  awtSectionName = 0;
-  awtParameterName = 1;
-  awtKeyName = 2;
-  awtMemberValue = 3;
-  awtPreprocessorDirective = 4;
-  awtPreprocessorSubDirective = 5;
-  awtConstant = 6;
-  awtScriptFunction = 10;
-  awtScriptType = 11;
-  awtScriptVariable = 12;
-  awtScriptConstant = 13;
-  awtScriptInterface = 14;
-  awtScriptProperty = 15;
-  awtScriptEvent = 16;
-  awtScriptKeyword = 17;
-  awtScriptEnumValue = 18;
-  awtScriptFunctionParameter = 19;
-  awtScriptFunctionVariable = 20;
-  awtISPPFunction = 30;
-  awtISPPVariable = 31;
-  awtISPPConstant = 32;
+type
+  TAutoCompleteWordType = (awtSectionName, awtParameterName, awtKeyName,
+    awtMemberValue, awtPreprocessorDirective, awtPreprocessorSubDirective,
+    awtConstant, awtScriptFunction, awtScriptType, awtScriptVariable,
+    awtScriptConstant, awtScriptInterface, awtScriptProperty, awtScriptEvent,
+    awtScriptKeyword, awtScriptEnumValue, awtScriptFunctionParameter,
+    awtScriptFunctionVariable, awtISPPFunction, awtISPPVariable,
+    awtISPPConstant);
 
 var
   ConstantsAutoCompleteWordList: AnsiString;
@@ -58,11 +44,11 @@ function GetMemberValuesAutoCompleteWordList(const Section: TInnoSetupSection;
 function GetScriptAutoCompleteWordList(const ClassOrRecordMembers: Boolean): AnsiString;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList;
-  const Word: AnsiString; const Typ: Integer);
+  const Word: AnsiString; const Typ: TAutoCompleteWordType);
 function BuildAutoCompleteWordList(const WordStringList: TStringList;
   const Sort: Boolean = True): AnsiString; overload;
 function BuildAutoCompleteWordList(const Values: array of AnsiString;
-  const Typ: Integer; const Sort: Boolean = True): AnsiString; overload;
+  const Typ: TAutoCompleteWordType; const Sort: Boolean = True): AnsiString; overload;
 function MergeAutoCompleteWordLists(const BaseWordList,
   ExtraWordList: AnsiString): AnsiString;
 function MergeScopedAutoCompleteWordLists(const BroaderWordList,
@@ -98,12 +84,9 @@ var
   ScriptAutoCompleteWordList: array[Boolean] of AnsiString;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList;
-  const Word: AnsiString; const Typ: Integer);
+  const Word: AnsiString; const Typ: TAutoCompleteWordType);
 begin
-  if Typ >= 0 then
-    SL.Add(Format('%s%s%d', [Word, AutoCompleteWordListTypeSeparator, Typ]))
-  else
-    SL.Add(String(Word));
+  SL.Add(Format('%s%s%d', [Word, AutoCompleteWordListTypeSeparator, Ord(Typ)]));
 end;
 
 function BuildAutoCompleteWordList(const WordStringList: TStringList;
@@ -128,7 +111,7 @@ begin
 end;
 
 function BuildAutoCompleteWordList(const Values: array of AnsiString;
-  const Typ: Integer; const Sort: Boolean = True): AnsiString;
+  const Typ: TAutoCompleteWordType; const Sort: Boolean = True): AnsiString;
 begin
   const SL = TStringList.Create;
   try
@@ -184,10 +167,9 @@ function MergeScopedAutoCompleteWordLists(const BroaderWordList,
   function EntryWord(const AEntry: String): String;
   begin
     const P = Pos(AutoCompleteWordListTypeSeparator, AEntry);
-    if P > 0 then
-      Result := Copy(AEntry, 1, P-1)
-    else
-      Result := AEntry;
+    if P = 0 then
+      raise Exception.Create('Internal error: EntryWord: unexpected P value');
+    Result := Copy(AEntry, 1, P-1);
   end;
 
 begin
