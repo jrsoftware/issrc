@@ -180,7 +180,7 @@ const
     (English: 'Duplicate name.'; Localized: '重複的名稱。'),
     (English: 'Command of the Sign Tool:'; Localized: '簽署工具的命令：'),
     (English: 'Invalid command.'; Localized: '無效的命令。'),
-    (English: '%1 must be an integer value'; Localized: '%1 必須是整數值'),
+    (English: 'Value of "%1" is invalid'; Localized: '「%1」的值無效'),
     (English: 'The script cannot be edited because it is read-only'; Localized: '指令碼為唯讀，無法編輯'),
     (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: '使用「%2」旗標時，無法瀏覽參數「%1」的值'),
     (English: 'Move to a parameter entry or a key/value or [Code] section'; Localized: '請移至參數項目、索引鍵/值區段或 [Code] 區段'),

@@ -180,7 +180,7 @@ const
     (English: 'Duplicate name.'; Localized: 'Duplicitní název.'),
     (English: 'Command of the Sign Tool:'; Localized: 'Příkaz nástroje pro podepisování:'),
     (English: 'Invalid command.'; Localized: 'Neplatný příkaz.'),
-    (English: '%1 must be an integer value'; Localized: '%1 musí být celé číslo'),
+    (English: 'Value of "%1" is invalid'; Localized: 'Hodnota "%1" není platná'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Skript nelze upravit, protože je pouze pro čtení'),
     (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: 'Pro parametr "%1" nelze procházet, když je použit příznak "%2"'),
     (English: 'Move to a parameter entry or a key/value or [Code] section'; Localized: 'Přejděte na položku s parametry nebo na sekci klíč/hodnota či [Code]'),

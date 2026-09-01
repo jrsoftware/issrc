@@ -180,7 +180,7 @@ const
     (English: 'Duplicate name.'; Localized: 'Dubbele naam.'),
     (English: 'Command of the Sign Tool:'; Localized: 'Opdracht van de ondertekeningstool:'),
     (English: 'Invalid command.'; Localized: 'Ongeldige opdracht.'),
-    (English: '%1 must be an integer value'; Localized: '%1 moet een geheel getal zijn'),
+    (English: 'Value of "%1" is invalid'; Localized: 'De waarde van "%1" is ongeldig'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Het script kan niet worden bewerkt omdat het alleen-lezen is'),
     (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: 'Voor de parameter "%1" is bladeren niet mogelijk wanneer de vlag "%2" wordt gebruikt'),
     (English: 'Move to a parameter entry or a key/value or [Code] section'; Localized: 'Ga naar een parametervermelding of een sleutel/waarde- of [Code]-sectie'),

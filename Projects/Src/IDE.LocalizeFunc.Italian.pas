@@ -180,7 +180,7 @@ const
     (English: 'Duplicate name.'; Localized: 'Nome duplicato.'),
     (English: 'Command of the Sign Tool:'; Localized: 'Comando dello strumento di firma:'),
     (English: 'Invalid command.'; Localized: 'Comando non valido.'),
-    (English: '%1 must be an integer value'; Localized: '%1 deve essere un valore intero'),
+    (English: 'Value of "%1" is invalid'; Localized: 'Il valore di "%1" non è valido'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Lo script non può essere modificato perché è in sola lettura'),
     (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: 'Impossibile sfogliare per il parametro "%1" quando è in uso il flag "%2"'),
     (English: 'Move to a parameter entry or a key/value or [Code] section'; Localized: 'Spostati in una voce con parametri o in una sezione chiave/valore o [Code]'),

@@ -180,7 +180,7 @@ const
     (English: 'Duplicate name.'; Localized: '名前が重複しています。'),
     (English: 'Command of the Sign Tool:'; Localized: '署名ツールのコマンド:'),
     (English: 'Invalid command.'; Localized: '無効なコマンドです。'),
-    (English: '%1 must be an integer value'; Localized: '%1 は整数値である必要があります'),
+    (English: 'Value of "%1" is invalid'; Localized: '"%1" の値が無効です'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'スクリプトは読み取り専用のため編集できません'),
     (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: '"%2" フラグが使用されている場合、"%1" パラメーターは参照できません'),
     (English: 'Move to a parameter entry or a key/value or [Code] section'; Localized: 'パラメーターエントリまたはキー/値か [Code] のセクションに移動してください'),
