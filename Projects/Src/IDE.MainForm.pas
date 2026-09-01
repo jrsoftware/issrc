@@ -974,7 +974,8 @@ constructor TMainForm.Create(AOwner: TComponent);
     finally
       Ini.Free;
     end;
-    FInspector := TInspector.Create(JvInspector, InspectorNoteText, LiveScriptObjectFactoryForMemo(FActiveMemo),
+    FInspector := TInspector.Create(JvInspector, InspectorNoteText, ThemedMarkersAndACVirtualImageList,
+      LiveScriptObjectFactoryForMemo(FActiveMemo),
       FOptions.InspectorShowAllKnownDirectives, { No main-memo check needed: FActiveMemo is FMainMemo at startup }
       FOptions.InspectorFollowCaret, GetMainBaseDir, GetSignTools, LiveScriptObjectFactoryForMainMemo);
   end;
@@ -4404,31 +4405,11 @@ begin
         AutoCompleteBkBrush := TBrush.Create;
         AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
 
-        var NamedTypes := [
-          NNT(awtSectionName, 'ac\structure-filled'),
-          NNT(awtParameterName, 'ac\xml-filled'),
-          NNT(awtKeyName, 'ac\xml-filled'),
-          NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
-          NNT(awtPreprocessorSubDirective, 'ac\symbol-hashtag-arrow-right-2'),
-          NNT(awtScriptFunction, 'ac\method-filled'),
-          NNT(awtISPPFunction, 'ac\method-filled'),
-          NNT(awtScriptType, 'ac\types'),
-          NNT(awtScriptVariable, 'ac\constant-filled'),            { Green }
-          NNT(awtISPPVariable, 'ac\constant-filled'),              { Green }
-          NNT(awtConstant, 'ac\constant-filled_2'),                { Purple }
-          NNT(awtMemberValue, 'ac\constant-filled_3'),             { Blue }
-          NNT(awtScriptFunctionParameter, 'ac\constant-filled_4'), { Orange}
-          NNT(awtScriptFunctionVariable, 'ac\constant-filled_5'),  { Yellow }
-          NNT(awtScriptConstant, 'ac\constant-filled_6'),          { Gray }
-          NNT(awtScriptEnumValue, 'ac\constant-filled_6'),         { Gray }
-          NNT(awtISPPConstant, 'ac\constant-filled_6'),            { Gray }
-          NNT(awtScriptInterface, 'ac\interface-filled'),
-          NNT(awtScriptProperty, 'ac\properties-filled'),
-          NNT(awtScriptEvent, 'ac\event-filled'),
-          NNT(awtScriptKeyword, 'ac\list')];
-
-        for var NamedType in NamedTypes do
-          AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);
+        for var WordType := awtSectionName to awtISPPConstant do begin
+          const ImageName = TImagesModule.AutoCompleteWordTypeImageName(WordType);
+          if ImageName <> '' then
+            AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, WordType, AutoCompleteBkBrush, ImageList, ImageName);
+        end;
 
         for var Memo in FMemos do begin
           Memo.Call(SCI_RGBAIMAGESETWIDTH, ImageList.Width, 0);

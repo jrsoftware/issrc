@@ -14,7 +14,7 @@ unit IDE.Inspector;
 interface
 
 uses
-  Windows, Messages, Classes, Graphics, Controls, StdCtrls, Generics.Collections,
+  Windows, Messages, Classes, Graphics, Controls, ImgList, StdCtrls, Generics.Collections,
   JvInspector, ModernColors, NewStaticText, ScintEdit,
   IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra;
 
@@ -93,6 +93,7 @@ type
       FJvInspector: TJvInspector;
       FMessagesWnd: HWND;
       FNoteText: TNewStaticText;
+      FGlyphImageList: TCustomImageList;
       FFactory: TLiveScriptObjectFactory;
       FOnGetBaseDir: TInspectorGetBaseDirEvent;
       FOnGetSignTools: TInspectorGetSignToolsEvent;
@@ -144,6 +145,7 @@ type
     procedure RowGetAsString(Sender: TJvCustomInspectorItem; var Value: String); overload;
     procedure RowSetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
     procedure RowSetAsString(Sender: TJvCustomInspectorItem; var Value: String);
+    procedure RowGetNameGlyph(Item: TJvCustomInspectorItem; var Glyph: TInspectorGlyph);
     procedure RowGetValueGlyph(Item: TJvCustomInspectorItem; var Glyph: TInspectorGlyph);
     procedure RowRemove(const ARow: TInspectorRow);
     procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
@@ -179,6 +181,7 @@ type
   public
     constructor Create(const AJvInspector: TJvInspector;
       const ANoteText: TNewStaticText;
+      const AGlyphImageList: TCustomImageList;
       const AFactory: TLiveScriptObjectFactory;
       const AShowAllKnownDirectives, AFollowCaret: Boolean;
       const AOnGetBaseDir: TInspectorGetBaseDirEvent;
@@ -221,7 +224,8 @@ uses
   SysUtils, UITypes, Themes, Forms, Generics.Defaults,
   BrowseFunc, NewUxTheme, PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.Struct,
-  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
+  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.ImagesModule,
+  IDE.ScriptModel.Metadata.Extra.WordLists;
 
 type
   EInspectorValueRejected = class(EScriptModelError);
@@ -259,6 +263,7 @@ end;
 
 constructor TInspector.Create(const AJvInspector: TJvInspector;
   const ANoteText: TNewStaticText;
+  const AGlyphImageList: TCustomImageList;
   const AFactory: TLiveScriptObjectFactory;
   const AShowAllKnownDirectives, AFollowCaret: Boolean;
   const AOnGetBaseDir: TInspectorGetBaseDirEvent;
@@ -269,6 +274,7 @@ begin
   inherited Create;
 
   FNoteText := ANoteText;
+  FGlyphImageList := AGlyphImageList;
   FFactory := AFactory;
   FOnGetBaseDir := AOnGetBaseDir;
   FOnGetSignTools := AOnGetSignTools;
@@ -305,6 +311,7 @@ begin
   FJvInspector.OnSetAsOrdinal := RowSetAsOrdinal;
   FJvInspector.OnSetAsString := RowSetAsString;
   FJvInspector.OnGetValueList := ChoiceRowGetValueList;
+  FJvInspector.OnGetNameGlyph := RowGetNameGlyph;
   FJvInspector.OnGetValueGlyph := RowGetValueGlyph;
 end;
 
@@ -2506,6 +2513,49 @@ begin
     FInEdit := False;
   end;
   InvalidateChangedRows;
+end;
+
+procedure TInspector.RowGetNameGlyph(Item: TJvCustomInspectorItem;
+  var Glyph: TInspectorGlyph);
+
+  function CodeRowWordType(const ARow: TInspectorRow): Integer;
+  begin
+    case ARow.CodeKind of
+      ckRoutine, ckInterfaceMethod:
+        Result := awtScriptFunction;
+      ckInterface:
+        Result := awtScriptInterface;
+      ckType:
+        if (FLiveCodeSection <> nil) and
+           (ARow.Index < FLiveCodeSection.Section.TypeCount) and
+           (FLiveCodeSection.Section.Types[ARow.Index].TypeText = 'interface') then
+          Result := awtScriptInterface
+        else
+          Result := awtScriptType;
+      ckConstant:
+        Result := awtScriptConstant;
+      ckGlobalVariable:
+        Result := awtScriptVariable;
+      ckRoutineParameter, ckInterfaceMethodParameter:
+        Result := awtScriptFunctionParameter;
+      ckRoutineLocal, ckRoutineResult, ckInterfaceMethodResult:
+        Result := awtScriptFunctionVariable;
+    else
+      Result := -1;
+    end;
+  end;
+
+begin
+  var Row: TInspectorRow;
+  if not TryGetRow(Item, Row) or (Row.Kind <> rkCode) then
+    Exit;
+
+  const ImageName = TImagesModule.AutoCompleteWordTypeImageName(CodeRowWordType(Row));
+  if ImageName <> '' then begin
+    Glyph.Kind := igkImage;
+    Glyph.ImageList := FGlyphImageList;
+    Glyph.ImageName := ImageName;
+  end;
 end;
 
 procedure TInspector.RowGetValueGlyph(Item: TJvCustomInspectorItem;
