@@ -20,7 +20,7 @@ type
   end;
 
   TIDELanguage = (ilEnglish, ilCzech, ilDutch, ilGerman, ilJapanese, ilFrench,
-    ilSpanish, ilItalian, ilChineseSimplified, ilChineseTraditional);
+    ilSpanish, ilItalian, ilChineseSimplified, ilChineseTraditional, ilKorean);
 
 procedure InitLocalization(const Lang: TIDELanguage; const Reverse: Boolean = False);
 
@@ -47,11 +47,11 @@ uses
   IDE.LocalizeFunc.ChineseSimplified, IDE.LocalizeFunc.ChineseTraditional,
   IDE.LocalizeFunc.Czech, IDE.LocalizeFunc.Dutch, IDE.LocalizeFunc.French,
   IDE.LocalizeFunc.German, IDE.LocalizeFunc.Italian, IDE.LocalizeFunc.Japanese,
-  IDE.LocalizeFunc.Spanish;
+  IDE.LocalizeFunc.Korean, IDE.LocalizeFunc.Spanish;
 
 const
   IDELocaleIDs: array [TIDELanguage] of TLocaleID =
-    ($0409, $0405, $0413, $0407, $0411, $040C, $0C0A, $0410, $0804, $0404);
+    ($0409, $0405, $0413, $0407, $0411, $040C, $0C0A, $0410, $0804, $0404, $0412);
 
 var
   TranslationDictionary: TDictionary<String, String>;
@@ -115,6 +115,7 @@ begin
     ilItalian: AddTranslations(ItalianIDETranslations);
     ilChineseSimplified: AddTranslations(ChineseSimplifiedIDETranslations);
     ilChineseTraditional: AddTranslations(ChineseTraditionalIDETranslations);
+    ilKorean: AddTranslations(KoreanIDETranslations);
   end;
   if Reverse then
     TranslationLanguage := ilEnglish
@@ -240,6 +241,7 @@ function LFmtMessage(const Language: TIDELanguage; const Str: String;
       ilItalian: Result := GetTranslationFrom(ItalianIDETranslations, Localized);
       ilChineseSimplified: Result := GetTranslationFrom(ChineseSimplifiedIDETranslations, Localized);
       ilChineseTraditional: Result := GetTranslationFrom(ChineseTraditionalIDETranslations, Localized);
+      ilKorean: Result := GetTranslationFrom(KoreanIDETranslations, Localized);
     else
       Result := False;
     end;

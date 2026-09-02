@@ -1084,6 +1084,7 @@ constructor TMainForm.Create(AOwner: TComponent);
                       (SubLanguage = SUBLANG_CHINESE_MACAU) then
                 MessageLanguage := ilChineseTraditional;
             end;
+          LANG_KOREAN: MessageLanguage := ilKorean;
         end;
         if MessageLanguage <> ilEnglish then
           CheckUpdatePanelMessage(Ini, 'Language', 0, 1,

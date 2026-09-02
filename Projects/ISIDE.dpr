@@ -31,6 +31,7 @@ uses
   IDE.LocalizeFunc.German in 'Src\IDE.LocalizeFunc.German.pas',
   IDE.LocalizeFunc.Italian in 'Src\IDE.LocalizeFunc.Italian.pas',
   IDE.LocalizeFunc.Japanese in 'Src\IDE.LocalizeFunc.Japanese.pas',
+  IDE.LocalizeFunc.Korean in 'Src\IDE.LocalizeFunc.Korean.pas',
   IDE.LocalizeFunc.Spanish in 'Src\IDE.LocalizeFunc.Spanish.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
   Shared.CompilerInt.Struct in 'Src\Shared.CompilerInt.Struct.pas',
