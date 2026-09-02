@@ -446,7 +446,8 @@ end;
 { Editing an entry's value through the model writes back to the memo. Covers
   a single-line entry (with one undo restoring it), a spanned entry whose line
   breaks are preserved, and a blank-line entry that inserts itself above the
-  blank, alone and in a multi-entry write }
+  blank, alone (with the caret staying on the new entry, also when the blank
+  is indented) and in a multi-entry write }
 procedure TestEntryRoundTrip(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 begin
@@ -506,6 +507,7 @@ begin
       '',
       'Source: "c.txt"']);
     try
+      AMemo.CaretLine := 2;
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
       Assert(Context.Factory.TryCreateParameterSectionEntries([], [], 2, Entries, Reason));
@@ -515,9 +517,42 @@ begin
         Assert(AMemo.Lines[2] = 'Source: "b.txt"');
         Assert(AMemo.Lines[3] = '');            { The old blank, now a separator }
         Assert(AMemo.Lines[4] = 'Source: "c.txt"');
+        Assert(AMemo.CaretLine = 2);            { The caret stays on the new entry }
         AMemo.Undo;
         Assert(AMemo.Lines.Count = 4);
         Assert(AMemo.Lines[2] = '');
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Blank-line entry on an indented blank line with the caret after the
+    indent, as Enter with auto indent leaves it: the caret stays on the new
+    entry, after its indent, instead of moving down with the blank }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      '  Source: "a.txt"',
+      '  ',
+      '  Source: "c.txt"']);
+    try
+      AMemo.CaretPosition := AMemo.GetLineEndPosition(2);
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries([], [], 2, Entries, Reason));
+      try
+        Entries.PrimaryEntry.Add('Source', 'b.txt');
+        Assert(AMemo.Lines.Count = 5);
+        Assert(AMemo.Lines[2] = '  Source: "b.txt"');
+        Assert(AMemo.Lines[3] = '  ');          { The old blank keeps its whitespace }
+        Assert(AMemo.Lines[4] = '  Source: "c.txt"');
+        Assert(AMemo.CaretPosition = AMemo.GetPositionFromLine(2) + 2);
+        AMemo.Undo;
+        Assert(AMemo.Lines.Count = 4);
+        Assert(AMemo.Lines[2] = '  ');
       finally
         Entries.Free;
       end;

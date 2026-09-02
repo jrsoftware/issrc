@@ -1507,10 +1507,15 @@ begin
   FMemo.BeginUndoAction;
   try
     if ACreatedFromBlankLine and (Length(ALines) > 0) then begin
-      { Insert the new lines plus a line ending at the start of the blank
-        line, which itself ends up below the inserted lines }
-      const Pos = FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine);
-      FMemo.ReplaceTextRange(Pos, Pos, Text + LineEnding);
+      { The blank line moves below the new lines, whitespace included. This
+        is a replace, not an insert at the line start, to keep a caret after
+        the whitespace on the new lines: the new first line repeats that
+        whitespace as its indent, so the minimal replace inserts at the caret,
+        which then stays put. }
+      const StartPos = FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine);
+      const EndPos = FMemo.GetLineEndPosition(ALiveScriptObject.FFirstLine);
+      FMemo.ReplaceTextRange(StartPos, EndPos,
+        Text + LineEnding + FMemo.GetTextRange(StartPos, EndPos), srmMinimal);
     end else if ALiveScriptObject.FLastLine >= ALiveScriptObject.FFirstLine then begin
       if Length(ALines) = 0 then begin
         { Remove the object's lines entirely, taking one line ending with them
