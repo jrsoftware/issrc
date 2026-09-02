@@ -126,7 +126,7 @@ type
     FAccessibleName: string;
     function ApplicationHook(var Msg: TMessage): Boolean;
     procedure ApplyNameFont;
-    procedure ApplyValueFont;
+    procedure ApplyValueFont(const ACanvas: TCanvas);
     procedure DoPaintItem;
     procedure InvalidateItem(const Item: TJvCustomInspectorItem);
     procedure InvalidateRow(const Index: Integer);
@@ -1366,11 +1366,11 @@ begin
     Canvas.Brush.Color := BackgroundColor;
 end;
 
-procedure TJvInspector.ApplyValueFont;
+procedure TJvInspector.ApplyValueFont(const ACanvas: TCanvas);
 begin
-  Canvas.Font := Font;
-  Canvas.Font.Color := FValueColor;
-  Canvas.Brush.Color := BackgroundColor;
+  ACanvas.Font := Font;
+  ACanvas.Font.Color := FValueColor;
+  ACanvas.Brush.Color := BackgroundColor;
 end;
 
 procedure TJvInspector.PaintItems;
@@ -1591,7 +1591,7 @@ var
   CatRect: TRect;
   LeftX: Integer;
 
-  procedure PaintGlyph(const PaintRect: TInspectorPaintRect);
+  procedure PaintExpandButtonOrMarker(const PaintRect: TInspectorPaintRect);
   begin
     const GlyphRect = FPaintItem.Rects[PaintRect];
     if IsRectEmpty(GlyphRect) then
@@ -1671,15 +1671,15 @@ begin
   var NameTextRect := FPaintItem.Rects[iprNameText];
   var NameText := FPaintItem.DisplayName;
   Canvas.TextRect(NameTextRect, NameText, [tfSingleLine, tfNoPrefix, tfEndEllipsis]);
-  ApplyValueFont;
+  ApplyValueFont(Canvas);
   if Assigned(FOnCustomizeItemCanvas) then
     FOnCustomizeItemCanvas(FPaintItem, Canvas);
   FPaintItem.DrawValue(Canvas);
 
-  PaintGlyph(iprExpandButton);
+  PaintExpandButtonOrMarker(iprExpandButton);
 
   if FPaintItem = FMarkedItem then
-    PaintGlyph(iprMarker);
+    PaintExpandButtonOrMarker(iprMarker);
 
   if EndOfCat or FPaintItem.IsCategory then
     Canvas.Pen.Color := FCategoryDividerColor
@@ -2563,7 +2563,9 @@ begin
           BFlags := BFlags or DFCS_PUSHED;
         DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
         const ButtonText = '...';
-        ACanvas.Font.Color := Inspector.ValueColor;
+        // Undoes any OnCustomizeItemCanvas change such as a bold style
+        Inspector.ApplyValueFont(ACanvas);
+        const SaveBrushStyle = ACanvas.Brush.Style;
         ACanvas.Brush.Style := bsClear;
         try
           ACanvas.TextOut(
@@ -2571,7 +2573,7 @@ begin
             ARect.Top + (ARect.Height - ACanvas.TextHeight(ButtonText)) div 2,
             ButtonText);
         finally
-          ACanvas.Brush.Style := bsSolid;
+          ACanvas.Brush.Style := SaveBrushStyle;
         end;
       end else begin
         var BFlags: UINT := 0;
@@ -2979,11 +2981,12 @@ begin
   FClickRect.Right := LabelRect.Left + ACanvas.TextWidth(LabelText);
   IntersectRect(FClickRect, FClickRect, Rects[iprValueArea]);
   const TextTop = LabelRect.Top + (LabelRect.Height - ACanvas.TextHeight(LabelText)) div 2;
+  const SaveBrushStyle = ACanvas.Brush.Style;
   ACanvas.Brush.Style := bsClear;
   try
     ACanvas.TextOut(LabelRect.Left, TextTop, LabelText);
   finally
-    ACanvas.Brush.Style := bsSolid;
+    ACanvas.Brush.Style := SaveBrushStyle;
   end;
   if (LabelText <> '') and Inspector.Focused and (Inspector.Selected = Self) and
      (SendMessage(Inspector.Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS = 0) then begin
