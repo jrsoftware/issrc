@@ -52,12 +52,12 @@ LastErrorMessage=%1.%n%nGreška %2: %3
 SetupFileMissing=Datoteka %1 nedostaje u instalacionoj fascikli. Ispravite problem ili nabavite novi primerak programa.
 SetupFileCorrupt=Instalacione datoteke su oštećene. Nabavite novi primerak programa.
 SetupFileCorruptOrWrongVer=Instalacione datoteke su oštećene ili nisu kompatibilne s ovom verzijom instalacije. Ispravite problem ili nabavite novi primerak programa.
-InvalidParameter=Neispravan parametar je prenet na komandnu liniju:%n%n%1
+InvalidParameter=Neispravan parametar je prosleđen u komandnoj liniji:%n%n%1
 SetupAlreadyRunning=Instalacija je već pokrenuta.
 WindowsVersionNotSupported=Program ne podržava verziju Windows-a koju koristite.
 WindowsServicePackRequired=Program zahteva %1 servisni paket %2 ili noviji.
 NotOnThisPlatform=Program neće raditi na %1.
-OnlyOnThisPlatform=Program može da se pokrene samo na %1.
+OnlyOnThisPlatform=Program se mora pokrenuti na %1.
 OnlyOnTheseArchitectures=Program se može instalirati samo na verzijama Windows-a namenjenim za sledeće arhitekture procesora:%n%n%1
 WinVersionTooLowError=Program zahteva %1 verziju %2 ili noviju.
 WinVersionTooHighError=Program nije moguće instalirati na %1 verziju %2 ili noviju.
@@ -117,7 +117,7 @@ NewFolderName=Nova fascikla
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Dobro došli na instalaciju programa [name]
-WelcomeLabel2=[name/ver] će biti instaliran na računar.%n%nPre nego što nastavite, preporučujemo vam da zatvorite sve druge programe.
+WelcomeLabel2=Program [name/ver] će biti instaliran na računar.%n%nPre nego što nastavite, preporučujemo vam da zatvorite sve druge programe.
 
 ; *** "Password" wizard page
 WizardPassword=Lozinka
@@ -126,7 +126,7 @@ PasswordLabel3=Unesite lozinku i kliknite na „Dalje“ da nastavite. Lozinka j
 PasswordEditLabel=&Lozinka:
 IncorrectPassword=Navedena lozinka nije ispravna. Pokušajte ponovo.
 
-; *** "License Agreement" wizard
+; *** "License Agreement" wizard page
 WizardLicense=Ugovor o licenci
 LicenseLabel=Pažljivo pročitajte sledeće važne informacije pre nego što nastavite.
 LicenseLabel3=Pročitajte Ugovor o licenci koji se nalazi ispod. Morate prihvatiti uslove ovog ugovora pre nego što nastavite sa instalacijom.
@@ -144,10 +144,10 @@ InfoAfterClickLabel=Kada budete spremni da nastavite instalaciju, kliknite na �
 ; *** "User Information" wizard page
 WizardUserInfo=Korisnički podaci
 UserInfoDesc=Unesite svoje podatke.
-UserInfoName=&Korisnik:
+UserInfoName=&Ime korisnika:
 UserInfoOrg=&Organizacija:
 UserInfoSerial=&Serijski broj:
-UserInfoNameRequired=Morate navesti ime.
+UserInfoNameRequired=Morate uneti ime korisnika.
 
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Odabir odredišne fascikle
@@ -168,7 +168,7 @@ BadDirName32=Naziv fascikle ne sme sadržati nijedan od sledećih znakova:%n%n%1
 DirExistsTitle=Fascikla već postoji
 DirExists=Fascikla:%n%n%1%n%nveć postoji. Želite li ipak da instalirate program u nju?
 DirDoesntExistTitle=Fascikla ne postoji
-DirDoesntExist=Fascikla:%n%n%1%n%nne postoji. Želite li da je napravite?
+DirDoesntExist=Fascikla:%n%n%1%n%nne postoji. Želite li da se napravi?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Odabir komponenata
@@ -179,11 +179,11 @@ FullInstallation=Puna instalacija
 CompactInstallation=Kompaktna instalacija
 CustomInstallation=Prilagođena instalacija
 NoUninstallWarningTitle=Komponente već postoje
-NoUninstallWarning=Sledeće komponente su već instalirane na računaru:%n%n%1%n%nPoništavanje izbora ovih komponenti ih neće ukloniti.%n%nŽelite li ipak da nastavite?
+NoUninstallWarning=Instalacioni program je otkrio da su sledeće komponente već instalirane na računaru:%n%n%1%n%nPoništavanje izbora ovih komponenti ih neće ukloniti.%n%nŽelite li ipak da nastavite?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=Izabrane stavke zahtevaju najmanje [gb] GB slobodnog prostora na disku.
-ComponentsDiskSpaceMBLabel=Izabrane stavke zahtevaju najmanje [mb] MB slobodnog prostora na disku.
+ComponentsDiskSpaceGBLabel=Izabrane stavke zahtevaju najmanje [gb] GB prostora na disku.
+ComponentsDiskSpaceMBLabel=Izabrane stavke zahtevaju najmanje [mb] MB prostora na disku.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Odabir dodatnih zadataka
@@ -204,7 +204,7 @@ NoProgramGroupCheck2=N&e pravi fasciklu u meniju „Start“
 ; *** "Ready to Install" wizard page
 WizardReady=Instalacija je spremna
 ReadyLabel1=Program [name] je sada spreman za instalaciju na računar.
-ReadyLabel2a=Kliknite na „Instaliraj“ da započnete instalaciju ili „Nazad“ da ponovo pregledate ili promenite pojedine postavke.
+ReadyLabel2a=Kliknite na „Instaliraj“ da započnete instalaciju ili na „Nazad“ ako želite da pregledate ili promenite pojedine postavke.
 ReadyLabel2b=Kliknite na „Instaliraj“ da započnete instalaciju.
 ReadyMemoUserInfo=Korisnički podaci:
 ReadyMemoDir=Odredišna fascikla:
@@ -223,7 +223,7 @@ ErrorDownloadSizeFailed=Nije moguće utvrditi veličinu: %1 %2
 ErrorProgress=Neispravna vrednost napretka: %1 od %2
 ErrorFileSize=Neispravna veličina datoteke: očekivano %1, pronađeno %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Raspakivanje datoteka...
 ButtonStopExtraction=&Zaustavi raspakivanje
 StopExtraction=Da li ste sigurni da želite da zaustavite raspakivanje?
@@ -238,14 +238,14 @@ ArchiveUnsupportedFormat=Format arhive nije podržan
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Priprema za instalaciju
 PreparingDesc=Priprema se instalacija programa [name] na računar.
-PreviousInstallNotCompleted=Instalacija ili deinstalacija prethodnog programa nije završena. Potrebno je da ponovo pokrenete računar da bi se ta instalacija završila.%n%nNakon ponovnog pokretanja računara, ponovo pokrenite instalaciju i instalirajte program [name].
+PreviousInstallNotCompleted=Instalacija ili deinstalacija prethodnog programa nije završena. Potrebno je da ponovo pokrenete računar da bi se ta instalacija završila.%n%nNakon ponovnog pokretanja računara, ponovo pokrenite instalaciju da biste dovršili instaliranje programa [name].
 CannotContinue=Nije moguće nastaviti instalaciju. Kliknite na „Otkaži“ da izađete.
 ApplicationsFound=Sledeći programi koriste datoteke koje treba da ažurira instalacioni program. Preporučujemo vam da dozvolite instalacionom programu da automatski zatvori ove programe.
 ApplicationsFound2=Sledeći programi koriste datoteke koje treba da ažurira instalacioni program. Preporučujemo vam da dozvolite instalacionom programu da automatski zatvori ove programe. Nakon što se instalacija završi, instalacioni program će pokušati da ponovo pokrene zatvorene programe.
 CloseApplications=&Automatski zatvori programe
 DontCloseApplications=Ne &zatvaraj programe
 ErrorCloseApplications=Instalacioni program nije mogao automatski da zatvori sve programe. Pre nego što nastavite, preporučujemo vam da zatvorite sve programe koji koriste datoteke koje treba da ažurira instalacioni program.
-PrepareToInstallNeedsRestart=Potrebno je ponovo pokrenuti računar. Nakon ponovnog pokretanja računara, ponovo pokrenite instalaciju i instalirajte program [name].%n%nŽelite li da ponovo pokrenete računar?
+PrepareToInstallNeedsRestart=Instalacioni program mora ponovo pokrenuti računar. Nakon ponovnog pokretanja računara, ponovo pokrenite instalaciju da biste dovršili instaliranje programa [name].%n%nŽelite li da ponovo pokrenete računar?
 
 ; *** "Installing" wizard page
 WizardInstalling=Instaliranje
@@ -256,18 +256,18 @@ FinishedHeadingLabel=Završetak instalacije programa [name]
 FinishedLabelNoIcons=Instaliranje programa [name] na računar je završeno.
 FinishedLabel=Instaliranje programa [name] na računar je završeno. Možete ga pokrenuti preko postavljenih prečica.
 ClickFinish=Kliknite na „Završi“ da izađete iz instalacije.
-FinishedRestartLabel=Da bi se završila instalacija programa [name], potrebno je ponovo pokrenuti računar. Želite li da ga ponovo pokrenete?
-FinishedRestartMessage=Da bi se završila instalacija programa [name], potrebno je ponovo pokrenuti računar.%n%nŽelite li da ga ponovo pokrenete?
+FinishedRestartLabel=Da bi se završila instalacija programa [name], potrebno je ponovo pokrenuti računar. Želite li da ponovo pokrenete računar?
+FinishedRestartMessage=Da bi se završila instalacija programa [name], potrebno je ponovo pokrenuti računar.%n%nŽelite li da ponovo pokrenete računar?
 ShowReadmeCheck=Da, želim da pogledam README datoteku
-YesRadio=&Da, ponovo pokreni računar
-NoRadio=Ne, &kasnije ću ga pokrenuti
+YesRadio=&Da, pokreni ponovo računar
+NoRadio=Ne, &kasnije ću ga ponovo pokrenuti
 ; used for example as 'Run MyProg.exe'
 RunEntryExec=Pokreni %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Pogledaj %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Potreban je sledeći disk
+ChangeDiskTitle=Instalacionom programu je potreban sledeći disk
 SelectDiskLabel2=Ubacite disk %1 i kliknite na „U redu“.%n%nAko se datoteke na ovom disku mogu pronaći u fascikli koja nije prikazana ispod, unesite ispravnu putanju ili kliknite na „Izaberi...“.
 PathLabel=Pu&tanja:
 FileNotInDir2=Datoteka „%1“ se ne nalazi u „%2“. Ubacite odgovarajući disk ili izaberite drugu fasciklu.
@@ -278,7 +278,7 @@ SetupAborted=Instalacija nije završena.%n%nIspravite problem i pokrenite je pon
 AbortRetryIgnoreSelectAction=Odaberite radnju
 AbortRetryIgnoreRetry=&Pokušajte ponovo
 AbortRetryIgnoreIgnore=&Zanemarite grešku i nastavite
-AbortRetryIgnoreCancel=Prekinite instalaciju
+AbortRetryIgnoreCancel=Otkažite instalaciju
 RetryCancelSelectAction=Odaberite radnju
 RetryCancelRetry=&Pokušajte ponovo
 RetryCancelCancel=Otkaži
@@ -349,7 +349,7 @@ ErrorReplacingExistingFile=Došlo je do greške pri zameni postojeće datoteke:
 ErrorRestartReplace=Nije moguće zameniti:
 ErrorRenamingTemp=Došlo je do greške pri preimenovanju datoteke u odredišnoj fascikli:
 ErrorRegisterServer=Nije moguće registrovati DLL/OCX: %1
-ErrorRegSvr32Failed=RegSvr32 nije uspeo. Greška %1
+ErrorRegSvr32Failed=RegSvr32 nije uspeo. Izlazni kôd: %1
 ErrorRegisterTypeLib=Nije moguće registrovati biblioteku tipova: %1
 
 ; *** Uninstall display name markings
@@ -364,25 +364,25 @@ UninstallDisplayNameMarkCurrentUser=Trenutni korisnik
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Došlo je do greške pri otvaranju README datoteke.
-ErrorRestartingComputer=Ne mogu ponovo da pokrenem računar. Uradite to ručno.
+ErrorRestartingComputer=Instalacioni program nije mogao ponovo da pokrene računar. Uradite to ručno.
 
 ; *** Uninstaller messages
-UninstallNotFound=Datoteka „%1“ ne postoji. Ne mogu da deinstaliram program.
-UninstallOpenError=Datoteka „%1“ ne može da se otvori. Ne mogu da deinstaliram program
-UninstallUnsupportedVer=Log datoteka deinstalacije „%1“ je u formatu koji ova verzija deinstalacionog programa ne prepoznaje. Ne mogu da deinstaliram program
+UninstallNotFound=Datoteka „%1“ ne postoji. Deinstalacija nije moguća.
+UninstallOpenError=Datoteka „%1“ ne može da se otvori. Deinstalacija nije moguća
+UninstallUnsupportedVer=Log datoteka deinstalacije „%1“ je u formatu koji ova verzija deinstalacionog programa ne prepoznaje. Deinstalacija nije moguća
 UninstallUnknownEntry=Nepoznat unos (%1) se pojavio u log datoteci deinstalacije
-ConfirmUninstall=Da li ste sigurni da želite u potpunosti da deinstalirate %1 i sve njegove komponente?
-UninstallOnlyOnWin64=Program se može deinstalirati samo na 64-bitnom Windows-u.
-OnlyAdminCanUninstall=Program može deinstalirati samo korisnik sa administratorskim privilegijama.
+ConfirmUninstall=Da li ste sigurni da želite u potpunosti da deinstalirate program %1 i sve njegove komponente?
+UninstallOnlyOnWin64=Ova instalacija može da se deinstalira samo na 64-bitnom Windows-u.
+OnlyAdminCanUninstall=Ovu instalaciju može da deinstalira samo korisnik sa administratorskim privilegijama.
 UninstallStatusLabel=Sačekajte da se %1 deinstalira sa računara.
-UninstalledAll=%1 je uspešno deinstaliran sa računara.
-UninstalledMost=%1 je deinstaliran.%n%nNeki elementi nisu mogli biti uklonjeni. Možete ih ukloniti ručno.
+UninstalledAll=Program %1 je uspešno deinstaliran sa računara.
+UninstalledMost=Program %1 je deinstaliran.%n%nNeki elementi nisu mogli biti uklonjeni. Možete ih ukloniti ručno.
 UninstalledAndNeedsRestart=Da bi se završila deinstalacija programa %1, potrebno je ponovo pokrenuti računar.%n%nŽelite li da ponovo pokrenete računar?
-UninstallDataCorrupted=Datoteka „%1“ je oštećena. Ne mogu da deinstaliram program
+UninstallDataCorrupted=Datoteka „%1“ je oštećena. Deinstalacija nije moguća
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Ukloniti deljenu datoteku?
-ConfirmDeleteSharedFile2=Sistem prijavljuje da sledeću deljenu datoteku više ne koristi nijedan program. Želite li da je uklonite?%n%nAko neki programi i dalje koriste ovu datoteku, a ona bude uklonjena, ti programi možda neće ispravno raditi. Ako niste sigurni šta da radite, kliknite na „Ne“. Ostavljanje datoteke na sistemu neće prouzrokovati nikakvu štetu.
+ConfirmDeleteSharedFile2=Sistem prijavljuje da sledeću deljenu datoteku više ne koristi nijedan program. Želite li da je deinstalacioni program ukloni?%n%nAko neki programi i dalje koriste ovu datoteku, a ona bude uklonjena, ti programi možda neće ispravno raditi. Ako niste sigurni, izaberite „Ne“. Ostavljanje datoteke na sistemu neće prouzrokovati nikakvu štetu.
 SharedFileNameLabel=Naziv datoteke:
 SharedFileLocationLabel=Lokacija:
 WizardUninstalling=Stanje deinstalacije

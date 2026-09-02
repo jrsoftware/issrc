@@ -180,7 +180,7 @@ ComponentsDiskSpaceMBLabel=Current selection requires at least [mb] MB of disk s
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Select Additional Tasks
 SelectTasksDesc=Which additional tasks should be performed?
-SelectTasksLabel2=Select the additional tasks you would like Setup to perform while installing [name], then click Next.
+SelectTasksLabel2=Select the additional tasks you want Setup to perform while installing [name], then click Next.
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Select Start Menu Folder
