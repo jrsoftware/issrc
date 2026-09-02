@@ -993,7 +993,7 @@ const
     (English: 'This "Portable Network Graphics" image contains no data.'; Localized: '이 "Portable Network Graphics" 이미지에는 데이터가 없습니다.'),
     (English: 'The program tried to add a existent critical chunk to the current image which is not allowed.'; Localized: '프로그램이 현재 이미지에 이미 존재하는 중요 청크를 추가하려고 했으며 이는 허용되지 않습니다.'),
     (English: 'It''s not allowed to add a new chunk because the current image is invalid.'; Localized: '현재 이미지가 잘못되었으므로 새 청크를 추가하는 것은 허용되지 않습니다.'),
-    (English: 'Some operation could not be performed because the system is out of resources. Close some windows and try again.'; Localized: '시스템 리소스가 부족하므로 일부 작업을 수행할 수 없습니다. 일부 창을 닫고 다시 시도하세요.'),
+    (English: 'Some operation could not be performed because the system is out of resources. Close some windows and try again.'; Localized: '시스템 리소스가 부족하므로 작업을 수행할 수 없습니다. 일부 창을 닫고 다시 시도하세요.'),
     (English: 'Setting bit transparency color is not allowed for png images containing alpha value for each pixel (COLOR_RGBALPHA and COLOR_GRAYSCALEALPHA)'; Localized: '각 픽셀에 대한 알파 값이 포함된 png 이미지에는 비트 투명 색 설정이 허용되지 않습니다 (COLOR_RGBALPHA 및 COLOR_GRAYSCALEALPHA)'),
     (English: 'This operation is not valid because the current image contains no valid header.'; Localized: '현재 이미지에 올바른 헤더가 없으므로 이 작업은 잘못되었습니다.'),
     (English: 'The new size provided for image resizing is invalid.'; Localized: '이미지 크기 조정을 위해 제공된 새 크기가 잘못되었습니다.'),
