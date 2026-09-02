@@ -194,7 +194,7 @@ begin
     Exit;
 
   { For define: skip optional parameter list }
-  if SameText(Directive, 'define') and (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) = '(') then begin
+  if SameText(Directive, 'define') and (AMemo.GetByteAtPosition(Pos) = '(') then begin
     Pos := AMemo.GetPositionAfter(Pos);
     var Braces := 1;
     while (Pos < ScanEndPos) and (Braces > 0) do begin
