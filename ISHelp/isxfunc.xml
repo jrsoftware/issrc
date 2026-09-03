@@ -2101,12 +2101,12 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>Set <tt>OnDownloadProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p><tt>TOnDownloadProgress</tt> is defined as:</p>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
-<p><tt>ProgressMax</tt> will be 0 if the file size is still unknown. Return <tt>True</tt> to allow the download to continue, <tt>False</tt> otherwise.</p></remarks>
+<p><tt>ProgressMax</tt> will be 0 or less if the file size is still unknown. Return <tt>True</tt> to allow the download to continue, <tt>False</tt> otherwise.</p></remarks>
         <example><pre>
 <sec>[Code]</sec>
 <key>function</key> OnDownloadProgress(<key>const</key> Url, Filename: String; <key>const</key> Progress, ProgressMax: Int64): Boolean;
 <key>begin</key>
-  <key>if</key> ProgressMax &lt;&gt; <num>0</num> <key>then</key>
+  <key>if</key> ProgressMax &gt; <num>0</num> <key>then</key>
     Log(Format(<str>'  %d of %d bytes done.'</str>, [Progress, ProgressMax]))
   <key>else</key>
     Log(Format(<str>'  %d bytes done.'</str>, [Progress]));
