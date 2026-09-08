@@ -183,18 +183,20 @@ begin
   Assert(RemoveAccelChar('&&') = '&');
   Assert(RemoveAccelChar('&a&b&c') = 'abc');
 
-  { RemoveAccelChar Far East: real far east captions append the accelerator as
+  { RemoveAccelChar Far East: real far east captions append the access key as
     "(&X)"; the whole group is removed }
   Assert(RemoveAccelChar('ファイル(&F)') = 'ファイル');
   Assert(RemoveAccelChar('新規(&N)...') = '新規...');
   Assert(RemoveAccelChar('ファイル(&F):') = 'ファイル:');
-  { The "(&A)" accelerator is removed but the genuine "(ANSI または UTF-8)"
+  { The "(&A)" access key is removed but the genuine "(ANSI または UTF-8)"
     parenthetical is kept }
   Assert(RemoveAccelChar('自動(&A) (ANSI または UTF-8)') = '自動 (ANSI または UTF-8)');
   { A space in front of the group (used by for example Chinese Traditional) is
     removed too }
   Assert(RemoveAccelChar('瀏覽 (&R)...') = '瀏覽...');
   Assert(RemoveAccelChar('是 (&Y)') = '是');
+  { When RemoveParenthesizedAccessKeys=False is passed, only '&' is removed }
+  Assert(RemoveAccelChar('新規(&N)...', False) = '新規(N)...');
 
   { AddPeriod: adds '.' only when the last character isn't sentence-terminating
     or a control character; idempotent on already-terminated strings }
