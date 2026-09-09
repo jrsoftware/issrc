@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Brazilian Portuguese messages made by Cesar82 cesar.zanetti.82@gmail.com ***
+; *** Inno Setup version 7.2.0+ Brazilian Portuguese messages made by Cesar82 cesar.zanetti.82@gmail.com ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -57,7 +57,6 @@ OnlyOnTheseArchitectures=Este programa só pode ser instalado em versões do Win
 WinVersionTooLowError=Este programa requer a %1 versão %2 ou superior.
 WinVersionTooHighError=Este programa não pode ser instalado na %1 versão %2 ou superior.
 AdminPrivilegesRequired=Você deve estar logado como administrador quando instalar este programa.
-PowerUserPrivilegesRequired=Você deve estar logado como administrador ou como um membro do grupo de Usuários Power quando instalar este programa.
 SetupAppRunningError=O instalador detectou que o %1 está atualmente em execução.%n%nPor favor feche todas as instâncias dele agora, então clique em OK pra continuar ou em Cancelar pra sair.
 UninstallAppRunningError=O Desinstalador detectou que o %1 está atualmente em execução.%n%nPor favor feche todas as instâncias dele agora, então clique em OK pra continuar ou em Cancelar pra sair.
 

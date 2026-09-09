@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Abkhazian messages ***
+; *** Inno Setup version 7.2.0+ Abkhazian messages ***
 ;
 ; Translated from English by Abukhba Andrei & Gindia Sergei <aabuchba@mail.ru>.
 ;
@@ -58,7 +58,6 @@ OnlyOnTheseArchitectures=Ари апрограмма ақәыргылара ау
 WinVersionTooLowError=Ари апрограмма иаҭахуп %1 аверсиа ма %2 еиҳау.
 WinVersionTooHighError=Апрограмма ақәыргылара ауам %1 аҟны аверсиа %2 ма еиҳау.
 AdminPrivilegesRequired=Ари апрограмма ақәыргыларазы, асистема шәҭалароуп Администратор ҳасабла.
-PowerUserPrivilegesRequired=Ари апрограмма ақәыргыларазы, асистема иҭалатәуп Администратор иаҳасабала ма агәыԥ «Аԥышәа змоу ахархәаҩцәа» (Power Users) алахәыла иаҳасабала.
 SetupAppRunningError=Иԥшаауп аус зуа аекземплиар %1.%n%nИашәыркы апрограмма аекземплиарқәа зегьы, нас шәақәыӷәӷәа «OK», ацҵаразы, ма «Аҟәыхра», аҭыҵразы.
 UninstallAppRunningError=Ақәгага программа иаԥшааит аус зуа аекземплиар %1.%n%nИашәыркы апрограмма аекземплиарқәа зегьы, нас шәақәыӷәӷәа «OK», ацҵаразы, ма «Аҟәыхра», аҭыҵразы.
 

@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Chinese Traditional messages ***
+; *** Inno Setup version 7.2.0+ Chinese Traditional messages ***
 ; Name: GoneTone, gonetone@reh.tw
 ;
 ; Based on translations by: Anbang LI, anbangli@outlook.com
@@ -66,7 +66,6 @@ OnlyOnTheseArchitectures=這個程式只能在專門為以下處理器架構而�
 WinVersionTooLowError=這個程式必須在 %1 版本 %2 或以上的系統執行。
 WinVersionTooHighError=這個程式無法安裝在 %1 版本 %2 或以上的系統。
 AdminPrivilegesRequired=您必須登入成系統管理員以安裝這個程式。
-PowerUserPrivilegesRequired=您必須登入成系統管理員或 Power Users 群組的成員以安裝這個程式。
 SetupAppRunningError=安裝程式偵測到 %1 正在執行。%n%n請立即關閉它的所有執行個體，然後按 「確定」 繼續，或按 「取消」 離開。
 UninstallAppRunningError=解除安裝程式偵測到 %1 正在執行。%n%n請立即關閉它的所有執行個體，然後按 「確定」 繼續，或按 「取消」 離開。
 

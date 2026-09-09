@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Danish messages ***
+; *** Inno Setup version 7.2.0+ Danish messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -58,7 +58,6 @@ OnlyOnTheseArchitectures=Programmet kan kun installeres på versioner af Windows
 WinVersionTooLowError=Programmet kræver %1 version %2 eller senere.
 WinVersionTooHighError=Programmet kan ikke installeres på %1 version %2 eller senere.
 AdminPrivilegesRequired=Du skal være logget på som administrator imens programmet installeres.
-PowerUserPrivilegesRequired=Du skal være logget på som administrator eller være medlem af gruppen Superbrugere imens programmet installeres.
 SetupAppRunningError=Installationsprogrammet har registreret at %1 kører.%n%nLuk venligst alle forekomster af programmet, og klik så OK for at fortsætte, eller Annuller for at afbryde.
 UninstallAppRunningError=Afinstallationsprogrammet har registreret at %1 kører.%n%nLuk venligst alle forekomster af programmet, og klik så OK for at fortsætte, eller Annuller for at afbryde.
 

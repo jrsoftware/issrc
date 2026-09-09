@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Indonesian messages ***
+; *** Inno Setup version 7.2.0+ Indonesian messages ***
 ;
 ; Untuk mengunduh terjemahan kontribusi-pengguna dari berkas ini, buka:
 ;   http://www.jrsoftware.org/files/istrans/
@@ -40,7 +40,6 @@ OnlyOnTheseArchitectures=Program ini hanya bisa dipasang pada versi Windows yang
 WinVersionTooLowError=Program ini memerlukan %1 versi %2 atau yang terbaru.
 WinVersionTooHighError=Program ini tidak dapat dipasang pada %1 versi %2 atau yang terbaru.
 AdminPrivilegesRequired=Anda harus masuk sebagai seorang administrator saat memasang program ini.
-PowerUserPrivilegesRequired=Anda harus masuk sebagai seorang administrator atau anggota grup Power Users saat memasang program ini.
 SetupAppRunningError=Kami mendeteksi bahwa %1 sedang berjalan.%n%nSilakan tutup semua instansi bersangkutan, lalu klik OK untuk meneruskan, atau Cancel untuk keluar.
 UninstallAppRunningError=Pelepas mendeteksi bahwa %1 sedang berjalan.%n%nSilakan tutup semua instansi bersangkutan, lalu klik OK untuk meneruskan, atau Cancel untuk keluar.
 

@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ English (British) messages ***
+; *** Inno Setup version 7.2.0+ English (British) messages ***
 ;
 ; Translated by Boris Kotov <doctor.z01db3rg@gmail.com>
 ; Translation updated by Andrew Truckle <trucklesoft@outlook.com>
@@ -54,7 +54,6 @@ OnlyOnTheseArchitectures=This program can only be installed on versions of Windo
 WinVersionTooLowError=This program requires %1 version %2 or later.
 WinVersionTooHighError=This program cannot be installed on %1 version %2 or later.
 AdminPrivilegesRequired=You must be logged in as an administrator when installing this program.
-PowerUserPrivilegesRequired=You must be logged in as an administrator or as a member of the Power Users group when installing this program.
 SetupAppRunningError=Setup has detected that %1 is currently running.%n%nPlease close all instances of it now, then click OK to continue, or Cancel to exit.
 UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%nPlease close all instances of it now, then click OK to continue, or Cancel to exit.
 

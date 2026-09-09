@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Serbian (Latin) messages ***
+; *** Inno Setup version 7.2.0+ Serbian (Latin) messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -62,7 +62,6 @@ OnlyOnTheseArchitectures=Program se može instalirati samo na verzijama Windows-
 WinVersionTooLowError=Program zahteva %1 verziju %2 ili noviju.
 WinVersionTooHighError=Program nije moguće instalirati na %1 verziju %2 ili noviju.
 AdminPrivilegesRequired=Morate biti prijavljeni kao administrator da biste instalirali program.
-PowerUserPrivilegesRequired=Morate biti prijavljeni kao administrator ili kao član grupe „Power Users“ da biste instalirali ovaj program.
 SetupAppRunningError=Instalacioni program je utvrdio da je %1 trenutno pokrenut.%n%nZatvorite ga i kliknite na dugme „U redu“ da nastavite ili „Otkaži“ da napustite instalaciju.
 UninstallAppRunningError=Deinstalacioni program je utvrdio da je %1 trenutno pokrenut.%n%nZatvorite ga i kliknite na dugme „U redu“ da nastavite ili „Otkaži“ da napustite deinstalaciju.
 

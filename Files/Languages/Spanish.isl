@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Spanish messages ***
+; *** Inno Setup version 7.2.0+ Spanish messages ***
 
 ; Maintained by Jorge Andres Brugger (jbrugger@ideaworks.com.ar)
 ; Spanish.isl version 1.7.1 (20250625)
@@ -58,7 +58,6 @@ OnlyOnTheseArchitectures=Este programa solo puede instalarse en versiones de Win
 WinVersionTooLowError=Este programa requiere %1 versión %2 o posterior.
 WinVersionTooHighError=Este programa no puede instalarse en %1 versión %2 o posterior.
 AdminPrivilegesRequired=Debe iniciar la sesión como administrador para instalar este programa.
-PowerUserPrivilegesRequired=Debe iniciar la sesión como administrador o como miembro del grupo de Usuarios Avanzados para instalar este programa.
 SetupAppRunningError=El programa de instalación ha detectado que %1 está ejecutándose.%n%nPor favor, ciérrelo ahora, luego haga clic en Aceptar para continuar o en Cancelar para salir.
 UninstallAppRunningError=El desinstalador ha detectado que %1 está ejecutándose.%n%nPor favor, ciérrelo ahora, luego haga clic en Aceptar para continuar o en Cancelar para salir.
 

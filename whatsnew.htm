@@ -158,8 +158,11 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Buttons of type <tt>TBitmapButton</tt> can now also be pressed with Enter, instead of only with Space, and take part in default button handling. They now descend from <tt>TButtonControl</tt> instead of <tt>TCustomControl</tt>, and new properties <tt>Cancel</tt> (which allows pressing them with Esc), <tt>Default</tt>, and <tt>ModalResult</tt> were added.</li>
   </ul>
   </li>
+  <li>Removed support for the undocumented <tt>PrivilegesRequired</tt> value <tt>poweruser</tt>, the undocumented <tt>Permissions</tt> identifier <tt>powerusers</tt>, and undocumented support function <tt>IsPowerUserLoggedOn</tt>.</li>
   <li>Other minor improvements.</li>
 </ul>
+
+<p>Message <tt>PowerUserPrivilegesRequired</tt> has been removed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/c71fcb6e">View differences in <tt>Default.isl</tt></a>.)</p>
 
 </details>
 <details>

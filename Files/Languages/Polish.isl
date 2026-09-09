@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Polish messages ***
+; *** Inno Setup version 7.2.0+ Polish messages ***
 ; Proofreading, corrections and 5.5.7-6.5.0+ updates:
 ; Łukasz Abramczuk <lukasz.abramczuk at gmail.com>
 ; Sefinek <contact at sefinek.net>
@@ -52,7 +52,6 @@ OnlyOnTheseArchitectures=Ta aplikacja może być uruchomiona tylko w systemie Wi
 WinVersionTooLowError=Ta aplikacja wymaga systemu %1 w wersji %2 lub nowszej.
 WinVersionTooHighError=Ta aplikacja nie może być zainstalowana w systemie %1 w wersji %2 lub nowszej.
 AdminPrivilegesRequired=Aby przeprowadzić instalację tej aplikacji, konto użytkownika systemu musi posiadać uprawnienia administratora.
-PowerUserPrivilegesRequired=Aby przeprowadzić instalację tej aplikacji, konto użytkownika systemu musi posiadać uprawnienia administratora lub użytkownika zaawansowanego.
 SetupAppRunningError=Instalator wykrył, iż aplikacja %1 jest aktualnie uruchomiona.%n%nPrzed wciśnięciem przycisku OK zamknij wszystkie procesy aplikacji. Kliknij przycisk Anuluj, aby przerwać instalację.
 UninstallAppRunningError=Dezinstalator wykrył, iż aplikacja %1 jest aktualnie uruchomiona.%n%nPrzed wciśnięciem przycisku OK zamknij wszystkie procesy aplikacji. Kliknij przycisk Anuluj, aby przerwać dezinstalację.
 

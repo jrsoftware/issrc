@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Vietnamese messages ***
+; *** Inno Setup version 7.2.0+ Vietnamese messages ***
 ;
 ; Vietnamese translation by memecoder (memecoder17@gmail.com)
 ; Last modification date: 2023-10-26
@@ -50,7 +50,6 @@ OnlyOnTheseArchitectures=Phần mềm này chỉ có thể cài đặt trên cá
 WinVersionTooLowError=Phần mềm này yêu cầu %1 phiên bản %2 hoặc mới hơn.
 WinVersionTooHighError=Không thể cài phần mềm này trên %1 phiên bản %2 hoặc mới hơn.
 AdminPrivilegesRequired=Bạn cần đăng nhập bằng tài khoản Quản trị viên (Administrator) để cài đặt phần mềm này.
-PowerUserPrivilegesRequired=Bạn cần đăng nhập bằng tài khoản Quản trị viên (Admin) hoặc thuộc nhóm Power Users để cài đặt phần mềm này.
 SetupAppRunningError=Hệ thống phát hiện %1 hiện đang chạy.%n%nVui lòng đóng tất cả các cửa sổ của ứng dụng đó lại, sau đó nhấn OK để tiếp tục, hoặc nhấn Hủy để thoát.
 UninstallAppRunningError=Hệ thống phát hiện %1 hiện đang chạy.%n%nVui lòng đóng tất cả các cửa sổ của ứng dụng đó lại, sau đó nhấn OK để tiếp tục, hoặc nhấn Hủy để thoát.
 

@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Portuguese (Portugal) messages ***
+; *** Inno Setup version 7.2.0+ Portuguese (Portugal) messages ***
 ;
 ; Original translation by Nuno Silva (nars@gmx.net)
 ; Revised and updated to AO90 by BlackSpirits (blackspirits@gmail.com)
@@ -43,7 +43,6 @@ OnlyOnTheseArchitectures=Este programa só pode ser instalado em versões do Win
 WinVersionTooLowError=Este programa necessita do %1 versão %2 ou mais recente.
 WinVersionTooHighError=Este programa não pode ser instalado no %1 versão %2 ou mais recente.
 AdminPrivilegesRequired=Deve iniciar sessão como administrador para instalar este programa.
-PowerUserPrivilegesRequired=Deve iniciar sessão como administrador ou membro do grupo de Utilizadores Avançados para instalar este programa.
 SetupAppRunningError=O Assistente de Instalação detetou que o %1 está em execução.%n%nFeche agora todas as instâncias e, em seguida, clique em OK para continuar ou em Cancelar para sair.
 UninstallAppRunningError=O Assistente de Desinstalação detetou que o %1 está em execução.%n%nFeche agora todas as instâncias e, em seguida, clique em OK para continuar ou em Cancelar para sair.
 

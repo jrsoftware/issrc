@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Ukrainian messages ***
+; *** Inno Setup version 7.2.0+ Ukrainian messages ***
 ; Author: Dmytro Onyshchuk
 ; E-Mail: mrlols3@gmail.com
 ; Please report all spelling/grammar errors, and observations.
@@ -63,7 +63,6 @@ OnlyOnTheseArchitectures=Ця програма може бути встанов�
 WinVersionTooLowError=Ця програма вимагає %1 версії %2 або більш пізню версію.
 WinVersionTooHighError=Ця програма не може бути встановлена на %1 версії %2 або більш пізню версію.
 AdminPrivilegesRequired=Щоб встановити цю програму, ви повинні увійти до системи як адміністратор.
-PowerUserPrivilegesRequired=Щоб встановити цю програму, ви повинні увійти до системи як адміністратор або як член групи «Досвідчені користувачі».
 SetupAppRunningError=Виявлено, що %1 вже запущено.%n%nБудь ласка, закрийте всі копії програми та натисніть «OK» для продовження, або «Скасувати» для виходу.
 UninstallAppRunningError=Виявлено, що %1 вже запущено.%n%nБудь ласка, закрийте всі копії програми та натисніть «OK» для продовження, або «Скасувати» для виходу.
 

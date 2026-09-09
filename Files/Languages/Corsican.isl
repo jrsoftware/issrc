@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Corsican messages ***
+; *** Inno Setup version 7.2.0+ Corsican messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -76,7 +76,6 @@ OnlyOnTheseArchitectures=Stu prugramma pò solu esse installatu nant’à e vers
 WinVersionTooLowError=Stu prugramma richiede %1 versione %2 o più recente.
 WinVersionTooHighError=Stu prugramma ùn pò micca esse installatu nant’à %1 versione %2 o più recente.
 AdminPrivilegesRequired=Ci vole à esse cunnettu cum’è un amministratore per installà stu prugramma.
-PowerUserPrivilegesRequired=Ci vole à esse cunnettu cum’è un amministratore o fà parte di u gruppu « Utilizatori cù putere » per installà stu prugramma.
 SetupAppRunningError=L’assistente hà vistu chì %1 funziuneghja dighjà.%n%nCi vole à chjode tutte e so istanze avà, eppò sceglie Vai per cuntinuà, o Abbandunà per esce.
 UninstallAppRunningError=A disinstallazione hà vistu chì %1 funziuneghja dighjà.%n%nCi vole à chjode tutte e so istanze avà, eppò sceglie Vai per cuntinuà, o Abbandunà per esce.
 

@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Galician messages ***
+; *** Inno Setup version 7.2.0+ Galician messages ***
 
 ;Translated by MdL (email: mdl.dixital@gmail.com)
 
@@ -56,7 +56,6 @@ OnlyOnTheseArchitectures=Este programa só se pode instalar en versións de Wind
 WinVersionTooLowError=Este programa require %1 versión %2 ou posterior.
 WinVersionTooHighError=Este programa non se pode instalar en %1 versión %2 ou posterior.
 AdminPrivilegesRequired=Debe iniciar a sesión como administrador para instalar este programa.
-PowerUserPrivilegesRequired=Debe iniciar a sesión como administrador ou como membro do grupo de Usuarios Avanzados para instalar este programa.
 SetupAppRunningError=O programa de instalación detectou que %1 se está executando.%n%nPor favor, pécheo agora, despois prema en Aceptar para continuar ou en Cancelar para saír.
 UninstallAppRunningError=O desinstalador detectou que %1 se está executando.%n%nPor favor, pécheo agora, despois prema en Aceptar para continuar ou en Cancelar para saír.
 

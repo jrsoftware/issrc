@@ -37,7 +37,7 @@ const
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)',
      'Inno Setup Uninstall Log (b) 64-bit'); { '64-bit' refers to 64-bit install mode }
-  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (6.5.0) (u)';
+  MessagesHdrID: TMessagesHdrID = 'Inno Setup Messages (7.2.0) (u)';
   MessagesLangOptionsID: TMessagesLangOptionsID = '!mlo!670';
   ZLIBID: TCompID = 'zlb'#26;
   DiskSliceID: TDiskSliceID = 'idskb32'#26;
@@ -92,7 +92,7 @@ type
   TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm32, paArm64);
   TSetupProcessorArchitectures = set of TSetupProcessorArchitecture;
   TSetupDisablePage = (dpAuto, dpNo, dpYes);
-  TSetupPrivilegesRequired = (prNone, prPowerUser, prAdmin, prLowest);
+  TSetupPrivilegesRequired = (prNone, prAdmin, prLowest);
   TSetupPrivilegesRequiredOverride = (proCommandLine, proDialog);
   TSetupPrivilegesRequiredOverrides = set of TSetupPrivilegesRequiredOverride;
   TSetupWizardDarkStyle = (wdsLight, wdsDark, wdsDynamic);

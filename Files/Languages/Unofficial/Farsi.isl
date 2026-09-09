@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Farsi messages ***
+; *** Inno Setup version 7.2.0+ Farsi messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -63,7 +63,6 @@ OnlyOnTheseArchitectures=این برنامه تنها می‌تواند بر ر�
 WinVersionTooLowError=این برنامه نیازمند %1 نسخه %2 یا بالاتر است.
 WinVersionTooHighError=این برنامه نمی‌تواند بر روی %1 نسخه %2 یا بالاتر نصب شود.
 AdminPrivilegesRequired=هنگام نصب این برنامه، شما باید به عنوان یک کاربر مدیر وارد سیستم شده باشید.
-PowerUserPrivilegesRequired=در هنگام نصب این برنامه، شما باید به عنوان کاربر مدیر وارد سیستم شده باشید و یا اینکه عضو گروه Power Users باشید.
 SetupAppRunningError=نصب کننده تشخیص داده است که %1 هم اکنون در حال اجراست.%n%nلطفاً اکنون تمام نمونه های آن را بسته، و سپس برای ادامه بر روی تایید، و یا برای خروج بر روی انصراف کلیک کنید.
 UninstallAppRunningError=حذف کننده تشخیص داده است که %1 هم اکنون در حال اجراست.%n%nلطفاً اکنون تمام نمونه های آن را بسته، و سپس برای ادامه بر روی تایید، و یا برای خروج بر روی انصراف کلیک کنید.
 

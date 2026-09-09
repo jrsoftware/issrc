@@ -2757,10 +2757,7 @@ begin
       if IsWin64 then
         Include(UninstLog.Flags, ufWin64);
       if IsAdmin then { Setup or [Code] might have done administrative actions, even if IsAdminInstallMode is False }
-        Include(UninstLog.Flags, ufAdminInstalled)
-      else if IsPowerUserOrAdmin then
-        { Note: This flag is only set in 5.1.9 and later }
-        Include(UninstLog.Flags, ufPowerUserInstalled);
+        Include(UninstLog.Flags, ufAdminInstalled);
       if shUninstallRestartComputer in SetupHeader.Options then
         Include(UninstLog.Flags, ufAlwaysRestart);
       if ChangesEnvironment then

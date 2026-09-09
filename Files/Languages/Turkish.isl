@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Turkish messages ***
+; *** Inno Setup version 7.2.0+ Turkish messages ***
 ; Language	"Turkce" Turkish Translate by "Ceviren"	Kaya Zeren translator@zeron.net
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -82,8 +82,6 @@ OnlyOnTheseArchitectures=Bu uygulama, yalnızca şu işlemci mimarileri için ta
 WinVersionTooLowError=Bu uygulama için %1 sürüm %2 ya da üzeri gereklidir.
 WinVersionTooHighError=Bu uygulama, %1 sürüm %2 ya da üzerine kurulamaz.
 AdminPrivilegesRequired=Bu uygulamayı kurmak için Yönetici yetkileri olan bir kullanıcı ile oturum açılmış olmalıdır.
-; 'Power Users group' is an outdated term but should still be translated, not dropped or modernized
-PowerUserPrivilegesRequired=Bu uygulamayı kurarken, Yönetici ya da Güçlü Kullanıcılar grubundaki bir kullanıcı ile oturum açılmış olması gereklidir.
 ; 'instance' may also be translated as 'copy'
 SetupAppRunningError=Kurulum yardımcısı %1 uygulamasının açık olduğunu algıladı.%n%nLütfen uygulamanın tüm açık kopyalarını kapatıp, ilerlemek için Tamam, çıkmak için İptal üzerine tıklayın.
 UninstallAppRunningError=Kaldırma yardımcısı, %1 uygulamasının açık olduğunu algıladı.%n%nLütfen uygulamanın tüm açık kopyalarını kapatıp, ilerlemek için Tamam ya da çıkmak için İptal üzerine tıklayın.

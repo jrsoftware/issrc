@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Japanese messages ***
+; *** Inno Setup version 7.2.0+ Japanese messages ***
 ;
 ; Maintained by Koichi Shirasuka (shirasuka@eugrid.co.jp)
 ;
@@ -44,7 +44,6 @@ OnlyOnTheseArchitectures=このプログラムは%n%n%1プロセッサー向け�
 WinVersionTooLowError=このプログラムの実行には %1 %2 以降が必要です。
 WinVersionTooHighError=このプログラムは %1 %2 以降では動作しません。
 AdminPrivilegesRequired=このプログラムをインストールするためには管理者としてログインする必要があります。
-PowerUserPrivilegesRequired=このプログラムをインストールするためには管理者またはパワーユーザーとしてログインする必要があります。
 SetupAppRunningError=セットアップは実行中の %1 を検出しました。%n%n開いているアプリケーションをすべて閉じてから「OK」をクリックしてください。「キャンセル」をクリックすると、セットアップを終了します。
 UninstallAppRunningError=アンインストールは実行中の %1 を検出しました。%n%n開いているアプリケーションをすべて閉じてから「OK」をクリックしてください。「キャンセル」をクリックすると、セットアップを終了します。
 

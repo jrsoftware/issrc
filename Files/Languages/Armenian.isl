@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Armenian messages ***
+; *** Inno Setup version 7.2.0+ Armenian messages ***
 ;
 ; Armenian translation by Hrant Ohanyan
 ; E-mail: h.ohanyan@haysoft.org
@@ -51,7 +51,6 @@ OnlyOnTheseArchitectures=Այս ծրագրի տեղադրումը հնարավո
 WinVersionTooLowError=Այս ծրագիրը պահանջում է %1-ի տարբերակ %2 կամ ավելի նորը։
 WinVersionTooHighError=Ծրագիրը չի կարող տեղադրվել %1-ի տարբերակ %2 կամ ավելի նորում։
 AdminPrivilegesRequired=Ծրագիրը տեղադրելու համար պահանջվում են Վարիչի իրավունքներ։
-PowerUserPrivilegesRequired=Ծրագիրը տեղադրելու համար պետք է մուտք գործել համակարգ որպես Վարիչ կամ «Փորձառու օգտագործող» (Power Users)։
 SetupAppRunningError=Տեղակայիչը հայտնաբերել է, որ %1-ն աշխատում է։%n%nՓակեք այն և սեղմեք «Լավ»՝ շարունակելու համար կամ «Չեղարկել»՝ փակելու համար։
 UninstallAppRunningError=Ապատեղադրող ծրագիրը հայտնաբերել է, որ %1-ն աշխատում է։%n%nՓակեք այն և սեղմեք «Լավ»՝ շարունակելու համար կամ «Չեղարկել»՝ փակելու համար։
 

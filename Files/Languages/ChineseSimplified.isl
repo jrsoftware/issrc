@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Chinese Simplified messages ***
+; *** Inno Setup version 7.2.0+ Chinese Simplified messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -68,7 +68,6 @@ OnlyOnTheseArchitectures=此程序只能安装到为下列处理器架构设计�
 WinVersionTooLowError=此程序需要 %1 版本 %2 或更高。
 WinVersionTooHighError=此程序不能安装于 %1 版本 %2 或更高。
 AdminPrivilegesRequired=在安装此程序时您必须以管理员身份登录。
-PowerUserPrivilegesRequired=在安装此程序时您必须以管理员身份或高级用户组身份登录。
 SetupAppRunningError=安装程序检测到 %1 当前正在运行。%n%n请先关闭正在运行的程序，然后点击“确定”继续，或点击“取消”退出。
 UninstallAppRunningError=卸载程序检测到 %1 当前正在运行。%n%n请先关闭正在运行的程序，然后点击“确定”继续，或点击“取消”退出。
 

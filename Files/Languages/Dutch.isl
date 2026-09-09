@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Dutch messages ***
+; *** Inno Setup version 7.2.0+ Dutch messages ***
 ;
 ; This file is based on user-contributed translations by various authors
 ;
@@ -43,7 +43,6 @@ OnlyOnTheseArchitectures=Dit programma kan alleen geïnstalleerd worden onder ve
 WinVersionTooLowError=Dit programma vereist %1 versie %2 of hoger.
 WinVersionTooHighError=Dit programma kan niet worden geïnstalleerd onder %1 versie %2 of hoger.
 AdminPrivilegesRequired=U moet aangemeld zijn als een systeembeheerder om dit programma te kunnen installeren.
-PowerUserPrivilegesRequired=U moet aangemeld zijn als een systeembeheerder of als lid van de groep Hoofdgebruikers om dit programma te kunnen installeren.
 SetupAppRunningError=Setup heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle exemplaren hiervan, en klik daarna op OK om verder te gaan, of op Annuleren om Setup af te sluiten.
 UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle exemplaren hiervan, en klik daarna op OK om verder te gaan, of op Annuleren om het verwijderen af te breken.
 

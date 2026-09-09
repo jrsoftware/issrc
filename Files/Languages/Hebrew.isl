@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Hebrew messages (s_h(at)enativ.com) ***
+; *** Inno Setup version 7.2.0+ Hebrew messages (s_h(at)enativ.com) ***
 ;
 ;   https://jrsoftware.org/files/istrans/
 ;	Translated by s_h (s_h@enativ.com) (c) 2020
@@ -52,7 +52,6 @@ OnlyOnTheseArchitectures=ניתן להתקין תוכנה זו רק על גיר�
 WinVersionTooLowError=תוכנה זו מצריכה %1 לפחות בגרסה %2.
 WinVersionTooHighError=לא ניתן להתקין תוכנה זו על %1 בגירסה %2 או מאוחרת יותר.
 AdminPrivilegesRequired=אתה חייב להתחבר כמנהל המחשב כדי להתקין תוכנה זו.
-PowerUserPrivilegesRequired=עליך להתחבר כמנהל המחשב, או כחבר של קבוצת 'משתמשי על' כדי להתקין תוכנה זו.
 SetupAppRunningError=תוכנת ההתקנה איבחנה כי %1 כרגע פועלת ברקע.%n%nאנא סגור את כל החלונות שלה, ולחץ על 'אישור' להמשך, או 'ביטול' ליציאה.
 UninstallAppRunningError=תוכנת ההסרה איבחנה כי %1 כרגע פועלת ברקע.%n%nאנא סגור את כל החלונות שלה, ולחץ על 'אישור' להמשך, או 'ביטול' ליציאה.
 

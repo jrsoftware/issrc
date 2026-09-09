@@ -175,7 +175,6 @@ type
     msgPasswordLabel1,
     msgPasswordLabel3,
     msgPathLabel,
-    msgPowerUserPrivilegesRequired,
     msgPrepareToInstallNeedsRestart,
     msgPreparingDesc,
     msgPreviousInstallNotCompleted,

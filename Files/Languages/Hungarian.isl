@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Hungarian messages ***
+; *** Inno Setup version 7.2.0+ Hungarian messages ***
 ; Based on the translation of Kornél Pál, kornelpal@gmail.com
 ; István Szabó, E-mail: istvanszabo890629@gmail.com
 ;
@@ -59,7 +59,6 @@ OnlyOnTheseArchitectures=A program kizárólag a következő processzorarchitekt
 WinVersionTooLowError=A program futtatásához %1 %2 verziója vagy újabb szükséges.
 WinVersionTooHighError=Ez a program nem telepíthető %1 %2 vagy újabb verzióra.
 AdminPrivilegesRequired=Csak rendszergazdaként telepíthető ez a program.
-PowerUserPrivilegesRequired=Csak rendszergazdaként vagy kiemelt felhasználóként telepíthető ez a program.
 SetupAppRunningError=A telepítő úgy észlelte, hogy a(z) %1 jelenleg fut.%n%nZárja be az összes példányt, majd kattintson az 'OK'-ra a folytatáshoz, vagy a 'Mégse'-re a kilépéshez.
 UninstallAppRunningError=Az eltávolító úgy észlelte, hogy a(z) %1 jelenleg fut.%n%nZárja be az összes példányt, majd kattintson az 'OK'-ra a folytatáshoz, vagy a 'Mégse'-re a kilépéshez.
 

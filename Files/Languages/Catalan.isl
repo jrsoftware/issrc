@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Catalan messages ***
+; *** Inno Setup version 7.2.0+ Catalan messages ***
 ;
 ; Translated by Carles Millan (email: carles24@carlesmillan.cat) until 2025.
 ; Translated by Artur Vicedo (email: artur@softcatala.org) since 2025.
@@ -51,7 +51,6 @@ OnlyOnTheseArchitectures=Aquest programa només pot ser instal·lat en versions 
 WinVersionTooLowError=Aquest programa requereix %1 versió %2 o posterior.
 WinVersionTooHighError=Aquest programa no pot ser instal·lat sota %1 versió %2 o posterior.
 AdminPrivilegesRequired=Cal que tingueu privilegis d'administrador per poder instal·lar aquest programa.
-PowerUserPrivilegesRequired=Cal que accediu com a administrador o com a membre del grup Power Users en instal·lar aquest programa.
 SetupAppRunningError=El programa d'instal·lació ha detectat que %1 s'està executant actualment.%n%nTanqueu el programa i premeu Accepta per a continuar o Cancel·la per a sortir.
 UninstallAppRunningError=El programa de desinstal·lació ha detectat que %1 s'està executant en aquest moment.%n%nTanqueu el programa i premeu Accepta per a continuar o Cancel·la per a sortir.
 

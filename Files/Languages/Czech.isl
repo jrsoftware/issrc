@@ -1,6 +1,6 @@
 ; *******************************************************
 ; ***                                                 ***
-; *** Inno Setup version 6.5.0+ Czech messages        ***
+; *** Inno Setup version 7.2.0+ Czech messages        ***
 ; ***                                                 ***
 ; *** Original Author:                                ***
 ; ***                                                 ***
@@ -53,7 +53,6 @@ OnlyOnTheseArchitectures=Tento produkt lze nainstalovat pouze ve verzích MS Win
 WinVersionTooLowError=Tento produkt vyžaduje %1 verzi %2 nebo vyšší.
 WinVersionTooHighError=Tento produkt nelze nainstalovat ve %1 verzi %2 nebo vyšší.
 AdminPrivilegesRequired=K instalaci tohoto produktu musíte být přihlášeni s oprávněními správce.
-PowerUserPrivilegesRequired=K instalaci tohoto produktu musíte být přihlášeni s oprávněními správce nebo člena skupiny Power Users.
 SetupAppRunningError=Průvodce instalací zjistil, že produkt %1 je nyní spuštěn.%n%nZavřete prosím všechny instance tohoto produktu a pak pokračujte klepnutím na tlačítko OK, nebo ukončete instalaci tlačítkem Zrušit.
 UninstallAppRunningError=Průvodce odinstalací zjistil, že produkt %1 je nyní spuštěn.%n%nZavřete prosím všechny instance tohoto produktu a pak pokračujte klepnutím na tlačítko OK, nebo ukončete odinstalaci tlačítkem Zrušit.
 

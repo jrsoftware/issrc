@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Slovenian messages ***
+; *** Inno Setup version 7.2.0+ Slovenian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -49,7 +49,6 @@ OnlyOnTheseArchitectures=Program lahko namestite le na Windows sistemih, na nasl
 WinVersionTooLowError=Ta program zahteva %1 različico %2 ali novejšo.
 WinVersionTooHighError=Tega programa ne morete namestiti v %1 različice %2 ali novejše.
 AdminPrivilegesRequired=Za namestitev programa morate biti prijavljeni v račun s skrbniškimi pravicami.
-PowerUserPrivilegesRequired=Za namestitev programa morate biti prijavljeni v račun s skrbniškimi ali power user pravicami.
 SetupAppRunningError=Program %1 je trenutno odprt.%n%nZaprite program, nato kliknite V redu za nadaljevanje ali Prekliči za izhod.
 UninstallAppRunningError=Program %1 je trenutno odprt.%n%nZaprite program, nato kliknite V redu za nadaljevanje ali Prekliči za izhod.
 

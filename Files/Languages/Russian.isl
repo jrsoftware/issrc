@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Russian messages ***
+; *** Inno Setup version 7.2.0+ Russian messages ***
 ;
 ; Translated from English by Dmitry Kann, https://yktoo.com
 ;
@@ -56,7 +56,6 @@ OnlyOnTheseArchitectures=Установка этой программы возм
 WinVersionTooLowError=Эта программа требует %1 версии %2 или выше.
 WinVersionTooHighError=Программа не может быть установлена в %1 версии %2 или выше.
 AdminPrivilegesRequired=Чтобы установить данную программу, вы должны выполнить вход в систему как Администратор.
-PowerUserPrivilegesRequired=Чтобы установить эту программу, вы должны выполнить вход в систему как Администратор или член группы «Опытные пользователи» (Power Users).
 SetupAppRunningError=Обнаружен запущенный экземпляр %1.%n%nПожалуйста, закройте все экземпляры приложения, затем нажмите «OK», чтобы продолжить, или «Отмена», чтобы выйти.
 UninstallAppRunningError=Деинсталлятор обнаружил запущенный экземпляр %1.%n%nПожалуйста, закройте все экземпляры приложения, затем нажмите «OK», чтобы продолжить, или «Отмена», чтобы выйти.
 

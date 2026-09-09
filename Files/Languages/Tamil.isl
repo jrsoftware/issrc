@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Tamil messages ***
+; *** Inno Setup version 7.2.0+ Tamil messages ***
 ; தமிழ்நேரம் (https://TamilNeram.github.io)
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -57,7 +57,6 @@ OnlyOnTheseArchitectures=இந்த நிரலை பின்வரும�
 WinVersionTooLowError=இந்த நிரலுக்கு %1 பதிப்பு %2 அல்லது அதற்குப் பிறகு தேவைப்படுகிறது.
 WinVersionTooHighError=இந்த நிரலை %1 பதிப்பு %2 அல்லது அதற்குப் பிறகு நிறுவ முடியாது.
 AdminPrivilegesRequired=இந்த நிரலை நிறுவும் போது நீங்கள் நிர்வாகியாக உள்நுழைய வேண்டும்.
-PowerUserPrivilegesRequired=இந்த நிரலை நிறுவும் போது நீங்கள் ஒரு நிர்வாகியாகவோ அல்லது ஆற்றல் பயனர்கள் குழுவின் உறுப்பினராகவோ உள்நுழைந்திருக்க வேண்டும்.
 SetupAppRunningError=%1 தற்போது இயங்குகிறது என்பதை அமைவு கண்டறிந்துள்ளது.%n%nஅதன் எல்லா நிகழ்வுகளையும் இப்போது மூடு, பின்னர் தொடர சரி என்பதைக் சொடுக்குக, அல்லது வெளியேற ரத்துசெய்.
 UninstallAppRunningError=%1 தற்போது இயங்குகிறது என்பதை நிறுவல் நீக்குதல் கண்டறிந்துள்ளது.%n%nஅதன் எல்லா நிகழ்வுகளையும் இப்போது மூடு, பின்னர் தொடர சரி என்பதைக் சொடுக்குக, அல்லது வெளியேற ரத்துசெய்.
 

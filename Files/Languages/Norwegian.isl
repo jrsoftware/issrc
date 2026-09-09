@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Norwegian (bokmål) messages ***
+; *** Inno Setup version 7.2.0+ Norwegian (bokmål) messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -55,7 +55,6 @@ OnlyOnTheseArchitectures=Dette programmet kan kun installeres i Windows-versjone
 WinVersionTooLowError=Dette programmet krever %1 versjon %2 eller nyere.
 WinVersionTooHighError=Dette programmet kan ikke installeres på %1 versjon %2 eller nyere.
 AdminPrivilegesRequired=Administrator-rettigheter kreves for å installere dette programmet.
-PowerUserPrivilegesRequired=Du må være logget inn som administrator eller ha administrator-rettigheter når du installerer dette programmet.
 SetupAppRunningError=Installasjonsprogrammet har funnet ut at %1 kjører.%n%nVennligst avslutt det nå og klikk deretter OK for å fortsette, eller Avbryt for å avslutte.
 UninstallAppRunningError=Avinstallasjonsprogrammet har funnet ut at %1 kjører.%n%nVennligst avslutt det nå og klikk deretter OK for å fortsette, eller Avbryt for å avslutte.
 

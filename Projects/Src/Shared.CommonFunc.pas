@@ -166,7 +166,6 @@ function GetShellFolderPath(const FolderID: Integer): String; overload;
 function GetShellFolderPath(const FolderID: Integer; out Path: String): HRESULT; overload;
 function GetCurrentUserSid: String;
 function IsAdminLoggedOn: Boolean;
-function IsPowerUserLoggedOn: Boolean;
 function FontExists(const FaceName: String): Boolean;
 function GetUILanguage: LANGID;
 function RemoveAccelChar(const S: String;
@@ -1126,96 +1125,88 @@ begin
   end;
 end;
 
-function IsMemberOfGroup(const DomainAliasRid: DWORD): Boolean;
-{ Returns True if the logged-on user is a member of the specified local
-  group. }
-const
-  SECURITY_NT_AUTHORITY: TSIDIdentifierAuthority =
-    (Value: (0, 0, 0, 0, 0, 5));
-  SECURITY_BUILTIN_DOMAIN_RID = $00000020;
-  SE_GROUP_ENABLED           = $00000004;
-  SE_GROUP_USE_FOR_DENY_ONLY = $00000010;
-var
-  Sid: PSID;
-  CheckTokenMembership: function(TokenHandle: THandle; SidToCheck: PSID;
-    var IsMember: BOOL): BOOL; stdcall;
-  IsMember: BOOL;
-  Token: THandle;
-  GroupInfoSize: DWORD;
-  GroupInfo: PTokenGroups;
-begin
-  Result := False;
-
-  if not AllocateAndInitializeSid(SECURITY_NT_AUTHORITY, 2,
-     SECURITY_BUILTIN_DOMAIN_RID, DomainAliasRid,
-     0, 0, 0, 0, 0, 0, Sid) then
-    Exit;
-  try
-    { Use CheckTokenMembership if available. MSDN states:
-      "The CheckTokenMembership function should be used with Windows 2000 and
-      later to determine whether a specified SID is present and enabled in an
-      access token. This function eliminates potential misinterpretations of
-      the active group membership if changes to access tokens are made in
-      future releases." }
-    CheckTokenMembership := GetProcAddress(GetModuleHandle(advapi32),
-      'CheckTokenMembership');
-    if Assigned(CheckTokenMembership) then begin
-      if CheckTokenMembership(0, Sid, IsMember) then
-        Result := IsMember;
-    end
-    else begin { Should never happen }
-      GroupInfo := nil;
-      if not OpenThreadToken(GetCurrentThread, TOKEN_QUERY, True, Token) then begin
-        if GetLastError <> ERROR_NO_TOKEN then
-          Exit;
-        if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, Token) then
-          Exit;
-      end;
-      try
-        GroupInfoSize := 0;
-        if not GetTokenInformation(Token, TokenGroups, nil, 0, GroupInfoSize) and
-           (GetLastError <> ERROR_INSUFFICIENT_BUFFER) then
-          Exit;
-
-        GetMem(GroupInfo, GroupInfoSize);
-        if not GetTokenInformation(Token, TokenGroups, GroupInfo,
-           GroupInfoSize, GroupInfoSize) then
-          Exit;
-
-        for var I := 0 to GroupInfo.GroupCount-1 do begin
-          if EqualSid(Sid, GroupInfo.Groups[I].Sid) and
-             (GroupInfo.Groups[I].Attributes and (SE_GROUP_ENABLED or
-              SE_GROUP_USE_FOR_DENY_ONLY) = SE_GROUP_ENABLED) then begin
-            Result := True;
-            Break;
-          end;
-        end;
-      finally
-        FreeMem(GroupInfo);
-        CloseHandle(Token);
-      end;
-    end;
-  finally
-    FreeSid(Sid);
-  end;
-end;
-
 function IsAdminLoggedOn: Boolean;
 { Returns True if the logged-on user is a member of the Administrators local
   group. }
+
+  function IsMemberOfGroup(const DomainAliasRid: DWORD): Boolean;
+  { Returns True if the logged-on user is a member of the specified local
+    group. }
+  const
+    SECURITY_NT_AUTHORITY: TSIDIdentifierAuthority =
+      (Value: (0, 0, 0, 0, 0, 5));
+    SECURITY_BUILTIN_DOMAIN_RID = $00000020;
+    SE_GROUP_ENABLED           = $00000004;
+    SE_GROUP_USE_FOR_DENY_ONLY = $00000010;
+  var
+    Sid: PSID;
+    CheckTokenMembership: function(TokenHandle: THandle; SidToCheck: PSID;
+      var IsMember: BOOL): BOOL; stdcall;
+    IsMember: BOOL;
+    Token: THandle;
+    GroupInfoSize: DWORD;
+    GroupInfo: PTokenGroups;
+  begin
+    Result := False;
+
+    if not AllocateAndInitializeSid(SECURITY_NT_AUTHORITY, 2,
+       SECURITY_BUILTIN_DOMAIN_RID, DomainAliasRid,
+       0, 0, 0, 0, 0, 0, Sid) then
+      Exit;
+    try
+      { Use CheckTokenMembership if available. MSDN states:
+        "The CheckTokenMembership function should be used with Windows 2000 and
+        later to determine whether a specified SID is present and enabled in an
+        access token. This function eliminates potential misinterpretations of
+        the active group membership if changes to access tokens are made in
+        future releases." }
+      CheckTokenMembership := GetProcAddress(GetModuleHandle(advapi32),
+        'CheckTokenMembership');
+      if Assigned(CheckTokenMembership) then begin
+        if CheckTokenMembership(0, Sid, IsMember) then
+          Result := IsMember;
+      end
+      else begin { Should never happen }
+        GroupInfo := nil;
+        if not OpenThreadToken(GetCurrentThread, TOKEN_QUERY, True, Token) then begin
+          if GetLastError <> ERROR_NO_TOKEN then
+            Exit;
+          if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, Token) then
+            Exit;
+        end;
+        try
+          GroupInfoSize := 0;
+          if not GetTokenInformation(Token, TokenGroups, nil, 0, GroupInfoSize) and
+             (GetLastError <> ERROR_INSUFFICIENT_BUFFER) then
+            Exit;
+
+          GetMem(GroupInfo, GroupInfoSize);
+          if not GetTokenInformation(Token, TokenGroups, GroupInfo,
+             GroupInfoSize, GroupInfoSize) then
+            Exit;
+
+          for var I := 0 to GroupInfo.GroupCount-1 do begin
+            if EqualSid(Sid, GroupInfo.Groups[I].Sid) and
+               (GroupInfo.Groups[I].Attributes and (SE_GROUP_ENABLED or
+                SE_GROUP_USE_FOR_DENY_ONLY) = SE_GROUP_ENABLED) then begin
+              Result := True;
+              Break;
+            end;
+          end;
+        finally
+          FreeMem(GroupInfo);
+          CloseHandle(Token);
+        end;
+      end;
+    finally
+      FreeSid(Sid);
+    end;
+  end;
+
 const
   DOMAIN_ALIAS_RID_ADMINS = $00000220;
 begin
   Result := IsMemberOfGroup(DOMAIN_ALIAS_RID_ADMINS);
-end;
-
-function IsPowerUserLoggedOn: Boolean;
-{ Returns True if the logged-on user is a member of the Power Users local
-  group. }
-const
-  DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
-begin
-  Result := IsMemberOfGroup(DOMAIN_ALIAS_RID_POWER_USERS);
 end;
 
 function FontExistsCallback(const lplf: TLogFont; const lptm: TTextMetric;

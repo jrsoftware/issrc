@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ arabic messages ***
+; *** Inno Setup version 7.2.0+ arabic messages ***
 ; Arabic translation  Translated by nacer baaziz (nacerstile@gmail.com)
 ;
 ; To download user-contributed translations of this file, go to:
@@ -59,7 +59,6 @@ OnlyOnTheseArchitectures=يمكن تثبيت هذا البرنامج فقط عل
 WinVersionTooLowError=هذا البرنامج يتطلب %1 الإصدار %2 أو أعلى.
 WinVersionTooHighError=لا يمكن تثبيت هذا البرنامج على %1 الإصدار %2 أو أعلى.
 AdminPrivilegesRequired=يجب أن يتم تسجيل دخولك كمسؤول عند تثبيت هذا البرنامج.
-PowerUserPrivilegesRequired=يجب أن يتم تسجيل دخولك كمسؤول أو أن تكون عضو في مجموعة المستخدمين المميزين عند تثبيت هذا البرنامج.
 SetupAppRunningError=لقد كشف معالج الإعداد أن %1 يعمل بالفعل.%n%nيرجى إغلاق كل أجزائه الآن، ثم إضغط حسنا للمتابعة أو إلغاء الأمر للخروج.
 UninstallAppRunningError=كشف معالج إلغاء التثبيت بأن %1 يعمل بالفعل.%n%nيرجى إغلاق كل أجزائه الآن، ثم إضغط حسنا للمتابعة أو إلغاء الأمر للخروج.
 

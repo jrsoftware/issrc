@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Greek messages ***
+; *** Inno Setup version 7.2.0+ Greek messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -62,7 +62,6 @@ OnlyOnTheseArchitectures=Αυτό το πρόγραμμα μπορεί να εγ
 WinVersionTooLowError=Αυτό το πρόγραμμα απαιτεί %1 έκδοση %2 ή μεταγενέστερη.
 WinVersionTooHighError=Αυτό το πρόγραμμα δεν μπορεί να εγκατασταθεί σε %1 έκδοση %2 ή μεταγενέστερη.
 AdminPrivilegesRequired=Πρέπει να είστε συνδεδεμένοι ως διαχειριστής κατά την εγκατάσταση αυτού του προγράμματος.
-PowerUserPrivilegesRequired=Πρέπει να είστε συνδεδεμένοι ως διαχειριστής ή ως μέλος της ομάδας Power User κατά την εγκατάσταση αυτού του προγράμματος.
 SetupAppRunningError=Ο Οδηγός Εγκατάστασης εντόπισε ότι η εφαρμογή %1 εκτελείται ήδη.%n%nΠαρακαλώ κλείστε την εφαρμογή τώρα και πατήστε ΟΚ για να συνεχίσετε, ή Άκυρο για έξοδο.
 UninstallAppRunningError=Ο Οδηγός Απεγκατάστασης εντόπισε ότι η εφαρμογή %1 εκτελείται ήδη.%n%nΠαρακαλώ κλείστε την εφαρμογή τώρα και πατήστε ΟΚ για να συνεχίσετε, ή Άκυρο για έξοδο.
 

@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Croatian messages ***
+; *** Inno Setup version 7.2.0+ Croatian messages ***
 ; Translated by: Milo Ivir (mail@milotype.de)
 ; Based on translation by Elvis Gambiraža (el.gambo@gmail.com)
 ; Based on translation by Krunoslav Kanjuh (krunoslav.kanjuh@zg.t-com.hr)
@@ -62,7 +62,6 @@ OnlyOnTheseArchitectures=Program se može instalirati na Windows verzijama za sl
 WinVersionTooLowError=Program zahtijeva %1 verziju %2 ili noviju.
 WinVersionTooHighError=Program se ne može instalirati na %1 verziji %2 ili novijoj.
 AdminPrivilegesRequired=Za instaliranje programa moraš biti prijavljen/a kao administrator.
-PowerUserPrivilegesRequired=Za instaliranje programa moraš biti prijavljen/a kao administrator ili kao član grupe naprednih korisnika.
 SetupAppRunningError=Instalacija je otkrila da je %1 trenutačno pokrenut.%n%nZatvori program i potom pritisni "Dalje" za nastavak ili "Odustani" za prekid.
 UninstallAppRunningError=Deinstalacija je otkrila da je %1 trenutačno pokrenut.%n%nZatvori program i potom pritisni "Dalje" za nastavak ili "Odustani" za prekid.
 

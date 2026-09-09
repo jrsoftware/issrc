@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Thai messages ***
+; *** Inno Setup version 7.2.0+ Thai messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -59,7 +59,6 @@ OnlyOnTheseArchitectures=โปรแกรมนี้สามารถติ�
 WinVersionTooLowError=โปรแกรมนี้ต้องใช้ %1 เวอร์ชั่น %2 ขึ้นไป
 WinVersionTooHighError=โปรแกรมนี้ไม่สามารถติดตั้งบน %1 เวอร์ชั่น %2 ขึ้นไปได้
 AdminPrivilegesRequired=คุณจำเป็นต้องล็อกอินเป็นผู้ดูแลระบบในการติดตั้งโปรแกรมนี้
-PowerUserPrivilegesRequired=คุณต้องล็อกอินเป็นผู้ดูแลระบบหรือเป็นสมาชิกของกลุ่ม Power Users ในการติดตั้งโปรแกรมนี้
 SetupAppRunningError=ตัวติดตั้งได้พบว่า %1 กำลังถูกใช้งานอยู่%n%nโปรดปิดทุกโปรเซสที่เกี่ยวข้องตอนนี้แล้วคลิกตกลงเพื่อดำเนินการต่อ และกดยกเลิกเพื่อออก
 UninstallAppRunningError=ตัวถอนการติดตั้งไปพบว่า %1 กำลังถูกใช้งานอยู่%n%nโปรดปิดทุกโปรเซสที่เกี่ยวข้องตอนนี้แล้วคลิกตกลงเพื่อดำเนินการต่อ และกดยกเลิกเพื่อออก
 

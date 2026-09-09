@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Afrikaans messages ***
+; *** Inno Setup version 7.2.0+ Afrikaans messages ***
 ;
 ; Created by: Leon Odendaal
 ; E-mail:     leonrsa@gmail.com
@@ -60,7 +60,6 @@ OnlyOnTheseArchitectures=Hierdie program kan net installeer word op weergawes va
 WinVersionTooLowError=Hierdie program vereis %1 weergawe %2 of nuwer.
 WinVersionTooHighError=Hierdie program kan nie installeer word op %1 weergawe %2 of nuwer nie.
 AdminPrivilegesRequired=U moet ingeteken wees as 'n administrateur om hierdie program te installeer.
-PowerUserPrivilegesRequired=U moet aangeteken wees as 'n administrateur of as 'n lid van die Power Users groep om hierdie program te installeer.
 SetupAppRunningError=Die installeerder het bespeur dat %1 op die oomblik loop.%n%nMaak asb. nou alle kopiee daarvan toe, en kliek dan Aanvaar om voort te gaan, of Kanselleer om die installasie te verlaat.
 UninstallAppRunningError=Verwyder het bespeur dat %1 op die oomblik oop is.%n%nMaak asb. alle kopiee daarvan toe, en kliek dan op Aanvaar om voort te gaan, of Kanselleer om die verwyderaar te verlaat.
 

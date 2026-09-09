@@ -762,10 +762,6 @@ var
     begin
       Stack.SetBool(PStart, IsAdmin);
     end);
-    RegisterScriptFunc('ISPOWERUSERLOGGEDON', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetBool(PStart, IsPowerUserLoggedOn);
-    end);
     RegisterScriptFUnc('ISADMININSTALLMODE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetBool(PStart, IsAdminInstallMode);

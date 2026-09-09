@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Swedish messages ***
+; *** Inno Setup version 7.2.0+ Swedish messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -65,7 +65,6 @@ OnlyOnTheseArchitectures=Detta program kan bara installeras på Windows-versione
 WinVersionTooLowError=Detta program kräver %1 version %2 eller senare.
 WinVersionTooHighError=Detta program kan inte installeras på %1 version %2 eller senare.
 AdminPrivilegesRequired=Du måste vara inloggad som administratör när du installerar detta program.
-PowerUserPrivilegesRequired=Du måste vara inloggad som administratör eller medlem av gruppen Privilegierade användare (Power Users) när du installerar detta program.
 SetupAppRunningError=Installationsprogrammet har upptäckt att %1 är igång.%n%nAvsluta det angivna programmet nu. Klicka sedan på OK för att gå vidare eller på Avbryt för att avsluta.
 UninstallAppRunningError=Avinstalleraren har upptäckt att %1 körs för tillfället.%n%nStäng all öppna instanser av det nu, klicka sedan på OK för att gå vidare eller på Avbryt för att avsluta.
 

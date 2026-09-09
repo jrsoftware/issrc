@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Korean messages ***
+; *** Inno Setup version 7.2.0+ Korean messages ***
 
 ; ▒ 6.3.0 ~ 6.5.0 Translator: VenusGirl (venusgirl@outlook.com)
 ; ▒ 6.2.0 Translator: Logan.Hwang (logan.hwang@blueant.kr)
@@ -85,8 +85,6 @@ OnlyOnTheseArchitectures=이 프로그램은 다음 프로세서 아키텍처용
 WinVersionTooLowError=이 프로그램에는 %1 버전 %2 이상이 필요합니다.
 WinVersionTooHighError=%1 버전 %2 이상에 이 프로그램을 설치할 수 없습니다.
 AdminPrivilegesRequired=이 프로그램을 설치할 때 관리자로 로그인해야 합니다.
-; 'Power Users group'은 구식 용어이지만 여전히 번역해야 하며, 삭제하거나 현대화해서는 안 됩니다
-PowerUserPrivilegesRequired=이 프로그램을 설치할 때 관리자 또는 Power Users 그룹의 구성원으로 로그인해야 합니다.
 ; 'instance'는 '복사본'으로도 번역될 수 있습니다
 SetupAppRunningError=설치 프로그램에서 %1이(가) 현재 실행 중임을 감지했습니다.%n%n지금 모든 인스턴스를 닫은 다음 확인을 클릭하여 계속하거나 취소를 클릭하여 종료하세요.
 UninstallAppRunningError=제거에서 %1이(가) 현재 실행 중임을 감지했습니다.%n%n지금 모든 인스턴스를 닫은 다음 확인을 클릭하여 계속하거나 취소를 클릭하여 종료하세요.

@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Finnish messages ***
+; *** Inno Setup version 7.2.0+ Finnish messages ***
 ;
 ; Finnish translation by Antti Karttunen
 ; E-mail: antti.j.karttunen@iki.fi
@@ -42,7 +42,6 @@ OnlyOnTheseArchitectures=Tämä ohjelma voidaan asentaa vain niihin Windowsin ve
 WinVersionTooLowError=Tämä ohjelma vaatii version %2 tai myöhemmän %1-käyttöjärjestelmästä.
 WinVersionTooHighError=Tätä ohjelmaa ei voi asentaa %1-käyttöjärjestelmän versioon %2 tai myöhempään.
 AdminPrivilegesRequired=Sinun täytyy kirjautua sisään järjestelmänvalvojana asentaaksesi tämän ohjelman.
-PowerUserPrivilegesRequired=Sinun täytyy kirjautua sisään järjestelmänvalvojana tai tehokäyttäjänä asentaaksesi tämän ohjelman.
 SetupAppRunningError=Asennus löysi käynnissä olevan kopion ohjelmasta %1.%n%nSulje kaikki käynnissä olevat kopiot ohjelmasta ja valitse OK jatkaaksesi, tai valitse Peruuta poistuaksesi.
 UninstallAppRunningError=Asennuksen poisto löysi käynnissä olevan kopion ohjelmasta %1.%n%nSulje kaikki käynnissä olevat kopiot ohjelmasta ja valitse OK jatkaaksesi, tai valitse Peruuta poistuaksesi.
 

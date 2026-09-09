@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ French messages ***
+; *** Inno Setup version 7.2.0+ French messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -78,7 +78,6 @@ OnlyOnTheseArchitectures=Ce programme ne peut être installé que sur des versio
 WinVersionTooLowError=Ce programme requiert la version %2 ou supérieure de %1.
 WinVersionTooHighError=Ce programme ne peut pas être installé sous %1 version %2 ou supérieure.
 AdminPrivilegesRequired=Vous devez disposer des droits d'administration de cet ordinateur pour installer ce programme.
-PowerUserPrivilegesRequired=Vous devez disposer des droits d'administration ou faire partie du groupe « Utilisateurs avec pouvoir » de cet ordinateur pour installer ce programme.
 SetupAppRunningError=L'assistant d'installation a détecté que %1 est actuellement en cours d'exécution.%n%nVeuillez fermer toutes les instances de cette application puis cliquer sur OK pour continuer, ou bien cliquer sur Annuler pour abandonner l'installation.
 UninstallAppRunningError=La procédure de désinstallation a détecté que %1 est actuellement en cours d'exécution.%n%nVeuillez fermer toutes les instances de cette application puis cliquer sur OK pour continuer, ou bien cliquer sur Annuler pour abandonner la désinstallation.
 

@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Lithuanian messages ***
+; *** Inno Setup version 7.2.0+ Lithuanian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
@@ -82,8 +82,6 @@ OnlyOnTheseArchitectures=Ši programa gali būti įdiegta tik Windows versijose,
 WinVersionTooLowError=Ši programa reikalauja %1 %2 ar vėlesnės versijos.
 WinVersionTooHighError=Ši programa negali būti įdiegta %1 %2 ar vėlesnės versijos aplinkoje.
 AdminPrivilegesRequired=Šios programos diegimui privalote būti prisijungęs administratoriaus teisėmis.
-; 'Power Users group' is an outdated term but should still be translated, not dropped or modernized
-PowerUserPrivilegesRequired=Šios programos diegimui privalote būti prisijungęs administratoriaus arba „valdančiųjų vartotojų“ grupės nario teisėmis.
 ; 'instance' may also be translated as 'copy'
 SetupAppRunningError=Diegimo programa aptiko, kad yra paleista „%1“.%n%nDabar uždarykite visas paleistas šios programos kopijas ir, jei norite tęsti, paspauskite „Gerai“ arba „Atšaukti“, jei norite išeiti.
 UninstallAppRunningError=Pašalinimo programa aptiko, kad yra paleista „%1“.%n%nDabar uždarykite visas paleistas šios programos kopijas ir, jei norite tęsti, paspauskite „Gerai“ arba „Atšaukti“, jei norite išeiti.

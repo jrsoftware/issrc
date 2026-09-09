@@ -2297,9 +2297,8 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
     DOMAIN_ALIAS_RID_ADMINS = $00000220;
     DOMAIN_ALIAS_RID_USERS = $00000221;
     DOMAIN_ALIAS_RID_GUESTS = $00000222;
-    DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
     DOMAIN_ALIAS_RID_IIS_IUSRS = $00000238;
-    KnownSids: array[0..10] of TKnownSid = (
+    KnownSids: array[0..9] of TKnownSid = (
       (Name: 'admins';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 2;
@@ -2328,10 +2327,6 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 1;
              SubAuth: (SECURITY_NETWORK_SERVICE_RID, 0))),
-      (Name: 'powerusers';
-       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
-             SubAuthCount: 2;
-             SubAuth: (SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_POWER_USERS))),
       (Name: 'service';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 1;
@@ -3258,8 +3253,6 @@ begin
     ssPrivilegesRequired: begin
         if CompareText(Value, 'none') = 0 then
           SetupHeader.PrivilegesRequired := prNone
-        else if CompareText(Value, 'poweruser') = 0 then
-          SetupHeader.PrivilegesRequired := prPowerUser
         else if CompareText(Value, 'admin') = 0 then
           SetupHeader.PrivilegesRequired := prAdmin
         else if CompareText(Value, 'lowest') = 0 then
@@ -4601,7 +4594,7 @@ const
     'deletekey', 'deletevalue', 'noerror', 'dontcreatekey');
   AccessMasks: array[0..2] of TNameAndAccessMask = (
     (Name: 'full'; Mask: $F003F),
-    (Name: 'modify'; Mask: $3001F), { <- same access that Power Users get by default on HKLM\SOFTWARE }
+    (Name: 'modify'; Mask: $3001F),
     (Name: 'read'; Mask: $20019));
 
   function ConvertBinaryString(const S: String): String;
@@ -8286,7 +8279,6 @@ var
   SetupMemoryFile: TMemoryFile;
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
     AppCopyrightHasConsts, AppIdHasConsts, Uninstallable: Boolean;
-  PrivilegesRequiredValue: String;
   GetActiveProcessorGroupCountFunc: function: WORD; stdcall;
 begin
   { Sanity check: A single TSetupCompiler instance cannot be used to do
@@ -9000,14 +8992,9 @@ begin
     CallIdleProc;
 
     if UsedUserAreasWarning and (UsedUserAreas.Count > 0) and
-       (SetupHeader.PrivilegesRequired in [prPowerUser, prAdmin]) then begin
-      if SetupHeader.PrivilegesRequired = prPowerUser then
-        PrivilegesRequiredValue := 'poweruser'
-      else
-        PrivilegesRequiredValue := 'admin';
+       (SetupHeader.PrivilegesRequired = prAdmin) then
       WarningsList.Add(Format(SCompilerUsedUserAreasWarning, ['Setup',
-        'PrivilegesRequired', PrivilegesRequiredValue, UsedUserAreas.CommaText]));
-    end;
+        'PrivilegesRequired', 'admin', UsedUserAreas.CommaText]));
 
     var DllNameExtension: String;
     if SetupArchitecture = sa64bit then

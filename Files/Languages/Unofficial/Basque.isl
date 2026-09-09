@@ -1,4 +1,4 @@
-; *** Inno Setup version 6.5.0+ Basque messages ***
+; *** Inno Setup version 7.2.0+ Basque messages ***
 ;
 ; Basque Translation: (EUS_Xabier Aramendi) (azpidatziak@gmail.com)
 ; Default.isl 6.5.0 translation: Marimar (bmarimar2@gmail.com) 
@@ -61,7 +61,6 @@ OnlyOnTheseArchitectures=Programa hau hurrengo Windows arkitekturatarako diseina
 WinVersionTooLowError=Programa honek %1 bertsioa %2 edo berriagoa behar du.
 WinVersionTooHighError=Programa hau ezin da %1 bertsioa %2 edo berriagoan ezarria izan.
 AdminPrivilegesRequired=Administrari bezala izena-emanda egon behar zara programa hau ezartzeko.
-PowerUserPrivilegesRequired=Administrari bezala izena-emanda edo Boteredun Erabiltzaile taldeko kide bezala egon behar zara programa hau ezartzerakoan.
 SetupAppRunningError=Ezartzaileak %1 ekinean dagoela atzeman du.%n%nMesedez itxi bere eskabide guztiak orain, orduan klikatu Ongi jarritzeko, edo Ezeztatu irtetzeko.
 UninstallAppRunningError=Kentzaileak %1 ekinean dagoela atzeman du.%n%nMesedez itxi bere eskabide guztiak orain, orduan klikatu Ongi jarritzeko, edo Ezeztatu irtetzeko.
 

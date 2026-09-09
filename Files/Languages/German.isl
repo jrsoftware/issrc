@@ -1,6 +1,6 @@
 ; ******************************************************
 ; ***                                                ***
-; *** Inno Setup version 6.5.0+ German messages      ***
+; *** Inno Setup version 7.2.0+ German messages      ***
 ; ***                                                ***
 ; *** Changes 6.0.0+ Author:                         ***
 ; ***                                                ***
@@ -78,7 +78,6 @@ OnlyOnTheseArchitectures=Dieses Programm kann nur auf Windows-Versionen installi
 WinVersionTooLowError=Dieses Programm benötigt %1 Version %2 oder höher.
 WinVersionTooHighError=Dieses Programm kann nicht unter %1 Version %2 oder höher installiert werden.
 AdminPrivilegesRequired=Sie müssen als Administrator angemeldet sein, um dieses Programm installieren zu können.
-PowerUserPrivilegesRequired=Sie müssen als Administrator oder als Mitglied der Hauptbenutzer-Gruppe angemeldet sein, um dieses Programm installieren zu können.
 SetupAppRunningError=Das Setup hat entdeckt, dass %1 zurzeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
 UninstallAppRunningError=Die Deinstallation hat entdeckt, dass %1 zurzeit ausgeführt wird.%n%nBitte schließen Sie jetzt alle laufenden Instanzen und klicken Sie auf "OK", um fortzufahren, oder auf "Abbrechen", um zu beenden.
 
