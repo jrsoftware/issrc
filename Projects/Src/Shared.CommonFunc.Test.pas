@@ -197,6 +197,12 @@ begin
   Assert(RemoveAccelChar('是 (&Y)') = '是');
   { When RemoveParenthesizedAccessKeys=False is passed, only '&' is removed }
   Assert(RemoveAccelChar('新規(&N)...', False) = '新規(N)...');
+  { Parenthesized access key removal must not disturb adjacent access keys }
+  Assert(RemoveAccelChar('&(&A)') = '(A)');
+  Assert(RemoveAccelChar('& (&A)') = ' ');
+  Assert(RemoveAccelChar('& (&A)(&B)') = ' ');
+  Assert(RemoveAccelChar('Test(&A)&&') = 'Test&');
+  Assert(RemoveAccelChar('Test(&A)&B') = 'TestB');
 
   { AddPeriod: adds '.' only when the last character isn't sentence-terminating
     or a control character; idempotent on already-terminated strings }

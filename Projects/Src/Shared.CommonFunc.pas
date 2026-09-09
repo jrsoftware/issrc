@@ -1269,27 +1269,35 @@ function RemoveAccelChar(const S: String;
   const RemoveParenthesizedAccessKeys: Boolean = True): String;
 { Removes access key prefixes ('&') and optionally entire parenthesized access
   keys, which are used in CJK (e.g., 'File(&F)' -> 'File') }
-var
-  I: Integer;
 begin
   Result := S;
-  I := 1;
+  var I := 1;
+  var LookBehindStopIndex := I;
   while I <= Length(Result) do begin
     if Result[I] = '&' then begin
-      { Just like Vcl.Menus.StripHotkey. Note that its SysLocale.FarEast check
+      { Based on Vcl.Menus.StripHotkey. Note that its SysLocale.FarEast check
         is always True on UNICODE. }
       if RemoveParenthesizedAccessKeys and
-         (I > 1) and (Length(Result)-I >= 2) and
+         (I > LookBehindStopIndex) and (Length(Result)-I >= 2) and
          (Result[I-1] = '(') and (Result[I+2] = ')') then begin
-        Delete(Result, I-1, 4);
+        Dec(I);
+        Delete(Result, I, 4);
         { Unlike StripHotkey also remove a space in front of the access key,
           used by for example Chinese Traditional }
-        if (I > 2) and (Result[I-2] = ' ') then
-          Delete(Result, I-2, 1);
-      end else
+        if (I > LookBehindStopIndex) and (Result[I-1] = ' ') then begin
+          Dec(I);
+          Delete(Result, I, 1);
+        end;
+      end else begin
         Delete(Result, I, 1);
-    end;
-    Inc(I);
+        Inc(I);
+      end;
+      { Prevent double-processing of access key characters. For example, with
+        '&(&A)', '(' is an access key; it isn't also the start of a
+        parenthesized access key. }
+      LookBehindStopIndex := I;
+    end else
+      Inc(I);
   end;
 end;
 
