@@ -203,6 +203,7 @@ begin
   Assert(RemoveAccelChar('& (&A)(&B)') = ' ');
   Assert(RemoveAccelChar('Test(&A)&&') = 'Test&');
   Assert(RemoveAccelChar('Test(&A)&B') = 'TestB');
+  Assert(RemoveAccelChar('(&&)') = '(&)');
 
   { AddPeriod: adds '.' only when the last character isn't sentence-terminating
     or a control character; idempotent on already-terminated strings }

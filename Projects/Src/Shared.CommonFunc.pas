@@ -1279,7 +1279,8 @@ begin
         is always True on UNICODE. }
       if RemoveParenthesizedAccessKeys and
          (I > LookBehindStopIndex) and (Length(Result)-I >= 2) and
-         (Result[I-1] = '(') and (Result[I+2] = ')') then begin
+         (Result[I-1] = '(') and (Result[I+1] <> '&') and
+         (Result[I+2] = ')') then begin
         Dec(I);
         Delete(Result, I, 4);
         { Unlike StripHotkey also remove a space in front of the access key,
