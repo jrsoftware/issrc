@@ -2455,11 +2455,12 @@ var
 procedure RedirectionGuardConfigure(const AEnable: Boolean);
 const
   ProcessRedirectionTrustPolicy = TProcessMitigationPolicy(16);
-  EnforceRedirectionTrust = 1;
-  AuditRedirectionTrust = 2;
+  { In the C struct, these are actually bitfields }
+  EnforceRedirectionTrust_Flag = 1;
+  AuditRedirectionTrust_Flag = 2;
 var
   GetProcessMitigationPolicyFunc: function(hProcess: THandle;
-    MitigationPolicy: TProcessMitigationPolicy; lpBuffer: Pointer;
+    MitigationPolicy: TProcessMitigationPolicy; lpBuffer: PVOID;
     dwLength: SIZE_T): BOOL; stdcall;
   SetProcessMitigationPolicyFunc: function(MitigationPolicy: TProcessMitigationPolicy;
     lpBuffer: PVOID; dwLength: SIZE_T): BOOL; stdcall;
@@ -2469,10 +2470,15 @@ var
     var CurFlags: DWORD;
     if GetProcessMitigationPolicyFunc(GetCurrentProcess,
        ProcessRedirectionTrustPolicy, @CurFlags, SizeOf(CurFlags)) then begin
+      { Windows doesn't allow the Enforce and Audit flags to be set at the
+        same time (if you try, only Enforce sticks), so we don't need handling
+        for that. And we do not return 'Enforce'/'Audit' if any unknown flags
+        are set, because the unknown flags could conceivably alter the meaning
+        of the Enforce/Audit flags. }
       case CurFlags of
         0: Result := 'Disabled';
-        EnforceRedirectionTrust: Result := 'Enforce';
-        AuditRedirectionTrust: Result := 'Audit';
+        EnforceRedirectionTrust_Flag: Result := 'Enforce';
+        AuditRedirectionTrust_Flag: Result := 'Audit';
       else
         Result := Format('Unknown (%u)', [CurFlags]);
       end;
@@ -2499,7 +2505,7 @@ begin
     [GetCurrentMode]);
 
   if AEnable then begin
-    const Flags: DWORD = EnforceRedirectionTrust;
+    const Flags: DWORD = EnforceRedirectionTrust_Flag;
     if SetProcessMitigationPolicyFunc(ProcessRedirectionTrustPolicy, @Flags, SizeOf(Flags)) then begin
       IsRedirectionGuardEnabled := True;
       Log('RedirectionGuard: Mode changed to Enforce.');
