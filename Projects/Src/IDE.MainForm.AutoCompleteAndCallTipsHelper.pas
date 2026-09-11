@@ -92,6 +92,7 @@ class function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCal
 begin
   if PositionBeforeWordStartPos < WordStartLinePos then
     Exit(True);
+  AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
   const Style = AMemo.GetStyleAtPosition(PositionBeforeWordStartPos);
   if ISPPExpressionContext then
     Result := not TInnoSetupStyler.IsCommentOrISPPStringStyle(Style)
@@ -276,15 +277,6 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     { Don't auto start autocompletion after a character is typed if there are any
       word characters adjacent to the character }
     Result := (CharsBefore <= 1) and not CaretInsideWord;
-  end;
-
-  function StyleAllowsAutoStart(const LinePos, WordStartPos: Integer;
-    const ISPPExpressionContext: Boolean): Boolean;
-  begin
-    const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
-    AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
-    Result := _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos,
-      PositionBeforeWordStartPos, ISPPExpressionContext);
   end;
 
   function CanAutoCompleteValue(const Value: String): Boolean;
@@ -516,10 +508,11 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     if (Key = ' ') and OnlyWhiteSpaceBeforeWord(LinePos, WordStartPos) then
       Exit;
 
-    if (Key <> #0) and not StyleAllowsAutoStart(LinePos, WordStartPos, False) then
-      Exit;
-
     const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
+
+    if (Key <> #0) and not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos,
+         PositionBeforeWordStartPos, False) then
+      Exit;
 
     { Autocomplete event functions if the current word on the line has
       exactly 1 space before it which has the word 'function' or
@@ -681,7 +674,7 @@ begin
       inside the identifier }
     if (Key <> #0) and
        (not CanAutoStartAtWord(CharsBefore, AMemo.GetByteAtPosition(CaretPos) in ISPPIdentChars) or
-        not StyleAllowsAutoStart(LinePos, WordStartPos, True)) then
+        not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, AMemo.GetPositionBefore(WordStartPos), True)) then
       Exit;
     WordList := ISPPExpressionAutoCompleteWordList;
   end else if FMemosStyler.ISPPInstalled and IsPragmaContext then begin
@@ -691,7 +684,7 @@ begin
     CharsBefore := CaretPos - WordStartPos;
     if (Key <> #0) and
        (not CanAutoStartAtWord(CharsBefore, WordEndPos > CaretPos) or
-        not StyleAllowsAutoStart(LinePos, WordStartPos, True)) then
+        not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, AMemo.GetPositionBefore(WordStartPos), True)) then
       Exit;
     WordList := ISPPPragmaAutoCompleteWordList;
     FillupChars := ' ';
