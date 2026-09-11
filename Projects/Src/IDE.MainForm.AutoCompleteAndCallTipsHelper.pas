@@ -349,6 +349,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := False;
     Res := Default(TLineScanResult);
     var I := WordStartPos;
+    var FoundWhitespace := False;
     while I > LinePos do begin
       I := AMemo.GetPositionBefore(I);
       if I < LinePos then
@@ -414,13 +415,15 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
             we check for the expected style before '=', which is stKeyword or stComment,
             and only continue if we don't find that. }
           if not TInnoSetupStyler.IsCommentOrKeywordStyle(AMemo.GetStyleAtPosition(I)) then begin
-            Res.FoundMultipleSetupDirectiveValues := True;
+            if FoundWhitespace then
+              Res.FoundMultipleSetupDirectiveValues := True;
             I := AMemo.GetWordStartPosition(I, True);
           end else
             Exit;
         end else
           Exit; { Non-whitespace which should not be there }
-      end;
+      end else
+        FoundWhitespace := True;
     end;
     Result := True;
   end;
