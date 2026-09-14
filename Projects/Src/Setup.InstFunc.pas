@@ -60,6 +60,32 @@ type
     function OnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
   end;
 
+  TRedirectionGuardMode = record
+  strict private const
+    ProcessRedirectionTrustPolicy = TProcessMitigationPolicy(16);
+  strict private class var
+    FGetProcessMitigationPolicyFunc: function(hProcess: THandle;
+      MitigationPolicy: TProcessMitigationPolicy; lpBuffer: PVOID;
+      dwLength: SIZE_T): BOOL; stdcall;
+    FSetProcessMitigationPolicyFunc: function(
+      MitigationPolicy: TProcessMitigationPolicy; lpBuffer: PVOID;
+      dwLength: SIZE_T): BOOL; stdcall;
+  strict private
+    FValid: Boolean;
+    FFlags: DWORD;
+    class constructor Create;
+  public const
+    EnforceRedirectionTrustFlag = 1;
+    AuditRedirectionTrustFlag = 2;
+  public
+    class function Create(const AFlags: DWORD): TRedirectionGuardMode; static;
+    class function GetCurrentMode(out AModeAsString: String): TRedirectionGuardMode; static;
+    function Activate: Boolean;
+    function ToString: String;
+    property Flags: DWORD read FFlags;
+    property Valid: Boolean read FValid;
+  end;
+
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
 function DecrementSharedCount(const Key64Bit: Boolean; const Filename: String): Boolean;
@@ -1201,6 +1227,85 @@ begin
     Result := FOnExtractionProgress(ArchiveName, FileName, Progress, ProgressMax)
   else
     Result := True;
+end;
+
+{ TRedirectionGuardMode }
+
+class constructor TRedirectionGuardMode.Create;
+begin
+  const KernelModule = GetModuleHandle(kernel32);
+  FGetProcessMitigationPolicyFunc := GetProcAddress(KernelModule,
+    PAnsiChar('GetProcessMitigationPolicy'));
+  FSetProcessMitigationPolicyFunc := GetProcAddress(KernelModule,
+    PAnsiChar('SetProcessMitigationPolicy'));
+end;
+
+class function TRedirectionGuardMode.Create(
+  const AFlags: DWORD): TRedirectionGuardMode;
+begin
+  Result.FFlags := AFlags;
+  Result.FValid := True;
+end;
+
+class function TRedirectionGuardMode.GetCurrentMode(
+  out AModeAsString: String): TRedirectionGuardMode;
+begin
+  Result.FValid := False;
+  Result.FFlags := 0;
+  if Assigned(FGetProcessMitigationPolicyFunc) then begin
+    var CurFlags: DWORD;
+    if FGetProcessMitigationPolicyFunc(GetCurrentProcess,
+       ProcessRedirectionTrustPolicy, @CurFlags, SizeOf(CurFlags)) then begin
+      Result := Create(CurFlags);
+      AModeAsString := Result.ToString;
+    end else begin
+      const ErrorCode = GetLastError;
+      AModeAsString := Format(
+        '(GetProcessMitigationPolicy failed with error code %u)', [ErrorCode]);
+    end;
+  end else
+    AModeAsString := '(GetProcessMitigationPolicy unavailable)';
+end;
+
+function TRedirectionGuardMode.Activate: Boolean;
+begin
+  if not FValid then
+    InternalError('TRedirectionGuardMode.Activate: Mode invalid');
+  const ModeStr = ToString;
+  if Assigned(FSetProcessMitigationPolicyFunc) then begin
+    Result := FSetProcessMitigationPolicyFunc(
+      ProcessRedirectionTrustPolicy, @FFlags, SizeOf(FFlags));
+    if Result then
+      LogFmt('RedirectionGuard: Mode changed to %s.', [ModeStr])
+    else begin
+      const ErrorCode = GetLastError;
+      LogFmt('RedirectionGuard: Could not change mode to %s. ' +
+        '(SetProcessMitigationPolicy failed with error code %u)',
+        [ModeStr, ErrorCode]);
+    end;
+  end else begin
+    Result := False;
+    LogFmt('RedirectionGuard: Could not change mode to %s. ' +
+      '(SetProcessMitigationPolicy unavailable)', [ModeStr]);
+  end;
+end;
+
+function TRedirectionGuardMode.ToString: String;
+begin
+  if not FValid then
+    Exit('Invalid');
+  { Windows doesn't allow the Enforce and Audit flags to be set at the
+    same time (if you try, only Enforce sticks), so we don't need handling
+    for that. And we do not return 'Enforce'/'Audit' if any unknown flags
+    are set, because the unknown flags could conceivably alter the meaning
+    of the Enforce/Audit flags. }
+  case FFlags of
+    0: Result := 'Disabled';
+    EnforceRedirectionTrustFlag: Result := 'Enforce';
+    AuditRedirectionTrustFlag: Result := 'Audit';
+  else
+    Result := Format('Unknown (%u)', [FFlags]);
+  end;
 end;
 
 end.
