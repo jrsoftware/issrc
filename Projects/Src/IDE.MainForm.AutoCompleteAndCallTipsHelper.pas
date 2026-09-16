@@ -876,9 +876,11 @@ begin
   FCallTipState.CurrentCallTipWord := '';
   var LineText := AMemo.RawCaretLineText;
   var Current := AMemo.CaretColumn;
-  var CallTipWordCharacters := AMemo.WordCharsAsSet;
+  var CallTipWordCharacters: TSysCharSet;
   if ISPPExpressionContext then
-    CallTipWordCharacters := ISPPIdentChars; { Also see the ISPP CharsBefore scan in InitiateAutoComplete }
+    CallTipWordCharacters := ISPPIdentChars { Also see the ISPP CharsBefore scan in InitiateAutoComplete }
+  else
+    CallTipWordCharacters := PascalIdentChars;
 
   {$ZEROBASEDSTRINGS ON}
   repeat
