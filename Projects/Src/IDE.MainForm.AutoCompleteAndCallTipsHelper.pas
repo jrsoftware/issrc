@@ -120,7 +120,7 @@ class function TMainFormAutoCompleteAndCallTipsHelper.IsInISPPLineContext(
 begin
   { Allow autocompletion if the text before ScanEndPos on the line is an
     ISPP directive context because it starts with for example "#define X ",
-    "#define X=", "#:X ", "#:X=", "#emit ", "#=", "#dim X[" or "#pragma ".
+    "#define X=", "#:X ", "#:X=", "#emit ", "#=", "#dim X[", "#for {" or "#pragma ".
     IsPragmaContext is set to True for "#pragma ". }
   Result := False;
   IsPragmaContext := False;
@@ -174,7 +174,13 @@ begin
         IsPragmaContext := Pos = ScanEndPos;
         Exit(IsPragmaContext);
       end;
-      
+
+      { Check for #for: its expressions only start after the required '{' }
+      if SameText(Directive, 'for') then begin
+        Pos := SkipChars(Pos, WhitespaceChars);
+        Exit((Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) = '{'));
+      end;
+
       { Check for expression-supporting directives }
       ExpectIdent := SameText(Directive, 'define') or SameText(Directive, 'dim') or SameText(Directive, 'redim');
       if not ExpectIdent and not SameText(Directive, 'if') and not SameText(Directive, 'elif') and
@@ -872,7 +878,7 @@ begin
   var Current := AMemo.CaretColumn;
   var CallTipWordCharacters := AMemo.WordCharsAsSet;
   if ISPPExpressionContext then
-    Exclude(CallTipWordCharacters, '['); { Also see InitiateAutoComplete }
+    CallTipWordCharacters := ISPPIdentChars; { Also see the ISPP CharsBefore scan in InitiateAutoComplete }
 
   {$ZEROBASEDSTRINGS ON}
   repeat
