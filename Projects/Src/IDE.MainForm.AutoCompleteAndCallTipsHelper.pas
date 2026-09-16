@@ -111,6 +111,12 @@ class function TMainFormAutoCompleteAndCallTipsHelper.IsInISPPLineContext(
       Result := AMemo.GetPositionAfter(Result);
   end;
 
+  function IsScopeClause(const StartPos, EndPos: Integer): Boolean;
+  begin
+    const S = AMemo.GetTextRange(StartPos, EndPos);
+    Result := SameText(S, 'public') or SameText(S, 'protected') or SameText(S, 'private');
+  end;
+
 begin
   { Allow autocompletion if the text before ScanEndPos on the line is an
     ISPP directive context because it starts with for example "#define X ",
@@ -190,9 +196,19 @@ begin
     Exit;
 
   { Skip the identifier (not using GetWordEndPosition because '[' is a word char) }
+  const IdentStartPos = Pos;
   Pos := SkipChars(Pos, ISPPIdentChars);
   if Pos >= ScanEndPos then
     Exit;
+  if IsScopeClause(IdentStartPos, Pos) then begin
+    { That was a scope clause, skip the actual identifier (and the whitespace before it) }
+    Pos := SkipChars(Pos, WhitespaceChars);
+    if Pos >= ScanEndPos then
+      Exit;
+    Pos := SkipChars(Pos, ISPPIdentChars);
+    if Pos >= ScanEndPos then
+      Exit;
+  end;
 
   { For define: skip optional parameter list }
   if SameText(Directive, 'define') and (AMemo.GetByteAtPosition(Pos) = '(') then begin
