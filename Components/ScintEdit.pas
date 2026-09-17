@@ -141,7 +141,6 @@ type
     FUseTabCharacter: Boolean;
     FVirtualSpaceOptions: TScintVirtualSpaceOptions;
     FWordChars: AnsiString;
-    FWordCharsAsSet: TSysCharSet;
     FWordWrap: Boolean;
     procedure ApplyOptions;
     procedure ForwardMessage(const Message: TMessage);
@@ -433,7 +432,6 @@ type
     property Target: TScintRange read GetTarget;
     property TopLine: Integer read GetTopLine write SetTopLine;
     property WordChars: AnsiString read FWordChars;
-    property WordCharsAsSet: TSysCharSet read FWordCharsAsSet;
   published
     property AcceptDroppedFiles: Boolean read FAcceptDroppedFiles write SetAcceptDroppedFiles
       default False;
@@ -2257,9 +2255,6 @@ end;
 procedure TScintEdit.SetWordChars(const S: AnsiString);
 begin
   FWordChars := S;
-  FWordCharsAsSet := [];
-  for var C in S do
-    Include(FWordCharsAsSet, C);
   Call(SCI_SETWORDCHARS, 0, S);
 end;
 
