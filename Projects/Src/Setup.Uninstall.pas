@@ -374,7 +374,7 @@ begin
 
   if NeedToRespawnSelfElevated(RequireAdmin, False) then begin
     { The UInt32 cast prevents sign extension }
-    RespawnSelfElevated(UninstExeFilename,
+    RespawnProcess(True, UninstExeFilename,
       Format('/INITPROCWND=$%x ', [UInt32(Application.Handle)]) + GetCmdTail,
       nil, UninstallExitCode);
     Result := True;

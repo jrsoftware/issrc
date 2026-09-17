@@ -35,8 +35,9 @@ type
 procedure EnterSpawnServerDebugMode;
 function NeedToRespawnSelfElevated(const ARequireAdministrator,
   AEmulateHighestAvailable: Boolean): Boolean;
-procedure RespawnSelfElevated(const AExeFilename, AParams: String;
-  const ASpawnServer: TSpawnServer; var AExitCode: Integer);
+procedure RespawnProcess(const AElevate: Boolean;
+  const AExeFilename, AParams: String; const ASpawnServer: TSpawnServer;
+  var AExitCode: Integer);
 
 implementation
 
@@ -154,11 +155,12 @@ begin
 end;
 {$ENDIF}
 
-procedure RespawnSelfElevated(const AExeFilename, AParams: String;
-  const ASpawnServer: TSpawnServer; var AExitCode: Integer);
-{ Spawns a new process using the "runas" verb.
+procedure RespawnProcess(const AElevate: Boolean;
+  const AExeFilename, AParams: String; const ASpawnServer: TSpawnServer;
+  var AExitCode: Integer);
+{ Spawns a new, possibly elevated process.
   Notes:
-  1. Despite the function's name, the spawned process may not actually be
+  1. When AElevate=True is passed, the spawned process may not actually be
      elevated / running as administrator. If UAC is disabled, "runas"
      behaves like "open". Also, if a non-admin user is a member of a special
      system group like Backup Operators, they can select their own user account
@@ -166,44 +168,60 @@ procedure RespawnSelfElevated(const AExeFilename, AParams: String;
      kind of protection against respawning more than once.
   2. If AExeFilename is on a network drive, the ShellExecuteEx function is
      smart enough to substitute it with a UNC path. }
-const
-  SEE_MASK_NOZONECHECKS = $00800000;
-var
-  ExpandedExeFilename, WorkingDir: String;
-  Info: TShellExecuteInfo;
-  WaitResult: DWORD;
 begin
   if not SameText(PathExtractExt(AExeFilename), '.exe') then
     InternalError('Cannot respawn self, not named .exe');
-  ExpandedExeFilename := GetFinalFileName(AExeFilename);
-  WorkingDir := GetFinalCurrentDir;
-  FillChar(Info, SizeOf(Info), 0);
-  Info.cbSize := SizeOf(Info);
-  Info.fMask := SEE_MASK_FLAG_NO_UI or SEE_MASK_FLAG_DDEWAIT or
-    SEE_MASK_NOCLOSEPROCESS or SEE_MASK_NOZONECHECKS;
-  Info.lpVerb := 'runas';
-  Info.lpFile := PChar(ExpandedExeFilename);
-  Info.lpParameters := PChar(AParams);
-  Info.lpDirectory := PChar(WorkingDir);
-  Info.nShow := SW_SHOWNORMAL;
-  if not ShellExecuteEx(@Info) then begin
-    { Don't display error message if user clicked Cancel at UAC dialog }
-    if GetLastError = ERROR_CANCELLED then
-      Abort;
-    Win32ErrorMsg('ShellExecuteEx');
+  const ExpandedExeFilename = GetFinalFileName(AExeFilename);
+  const WorkingDir = GetFinalCurrentDir;
+
+  var ProcessHandle: THandle;
+  if AElevate then begin
+    var Info := Default(TShellExecuteInfo);
+    Info.cbSize := SizeOf(Info);
+    Info.fMask := SEE_MASK_FLAG_NO_UI or SEE_MASK_FLAG_DDEWAIT or
+      SEE_MASK_NOCLOSEPROCESS or SEE_MASK_NOZONECHECKS;
+    Info.lpVerb := 'runas';
+    Info.lpFile := PChar(ExpandedExeFilename);
+    Info.lpParameters := PChar(AParams);
+    Info.lpDirectory := PChar(WorkingDir);
+    Info.nShow := SW_SHOWNORMAL;
+    if not ShellExecuteEx(@Info) then begin
+      { Don't display error message if user clicked Cancel at UAC dialog }
+      if GetLastError = ERROR_CANCELLED then
+        Abort;
+      Win32ErrorMsg('ShellExecuteEx');
+    end;
+    if Info.hProcess = 0 then
+      InternalError('ShellExecuteEx returned hProcess=0');
+    ProcessHandle := Info.hProcess;
+  end else begin
+    { ShellExecuteEx could be used for non-elevated respawns too, but let's be
+      conservative and consistent with all our other internal non-elevated EXE
+      launches and stick with the simpler CreateProcess }
+    var CommandLine := '"' + ExpandedExeFilename + '"';
+    if AParams <> '' then
+      CommandLine := CommandLine + ' ' + AParams;
+    var StartupInfo := Default(TStartupInfo);
+    var ProcessInfo: TProcessInformation;
+    StartupInfo.cb := SizeOf(StartupInfo);
+    if not CreateProcess(nil, PChar(CommandLine), nil, nil, False,
+       CREATE_DEFAULT_ERROR_MODE, nil, PChar(WorkingDir), StartupInfo,
+       ProcessInfo) then
+      Win32ErrorMsg('CreateProcess');
+    CloseHandle(ProcessInfo.hThread);
+    ProcessHandle := ProcessInfo.hProcess;
   end;
-  if Info.hProcess = 0 then
-    InternalError('ShellExecuteEx returned hProcess=0');
 
   { Wait for the process to terminate, processing messages in the meantime }
   try
+    var WaitResult: DWORD;
     repeat
       ProcessMessagesProc;
       if Assigned(ASpawnServer) and ASpawnServer.FExitNowRequested then begin
         DWORD(AExitCode) := ASpawnServer.FExitNowExitCode;
         Exit;
       end;
-      WaitResult := MsgWaitForMultipleObjects(1, Info.hProcess, False,
+      WaitResult := MsgWaitForMultipleObjects(1, ProcessHandle, False,
         INFINITE, QS_ALLINPUT);
     until WaitResult <> WAIT_OBJECT_0+1;
     if WaitResult = WAIT_FAILED then
@@ -214,10 +232,10 @@ begin
       still queued if MWFMO saw the process terminate before checking for
       new messages.) }
     ProcessMessagesProc;
-    if not GetExitCodeProcess(Info.hProcess, DWORD(AExitCode)) then
+    if not GetExitCodeProcess(ProcessHandle, DWORD(AExitCode)) then
       Win32ErrorMsg('GetExitCodeProcess');
   finally
-    CloseHandle(Info.hProcess);
+    CloseHandle(ProcessHandle);
   end;
 end;
 
@@ -377,7 +395,7 @@ begin
       end;
     WM_SpawnServer_ExitNow:
       begin
-        { Because this message is posted (not sent), RespawnSelfElevated's
+        { Because this message is posted (not sent), RespawnProcess's
           message loop will have to break out of a wait state to process it.
           After we return, the message loop checks FExitNowRequested. }
         if Message.LParam = SPAWN_EXITNOW_LPARAM_MAGIC then begin

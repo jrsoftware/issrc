@@ -2652,9 +2652,9 @@ begin
   end;
 end;
 
-procedure RespawnSetupElevated(const AParams: String);
-{ Starts a new, elevated Setup(Ldr) process and waits until it terminates.
-  Does not return; either calls Halt or raises an exception. }
+procedure RespawnSetupProcess(const AElevate: Boolean; const AParams: String);
+{ Starts a new, possibly elevated Setup(Ldr) process and waits until it
+  terminates. Does not return; either calls Halt or raises an exception. }
 var
   Cancelled: Boolean;
   Server: TSpawnServer;
@@ -2670,7 +2670,7 @@ begin
       if not SetupLdrMode then
         FirstWnd := Server.Wnd;
       { The UInt32 casts prevent sign extension }
-      RespawnSelfElevated(SetupLdrOriginalFilename,
+      RespawnProcess(AElevate, SetupLdrOriginalFilename,
         Format('/SPAWNWND=$%x /FIRSTWND=$%x ', [UInt32(Server.Wnd), UInt32(FirstWnd)]) +
         AParams, Server, RespawnResults.ExitCode);
     finally
@@ -2931,6 +2931,36 @@ var
   begin
     Result := InitRedirectionGuard or
       ((shRedirectionGuard in SetupHeader.Options) and not InitNoRedirectionGuard);
+  end;
+
+  function ShouldRespawnSetupProcess(out ANeedToElevate: Boolean): Boolean;
+  begin
+    ANeedToElevate := True;
+    if NeedToRespawnSelfElevated(not (SetupHeader.PrivilegesRequired in [prNone, prLowest]),
+       SetupHeader.PrivilegesRequired <> prLowest) then
+      Exit(True);
+
+    { We don't need to elevate, either because this process is already
+      elevated or because PrivilegesRequired=lowest. In this case, if Setup is
+      going to be enabling RedirectionGuard, then we still respawn so that
+      Setup can launch "runasoriginaluser" processes without them inheriting
+      Setup's RedirectionGuard mode. This process, which will be the spawn
+      server process, doesn't enable RedirectionGuard on itself (but could
+      possibly inherit an enabled state from an ancestor process). }
+    if ShouldEnableRedirectionGuard then begin
+      { Don't respawn when SetupLdrMode=False and the EXE has an .e32/.e64
+        extension, because that indicates the Setup project is being run under
+        the Delphi debugger }
+      const ExeExtension = PathExtractExt(SetupLdrOriginalFilename);
+      const HasDebugExtension =
+        SameText(ExeExtension, '.e32') or SameText(ExeExtension, '.e64');
+      if SetupLdrMode or not HasDebugExtension then begin
+        ANeedToElevate := False;
+        Exit(True);
+      end;
+    end;
+
+    Result := False;
   end;
 
   function HandleInitPassword(const NeedPassword: Boolean): Boolean;
@@ -3245,11 +3275,11 @@ begin
     else if SameText(ParamName, '/DETACHEDMSG') then { for debugging }
       DetachedUninstMsgFile := True
     else if SameText(ParamName, '/SPAWNWND=') then begin
-      ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
+      ParamIsAutomaticInternal := True; { sent by RespawnSetupProcess }
       IsRespawnedProcess := True;
       InitializeSpawnClient(StrToWnd(ParamValue));
     end else if SameText(ParamName, '/FIRSTWND=') then begin
-      ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
+      ParamIsAutomaticInternal := True; { sent by RespawnSetupProcess }
       SetupFirstProcessWnd := StrToWnd(ParamValue);
     end else if SameText(ParamName, '/DebugSpawnServer') then { for debugging }
       EnterSpawnServerDebugMode  { does not return }
@@ -3420,21 +3450,20 @@ begin
         end
         else
           Initialize64BitInstallMode(False);
-          
+
         HandlePrivilegesRequiredOverrides(ExtraRespawnParam);
 
-        { Start a new, elevated Setup(Ldr) process if needed }
+        { Start a new, possibly elevated Setup(Ldr) process if needed }
+        var RespawnElevated: Boolean;
         if not IsRespawnedProcess and
-           NeedToRespawnSelfElevated(not (SetupHeader.PrivilegesRequired in [prNone, prLowest]),
-             SetupHeader.PrivilegesRequired <> prLowest) then begin
+           ShouldRespawnSetupProcess(RespawnElevated) then begin
           FreeAndNil(Reader);
           FreeAndNil(SetupFile);
-          RedirectionGuardConfigure(ShouldEnableRedirectionGuard);
           RespawnParams := GetCmdTailEx(StartParam);
           if ExtraRespawnParam <> '' then
             RespawnParams := RespawnParams + ' ' + ExtraRespawnParam;
-          RespawnSetupElevated(RespawnParams);
-          { Note: RespawnSetupElevated does not return; it either calls Halt
+          RespawnSetupProcess(RespawnElevated, RespawnParams);
+          { Note: RespawnSetupProcess does not return; it either calls Halt
             or raises an exception. }
         end;
 
