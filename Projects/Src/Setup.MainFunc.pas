@@ -3462,7 +3462,7 @@ begin
           FreeAndNil(SetupFile);
           RespawnParams := GetCmdTailEx(StartParam);
           if ExtraRespawnParam <> '' then
-            RespawnParams := RespawnParams + ' ' + ExtraRespawnParam;
+            RespawnParams := ExtraRespawnParam + ' ' + RespawnParams;
           RespawnSetupProcess(RespawnElevated, RespawnParams);
           { Note: RespawnSetupProcess does not return; it either calls Halt
             or raises an exception. }
