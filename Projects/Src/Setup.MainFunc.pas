@@ -2940,13 +2940,14 @@ var
        SetupHeader.PrivilegesRequired <> prLowest) then
       Exit(True);
 
-    { We don't need to elevate, either because this process is already
-      elevated or because PrivilegesRequired=lowest. In this case, if Setup is
-      going to be enabling RedirectionGuard, then we still respawn so that
-      Setup can launch "runasoriginaluser" processes without them inheriting
-      Setup's RedirectionGuard mode. This process, which will be the spawn
-      server process, doesn't enable RedirectionGuard on itself (but could
-      possibly inherit an enabled state from an ancestor process). }
+    { We don't need to elevate when PrivilegesRequired=lowest, or when
+      PrivilegesRequired=none and the user doesn't have a split token, or when
+      this process is already elevated. In these cases, if Setup is going to
+      be enabling RedirectionGuard, then we still respawn (without elevation)
+      so that Setup can launch "runasoriginaluser" processes without them
+      inheriting Setup's RedirectionGuard mode. This process, which will be
+      the spawn server process, doesn't enable RedirectionGuard on itself (but
+      could possibly inherit an enabled state from an ancestor process). }
     if ShouldEnableRedirectionGuard then begin
       { Don't respawn when SetupLdrMode=False and the EXE has an .e32/.e64
         extension, because that indicates the Setup project is being run under
