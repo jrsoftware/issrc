@@ -169,13 +169,13 @@ procedure RespawnProcess(const AElevate: Boolean;
   2. If AExeFilename is on a network drive, the ShellExecuteEx function is
      smart enough to substitute it with a UNC path. }
 begin
-  if not SameText(PathExtractExt(AExeFilename), '.exe') then
-    InternalError('Cannot respawn self, not named .exe');
   const ExpandedExeFilename = GetFinalFileName(AExeFilename);
   const WorkingDir = GetFinalCurrentDir;
 
   var ProcessHandle: THandle;
   if AElevate then begin
+    if not SameText(PathExtractExt(ExpandedExeFilename), '.exe') then
+      InternalError('Cannot respawn self, not named .exe');
     var Info := Default(TShellExecuteInfo);
     Info.cbSize := SizeOf(Info);
     Info.fMask := SEE_MASK_FLAG_NO_UI or SEE_MASK_FLAG_DDEWAIT or
@@ -195,9 +195,9 @@ begin
       InternalError('ShellExecuteEx returned hProcess=0');
     ProcessHandle := Info.hProcess;
   end else begin
-    { ShellExecuteEx could be used for non-elevated respawns too, but let's be
-      conservative and consistent with all our other internal non-elevated EXE
-      launches and stick with the simpler CreateProcess }
+    { Use CreateProcess for non-elevated respawns because it will work with
+      extensions other than .exe (in case users have been giving their
+      installers non-.exe filenames) }
     var CommandLine := '"' + ExpandedExeFilename + '"';
     if AParams <> '' then
       CommandLine := CommandLine + ' ' + AParams;
