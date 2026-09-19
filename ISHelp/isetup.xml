@@ -5567,6 +5567,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <body>
 <p>If <tt>yes</tt>, solid compression will be enabled. This causes all files to be compressed at once instead of separately. This can result in a much greater overall compression ratio if your installation contains many files with common content, such as text files, especially if such common content files are grouped together within the <sn>[Files]</sn> section.</p>
 <p>The disadvantage to using solid compression is that because all files are compressed into a single compressed stream, Setup can no longer randomly access the files. This can decrease performance. If a certain file isn't going to be extracted on the user's system, it has to decompress the data for that file anyway (into memory) before it can decompress the next file. And if, for example, there was an error while extracting a particular file and the user clicks Retry, it can't just seek to the beginning of that file's compressed data; since all files are stored in one stream, it has seek to the very beginning. If disk spanning was enabled, the user would have to re-insert disk 1.</p>
+<p>To reduce this disadvantage, you can use the <sn>[Files]</sn> section flag <tt><link topic="filessection" anchor="solidbreak">solidbreak</link></tt> to start a new compression stream at specific files.</p>
 </body>
 </setuptopic>
 
@@ -7147,6 +7148,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 </examples>
 <p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <sd>DiskSliceSize</sd> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned <tt>.bin</tt> files undergo SHA-256 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-256 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
+<p>Alternatively, use the <sn>[Files]</sn> section flag <tt><link topic="filessection" anchor="download">download</link></tt> to download large files during installation instead of including them in Setup. Downloaded files don't undergo this verification. To verify them, also use the <tt><link topic="filessection" anchor="issigverify">issigverify</link></tt> flag or the <tt><link topic="filessection" anchor="Hash">Hash</link></tt> parameter.</p>
 <p><b>See also:</b><br/>
 <sd>SignToolMinimumTimeBetween</sd><br/>
 <sd>SignToolRetryCount</sd><br/>
