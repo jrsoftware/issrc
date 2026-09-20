@@ -7215,7 +7215,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <setupdefault><tt>yes</tt> if a <sd>SignTool</sd> is set, <tt>no</tt> otherwise</setupdefault>
 <body>
 <p>Specifies whether the uninstaller program (<tt>unins???.exe</tt>) should be deployed with a digital signature attached. When the uninstaller has a valid digital signature, users will not see an "unknown publisher" warning when launching it.</p>
-<p>When set to <tt>yes</tt>, any temporary self-copies used by Setup are digitally signed too.</p>
+<p>When set to <tt>yes</tt>, any temporary self-copies used by Setup are digitally signed too. When set to <tt>no</tt>, they are not, and security software can block them from running. See <sd>SignTool</sd> for more information.</p>
 <p>If the <sd>SignTool</sd> directive is set, the file will be signed automatically on the fly. Otherwise:</p>
 <ul>
   <li>The first time you compile a script with <tt>SignedUninstaller</tt> set to <tt>yes</tt>, a uniquely-named non-temporary copy of the uninstaller EXE file will be created in the directory specified by the <sd>SignedUninstallerDir</sd> directive (which defaults to the <link topic="setup_outputdir">output directory</link>).</li>
@@ -7248,10 +7248,11 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>Specifies the name and parameters of the Sign Tool to be used to digitally sign:</p>
 <ul appearance="compact">
 <li>Setup</li>
-<li>Uninstall if <sd>SignedUninstaller</sd> is set to <tt>yes</tt></li>
+<li>Uninstall and any temporary self-copies used by Setup, unless <sd>SignedUninstaller</sd> is set to <tt>no</tt></li>
 <li>Original source files if the <sn>[Files]</sn> section's <tt>sign</tt> or <tt>signonce</tt> flag is used</li>
 </ul>
 <p>When Setup has a valid digital signature, users will not see an "unidentified program" warning when launching it.</p>
+<p><i>Note:</i> When Setup is started, it may use temporary self-copies. If you digitally sign Setup yourself after compilation, instead of using a Sign Tool, these copies are <b>not</b> signed by default. Security software can then block them from running, making Setup fail to start. One example is Microsoft Defender's Attack Surface Reduction (ASR) rule <extlink href="https://learn.microsoft.com/en-us/defender-endpoint/attack-surface-reduction-rules-reference#block-executable-files-from-running-unless-they-meet-a-prevalence-age-or-trusted-list-criterion">Block executable files from running unless they meet a prevalence, age, or trusted list criterion</extlink>. If you can't use a Sign Tool, at least set <sd>SignedUninstaller</sd> to <tt>yes</tt>.</p>
 <p>The specified Sign Tool name and its command have to be defined in the Compiler IDE (via the <i>Tools | Configure Sign Tools...</i> menu) or on the <link topic="compilercmdline">compiler command line</link> (via the <tt>--signtool</tt> or <tt>-s</tt> option), else an error will occur.</p>
 <p>The following special sequences may be used in Sign Tool parameters and commands:</p>
 <p><tt>$f</tt>, replaced by the quoted file name of the file to be signed. (required)</p>

@@ -58,6 +58,16 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 
 <!-- <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p> -->
 
+<span class="head2">Digitally signing Setup</span>
+
+<p><b>Important notice:</b> If you still digitally sign Setup yourself after compilation, it is recommended to switch to using the <tt>[Setup]</tt> section directive <tt><a href="https://jrsoftware.org/ishelp/index.php?topic=setup_signtool">SignTool</a></tt> now.</p>
+
+<p>If you sign Setup yourself, Uninstall and any temporary self-copies used by Setup are <b>not</b> signed by default. Security software can then block these copies from running, making Setup fail to start. One example is Microsoft Defender's Attack Surface Reduction (ASR) rule <a href="https://learn.microsoft.com/en-us/defender-endpoint/attack-surface-reduction-rules-reference#block-executable-files-from-running-unless-they-meet-a-prevalence-age-or-trusted-list-criterion">Block executable files from running unless they meet a prevalence, age, or trusted list criterion</a>. This behavior isn't new or specific to this version. Until now, the help file only mentioned the signing of the temporary self-copies briefly, in the <tt><a href="https://jrsoftware.org/ishelp/index.php?topic=setup_signeduninstaller">SignedUninstaller</a></tt> help topic, so you might have missed it.</p>
+
+<p>If you can't use <tt>SignTool</tt>, at least set <tt>SignedUninstaller</tt> to <tt>yes</tt>.</p>
+
+<span class="head2">Changes</span>
+
 <ul>
   <li>Added Zstandard (zstd) compression support:
   <ul>
