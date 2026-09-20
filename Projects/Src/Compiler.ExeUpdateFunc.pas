@@ -774,6 +774,12 @@ type
       ResUpdateErrorWithLastError('UpdateResource failed (1)', ResourceName);
   end;
 
+  procedure DeleteResourceIfExists(const H: THandle; const M: HMODULE; const ResourceType, ResourceName: PChar);
+  begin
+    if FindResource(M, ResourceName, ResourceType) <> 0 then
+      DeleteResource(H, M, ResourceType, ResourceName);
+  end;
+
   procedure RenameResource(const H: THandle; const M: HMODULE; const ResourceType, OldResourceName, NewResourceName: PChar);
   var
     Size: DWORD;
@@ -1042,13 +1048,14 @@ begin
               DeleteResource(H, M, 'VCLSTYLE', 'WINDOWSMODERNDARK');
             end;
 
-            { Delete additional styles - they are handled above }
+            { Delete additional styles - they are handled above. Stellar and
+              Zircon are allowed to be missing to support the Community Edition. }
             DeleteResource(H, M, 'VCLSTYLE', 'WINDOWSMODERNLIGHT');
             DeleteResource(H, M, 'VCLSTYLE', 'WINDOWSPOLARLIGHT');
             DeleteResource(H, M, 'VCLSTYLE', 'WINDOWSPOLARDARK');
             DeleteResource(H, M, 'VCLSTYLE', 'SLATECLASSICO');
-            DeleteResource(H, M, 'VCLSTYLE', 'STELLAR');
-            DeleteResource(H, M, 'VCLSTYLE', 'ZIRCON');
+            DeleteResourceIfExists(H, M, 'VCLSTYLE', 'STELLAR');
+            DeleteResourceIfExists(H, M, 'VCLSTYLE', 'ZIRCON');
           end;
         end;
 

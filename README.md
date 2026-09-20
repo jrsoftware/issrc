@@ -42,7 +42,11 @@ Getting Started
    See https://www.embarcadero.com/products/delphi/starter/free-download.
 
    After installation of Delphi, you must install GetIt dependencies by
-   running **getit.bat** and following the instructions.
+   running **getit.bat** and following the instructions. When using the
+   Community Edition, first remove the references to the Stellar and
+   Zircon VCL styles from both **getit.bat** and
+   **Projects\SetupCustomStyle.dproj**. To ignore these changes consider
+   using Git's assume-unchanged or skip-worktree functionality.
 
 3. **Install Microsoft HTML Help Workshop**
 
