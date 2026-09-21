@@ -542,7 +542,8 @@ const
     (English: '&Include empty subfolders'; Localized: '包含空白子資料夾(&I)'),
     (English: '&Extract archive'; Localized: '解壓縮壓縮檔(&E)'),
     (English: 'Welcome to the %1'; Localized: '歡迎使用 %1'),
-    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%nNot all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.'; Localized: '此精靈將引導您完成建立新 Inno Setup 指令碼檔案的程序。其結果將用於產生新的指令碼檔案，該檔案可直接編譯，或儲存到磁碟供日後使用。%n%n此精靈並未涵蓋 Inno Setup 的所有功能。如需建立 Inno Setup 指令碼檔案的詳細資訊，請參閱文件。%n%n按「下一步」繼續，或按「取消」結束此精靈。'),
+    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%n'+'Not all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.';
+     Localized: '此精靈將引導您完成建立新 Inno Setup 指令碼檔案的程序。其結果將用於產生新的指令碼檔案，該檔案可直接編譯，或儲存到磁碟供日後使用。%n%n'+'此精靈並未涵蓋 Inno Setup 的所有功能。如需建立 Inno Setup 指令碼檔案的詳細資訊，請參閱文件。%n%n按「下一步」繼續，或按「取消」結束此精靈。'),
     (English: 'Application na&me:'; Localized: '應用程式名稱(&M)：'),
     (English: 'Application &version:'; Localized: '應用程式版本(&V)：'),
     (English: 'Application &publisher:'; Localized: '應用程式發行者(&P)：'),

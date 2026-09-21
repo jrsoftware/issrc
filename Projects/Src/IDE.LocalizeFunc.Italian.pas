@@ -77,7 +77,8 @@ const
     (English: 'Please specify which wizard style should be used.'; Localized: 'Specifica quale stile della procedura guidata usare.'),
     (English: 'Inno Setup Preprocessor'; Localized: 'Preprocessore di Inno Setup'),
     (English: 'Please specify whether Inno Setup Preprocessor should be used.'; Localized: 'Specifica se usare il preprocessore di Inno Setup.'),
-    (English: 'The %1 can use %2 compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.%n%nDo you want the %1 to use %2 compiler directives?'; Localized: 'La procedura guidata "%1" può usare le direttive del compilatore %2 per semplificare lo script. Anche se non è necessario, ciò renderà più semplice modificare manualmente lo script in seguito.%n%nVuoi che la procedura guidata "%1" usi le direttive del compilatore %2?'),
+    (English: 'The %1 can use %2 compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.%n%n'+'Do you want the %1 to use %2 compiler directives?';
+     Localized: 'La procedura guidata "%1" può usare le direttive del compilatore %2 per semplificare lo script. Anche se non è necessario, ciò renderà più semplice modificare manualmente lo script in seguito.%n%n'+'Vuoi che la procedura guidata "%1" usi le direttive del compilatore %2?'),
     (English: '&Yes, use %1 compiler directives'; Localized: '&Sì, usa le direttive del compilatore %1'),
     (English: 'Finished'; Localized: 'Fine'),
     (English: '&Next'; Localized: '&Avanti'),
@@ -542,7 +543,8 @@ const
     (English: '&Include empty subfolders'; Localized: '&Includi le sottocartelle vuote'),
     (English: '&Extract archive'; Localized: '&Estrai archivio'),
     (English: 'Welcome to the %1'; Localized: 'Benvenuto in "%1"'),
-    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%nNot all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.'; Localized: 'Questa procedura guidata ti accompagnerà nella creazione di un nuovo file di script di Inno Setup. I risultati saranno usati per generare un nuovo file di script che potrà essere compilato direttamente o salvato su disco per un uso successivo.%n%nQuesta procedura guidata non copre tutte le funzionalità di Inno Setup. Consulta la documentazione per i dettagli sulla creazione dei file di script di Inno Setup.%n%nPer continuare seleziona "Avanti", o "Annulla" per uscire dalla procedura guidata.'),
+    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%n'+'Not all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.';
+     Localized: 'Questa procedura guidata ti accompagnerà nella creazione di un nuovo file di script di Inno Setup. I risultati saranno usati per generare un nuovo file di script che potrà essere compilato direttamente o salvato su disco per un uso successivo.%n%n'+'Questa procedura guidata non copre tutte le funzionalità di Inno Setup. Consulta la documentazione per i dettagli sulla creazione dei file di script di Inno Setup.%n%nPer continuare seleziona "Avanti", o "Annulla" per uscire dalla procedura guidata.'),
     (English: 'Application na&me:'; Localized: '&Nome dell''applicazione:'),
     (English: 'Application &version:'; Localized: '&Versione dell''applicazione:'),
     (English: 'Application &publisher:'; Localized: 'A&utore dell''applicazione:'),

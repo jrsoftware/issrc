@@ -542,7 +542,8 @@ const
     (English: '&Include empty subfolders'; Localized: '包含空子文件夹(&I)'),
     (English: '&Extract archive'; Localized: '提取压缩包(&E)'),
     (English: 'Welcome to the %1'; Localized: '欢迎使用 %1'),
-    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%nNot all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.'; Localized: '此向导将引导您完成创建新的 Inno Setup 脚本文件的过程。向导的结果将用于生成一个新的脚本文件，该文件可以直接编译，也可以保存到磁盘供以后使用。%n%n此向导并未涵盖 Inno Setup 的所有功能。有关创建 Inno Setup 脚本文件的详细信息，请参阅文档。%n%n单击“下一步”继续，或单击“取消”退出此向导。'),
+    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%n'+'Not all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.';
+     Localized: '此向导将引导您完成创建新的 Inno Setup 脚本文件的过程。向导的结果将用于生成一个新的脚本文件，该文件可以直接编译，也可以保存到磁盘供以后使用。%n%n'+'此向导并未涵盖 Inno Setup 的所有功能。有关创建 Inno Setup 脚本文件的详细信息，请参阅文档。%n%n单击“下一步”继续，或单击“取消”退出此向导。'),
     (English: 'Application na&me:'; Localized: '应用程序名称(&M)：'),
     (English: 'Application &version:'; Localized: '应用程序版本(&V)：'),
     (English: 'Application &publisher:'; Localized: '应用程序发布者(&P)：'),

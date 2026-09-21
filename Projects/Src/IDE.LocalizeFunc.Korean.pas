@@ -542,7 +542,8 @@ const
     (English: '&Include empty subfolders'; Localized: '빈 하위 폴더 포함(&I)'),
     (English: '&Extract archive'; Localized: '압축 파일 추출(&E)'),
     (English: 'Welcome to the %1'; Localized: '%1에 오신 것을 환영합니다'),
-    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%nNot all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.'; Localized: '이 마법사는 새 Inno Setup 스크립트 파일을 만드는 과정을 안내합니다. 결과는 새 스크립트 파일을 생성하는 데 사용되며, 이 파일은 바로 컴파일하거나 나중에 사용하기 위해 디스크에 저장할 수 있습니다.%n%n이 마법사는 Inno Setup의 모든 기능을 다루지는 않습니다. Inno Setup 스크립트 파일 만들기에 대한 자세한 내용은 설명서를 참조하세요.%n%n계속하려면 다음을 클릭하고, 이 마법사를 종료하려면 취소를 클릭하세요.'),
+    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%n'+'Not all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.';
+     Localized: '이 마법사는 새 Inno Setup 스크립트 파일을 만드는 과정을 안내합니다. 결과는 새 스크립트 파일을 생성하는 데 사용되며, 이 파일은 바로 컴파일하거나 나중에 사용하기 위해 디스크에 저장할 수 있습니다.%n%n'+'이 마법사는 Inno Setup의 모든 기능을 다루지는 않습니다. Inno Setup 스크립트 파일 만들기에 대한 자세한 내용은 설명서를 참조하세요.%n%n계속하려면 다음을 클릭하고, 이 마법사를 종료하려면 취소를 클릭하세요.'),
     (English: 'Application na&me:'; Localized: '응용 프로그램 이름(&M):'),
     (English: 'Application &version:'; Localized: '응용 프로그램 버전(&V):'),
     (English: 'Application &publisher:'; Localized: '응용 프로그램 게시자(&P):'),
