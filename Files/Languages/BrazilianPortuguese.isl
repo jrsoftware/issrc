@@ -117,7 +117,7 @@ WelcomeLabel2=Isto instalará o [name/ver] no seu computador.%n%nÉ recomendado 
 ; *** "Password" wizard page
 WizardPassword=Senha
 PasswordLabel1=Esta instalação está protegida por senha.
-PasswordLabel3=Por favor, forneça a senha, então clique em Avançar para continuar. As senhas são sensíveis a maiúsculas e minúsculas.
+PasswordLabel3=Por favor, forneça a senha, então clique em Avançar para continuar. As senhas diferenciam maiúsculas de minúsculas.
 PasswordEditLabel=&Senha:
 IncorrectPassword=A senha que você inseriu não está correta. Por favor, tente novamente.
 
