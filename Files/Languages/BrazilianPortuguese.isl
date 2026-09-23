@@ -54,10 +54,10 @@ WindowsServicePackRequired=Este programa requer o %1 Service Pack %2 ou superior
 NotOnThisPlatform=Este programa não executará no %1.
 OnlyOnThisPlatform=Este programa deve ser executado no %1.
 OnlyOnTheseArchitectures=Este programa só pode ser instalado em versões do Windows projetadas para as seguintes arquiteturas de processadores:%n%n%1
-WinVersionTooLowError=Este programa requer a %1 versão %2 ou superior.
-WinVersionTooHighError=Este programa não pode ser instalado na %1 versão %2 ou superior.
+WinVersionTooLowError=Este programa requer o %1 versão %2 ou superior.
+WinVersionTooHighError=Este programa não pode ser instalado no %1 versão %2 ou superior.
 AdminPrivilegesRequired=Você deve estar logado como administrador quando instalar este programa.
-PowerUserPrivilegesRequired=Você deve estar logado como administrador ou como um membro do grupo de Usuários Power quando instalar este programa.
+PowerUserPrivilegesRequired=Você deve estar logado como administrador ou como um membro do grupo de Usuários Avançados quando instalar este programa.
 SetupAppRunningError=O instalador detectou que o %1 está atualmente em execução.%n%nPor favor, feche todas as instâncias dele agora, então clique em OK para continuar ou em Cancelar para sair.
 UninstallAppRunningError=O Desinstalador detectou que o %1 está atualmente em execução.%n%nPor favor, feche todas as instâncias dele agora, então clique em OK para continuar ou em Cancelar para sair.
 
@@ -77,7 +77,7 @@ ErrorTooManyFilesInDir=Incapaz de criar um arquivo no diretório "%1" porque ele
 
 ; *** Setup common messages
 ExitSetupTitle=Sair do Instalador
-ExitSetupMessage=A Instalação não está completa. Se você sair agora, o programa não será instalado.%n%nVocê pode executar o instalador novamente outra hora para completar a instalação.%n%nSair do instalador?
+ExitSetupMessage=A instalação não está completa. Se você sair agora, o programa não será instalado.%n%nVocê pode executar o instalador novamente outra hora para completar a instalação.%n%nSair do instalador?
 AboutSetupMenuItem=&Sobre o Instalador...
 AboutSetupTitle=Sobre o Instalador
 AboutSetupMessage=%1 versão %2%n%3%n%n%1 home page:%n%4
@@ -141,19 +141,19 @@ WizardUserInfo=Informação do Usuário
 UserInfoDesc=Por favor, insira suas informações.
 UserInfoName=&Nome do Usuário:
 UserInfoOrg=&Organização:
-UserInfoSerial=&Número de Série:
+UserInfoSerial=Número de &Série:
 UserInfoNameRequired=Você deve inserir um nome.
 
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Selecione o Local de Destino
-SelectDirDesc=Aonde o [name] deve ser instalado?
+SelectDirDesc=Onde o [name] deve ser instalado?
 SelectDirLabel3=O instalador instalará o [name] na seguinte pasta.
-SelectDirBrowseLabel=Para continuar clique em Avançar. Se você gostaria de selecionar uma pasta diferente, clique em Procurar.
+SelectDirBrowseLabel=Para continuar, clique em Avançar. Se deseja selecionar uma pasta diferente, clique em Procurar.
 DiskSpaceGBLabel=Pelo menos [gb] GB de espaço livre em disco são requeridos.
 DiskSpaceMBLabel=Pelo menos [mb] MB de espaço livre em disco são requeridos.
 CannotInstallToNetworkDrive=O instalador não pode instalar em um drive de rede.
 CannotInstallToUNCPath=O instalador não pode instalar em um caminho UNC.
-InvalidPath=Você deve inserir um caminho completo com a letra do drive; por exemplo:%n%nC:\APP%n%não um caminho UNC no formulário:%n%n\\server\share
+InvalidPath=Você deve inserir um caminho completo com a letra do drive; por exemplo:%n%nC:\APP%n%nou um caminho UNC no formato:%n%n\\server\share
 InvalidDrive=O drive ou compartilhamento UNC que você selecionou não existe ou não está acessível. Por favor, selecione outro.
 DiskSpaceWarningTitle=Sem Espaço em Disco o Bastante
 DiskSpaceWarning=O instalador requer pelo menos %1 KB de espaço livre para instalar, mas o drive selecionado só tem %2 KB disponíveis.%n%nVocê quer continuar de qualquer maneira?
@@ -173,7 +173,7 @@ FullInstallation=Instalação completa
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Instalação compacta
 CustomInstallation=Instalação personalizada
-NoUninstallWarningTitle=O Componente Existe
+NoUninstallWarningTitle=Os Componentes Existem
 NoUninstallWarning=O instalador detectou que os seguintes componentes já estão instalados no seu computador:%n%n%1%n%nNão selecionar estes componentes não os desinstalará.%n%nVocê gostaria de continuar de qualquer maneira?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
@@ -187,9 +187,9 @@ SelectTasksLabel2=Selecione as tarefas adicionais que você gostaria que o insta
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Selecionar a Pasta do Menu Iniciar
-SelectStartMenuFolderDesc=Aonde o instalador deve colocar os atalhos do programa?
+SelectStartMenuFolderDesc=Onde o instalador deve colocar os atalhos do programa?
 SelectStartMenuFolderLabel3=O instalador criará os atalhos do programa na seguinte pasta do Menu Iniciar.
-SelectStartMenuFolderBrowseLabel=Para continuar clique em Avançar. Se você gostaria de selecionar uma pasta diferente, clique em Procurar.
+SelectStartMenuFolderBrowseLabel=Para continuar, clique em Avançar. Se deseja selecionar uma pasta diferente, clique em Procurar.
 MustEnterGroupName=Você deve inserir um nome de pasta.
 GroupNameTooLong=O nome ou caminho da pasta é muito longo.
 InvalidGroupName=O nome da pasta não é válido.
@@ -240,7 +240,7 @@ ApplicationsFound2=Os aplicativos a seguir estão usando arquivos que precisam s
 CloseApplications=&Fechar os aplicativos automaticamente
 DontCloseApplications=&Não fechar os aplicativos
 ErrorCloseApplications=O instalador foi incapaz de fechar automaticamente todos os aplicativos. É recomendado que você feche todos os aplicativos usando os arquivos que precisam ser atualizados pelo instalador antes de continuar.
-PrepareToInstallNeedsRestart=A instalação deve reiniciar seu computador. Depois de reiniciar o computador, execute a Instalação novamente para concluir a instalação de [name].%n%nDeseja reiniciar agora?
+PrepareToInstallNeedsRestart=O instalador deve reiniciar seu computador. Depois de reiniciar o computador, execute o instalador novamente para completar a instalação do [name].%n%nVocê deseja reiniciar agora?
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalando
@@ -324,16 +324,16 @@ ExistingFileReadOnly2=O arquivo existente não pôde ser substituído porque est
 ExistingFileReadOnlyRetry=&Remover o atributo somente-leitura e tentar novamente
 ExistingFileReadOnlyKeepExisting=&Manter o arquivo existente
 ErrorReadingExistingDest=Ocorreu um erro ao tentar ler o arquivo existente:
-FileExistsSelectAction=Selecione a ação
+FileExistsSelectAction=Selecionar ação
 FileExists2=O arquivo já existe.
 FileExistsOverwriteExisting=&Sobrescrever o arquivo existente
-FileExistsKeepExisting=&Mantenha o arquivo existente
-FileExistsOverwriteOrKeepAll=&Faça isso para os próximos conflitos
-ExistingFileNewerSelectAction=Selecione a ação
-ExistingFileNewer2=O arquivo existente é mais recente do que aquele que o Setup está tentando instalar.
+FileExistsKeepExisting=&Manter o arquivo existente
+FileExistsOverwriteOrKeepAll=&Fazer isso para os próximos conflitos
+ExistingFileNewerSelectAction=Selecionar ação
+ExistingFileNewer2=O arquivo existente é mais recente do que aquele que o instalador está tentando instalar.
 ExistingFileNewerOverwriteExisting=&Sobrescrever o arquivo existente
-ExistingFileNewerKeepExisting=&Mantenha o arquivo existente (recomendado)
-ExistingFileNewerOverwriteOrKeepAll=&Faça isso para os próximos conflitos
+ExistingFileNewerKeepExisting=&Manter o arquivo existente (recomendado)
+ExistingFileNewerOverwriteOrKeepAll=&Fazer isso para os próximos conflitos
 ErrorChangingAttr=Ocorreu um erro ao tentar mudar os atributos do arquivo existente:
 ErrorCreatingTemp=Ocorreu um erro ao tentar criar um arquivo no diretório destino:
 ErrorReadingSource=Ocorreu um erro ao tentar ler o arquivo de origem:
@@ -377,7 +377,7 @@ UninstallDataCorrupted=O arquivo "%1" está corrompido. Não consegue desinstala
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Remover Arquivo Compartilhado?
-ConfirmDeleteSharedFile2=O sistema indica que o seguinte arquivo compartilhado não está mais em uso por quaisquer programas. Você gostaria que a Desinstalação removesse este arquivo compartilhado?%n%nSe quaisquer programas ainda estão usando este arquivo e ele é removido, esses programas podem não funcionar apropriadamente. Se você não tiver certeza escolha Não. Deixar o arquivo no seu sistema não causará qualquer dano.
+ConfirmDeleteSharedFile2=O sistema indica que o seguinte arquivo compartilhado não está mais em uso por quaisquer programas. Você gostaria que a Desinstalação removesse este arquivo compartilhado?%n%nSe quaisquer programas ainda estão usando este arquivo e ele é removido, esses programas podem não funcionar apropriadamente. Se você não tiver certeza, escolha Não. Deixar o arquivo no seu sistema não causará qualquer dano.
 SharedFileNameLabel=Nome do arquivo:
 SharedFileLocationLabel=Local:
 WizardUninstalling=Status da Desinstalação
