@@ -32,7 +32,7 @@ jobs:
             1. Run `gh pr diff ${{ github.event.pull_request.number }}` to get the diff.
             2. Run `gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[] | {oid, committedDate, messageHeadline, messageBody}'` for commit messages.
             3. Run `gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | {author: .author.login, body}'` for previous review comments.
-            4. Read CLAUDE.md and AGENTS.md in full for project-specific guidelines.
+            4. Read AGENTS.md in full for project-specific guidelines.
             5. Analyze the diff for bugs, security issues, and style problems. Verify that changes match commit message claims. Focus only on changed lines, not pre-existing issues.
             6. Only report issues not already present in PR comments. Do NOT report:
             - Previously raised issues from PR comments, unless a commit claims to fix one but the diff shows otherwise. That's a new issue.
