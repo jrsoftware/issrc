@@ -77,7 +77,7 @@ ErrorTooManyFilesInDir=Incapaz de criar um arquivo no diretório "%1" porque ele
 
 ; *** Setup common messages
 ExitSetupTitle=Sair do Instalador
-ExitSetupMessage=A Instalação não está completa. Se você sair agora o programa não será instalado.%n%nVocê pode executar o instalador novamente outra hora pra completar a instalação.%n%nSair do instalador?
+ExitSetupMessage=A Instalação não está completa. Se você sair agora, o programa não será instalado.%n%nVocê pode executar o instalador novamente outra hora pra completar a instalação.%n%nSair do instalador?
 AboutSetupMenuItem=&Sobre o Instalador...
 AboutSetupTitle=Sobre o Instalador
 AboutSetupMessage=%1 versão %2%n%3%n%n%1 home page:%n%4
@@ -117,7 +117,7 @@ WelcomeLabel2=Isto instalará o [name/ver] no seu computador.%n%nÉ recomendado 
 ; *** "Password" wizard page
 WizardPassword=Senha
 PasswordLabel1=Esta instalação está protegida por senha.
-PasswordLabel3=Por favor forneça a senha, então clique em Avançar pra continuar. As senhas são caso-sensitivo.
+PasswordLabel3=Por favor forneça a senha, então clique em Avançar pra continuar. As senhas são sensíveis a maiúsculas e minúsculas.
 PasswordEditLabel=&Senha:
 IncorrectPassword=A senha que você inseriu não está correta. Por favor tente novamente.
 
@@ -156,14 +156,14 @@ CannotInstallToUNCPath=O instalador não pode instalar em um caminho UNC.
 InvalidPath=Você deve inserir um caminho completo com a letra do drive; por exemplo:%n%nC:\APP%n%não um caminho UNC no formulário:%n%n\\server\share
 InvalidDrive=O drive ou compartilhamento UNC que você selecionou não existe ou não está acessível. Por favor selecione outro.
 DiskSpaceWarningTitle=Sem Espaço em Disco o Bastante
-DiskSpaceWarning=O instalador requer pelo menos %1 KB de espaço livre pra instalar mas o drive selecionado só tem %2 KB disponíveis.%n%nVocê quer continuar de qualquer maneira?
+DiskSpaceWarning=O instalador requer pelo menos %1 KB de espaço livre pra instalar, mas o drive selecionado só tem %2 KB disponíveis.%n%nVocê quer continuar de qualquer maneira?
 DirNameTooLong=O nome ou caminho da pasta é muito longo.
 InvalidDirName=O nome da pasta não é válido.
-BadDirName32=Os nomes das pastas não pode incluir quaisquer dos seguintes caracteres:%n%n%1
+BadDirName32=Os nomes das pastas não podem incluir quaisquer dos seguintes caracteres:%n%n%1
 DirExistsTitle=A Pasta Existe
 DirExists=A pasta:%n%n%1%n%njá existe. Você gostaria de instalar nesta pasta de qualquer maneira?
 DirDoesntExistTitle=A Pasta Não Existe
-DirDoesntExist=A pasta:%n%n%1%n%nnão existe. Você gostaria quer a pasta fosse criada?
+DirDoesntExist=A pasta:%n%n%1%n%nnão existe. Você gostaria que a pasta fosse criada?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Selecionar Componentes
@@ -174,7 +174,7 @@ FullInstallation=Instalação completa
 CompactInstallation=Instalação compacta
 CustomInstallation=Instalação personalizada
 NoUninstallWarningTitle=O Componente Existe
-NoUninstallWarning=O instalador detectou que os seguintes componentes já estão instalados no seu computador:%n%n%1%n%nNão selecionar estes componentes não desinstalará eles.%n%nVocê gostaria de continuar de qualquer maneira?
+NoUninstallWarning=O instalador detectou que os seguintes componentes já estão instalados no seu computador:%n%n%1%n%nNão selecionar estes componentes não os desinstalará.%n%nVocê gostaria de continuar de qualquer maneira?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=A seleção atual requer pelo menos [gb] GB de espaço em disco.
@@ -199,7 +199,7 @@ NoProgramGroupCheck2=&Não criar uma pasta no Menu Iniciar
 ; *** "Ready to Install" wizard page
 WizardReady=Pronto pra Instalar
 ReadyLabel1=O instalador está agora pronto pra começar a instalar o [name] no seu computador.
-ReadyLabel2a=Clique em Instalar pra continuar com a instalação ou clique em Voltar se você quer revisar ou mudar quaisquer configurações.
+ReadyLabel2a=Clique em Instalar pra continuar com a instalação ou clique em Voltar se você quiser revisar ou mudar quaisquer configurações.
 ReadyLabel2b=Clique em Instalar pra continuar com a instalação.
 ReadyMemoUserInfo=Informação do usuário:
 ReadyMemoDir=Local de destino:
@@ -233,10 +233,10 @@ ArchiveUnsupportedFormat=O formato do arquivo compactado não é compatível
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparando pra Instalar
 PreparingDesc=O instalador está se preparando pra instalar o [name] no seu computador.
-PreviousInstallNotCompleted=A instalação/remoção de um programa anterior não foi completada. Você precisará reiniciar o computador pra completar essa instalação.%n%nApós reiniciar seu computador execute o instalador novamente pra completar a instalação do [name].
+PreviousInstallNotCompleted=A instalação/remoção de um programa anterior não foi completada. Você precisará reiniciar o computador pra completar essa instalação.%n%nApós reiniciar seu computador, execute o instalador novamente pra completar a instalação do [name].
 CannotContinue=O instalador não pode continuar. Por favor clique em Cancelar pra sair.
-ApplicationsFound=Os aplicativos a seguir estão usando arquivos que precisam ser atualizados pelo instalador. É recomendados que você permita ao instalador fechar automaticamente estes aplicativos.
-ApplicationsFound2=Os aplicativos a seguir estão usando arquivos que precisam ser atualizados pelo instalador. É recomendados que você permita ao instalador fechar automaticamente estes aplicativos. Após a instalação ter completado, o instalador tentará reiniciar os aplicativos.
+ApplicationsFound=Os aplicativos a seguir estão usando arquivos que precisam ser atualizados pelo instalador. É recomendado que você permita ao instalador fechar automaticamente estes aplicativos.
+ApplicationsFound2=Os aplicativos a seguir estão usando arquivos que precisam ser atualizados pelo instalador. É recomendado que você permita ao instalador fechar automaticamente estes aplicativos. Após a instalação ter sido completada, o instalador tentará reiniciar os aplicativos.
 CloseApplications=&Fechar os aplicativos automaticamente
 DontCloseApplications=&Não fechar os aplicativos
 ErrorCloseApplications=O instalador foi incapaz de fechar automaticamente todos os aplicativos. É recomendado que você feche todos os aplicativos usando os arquivos que precisam ser atualizados pelo instalador antes de continuar.
@@ -263,7 +263,7 @@ RunEntryShellExec=Visualizar %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=O Instalador Precisa do Próximo Disco
-SelectDiskLabel2=Por favor insira o Disco %1 e clique em OK.%n%nSe os arquivos neste disco podem ser achados numa pasta diferente do que a exibida abaixo, insira o caminho correto ou clique em Procurar.
+SelectDiskLabel2=Por favor insira o Disco %1 e clique em OK.%n%nSe os arquivos neste disco puderem ser achados numa pasta diferente da exibida abaixo, insira o caminho correto ou clique em Procurar.
 PathLabel=&Caminho:
 FileNotInDir2=O arquivo "%1" não pôde ser localizado em "%2". Por favor insira o disco correto ou selecione outra pasta.
 SelectDirectoryLabel=Por favor especifique o local do próximo disco.
