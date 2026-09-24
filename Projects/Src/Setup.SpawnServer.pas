@@ -17,6 +17,7 @@ uses
 type
   TSpawnServer = class
   private
+    FReadyToServe: Boolean;
     FWnd: HWND;
     FSequenceNumber: Word;
     FCallStatus: Word;
@@ -38,6 +39,7 @@ function NeedToRespawnSelfElevated(const ARequireAdministrator,
 procedure RespawnProcess(const AElevate: Boolean;
   const AExeFilename, AParams: String; const ASpawnServer: TSpawnServer;
   var AExitCode: Integer);
+procedure UnsetRespawnBlockEnvironmentVariable;
 
 implementation
 
@@ -155,6 +157,27 @@ begin
 end;
 {$ENDIF}
 
+const
+  RespawnBlockEnvironmentVariableName =
+    'ISETUP_RESPAWNPROCESS_WAS_ALREADY_CALLED';
+
+procedure SetRespawnBlockEnvironmentVariable(const AValue: PChar);
+begin
+  if not SetEnvironmentVariable(RespawnBlockEnvironmentVariableName, AValue) then
+    Win32ErrorMsg('SetEnvironmentVariable');
+end;
+
+procedure UnsetRespawnBlockEnvironmentVariable;
+{ Drops the "respawn block" variable from the current process's environment,
+  if it exists. This is called by RespawnProcess after it has started the new
+  process, and also when Setup/Uninstall has determined it doesn't need to
+  call RespawnProcess, so that the no-longer-needed environment variable
+  doesn't get passed on to any other Inno Setup (un)installers (not respawns
+  of this one) that this process or a child process might start later. }
+begin
+  SetRespawnBlockEnvironmentVariable(nil);
+end;
+
 procedure RespawnProcess(const AElevate: Boolean;
   const AExeFilename, AParams: String; const ASpawnServer: TSpawnServer;
   var AExitCode: Integer);
@@ -169,6 +192,24 @@ procedure RespawnProcess(const AElevate: Boolean;
   2. If AExeFilename is on a network drive, the ShellExecuteEx function is
      smart enough to substitute it with a UNC path. }
 begin
+  { Be extra careful not to accidentally turn into a fork bomb:
+    Setup and Uninstall won't call RespawnProcess when they find a command
+    line parameter indicating they've already respawned (/SPAWNWND= and
+    /INITPROCWND= respectively). But just in case the command line parameter
+    isn't passed, received, or parsed correctly for some reason, we employ a
+    second defense: an environment variable that's passed on to the child
+    process indicating RespawnProcess was called. If we find that variable is
+    set here, then we raise a fatal internal error.
+    One thing to note: With ShellExecuteEx, when a non-elevated process starts
+    an elevated process, the new process's environment is reset, so the
+    variable set here will be lost. However, if ShellExecuteEx were to be
+    called again by the elevated process, the environment wouldn't be reset,
+    so the variable should make it through. So, a second respawn may not be
+    stopped, but a third respawn would be. }
+  if GetEnv(RespawnBlockEnvironmentVariableName) <> '' then
+    InternalError('Setup/Uninstall process was already respawned');
+  SetRespawnBlockEnvironmentVariable('1');
+
   const ExpandedExeFilename = GetFinalFileName(AExeFilename);
   const WorkingDir = GetFinalCurrentDir;
 
@@ -214,6 +255,11 @@ begin
 
   { Wait for the process to terminate, processing messages in the meantime }
   try
+    UnsetRespawnBlockEnvironmentVariable;
+    { Only start accepting spawn requests after ShellExecuteEx has returned
+      and the environment variable is unset. See also TSpawnServer.WndProc. }
+    if Assigned(ASpawnServer) then
+      ASpawnServer.FReadyToServe := True;
     var WaitResult: DWORD;
     repeat
       ProcessMessagesProc;
@@ -354,6 +400,19 @@ begin
   case Message.Msg of
     WM_COPYDATA:
       begin
+        { If FReadyToServe is False, that tells us RestartProcess's
+          ShellExecuteEx call must not have returned yet and is processing
+          messages. We're not ready to accept requests until after
+          ShellExecuteEx has returned and the "respawn block" environment
+          variable has been unset.
+          (ShellExecuteEx does process messages while a UAC dialog is up, but
+          it isn't known whether the function continues to process some
+          messages after starting the process. We're assuming that it could
+          and defending against it.) }
+        if not FReadyToServe then begin
+          Message.Result := SPAWN_MSGRESULT_NOT_READY_TRY_AGAIN;
+          Exit;
+        end;
         try
           const CopyDataMsg = DWORD(TWMCopyData(Message).CopyDataStruct.dwData);
           case CopyDataMsg of

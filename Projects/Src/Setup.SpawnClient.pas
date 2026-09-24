@@ -99,13 +99,19 @@ var
   Status: Word;
   LastQueryTime, NowTime: DWORD;
 begin
-  CopyDataStruct.dwData := CopyDataMsg;
-  if M.Size > High(DWORD) then
-    InternalError('CallSpawnServer: Size limit exceeded');
-  CopyDataStruct.cbData := DWORD(M.Size);
-  CopyDataStruct.lpData := M.Memory;
-  AllowSpawnServerToSetForegroundWindow;
-  MsgResult := SendMessage(SpawnServerWnd, WM_COPYDATA, 0, LPARAM(@CopyDataStruct));
+  while True do begin
+    ProcessMessagesProc;
+    CopyDataStruct.dwData := CopyDataMsg;
+    if M.Size > High(DWORD) then
+      InternalError('CallSpawnServer: Size limit exceeded');
+    CopyDataStruct.cbData := DWORD(M.Size);
+    CopyDataStruct.lpData := M.Memory;
+    AllowSpawnServerToSetForegroundWindow;
+    MsgResult := SendMessage(SpawnServerWnd, WM_COPYDATA, 0, LPARAM(@CopyDataStruct));
+    if MsgResult <> SPAWN_MSGRESULT_NOT_READY_TRY_AGAIN then
+      Break;
+    Sleep(100);
+  end;
   FreeAndNil(M);  { it isn't needed anymore, might as well free now }
   if MsgResult = SPAWN_MSGRESULT_OUT_OF_MEMORY then
     OutOfMemoryError;

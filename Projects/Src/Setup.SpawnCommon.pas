@@ -2,7 +2,7 @@ unit Setup.SpawnCommon;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -37,6 +37,7 @@ const
   SPAWN_MSGRESULT_UNEXPECTED_EXCEPTION    = SPAWN_MSGRESULT_FAILURE_BITS or 2;
   SPAWN_MSGRESULT_ALREADY_IN_CALL         = SPAWN_MSGRESULT_FAILURE_BITS or 3;
   SPAWN_MSGRESULT_INVALID_DATA            = SPAWN_MSGRESULT_FAILURE_BITS or 4;
+  SPAWN_MSGRESULT_NOT_READY_TRY_AGAIN     = SPAWN_MSGRESULT_FAILURE_BITS or 7;
 
   { Possible error codes returned by WM_SpawnServer_Query handler }
   SPAWN_MSGRESULT_INVALID_SEQUENCE_NUMBER = SPAWN_MSGRESULT_FAILURE_BITS or 5;

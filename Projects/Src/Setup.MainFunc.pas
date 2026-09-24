@@ -3467,6 +3467,7 @@ begin
           { Note: RespawnSetupProcess does not return; it either calls Halt
             or raises an exception. }
         end;
+        UnsetRespawnBlockEnvironmentVariable;
 
         { Application.Handle is now known to be the main window. Set the shutdown block reason. }
         ShutdownBlockReasonCreate(Application.Handle, SetupMessages[msgWizardInstalling]);

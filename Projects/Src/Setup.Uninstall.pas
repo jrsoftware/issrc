@@ -877,8 +877,10 @@ begin
     end;
 
     if not SecondPhase then begin
-      if not RespawnFirstPhaseIfNeeded then
+      if not RespawnFirstPhaseIfNeeded then begin
+        UnsetRespawnBlockEnvironmentVariable;
         RunFirstPhase;
+      end;
     end
     else
       RunSecondPhase;
