@@ -245,9 +245,8 @@ begin
     var StartupInfo := Default(TStartupInfo);
     var ProcessInfo: TProcessInformation;
     StartupInfo.cb := SizeOf(StartupInfo);
-    if not CreateProcess(nil, PChar(CommandLine), nil, nil, False,
-       CREATE_DEFAULT_ERROR_MODE, nil, PChar(WorkingDir), StartupInfo,
-       ProcessInfo) then
+    if not CreateProcess(nil, PChar(CommandLine), nil, nil, False, 0, nil,
+       PChar(WorkingDir), StartupInfo, ProcessInfo) then
       Win32ErrorMsg('CreateProcess');
     CloseHandle(ProcessInfo.hThread);
     ProcessHandle := ProcessInfo.hProcess;
