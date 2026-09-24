@@ -59,7 +59,7 @@ WinVersionTooHighError=Este programa não pode ser instalado no %1 versão %2 ou
 AdminPrivilegesRequired=Você deve estar logado como administrador quando instalar este programa.
 PowerUserPrivilegesRequired=Você deve estar logado como administrador ou como um membro do grupo de Usuários Avançados quando instalar este programa.
 SetupAppRunningError=O instalador detectou que o %1 está atualmente em execução.%n%nPor favor, feche todas as instâncias dele agora, então clique em OK para continuar ou em Cancelar para sair.
-UninstallAppRunningError=O Desinstalador detectou que o %1 está atualmente em execução.%n%nPor favor, feche todas as instâncias dele agora, então clique em OK para continuar ou em Cancelar para sair.
+UninstallAppRunningError=O desinstalador detectou que o %1 está atualmente em execução.%n%nPor favor, feche todas as instâncias dele agora, então clique em OK para continuar ou em Cancelar para sair.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Selecione o Modo de Instalação do Instalador
