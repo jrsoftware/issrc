@@ -16,6 +16,8 @@ uses
   Winapi.Windows, Winapi.ActiveX, Winapi.RichEdit;
 
 type
+  { chrg needs [Ref] because RichOle.h passes a CHARRANGE pointer. Without it,
+    x64 passes the 8-byte record by value. Vcl.DBCtrls.pas gets this wrong. }
   IRichEditOleCallback = interface(IUnknown)
     ['{00020d03-0000-0000-c000-000000000046}']
     function GetNewStorage(out stg: IStorage): HResult; stdcall;
@@ -30,12 +32,12 @@ type
       var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
       hMetaPict: HGLOBAL): HResult; stdcall;
     function ContextSensitiveHelp(fEnterMode: BOOL): HResult; stdcall;
-    function GetClipboardData(const chrg: TCharRange; reco: DWORD;
+    function GetClipboardData(const [Ref] chrg: TCharRange; reco: DWORD;
       out dataobj: IDataObject): HResult; stdcall;
     function GetDragDropEffect(fDrag: BOOL; grfKeyState: DWORD;
       var dwEffect: DWORD): HResult; stdcall;
     function GetContextMenu(seltype: Word; const oleobj: IOleObject;
-      const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
+      const [Ref] chrg: TCharRange; out menu: HMENU): HResult; stdcall;
   end;
 
   { Basic implementation of IRichEditOleCallback to enable the viewing of images and other objects }
@@ -53,12 +55,12 @@ type
       var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
       hMetaPict: HGLOBAL): HResult; stdcall;
     function ContextSensitiveHelp(fEnterMode: BOOL): HResult; stdcall;
-    function GetClipboardData(const chrg: TCharRange; reco: DWORD;
+    function GetClipboardData(const [Ref] chrg: TCharRange; reco: DWORD;
       out dataobj: IDataObject): HResult; stdcall;
     function GetDragDropEffect(fDrag: BOOL; grfKeyState: DWORD;
       var dwEffect: DWORD): HResult; stdcall;
     function GetContextMenu(seltype: Word; const oleobj: IOleObject;
-      const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
+      const [Ref] chrg: TCharRange; out menu: HMENU): HResult; stdcall;
   end;
 
 implementation
@@ -118,7 +120,7 @@ begin
   Result := S_OK;
 end;
 
-function TBasicRichEditOleCallback.GetClipboardData(const chrg: TCharRange; reco: DWORD;
+function TBasicRichEditOleCallback.GetClipboardData(const [Ref] chrg: TCharRange; reco: DWORD;
   out dataobj: IDataObject): HResult;
 begin
   Result := E_NOTIMPL;
@@ -131,7 +133,7 @@ begin
 end;
 
 function TBasicRichEditOleCallback.GetContextMenu(seltype: Word;
-  const oleobj: IOleObject; const chrg: TCharRange; out Menu: HMENU): HResult;
+  const oleobj: IOleObject; const [Ref] chrg: TCharRange; out Menu: HMENU): HResult;
 begin
   Result := E_NOTIMPL;
 end;
