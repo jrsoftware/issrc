@@ -1666,7 +1666,7 @@ begin
       end;
     SCN_CHARADDED:
       begin
-        if Assigned(FOnCharAdded) then
+        if Assigned(FOnCharAdded) and (N.ch <= Ord(High(AnsiChar))) then
           FOnCharAdded(Self, AnsiChar(N.ch));
       end;
     SCN_MARGINCLICK:
