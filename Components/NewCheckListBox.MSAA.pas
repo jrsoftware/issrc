@@ -25,7 +25,7 @@ type
 implementation
 
 uses
-  ActiveX, oleacc, SysUtils, StdCtrls, OleAccFunc;
+  ActiveX, oleacc, SysUtils, Classes, StdCtrls, OleAccFunc;
 
 type
   TNewCheckListBoxAccess = class(TNewCheckListBox);
@@ -97,8 +97,10 @@ end;
 function TNewCheckListBoxMSAAHelper.HandleMSAAGetObject(var Message: TMessage): Boolean;
 begin
   { Per docs, lParam must be casted to DWORD (32 bits) because it may be
-    sign-extended in a 64-bit process }
-  Result := (DWORD(Message.LParam) = OBJID_CLIENT) and InitializeOleAcc;
+    sign-extended in a 64-bit process. Bail when destroying: the window
+    outlives the DisconnectMSAAObject call in Destroy. }
+  Result := (DWORD(Message.LParam) = OBJID_CLIENT) and
+    not (csDestroying in ComponentState) and InitializeOleAcc;
   if Result then begin
     if FAccObjectInstance = nil then begin
       try
