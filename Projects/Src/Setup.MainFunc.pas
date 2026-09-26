@@ -2947,7 +2947,10 @@ var
       so that Setup can launch "runasoriginaluser" processes without them
       inheriting Setup's RedirectionGuard mode. This process, which will be
       the spawn server process, doesn't enable RedirectionGuard on itself (but
-      could possibly inherit an enabled state from an ancestor process). }
+      could possibly inherit an enabled state from an ancestor process).
+      We respawn even on Windows versions without RedirectionGuard support,
+      because we prefer not taking different code paths on different
+      Windows versions. }
     if ShouldEnableRedirectionGuard then begin
       { Don't respawn when SetupLdrMode=False and the EXE has an .e32/.e64
         extension, because that indicates the Setup project is being run under
