@@ -796,7 +796,7 @@ begin
           if SelectedIndex > TopIndex then
             SelectedIndex := TopIndex
           else if SelectedIndex > 0 then begin
-            TmpIdx := YToIdx(IdxToY(SelectedIndex) + GetItemHeight - ClientHeight);
+            TmpIdx := YToIdx(IdxToY(SelectedIndex) + GetItemHeight - ClientHeight); { Also see WMVScroll }
             if TmpIdx < 0 then
               TmpIdx := 0;
             SelectedIndex := TmpIdx;
@@ -1237,7 +1237,7 @@ begin
     SB_PAGEDOWN:
       Delta := ClientHeight;
     SB_PAGEUP:
-      Delta := -ClientHeight;
+      TopIndex := YToIdx(IdxToY(TopIndex) + GetItemHeight - ClientHeight); { Also see KeyDown }
     SB_THUMBPOSITION, SB_THUMBTRACK:
       begin
         var ScrollInfo: TScrollInfo;
