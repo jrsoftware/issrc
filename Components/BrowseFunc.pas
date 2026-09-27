@@ -49,11 +49,9 @@ function BrowseForFolder(const Prompt: String; var Directory: String;
 
 var
   InitialDir: String;
-  FileDialog: IFileDialog;
   Options: DWORD;
   ActiveWindow: HWND;
   WindowList: Pointer;
-  ShellItem: IShellItem;
   ResultPath: PChar;
 begin
   Result := False;
@@ -66,6 +64,7 @@ begin
   const SaveHooks = TStyleManager.SystemHooks;
   TStyleManager.SystemHooks := []; { See below }
   try
+    var FileDialog: IFileDialog;
     if Failed(CoCreateInstance(CLSID_FileOpenDialog, nil, CLSCTX_INPROC_SERVER, IID_IFileDialog, FileDialog)) or
        Failed(FileDialog.GetOptions(Options)) then { On Windows 11 this returned FOS_NOCHANGEDIR or FOS_PATHMUSTEXIST or FOS_FILEMUSTEXIST }
       Exit;
@@ -77,6 +76,7 @@ begin
     if Prompt <> '' then
       FileDialog.SetTitle(PChar(RemoveSinglePeriod(Prompt)));
 
+    var ShellItem: IShellItem;
     if (InitialDir <> '') and Succeeded(SHCreateItemFromParsingName(PChar(InitialDir), nil, IID_IShellItem, ShellItem)) then
       FileDialog.SetFolder(ShellItem);
 
