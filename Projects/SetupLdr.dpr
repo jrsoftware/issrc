@@ -143,7 +143,7 @@ end;
 
 procedure ActivateDefaultLanguage;
 { Auto-detects the most appropriate language and activates it.
-  Note: A like-named version of this function is also present in Main.pas. }
+  Note: A like-named version of this function is also present in Setup.MainFunc.pas. }
 var
   I: Integer;
 begin

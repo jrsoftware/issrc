@@ -571,7 +571,7 @@ var
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
-  {This function is a combination of InstFuncs' InstExec and Compile's InternalSignCommand }
+  {This function is a combination of Setup.InstFunc's InstExec and Compiler.SetupCompiler's InternalSignCommand }
 
   if Filename = '>' then
     CmdLine := Params

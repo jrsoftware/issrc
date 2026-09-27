@@ -147,7 +147,7 @@ var
     Result := I = 0;
   end;
 
-  { Also see Main.pas }
+  { Also see Setup.MainFunc.pas }
   function ExistingInstallationAt(const RegView: TRegView; const RootKey: HKEY): Boolean;
   var
     K: HKEY;
@@ -358,7 +358,7 @@ begin
       SetDWordValue(H2, 'EstimatedSize', DWORD(EstimatedSize));
     end;
 
-    { Also see SetPreviousData in ScriptFunc.pas }
+    { Also see SetCodePreviousData in Setup.ScriptFunc.HelperFunc.pas }
     if CodeRunner <> nil then begin
       try
         CodeRunner.RunProcedures('RegisterPreviousData', [Integer(H2)], False);

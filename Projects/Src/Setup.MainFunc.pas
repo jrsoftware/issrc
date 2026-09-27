@@ -368,7 +368,7 @@ begin
   Result := Format('%s\%s_is1', [REGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName]);
 end;
 
-{ Based on FindPreviousData in Wizard.pas }
+{ Based on FindPreviousData in Setup.WizardForm.pas }
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
 var
   H: HKEY;
@@ -3046,7 +3046,7 @@ var
     end;
   end;
   
-  { Also see Install.pas }
+  { Also see Setup.Install.pas }
   function ExistingInstallationAt(const RootKey: HKEY; const SubkeyName: String): Boolean;
   var
     K: HKEY;

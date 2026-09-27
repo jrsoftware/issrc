@@ -1570,7 +1570,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
 { Returns True if S contains constants. Aborts compile if they are invalid. }
 
   function CheckEnvConst(C: String): Boolean;
-  { based on ExpandEnvConst in Main.pas }
+  { based on ExpandEnvConst in Setup.MainFunc.pas }
   var
     I: Integer;
     VarName, Default: String;
@@ -1592,7 +1592,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
   function CheckRegConst(C: String): Boolean;
-  { based on ExpandRegConst in Main.pas }
+  { based on ExpandRegConst in Setup.MainFunc.pas }
   type
     TKeyNameConst = packed record
       KeyName: String;
@@ -1657,7 +1657,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
   function CheckIniConst(C: String): Boolean;
-  { based on ExpandIniConst in Main.pas }
+  { based on ExpandIniConst in Setup.MainFunc.pas }
   var
     Z, Filename, Section, Key, Default: String;
     I: Integer;

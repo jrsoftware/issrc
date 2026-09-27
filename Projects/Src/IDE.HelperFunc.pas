@@ -579,7 +579,7 @@ begin
       Result := PrependModifiers(KeyName);
   end;
 
-  { Example CompForm test code:
+  { Example IDE.MainForm test code:
     SetFakeShortCut(HDonate, ShortCut(VK_OEM_1, []));
     SetFakeShortCut(HShortcutsDoc, ShortCut(VK_OEM_PLUS, []));
     SetFakeShortCut(HDoc, ShortCut(VK_OEM_COMMA, []));
