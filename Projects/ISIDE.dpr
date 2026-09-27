@@ -185,7 +185,7 @@ begin
     if CommandLineNoRecentlyOpened then
       CommandLine := TrimRight('-norecent ' + CommandLine);
 
-    if Length(CommandLine) > RESTART_MAX_CMD_LINE then
+    if Length(CommandLine) >= RESTART_MAX_CMD_LINE then
       CommandLine := '';
 
     Func(PWideChar(CommandLine), RESTART_NO_CRASH or RESTART_NO_HANG or RESTART_NO_REBOOT);
