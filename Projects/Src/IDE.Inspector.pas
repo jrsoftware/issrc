@@ -160,7 +160,7 @@ type
       Item: TJvCustomInspectorItem; Edit: TEdit);
     procedure JvInspectorKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure JvInspectorLeafNameDblClick(Item: TJvCustomInspectorItem);
+    procedure JvInspectorNameDblClick(Item: TJvCustomInspectorItem);
     procedure JvInspectorEditButtonClick(Item: TJvCustomInspectorItem;
       var Value: String);
     procedure MessagesWndProc(var Message: TMessage);
@@ -304,7 +304,7 @@ begin
   FJvInspector.BeforeEdit := JvInspectorBeforeEdit;
   FJvInspector.OnKeyDown := JvInspectorKeyDown;
   FJvInspector.OnEditorKeyDown := JvInspectorKeyDown;
-  FJvInspector.OnLeafNameDblClick := JvInspectorLeafNameDblClick;
+  FJvInspector.OnNameDblClick := JvInspectorNameDblClick;
   FJvInspector.OnEditButtonClick := JvInspectorEditButtonClick;
   FJvInspector.OnGetAsOrdinal := RowGetAsOrdinal;
   FJvInspector.OnGetAsString := RowGetAsString;
@@ -606,7 +606,7 @@ begin
     AMemoLine := FLiveCodeSection.FirstLine + Line;
 end;
 
-procedure TInspector.JvInspectorLeafNameDblClick(Item: TJvCustomInspectorItem);
+procedure TInspector.JvInspectorNameDblClick(Item: TJvCustomInspectorItem);
 begin
   GoToSelectedRow;
 end;
@@ -1447,6 +1447,10 @@ procedure TInspector.UpdateFromCaret(const AForceRebuildNow: Boolean);
     Row.SubIndex := ASubIndex;
     Result := AddRow(AParent, ADisplayName, False, Row);
     Result.Flags := Result.Flags + [iifReadonly];
+    { Like VS Code's Outline: double-clicking a declaration goes to it instead
+      of expanding or collapsing it }
+    if ACodeKind in [ckRoutine, ckType, ckInterface, ckInterfaceMethod] then
+      Result.Flags := Result.Flags + [iifNameDblClickEvent];
   end;
 
   function AnyRoutineChildMatchesFilter(const ARoutine: TCodeSectionRoutine): Boolean;
