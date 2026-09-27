@@ -810,12 +810,8 @@ begin
           TmpIdx := GetLastFullVisible;
           if SelectedIndex < TmpIdx then
             SelectedIndex := TmpIdx
-          else if SelectedIndex < Pred(GetVisibleCount) then begin
-            TmpIdx := YToIdx(IdxToY(SelectedIndex) + GetItemHeight + ClientHeight);
-            if TmpIdx < 0 then
-              TmpIdx := Pred(GetVisibleCount);
-            SelectedIndex := TmpIdx;
-          end;
+          else if SelectedIndex < Pred(GetVisibleCount) then
+            SelectedIndex := SelectedIndex + ClientHeight div GetItemHeight; { Also see WMVScroll }
         end;
       VK_RIGHT:
         if (Item <> nil) and (Item.Count > 0) then begin
@@ -1240,7 +1236,7 @@ begin
     SB_LINEUP:
       TopIndex := TopIndex - 1;
     SB_PAGEDOWN:
-      Delta := ClientHeight;
+      TopIndex := TopIndex + ClientHeight div GetItemHeight; { Also see KeyDown }
     SB_PAGEUP:
       TopIndex := YToIdx(IdxToY(TopIndex) + GetItemHeight - ClientHeight); { Also see KeyDown }
     SB_THUMBPOSITION, SB_THUMBTRACK:
