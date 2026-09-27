@@ -4,7 +4,6 @@
 /setup-presign.bat
 /setup-sign.bat
 /Output
-
 # Directories created by the RAD Studio IDE whenever files are edited
 __history/
 __recovery/
