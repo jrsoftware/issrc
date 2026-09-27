@@ -1655,10 +1655,6 @@ procedure TInspector.UpdateFromCaret(const AForceRebuildNow: Boolean);
   end;
 
   procedure RebuildRows;
-  { Items must not be added, removed, expanded or collapsed while an in-place
-    edit is open: JvInspector's RebuildVisible can then reselect the wrong
-    item and break the edit. Safe here because Clear ends the edit before the
-    items change. }
   begin
     var SelectedIDWithIndex := '';
     var SelectedIDWithoutIndex := '';
@@ -1672,7 +1668,7 @@ procedure TInspector.UpdateFromCaret(const AForceRebuildNow: Boolean);
       const ExpandedStates = TDictionary<String, Boolean>.Create;
       try
         SaveExpandedStates(ExpandedStates, FJvInspector.Root);
-        FJvInspector.Clear;
+        FJvInspector.Clear; { Ends any edit }
         FRows.Clear;
 
         {$IFDEF DEBUG}

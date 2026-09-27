@@ -127,6 +127,8 @@ type
     function ApplicationHook(var Msg: TMessage): Boolean;
     procedure ApplyNameFont;
     procedure ApplyValueFont(const ACanvas: TCanvas);
+    procedure ChangeSelectedIndex(const OldItem: TJvCustomInspectorItem;
+      const OldIndex, NewIndex: Integer; const CancelEdits: Boolean);
     procedure DoPaintItem;
     procedure InvalidateItem(const Item: TJvCustomInspectorItem);
     procedure InvalidateRow(const Index: Integer);
@@ -1017,8 +1019,17 @@ begin
   FVisibleTags.Clear;
   AddChildren(Root);
   AnnounceReorderToMSAA;
-  if OldSel <> nil then
-    SelectedIndex := Integer(FVisibleList.IndexOf(OldSel));
+  if OldSel <> nil then begin
+    const NewIndex = Integer(FVisibleList.IndexOf(OldSel));
+    if NewIndex <> SelectedIndex then begin
+      const OldIndex = SelectedIndex;
+      { DoneEdit moves the focus to the inspector, and its WM_SETFOCUS handler
+        uses Selected. In the rebuilt list, OldIndex can point to another item. }
+      FSelectedIndex := -1;
+      { Cancels because applying can raise, and this can run from Paint }
+      ChangeSelectedIndex(OldSel, OldIndex, NewIndex, True);
+    end;
+  end;
   NeedRebuild := False;
 end;
 
@@ -1089,22 +1100,27 @@ begin
     Value := Pred(GetVisibleCount);
   if Value < -1 then
     Value := -1;
-  if Value <> SelectedIndex then begin
-    if not (csDestroying in ComponentState) then begin
-      const OldIndex = SelectedIndex;
-      if Selected <> nil then
-        Selected.DoneEdit(False);
-      FSelectedIndex := Value;
-      MarkedItem := nil; { Changing selection auto unmarks }
-      if Selected <> nil then begin
-        Selected.ScrollInView(False);
-        Selected.InitEdit;
-      end;
-      InvalidateRow(OldIndex);
-      InvalidateRow(Value);
-      AnnounceSelectionToMSAA;
-    end;
+  if (Value <> SelectedIndex) and not (csDestroying in ComponentState) then
+    ChangeSelectedIndex(Selected, SelectedIndex, Value, False);
+end;
+
+procedure TJvInspector.ChangeSelectedIndex(const OldItem: TJvCustomInspectorItem;
+  const OldIndex, NewIndex: Integer; const CancelEdits: Boolean);
+begin
+  const ItemChanged = GetVisibleItems(NewIndex) <> OldItem;
+  if ItemChanged and (OldItem <> nil) then
+    OldItem.DoneEdit(CancelEdits);
+  FSelectedIndex := NewIndex;
+  if ItemChanged then
+    MarkedItem := nil; { Changing selection auto unmarks }
+  if Selected <> nil then begin
+    Selected.ScrollInView(False);
+    if ItemChanged then
+      Selected.InitEdit;
   end;
+  InvalidateRow(OldIndex);
+  InvalidateRow(NewIndex);
+  AnnounceSelectionToMSAA;
 end;
 
 procedure TJvInspector.SetTopIndex(Value: Integer);
