@@ -153,6 +153,14 @@ begin
   end;
 end;
 
+procedure WriteError(const S: String);
+begin
+  if Options.MessagesJsonl then
+    WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', S, True, False)
+  else
+    WriteStdErr(S, True);
+end;
+
 function GetCursorPos: TPoint;
 var
   CSBI: TConsoleScreenBufferInfo;
@@ -368,7 +376,7 @@ begin
     InitISCmplrLibrary;
   except
     begin
-      WriteStdErr(Format('Could not load %s: %s', [ISCmplrDLL, GetExceptMessage]), True);
+      WriteError(Format('Could not load %s: %s', [ISCmplrDLL, GetExceptMessage]));
       Halt(1);
     end;
   end;
@@ -721,7 +729,7 @@ begin
 
   if CompilerVersionInfo.BinVersion < $05000500 then begin
     { 5.0.5 or later is required since we use TCompileScriptParamsEx }
-    WriteStdErr('Incompatible compiler engine version.', True);
+    WriteError('Incompatible compiler engine version.');
     Halt(1);
   end;
 
@@ -808,15 +816,12 @@ begin
       isceNoError: ;
       isceCompileFailure: begin
           ExitCode := 2;
-          if Options.MessagesJsonl then
-            WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', 'Compile aborted.', True, False)
-          else
-            WriteStdErr('Compile aborted.', True);
+          WriteError('Compile aborted.');
         end;
     else
       ExitCode := 1;
-      WriteStdErr(Format('Internal error: ISDllCompileScript returned ' +
-        'unexpected result (%d).', [Res]), True);
+      WriteError(Format('Internal error: ISDllCompileScript returned ' +
+        'unexpected result (%d).', [Res]));
     end;
   finally
     FreeScriptLines;
@@ -851,7 +856,7 @@ begin
     except
       { Show a friendlier exception message. (By default, Delphi prints out
         the exception class and address.) }
-      WriteStdErr(GetExceptMessage, True);
+      WriteError(GetExceptMessage);
       Halt(2);
     end;
   finally
