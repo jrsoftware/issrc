@@ -23,6 +23,7 @@ type
   TMainFormNavigationHelper = class helper(TMainFormUAHHelper) for TMainForm
     procedure RemoveMemoFromNavigation(const AMemo: TIDEScintEdit);
     procedure RemoveMemoBadLinesFromNavigation(const AMemo: TIDEScintEdit);
+    procedure ReplaceMemosInNavigation(const AMemoMap: TIDEScintEditNavMemoMap);
     procedure UpdateNavigationButtons;
     procedure NavigateBack;
     procedure NavigateForward;
@@ -56,6 +57,19 @@ begin
     deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
 end;
 
+procedure TMainFormNavigationHelper.ReplaceMemosInNavigation(const AMemoMap: TIDEScintEditNavMemoMap);
+begin
+  if FNavStacks.ReplaceMemos(AMemoMap) then
+    UpdateNavigationButtons;
+  var NewMemo: TIDEScintEdit;
+  if AMemoMap.TryGetValue(FCurrentNavItem.Memo, NewMemo) then begin
+    if NewMemo <> nil then
+      FCurrentNavItem.Memo := NewMemo
+    else
+      FCurrentNavItem.Invalidate;
+  end;
+end;
+
 procedure TMainFormNavigationHelper.UpdateNavigationButtons;
 begin
   ForwardNavButton.Enabled := FNavStacks.Forward.Count > 0;
@@ -70,11 +84,12 @@ begin
     always showing two dropdowns we keep the back button enabled when we need
     the dropdown. So we need to check for this. }
   if FNavStacks.Back.Count = 0 then begin
-    Beep;
+    SysUtils.Beep;
     Exit;
   end;
 
-  FNavStacks.Forward.Add(FCurrentNavItem);
+  if FCurrentNavItem.Valid then
+    FNavStacks.Forward.Add(FCurrentNavItem);
   var NewNavItem := FNavStacks.Back.ExtractAt(FNavStacks.Back.Count-1);
   UpdateNavigationButtons;
   FCurrentNavItem := NewNavItem; { Must be done *before* moving }
@@ -84,7 +99,8 @@ end;
 
 procedure TMainFormNavigationHelper.NavigateForward;
 begin
-  FNavStacks.Back.Add(FCurrentNavItem);
+  if FCurrentNavItem.Valid then
+    FNavStacks.Back.Add(FCurrentNavItem);
   var NewNavItem := FNavStacks.Forward.ExtractAt(FNavStacks.Forward.Count-1);
   UpdateNavigationButtons;
   FCurrentNavItem := NewNavItem; { Must be done *before* moving }
@@ -169,7 +185,8 @@ begin
 
   for var I := 0 to FNavStacks.Forward.Count-1 do
     AddNavItemToMenu(FNavStacks.Forward[I], False, FNavStacks.Forward.Count-I, Menu);
-  AddNavItemToMenu(FCurrentNavItem, True, 0, Menu);
+  if FCurrentNavItem.Valid then
+    AddNavItemToMenu(FCurrentNavItem, True, 0, Menu);
   for var I := FNavStacks.Back.Count-1 downto 0 do
     AddNavItemToMenu(FNavStacks.Back[I], False, -(FNavStacks.Back.Count-I), Menu);
 end;

@@ -2195,7 +2195,6 @@ begin
   AMemo.OpeningFile := True;
   try
     AFilename := PathExpand(AFilename);
-    const NameChange = not PathSame(AMemo.Filename, AFilename);
     const FilePosition = GetFilePosition(AMemo);
 
     Stream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
@@ -2209,8 +2208,6 @@ begin
         AMemo.BreakPoints.Clear;
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
-        if NameChange then  { Also see below the other case which needs to be done after load }
-          RemoveMemoFromNavigation(AMemo);
       end;
       GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
@@ -2229,7 +2226,7 @@ begin
       finally
         AMemo.ReadOnly := WasReadOnly;
       end;
-      if (AMemo <> FMainMemo) and not NameChange then
+      if AMemo <> FMainMemo then
         RemoveMemoBadLinesFromNavigation(AMemo);
     finally
       if IsReload then
@@ -5033,28 +5030,60 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, Include
   procedure HideFileMemo(const Memo: TIDEScintFileEdit);
   begin
     Memo.BreakPoints.Clear;
-    if Memo.Used then
-      RemoveMemoFromNavigation(Memo);
+    RemoveMemoFromNavigation(Memo); { Also for an unused memo, which can still hold entries }
     Memo.Used := False;
     Memo.Visible := False;
+  end;
+
+  { Moves the navigation entries of the files which moved to another memo. Must
+    be called after the memos have been assigned to the included files but
+    before OpenFile is called for any of them, else the moved entries are
+    checked against the wrong file }
+  procedure UpdateNavigationForNewIncludedFilesMemos;
+  begin
+    const MemoMap = TIDEScintEditNavMemoMap.Create;
+    try
+      for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
+        const Memo = FFileMemos[I];
+        if Memo.Used then begin
+          var NewMemo: TIDEScintFileEdit := nil; { Stays nil if the file is no longer included or has no memo anymore }
+          for var IncludedFile in FIncludedFiles do begin
+            if PathSame(IncludedFile.Filename, Memo.Filename) then begin
+              NewMemo := IncludedFile.Memo;
+              Break;
+            end;
+          end;
+          if NewMemo <> Memo then
+            MemoMap.Add(Memo, NewMemo);
+        end;
+      end;
+      ReplaceMemosInNavigation(MemoMap);
+    finally
+      MemoMap.Free;
+    end;
   end;
 
   procedure UpdateIncludedFilesMemos(const NewTabs, NewHints: TStringList;
     const NewCloseButtons: TBoolList);
   begin
     if FOptions.OpenIncludedFiles and (FIncludedFiles.Count > 0) then begin
+      { Assign all memos first, so the navigation entries can follow their files
+        before any file is loaded, and so a file which fails to open below does
+        not move the files after it to other memos }
       var NextMemoIndex := FirstIncludedFilesMemoIndex;
+      for var IncludedFile in FIncludedFiles do begin
+        if NextMemoIndex < FFileMemos.Count then begin
+          IncludedFile.Memo := FFileMemos[NextMemoIndex];
+          Inc(NextMemoIndex);
+        end else
+          IncludedFile.Memo := nil; { We're out of memos :( }
+      end;
+      UpdateNavigationForNewIncludedFilesMemos;
+
       var NextTabIndex := 1; { First tab displays the main memo  }
-      for var IncludedFileIndex := 0 to FIncludedFiles.Count-1 do begin
-        const IncludedFile = FIncludedFiles[IncludedFileIndex];
-
-        if NextMemoIndex = FFileMemos.Count then begin
-          { We're out of memos :( }
-          IncludedFile.Memo := nil;
+      for var IncludedFile in FIncludedFiles do begin
+        if IncludedFile.Memo = nil then
           Continue;
-        end;
-
-        IncludedFile.Memo := FFileMemos[NextMemoIndex];
         try
           const MemoHasFile = IncludedFile.Memo.Used and
             PathSame(IncludedFile.Memo.Filename, IncludedFile.Filename);
@@ -5083,15 +5112,11 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, Include
             NewCloseButtons.Insert(NextTabIndex, True);
             Inc(NextTabIndex);
           end;
-
-          Inc(NextMemoIndex);
         except on E: Exception do
           begin
             StatusMessage(smkWarning, LFmtMessage(SCompilerStatusFailedToOpenIncludedFile, [E.Message]));
-            { Hide the memo but keep it for this file, so the next file stays on its own memo }
             HideFileMemo(IncludedFile.Memo);
             IncludedFile.Memo := nil;
-            Inc(NextMemoIndex);
           end;
         end;
       end;
