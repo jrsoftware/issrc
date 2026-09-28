@@ -571,6 +571,7 @@ type
     FHighContrastActive: Boolean;
     FDonateImageMenuItem: TMenuItem;
     FAllowUpdateInspectorPanelWidth: Boolean;
+    FInAppOnActivate: Boolean;
     FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
     procedure AppOnActivate(Sender: TObject);
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
@@ -629,6 +630,8 @@ type
       const IsReload: Boolean = False);
     procedure OpenMRUMainFile(const AFilename: String);
     procedure ParseDebugInfo(DebugInfo: Pointer);
+    function PromptToSaveIncludedFileMemos: Boolean;
+    function PromptToSaveMemo(const AMemo: TIDEScintFileEdit): Boolean;
     procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
     function SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
@@ -2350,26 +2353,33 @@ begin
   end;
 end;
 
-function TMainForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
-
-  function PromptToSaveMemo(const AMemo: TIDEScintFileEdit): Boolean;
-  var
-    FileTitle: String;
-  begin
-    Result := True;
-    if AMemo.Modified then begin
-      FileTitle := GetFileTitle(AMemo.Filename);
-      case MsgBox(LFmtMessage(SCompilerFileChangedSavePrompt, [FileTitle]),
-         LFmtMessage(SCompilerFormCaption), mbError,
-         MB_YESNOCANCEL) of
-        IDYES: Result := SaveFile(AMemo, False);
-        IDNO: ;
-      else
-        Result := False;
-      end;
+function TMainForm.PromptToSaveMemo(const AMemo: TIDEScintFileEdit): Boolean;
+var
+  FileTitle: String;
+begin
+  Result := True;
+  if AMemo.Modified then begin
+    FileTitle := GetFileTitle(AMemo.Filename);
+    case MsgBox(LFmtMessage(SCompilerFileChangedSavePrompt, [FileTitle]),
+       LFmtMessage(SCompilerFormCaption), mbError,
+       MB_YESNOCANCEL) of
+      IDYES: Result := SaveFile(AMemo, False);
+      IDNO: ;
+    else
+      Result := False;
     end;
   end;
+end;
 
+function TMainForm.PromptToSaveIncludedFileMemos: Boolean;
+begin
+  for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do
+    if FFileMemos[I].Used and not PromptToSaveMemo(FFileMemos[I]) then
+      Exit(False);
+  Result := True;
+end;
+
+function TMainForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
 var
   Memo: TIDEScintFileEdit;
 begin
@@ -4578,8 +4588,11 @@ begin
 
     const SaveLanguage = FOptions.Language;
 
-    if OptionsForm.ShowModal <> mrOK then
-      Exit;
+    repeat
+      if OptionsForm.ShowModal <> mrOK then
+        Exit;
+    until not FOptions.OpenIncludedFiles or OptionsForm.OpenIncludedFilesCheck.Checked or
+      PromptToSaveIncludedFileMemos;
 
     FOptions.ShowStartupForm := OptionsForm.StartupCheck.Checked;
     FOptions.UseWizard := OptionsForm.WizardCheck.Checked;
@@ -7220,17 +7233,17 @@ const
   ReloadMessages: array[Boolean] of String = (
     SCompilerFileModifiedReload,
     SCompilerFileModifiedReloadChanged);
-var
-  Memo: TIDEScintFileEdit;
-  NewTime: TFileTime;
-  Changed: Boolean;
-begin
-  for Memo in FFileMemos do begin
+
+  function OfferReloadIfModifiedOutside(const Memo: TIDEScintFileEdit): Boolean;
+  { Returns True if the main script was reloaded }
+  begin
+    Result := False;
     if (Memo.Filename = '') or not Memo.Used then
-      Continue;
+      Exit;
 
     { See if the file has been modified outside the editor }
-    Changed := False;
+    var Changed := False;
+    var NewTime: TFileTime;
     if GetLastWriteTimeOfFile(Memo.Filename, @NewTime) then begin
       if CompareFileTime(Memo.FileLastWriteTime, NewTime) <> 0 then begin
         Memo.FileLastWriteTime := NewTime;
@@ -7244,10 +7257,9 @@ begin
         if (not Memo.Modified and FOptions.Autoreload) or
            (MsgBox(LFmtMessage(ReloadMessages[Memo.Modified], [Memo.Filename]),
               LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES) then
-          if ConfirmCloseFile(False) then begin
+          if ConfirmCloseFile(False) and ((Memo <> FMainMemo) or PromptToSaveIncludedFileMemos) then begin
             OpenFile(Memo, Memo.Filename, False, FOptions.UndoAfterReload);
-            if Memo = FMainMemo then
-              Break; { Reloading the main script will also reload all include files }
+            Result := Memo = FMainMemo;
           end;
       end
       else begin
@@ -7257,6 +7269,25 @@ begin
           LFmtMessage(SCompilerFormCaption), mbInformation, MB_OK);
       end;
     end;
+  end;
+
+begin
+  { A prompt below lets the user switch away and back, which calls this again }
+  if FInAppOnActivate then
+    Exit;
+  FInAppOnActivate := True;
+  try
+    { Check included files with unsaved edits first, so the user sees any external
+      change before a main script reload offers to save them }
+    for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do
+      if FFileMemos[I].Modified then
+        OfferReloadIfModifiedOutside(FFileMemos[I]);
+
+    for var Memo in FFileMemos do
+      if OfferReloadIfModifiedOutside(Memo) then
+        Break; { The main script was reloaded, which also reloads all include files }
+  finally
+    FInAppOnActivate := False;
   end;
 end;
 
