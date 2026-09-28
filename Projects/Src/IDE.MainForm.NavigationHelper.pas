@@ -54,7 +54,7 @@ begin
   if FNavStacks.RemoveMemoBadLines(AMemo) then
     UpdateNavigationButtons;
   { We do NOT update FCurrentNav here so it might point to a line that's
-    deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
+    deleted until next UpdateCaretPosPanelAndBackNavStack by UpdateMemoUI }
 end;
 
 procedure TMainFormNavigationHelper.ReplaceMemosInNavigation(const AMemoMap: TIDEScintEditNavMemoMap);

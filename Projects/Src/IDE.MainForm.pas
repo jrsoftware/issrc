@@ -5439,7 +5439,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
     if FNavStacks.LinesDeleted(Memo, FirstLine, Count) then
       UpdateNavigationButtons;
     { We do NOT update FCurrentNavItem here so it might point to a line that's
-      deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
+      deleted until next UpdateCaretPosPanelAndBackNavStack by UpdateMemoUI }
 
     { When lines are deleted, Scintilla insists on moving all of the deleted
       lines' markers to the line on which the deletion started
