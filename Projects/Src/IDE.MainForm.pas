@@ -1726,7 +1726,8 @@ begin
   if (Key = VK_F1) and (Shift * [ssShift, ssAlt, ssCtrl] = []) then begin
     Key := 0;
     ShowHelp(FActiveMemo.WordAtCaret);
-  end else if ((Key = Ord('V')) or (Key = VK_INSERT)) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl]) then begin
+  end else if ((Key = Ord('V')) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl])) or
+              ((Key = VK_INSERT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift])) then begin
     if FActiveMemo.CanPaste then
       if MultipleSelectionPasteFromClipboard(FActiveMemo) then
         Key := 0;
