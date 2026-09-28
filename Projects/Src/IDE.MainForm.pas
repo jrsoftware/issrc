@@ -1848,6 +1848,17 @@ begin
      ((ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2)) then
     Exit(False);
 
+  { If EFindRegEx uses Alt+R as the shortcut just like VSCode then also handle it like VSCode:
+    when the memo does not have the focus open the Run menu (also Alt+R) instead. Only done
+    here for the key: a mouse click on the menu item must always toggle }
+  const AltR = ShortCut(Ord('R'), [ssAlt]);
+  if (EFindRegEx.ShortCut = AltR) and
+     (ShortCut(Message.CharCode, KeyDataToShiftState(Message.KeyData)) = AltR) and
+     not FActiveMemo.Focused then begin
+    SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r'));
+    Exit(True);
+  end;
+
   Result := inherited;
 end;
 
@@ -4012,15 +4023,9 @@ end;
 
 procedure TMainForm.EFindRegExClick(Sender: TObject);
 begin
-  { If EFindRegEx uses Alt+R as the shortcut just like VSCode then also handle it like VSCode:
-    when the memo does not have the focus open the Run menu (also Alt+R) instead }
-  if not FActiveMemo.Focused and (EFindRegEx.ShortCut = ShortCut(Ord('R'), [ssAlt])) then
-    SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r'))
-  else begin
-    FOptions.FindRegEx := not FOptions.FindRegEx;
-    UpdateFindRegExUI;
-    SaveBooleanOption('FindRegEx', FOptions.FindRegEx);
-  end;
+  FOptions.FindRegEx := not FOptions.FindRegEx;
+  UpdateFindRegExUI;
+  SaveBooleanOption('FindRegEx', FOptions.FindRegEx);
 end;
 
 procedure TMainForm.EFoldOrUnfoldLineClick(Sender: TObject);
