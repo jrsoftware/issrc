@@ -2213,13 +2213,19 @@ begin
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
       Stream.Seek(0, soFromBeginning);
       const TextStr = LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
-      if IsReload and (AMemo.ChangeHistory <> schDisabled) then begin
-        { Workaround to minimize change history on reload }
-        AMemo.Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
-        const RawTextStr = AMemo.ConvertStringToRawString(TextStr);
-        AMemo.Call(SCI_REPLACETARGETMINIMAL, Length(RawTextStr), RawTextStr);
-      end else
-        AMemo.Lines.Text := TextStr;
+      const WasReadOnly = AMemo.ReadOnly; { True during a compile }
+      AMemo.ReadOnly := False;
+      try
+        if IsReload and (AMemo.ChangeHistory <> schDisabled) then begin
+          { Workaround to minimize change history on reload }
+          AMemo.Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
+          const RawTextStr = AMemo.ConvertStringToRawString(TextStr);
+          AMemo.Call(SCI_REPLACETARGETMINIMAL, Length(RawTextStr), RawTextStr);
+        end else
+          AMemo.Lines.Text := TextStr;
+      finally
+        AMemo.ReadOnly := WasReadOnly;
+      end;
       if (AMemo <> FMainMemo) and not NameChange then
         RemoveMemoBadLinesFromNavigation(AMemo);
     finally
