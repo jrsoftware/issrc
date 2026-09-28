@@ -27,7 +27,7 @@ type
     procedure UpdateNavigationButtons;
     procedure NavigateBack;
     procedure NavigateForward;
-    procedure HandleNavigationAppCommand(var Message: TMessage);
+    function HandleNavigationAppCommand(const Message: TMessage): Boolean;
     procedure UpdateNavigationMenu(const Menu: TMenuItem);
     procedure UpdateBackNavigationStack;
     { Private }
@@ -108,19 +108,19 @@ begin
     NewNavItem.Memo.GetPositionFromLineColumn(NewNavItem.Line, NewNavItem.Column), False, True, NewNavItem.VirtualSpace);
 end;
 
-procedure TMainFormNavigationHelper.HandleNavigationAppCommand(var Message: TMessage);
+function TMainFormNavigationHelper.HandleNavigationAppCommand(const Message: TMessage): Boolean;
 begin
-  var Command := GET_APPCOMMAND_LPARAM(Integer(Message.LParam));
+  const Command = GET_APPCOMMAND_LPARAM(Integer(Message.LParam));
 
+  Result := True;
   if Command = APPCOMMAND_BROWSER_BACKWARD then begin
     if BackNavButton.Enabled then
       BackNavButton.Click;
-    Message.Result := 1;
   end else if Command = APPCOMMAND_BROWSER_FORWARD then begin
     if ForwardNavButton.Enabled then
       ForwardNavButton.Click;
-    Message.Result := 1;
-  end;
+  end else
+    Result := False;
 end;
 
 procedure TMainFormNavigationHelper._NavigationMenuItemClick(Sender: TObject);

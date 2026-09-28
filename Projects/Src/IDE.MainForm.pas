@@ -4890,7 +4890,10 @@ end;
 
 procedure TMainForm.WMAppCommand(var Message: TMessage);
 begin
-  HandleNavigationAppCommand(Message);
+  if HandleNavigationAppCommand(Message) then
+    Message.Result := 1
+  else
+    inherited;
 end;
 
 procedure TMainForm.NavPopupMenuClick(Sender: TObject);
