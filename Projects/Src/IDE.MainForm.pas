@@ -4737,9 +4737,9 @@ begin
       raise Exception.CreateFmt('MemoToTabIndex called for hidden file memo: %s',
         [GetDisplayFilename((AMemo as TIDEScintFileEdit).Filename)]);
 
-   { Filter memos explicitly hidden by the user }
+    { Filter unused memos and memos explicitly hidden by the user }
     for var MemoIndex := Result-1 downto 0 do
-      if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) <> -1 then
+      if not FFileMemos[MemoIndex].Used or (FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) <> -1) then
         Dec(Result);
   end;
 end;
@@ -4761,10 +4761,10 @@ begin
   else if FPreprocessorOutputMemo.Used and (ATabIndex = AMaxTabIndex) then
     Result := FMemos[1] { Last tab displays the preprocessor output memo which is FMemos[1] }
   else begin
-    { Only count memos not explicitly hidden by the user }
+    { Only count used memos not explicitly hidden by the user }
     var TabIndex := 0;
     for var MemoIndex := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
-      if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) = -1 then begin
+      if FFileMemos[MemoIndex].Used and (FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) = -1) then begin
         Inc(TabIndex);
         if TabIndex = ATabIndex then begin
           Result := FMemos[MemoIndex + 1];   { Other tabs display include files which start at second tab but at FMemos[2] }
@@ -4970,7 +4970,11 @@ end;
 
 procedure TMainForm.UpdateMemosTabSetVisibility;
 begin
-  MemosTabSet.Visible := FPreprocessorOutputMemo.Used or FFileMemos[FirstIncludedFilesMemoIndex].Used;
+  var AnyIncludedFileMemoUsed := False;
+  for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do
+    if FFileMemos[I].Used then
+      AnyIncludedFileMemoUsed := True;
+  MemosTabSet.Visible := FPreprocessorOutputMemo.Used or AnyIncludedFileMemoUsed;
   if not MemosTabSet.Visible then
     MemosTabSet.TabIndex := 0; { For next time }
 end;
@@ -5011,6 +5015,15 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, Include
       FPreprocessorOutputMemo.Used := False;
       FPreprocessorOutputMemo.Visible := False;
     end;
+  end;
+
+  procedure HideFileMemo(const Memo: TIDEScintFileEdit);
+  begin
+    Memo.BreakPoints.Clear;
+    if Memo.Used then
+      RemoveMemoFromNavigation(Memo);
+    Memo.Used := False;
+    Memo.Visible := False;
   end;
 
   procedure UpdateIncludedFilesMemos(const NewTabs, NewHints: TStringList;
@@ -5062,26 +5075,19 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, Include
         except on E: Exception do
           begin
             StatusMessage(smkWarning, LFmtMessage(SCompilerStatusFailedToOpenIncludedFile, [E.Message]));
+            { Hide the memo but keep it for this file, so the next file stays on its own memo }
+            HideFileMemo(IncludedFile.Memo);
             IncludedFile.Memo := nil;
+            Inc(NextMemoIndex);
           end;
         end;
       end;
       { Hide any remaining memos }
-      for var I := NextMemoIndex to FFileMemos.Count-1 do begin
-        FFileMemos[I].BreakPoints.Clear;
-        if FFileMemos[I].Used then
-          RemoveMemoFromNavigation(FFileMemos[I]);
-        FFileMemos[I].Used := False;
-        FFileMemos[I].Visible := False;
-      end;
+      for var I := NextMemoIndex to FFileMemos.Count-1 do
+        HideFileMemo(FFileMemos[I]);
     end else begin
-      for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
-        FFileMemos[I].BreakPoints.Clear;
-        if FFileMemos[I].Used then
-          RemoveMemoFromNavigation(FFileMemos[I]);
-        FFileMemos[I].Used := False;
-        FFileMemos[I].Visible := False;
-      end;
+      for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do
+        HideFileMemo(FFileMemos[I]);
       for var IncludedFile in FIncludedFiles do
         IncludedFile.Memo := nil;
     end;
