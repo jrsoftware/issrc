@@ -67,8 +67,8 @@ type
   TIncludedFile = class
     Filename: String;
     CompilerFileIndex: Integer;
-    LastWriteTime: TFileTime;
-    HasLastWriteTime: Boolean;
+    LastWriteTimeWhenAdded: TFileTime;
+    HasLastWriteTimeWhenAdded: Boolean;
     Memo: TIDEScintFileEdit; { nil if the amount of #include files (visible or hidden) is more than MaxMemos allows }
   end;
 
@@ -659,7 +659,8 @@ type
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModeStatusPanel;
     procedure UpdateFindRegExUI;
-    procedure UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean = False);
+    procedure UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean = False;
+      const IncludedFilesJustAdded: Boolean = False);
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
     procedure UpdateImages;
     procedure UpdateMarginsAndAutoCompleteIcons;
@@ -2032,12 +2033,12 @@ begin
               var IncludedFile := TIncludedFile.Create;
               IncludedFile.Filename := Filename;
               IncludedFile.CompilerFileIndex := UnknownCompilerFileIndex;
-              IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
-                @IncludedFile.LastWriteTime);
+              IncludedFile.HasLastWriteTimeWhenAdded := GetLastWriteTimeOfFile(IncludedFile.Filename,
+                @IncludedFile.LastWriteTimeWhenAdded);
               FIncludedFiles.Add(IncludedFile);
             end;
           finally
-            UpdatePreprocMemos;
+            UpdatePreprocMemos(False, True);
           end;
         end;
       finally
@@ -2421,6 +2422,7 @@ type
     ErrorFilename: String;
     ErrorLine: Integer;
     Aborted: Boolean;
+    IncludedFilesJustAdded: Boolean;
   end;
 
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
@@ -2448,8 +2450,8 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
             const IncludedFile = TIncludedFile.Create;
             IncludedFile.Filename := GetCleanFileNameOfFile(P);
             IncludedFile.CompilerFileIndex := I;
-            IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
-              @IncludedFile.LastWriteTime);
+            IncludedFile.HasLastWriteTimeWhenAdded := GetLastWriteTimeOfFile(IncludedFile.Filename,
+              @IncludedFile.LastWriteTimeWhenAdded);
             IncludedFiles.Add(IncludedFile);
 
             if AutoHideNew and (PrevIncludedFiles.IndexOf(IncludedFile.Filename) = -1) then begin
@@ -2542,6 +2544,7 @@ begin
           { Also stores last write time }
           DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles,
             Form.FOptions.AutoHideNewIncludedFiles, Form.FHiddenFiles);
+          IncludedFilesJustAdded := True;
           CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
           Form.InvalidateStatusPanel(spHiddenFilesCount);
           Form.BuildAndSaveKnownIncludedAndHiddenFiles;
@@ -2765,7 +2768,7 @@ begin
     FInspector.UpdateReadOnly;
     UpdateRunMenuItems;
     UpdateCaption;
-    UpdatePreprocMemos;
+    UpdatePreprocMemos(False, AppData.IncludedFilesJustAdded);
     if AppData.DebugInfo <> nil then begin
       try
         ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
@@ -4968,8 +4971,10 @@ begin
     StatusBar.Panels[spModified].Text := '';
 end;
 
-{ Set DontUpdateRelatedVisibilty if you're going to call this function again, avoids flicker }
-procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean);
+{ Set DontUpdateRelatedVisibilty if you're going to call this function again, avoids flicker.
+  Set IncludedFilesJustAdded if FIncludedFiles was just filled, to reload memos which no longer match
+  their file on disk. The memos must be unmodified, because the reload discards changes without a prompt. }
+procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, IncludedFilesJustAdded: Boolean);
 
   procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList;
     const NewCloseButtons: TBoolList);
@@ -5015,18 +5020,19 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
         try
           if not IncludedFile.Memo.Used or
              not PathSame(IncludedFile.Memo.Filename, IncludedFile.Filename) or
-             not IncludedFile.HasLastWriteTime or
-             (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0) then begin
+             (IncludedFilesJustAdded and
+              (not IncludedFile.HasLastWriteTimeWhenAdded or
+               (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTimeWhenAdded) <> 0))) then begin
             IncludedFile.Memo.Filename := IncludedFile.Filename;
             IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
             OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
             IncludedFile.Memo.Used := True;
           end else begin
             { The memo assigned to the included file already has that file loaded
-              and is up-to-date so no call to OpenFile is needed. However, it could be
-              that CompilerFileIndex is not set yet. This happens if the initial
-              load was from the history loaded by LoadKnownIncludedAndHiddenFiles
-              and is followed by the user doing a compile. }
+              so no call to OpenFile is needed. However, it could be that
+              CompilerFileIndex is not set yet. This happens if the initial load
+              was from the history loaded by LoadKnownIncludedAndHiddenFiles and
+              is followed by the user doing a compile. }
             if IncludedFile.Memo.CompilerFileIndex = UnknownCompilerFileIndex then
               IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
           end;
@@ -6514,9 +6520,9 @@ procedure TMainForm.CompileIfNecessary;
   begin
     Result := False;
     for IncludedFile in FIncludedFiles do begin
-      if (IncludedFile.Memo = nil) and IncludedFile.HasLastWriteTime and
+      if (IncludedFile.Memo = nil) and IncludedFile.HasLastWriteTimeWhenAdded and
          GetLastWriteTimeOfFile(IncludedFile.Filename, @NewTime) and
-         (CompareFileTime(IncludedFile.LastWriteTime, NewTime) <> 0) then begin
+         (CompareFileTime(IncludedFile.LastWriteTimeWhenAdded, NewTime) <> 0) then begin
         Result := True;
         Exit;
       end;
