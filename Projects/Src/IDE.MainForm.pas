@@ -5018,6 +5018,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, Include
       finally
         FPreprocessorOutputMemo.ReadOnly := True;
       end;
+      RemoveMemoBadLinesFromNavigation(FPreprocessorOutputMemo);
       FPreprocessorOutputMemo.Used := True;
     end else begin
       if FPreprocessorOutputMemo.Used then
