@@ -2661,6 +2661,7 @@ begin
   OldActiveMemo := FActiveMemo;
   AppData := Default(TAppData);
   AppData.Lines := TStringList.Create;
+  var PreprocMemosUpdated := False;
   try
     FBuildAnimationFrame := 0;
     FProgress := 0;
@@ -2735,6 +2736,9 @@ begin
     if ISCompileScript(Params, False) <> isceNoError then begin
     {$ENDIF}
       if not ReadFromFile and (AppData.ErrorLine > 0) then begin
+        { The included files may have changed, so first reassign the memos }
+        UpdatePreprocMemos(False, AppData.IncludedFilesJustAdded);
+        PreprocMemosUpdated := True;
         Memo := GetMemoFromErrorFilename(AppData.ErrorFilename);
         if Memo <> nil then begin
           { Move the caret to the line number the error occurred on }
@@ -2775,7 +2779,8 @@ begin
     FInspector.UpdateReadOnly;
     UpdateRunMenuItems;
     UpdateCaption;
-    UpdatePreprocMemos(False, AppData.IncludedFilesJustAdded);
+    if not PreprocMemosUpdated then
+      UpdatePreprocMemos(False, AppData.IncludedFilesJustAdded);
     if AppData.DebugInfo <> nil then begin
       try
         ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
