@@ -140,7 +140,7 @@ type
     Line, Column, VirtualSpace: Integer;
     constructor Create(const AMemo: TIDEScintEdit);
     function EqualMemoAndLine(const ANavItem: TIDEScintEditNavItem): Boolean;
-    procedure Invalidate;
+    procedure Clear;
     function Valid: Boolean;
   end;
 
@@ -578,7 +578,7 @@ begin
   Result := (Memo = ANavItem.Memo) and (Line = ANavItem.Line);
 end;
 
-procedure TIDEScintEditNavItem.Invalidate;
+procedure TIDEScintEditNavItem.Clear;
 begin
   Memo := nil;
 end;
