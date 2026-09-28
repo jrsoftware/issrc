@@ -5018,14 +5018,16 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, Include
 
         IncludedFile.Memo := FFileMemos[NextMemoIndex];
         try
-          if not IncludedFile.Memo.Used or
-             not PathSame(IncludedFile.Memo.Filename, IncludedFile.Filename) or
+          const MemoHasFile = IncludedFile.Memo.Used and
+            PathSame(IncludedFile.Memo.Filename, IncludedFile.Filename);
+          if not MemoHasFile or
              (IncludedFilesJustAdded and
               (not IncludedFile.HasLastWriteTimeWhenAdded or
                (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTimeWhenAdded) <> 0))) then begin
             IncludedFile.Memo.Filename := IncludedFile.Filename;
             IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
-            OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
+            OpenFile(IncludedFile.Memo, IncludedFile.Filename, False,
+              MemoHasFile and FOptions.UndoAfterReload); { Also updates FileLastWriteTime }
             IncludedFile.Memo.Used := True;
           end else begin
             { The memo assigned to the included file already has that file loaded
