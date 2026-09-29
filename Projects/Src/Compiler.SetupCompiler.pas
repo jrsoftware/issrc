@@ -7170,18 +7170,14 @@ procedure TSetupCompiler.Compile;
     Inno Setup license agreement; see LICENSE.TXT. }
 
   procedure InitDebugInfo;
-  var
-    Header: TDebugInfoHeader;
   begin
     DebugEntryCount := 0;
     VariableDebugEntryCount := 0;
     DebugInfo.Clear;
     CodeDebugInfo.Clear;
+    var Header := Default(TDebugInfoHeader);
     Header.ID := DebugInfoHeaderID;
     Header.Version := DebugInfoHeaderVersion;
-    Header.DebugEntryCount := 0;
-    Header.CompiledCodeTextLength := 0;
-    Header.CompiledCodeDebugInfoLength := 0;
     DebugInfo.WriteBuffer(Header, SizeOf(Header));
   end;
 
