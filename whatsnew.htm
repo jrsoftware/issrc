@@ -175,6 +175,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Buttons of type <tt>TBitmapButton</tt> can now also be pressed with Enter, instead of only with Space, and take part in default button handling. They now descend from <tt>TButtonControl</tt> instead of <tt>TCustomControl</tt>, and new properties <tt>Cancel</tt> (which allows pressing them with Esc), <tt>Default</tt>, and <tt>ModalResult</tt> were added.</li>
   </ul>
   </li>
+  <li><i>Fix:</i> The compiler didn't display an error message anymore when a <tt>[Files]</tt> section entry installed a DLL file from your own Windows System directory to <tt>{sys}</tt> (broken since 7.0.0). Doing so is unsafe, as explained in the <a href="https://jrsoftware.org/ishelp/index.php?topic=unsafefiles">Unsafe Files</a> help topic.</li>
   <li>Updated the 7-Zip, LZMA SDK, and Scintilla source code used by Inno Setup to the latest versions.</li>
   <li>Other minor improvements and fixes.</li>
 </ul>
