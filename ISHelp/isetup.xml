@@ -1922,7 +1922,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="isreadme">
-<p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will be asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like <tt>.txt</tt> or <tt>.doc</tt>.</p>
+<p>File is the "README" file. When a file has this flag, Setup will show a checkbox on the <i>Setup Completed</i> wizard page, asking the user if they would like to view the README file. If it's checked, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like <tt>.txt</tt> or <tt>.doc</tt>.</p>
 <p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <sn>[Setup]</sn> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
 </flag>
 <flag name="nocompression">
@@ -2905,7 +2905,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <flag name="postinstall">
 <p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to create a checkbox on the <i>Setup Completed</i> wizard page. The user can uncheck or check this checkbox and thereby choose whether this entry should be processed or not. Previously this flag was called <tt>showcheckbox</tt>.</p>
 <p>If Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <sn>[Setup]</sn> section directive is <tt>yes</tt>), there will not be an opportunity for the checkbox to be displayed and therefore the entry will never be processed.</p>
-<p>The <tt>isreadme</tt> flag for entries in the <sn>[Files]</sn> section is now obsolete. If the compiler detects an entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the <sn>[Files]</sn> entry and inserts a generated <tt>[Run]</tt> entry at the head of the list of <tt>[Run]</tt> entries. This generated <tt>[Run]</tt> entry runs the README file and has flags <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, <tt>postinstall</tt>, and <tt>skipifsilent</tt>.</p>
+<p>The <tt>isreadme</tt> flag for entries in the <sn>[Files]</sn> section is now obsolete. If the compiler detects an entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the <sn>[Files]</sn> entry and inserts a generated <tt>[Run]</tt> entry at the head of the list of <tt>[Run]</tt> entries. This generated <tt>[Run]</tt> entry runs the README file and has flags <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, <tt>postinstall</tt>, <tt>skipifsilent</tt>, and <tt>runasoriginaluser</tt>.</p>
 </flag>
 <flag name="runascurrentuser">
 <p>If this flag is specified, the spawned process will inherit Setup/Uninstall's user credentials (typically, full administrative privileges).</p>
