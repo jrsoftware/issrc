@@ -318,9 +318,11 @@ begin
        (TVarData(pvarState).VType = VT_I4) and
        Assigned(FControl) then begin
       ItemState := FControl.ItemStates[TVarData(varChild).VInteger-1];
-      case ItemState.State of
-        cbChecked: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_CHECKED;
-        cbGrayed: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_MIXED;
+      if ItemState.ItemType <> itGroup then begin
+        case ItemState.State of
+          cbChecked: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_CHECKED;
+          cbGrayed: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_MIXED;
+        end;
       end;
       if not ItemState.Enabled then
         TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_UNAVAILABLE;
