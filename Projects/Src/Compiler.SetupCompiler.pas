@@ -3122,6 +3122,7 @@ begin
           SetupEncryptionHeader.EncryptionUse := euNone;
       end;
     ssEncryptionKeyDerivation: begin
+        Value := LowerCase(Value);
         if Value = 'pbkdf2' then
           SetupEncryptionHeader.KDFIterations := DefaultKDFIterations
         else if Copy(Value, 1, 7) = 'pbkdf2/' then begin
