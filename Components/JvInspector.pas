@@ -1890,6 +1890,7 @@ begin
     J := ListBox.ClientWidth;
     if ListBox.Items.Count > ListCount then
       Dec(J, GetSystemMetrics(SM_CXVSCROLL));
+    ListBox.Canvas.Font := ListBox.Font;
     for I := 0 to ListBox.Items.Count - 1 do begin
       Y := ListBox.Canvas.TextWidth(ListBox.Items[I]) + 4;
       if Y > J then
