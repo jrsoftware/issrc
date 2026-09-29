@@ -1337,10 +1337,13 @@ end;
 procedure TJvInspector.Clear;
 begin
   BeginUpdate;
-  SelectedIndex := -1;
-  Root.FItems.Clear;
-  InvalidateList;
-  EndUpdate;
+  try
+    SelectedIndex := -1;
+    Root.FItems.Clear;
+    InvalidateList;
+  finally
+    EndUpdate;
+  end;
 end;
 
 function TJvInspector.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;
