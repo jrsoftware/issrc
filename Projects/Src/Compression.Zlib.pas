@@ -282,9 +282,10 @@ begin
       { Note: If avail_in is zero while zlib still needs input, inflate() will
         return Z_BUF_ERROR. We interpret that as a data error (see below). }
     end;
-    case Check(inflate(FStrm, Z_NO_FLUSH), [Z_OK, Z_STREAM_END, Z_DATA_ERROR, Z_BUF_ERROR]) of
+    { We never use a preset dictionary, so Z_NEED_DICT means corrupted data }
+    case Check(inflate(FStrm, Z_NO_FLUSH), [Z_OK, Z_STREAM_END, Z_NEED_DICT, Z_DATA_ERROR, Z_BUF_ERROR]) of
       Z_STREAM_END: FReachedEnd := True;
-      Z_DATA_ERROR, Z_BUF_ERROR: raise ECompressDataError.Create(SZlibDataError);
+      Z_NEED_DICT, Z_DATA_ERROR, Z_BUF_ERROR: raise ECompressDataError.Create(SZlibDataError);
     end;
   end;
 end;
