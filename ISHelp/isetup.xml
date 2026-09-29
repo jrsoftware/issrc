@@ -1924,6 +1924,8 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="isreadme">
 <p>File is the "README" file. When a file has this flag, Setup will show a checkbox on the <i>Setup Completed</i> wizard page, asking the user if they would like to view the README file. If it's checked, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like <tt>.txt</tt> or <tt>.doc</tt>.</p>
 <p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <sn>[Setup]</sn> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
+<p>This flag is ignored if Setup is running silently.</p>
+<p>The compiler implements this flag using a generated <sn>[Run]</sn> entry. See the <sn>[Run]</sn> section flag <tt><link topic="runsection" anchor="postinstall">postinstall</link></tt> for details.</p>
 </flag>
 <flag name="nocompression">
 <p>Prevents the compiler from attempting to compress the file. Use this flag on file types that you know can't benefit from compression (for example, JPEG images) to speed up the compilation process and save a few bytes in the resulting installation.</p>
@@ -2905,7 +2907,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <flag name="postinstall">
 <p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to create a checkbox on the <i>Setup Completed</i> wizard page. The user can uncheck or check this checkbox and thereby choose whether this entry should be processed or not. Previously this flag was called <tt>showcheckbox</tt>.</p>
 <p>If Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <sn>[Setup]</sn> section directive is <tt>yes</tt>), there will not be an opportunity for the checkbox to be displayed and therefore the entry will never be processed.</p>
-<p>The <tt>isreadme</tt> flag for entries in the <sn>[Files]</sn> section is now obsolete. If the compiler detects an entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the <sn>[Files]</sn> entry and inserts a generated <tt>[Run]</tt> entry at the head of the list of <tt>[Run]</tt> entries. This generated <tt>[Run]</tt> entry runs the README file and has flags <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, <tt>postinstall</tt>, <tt>skipifsilent</tt>, and <tt>runasoriginaluser</tt>.</p>
+<p>The <tt><link topic="filessection" anchor="isreadme">isreadme</link></tt> flag for entries in the <sn>[Files]</sn> section is implemented using this flag. If the compiler detects an entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the <sn>[Files]</sn> entry and inserts a generated <tt>[Run]</tt> entry at the head of the list of <tt>[Run]</tt> entries. This generated <tt>[Run]</tt> entry runs the README file and has flags <tt>postinstall</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, and <tt>skipifsilent</tt>.</p>
 </flag>
 <flag name="runascurrentuser">
 <p>If this flag is specified, the spawned process will inherit Setup/Uninstall's user credentials (typically, full administrative privileges).</p>
@@ -2937,10 +2939,10 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <p>When this flag is used, <tt>Filename</tt> must be an absolute path.</p>
 </flag>
 <flag name="skipifnotsilent">
-<p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to skip this entry if Setup is not running (very) silent.</p>
+<p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to skip this entry if Setup is not running silently.</p>
 </flag>
 <flag name="skipifsilent">
-<p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to skip this entry if Setup is running (very) silent.</p>
+<p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to skip this entry if Setup is running silently.</p>
 </flag>
 <flag name="unchecked">
 <p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to initially uncheck the checkbox. The user can still check the checkbox if they wish to process the entry. This flag is ignored if the <tt>postinstall</tt> flag isn't also specified.</p>
@@ -6155,7 +6157,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setuptopic directive="InfoAfterFile">
 <body>
 <p>Specifies the name of an optional "readme" file, in <tt>.txt</tt> or <tt>.rtf</tt> (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
-<p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
+<p>This differs from <tt><link topic="filessection" anchor="isreadme">isreadme</link></tt> files in that this text is displayed as a page of the wizard, instead of being opened in a separate program.</p>
 <p>If the user selects a language for which the <tt>InfoAfterFile</tt> parameter is set, this directive is effectively ignored. See the <sn>[Languages]</sn> section documentation for more information.</p>
 <p>If a Unicode <tt>.txt</tt> file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a <tt>.rtf</tt> file with custom colors, see <sd>LicenseFile</sd> for special considerations.</p>
