@@ -4438,8 +4438,6 @@ begin
       ProcessMinVersionParameter(Values[paMinVersion], MinVersion);
       ProcessOnlyBelowVersionParameter(Values[paOnlyBelowVersion], OnlyBelowVersion);
 
-      if Pos('"', IconName) <> 0 then
-        AbortCompileParamError(SCompilerParamNoQuotes2, ParamIconsName);
       if PathPos('\', IconName) = 0 then
         AbortCompile(SCompilerIconsNamePathNotSpecified);
 
