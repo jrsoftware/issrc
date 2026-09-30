@@ -5,7 +5,7 @@
    -Use CP_UTF8 in PrintPath
    -Fix Utf16_To_Char to handle CP_UTF7 and CP_UTF8's special rules
    -Change main to mainW to support Unicode archive names
-   -Add specific error text for SZ_ERROR_DATA, SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, and SZ_ERROR_PROGRESS
+   -Add specific error text for SZ_ERROR_DATA, SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, SZ_ERROR_INPUT_EOF, and SZ_ERROR_PROGRESS
    -Return res on errors instead of always returning 1
    -Return wres with bit 29 set on file errors instead of 1, SZ_ERROR_READ, or SZ_ERROR_FAIL
    -Add optional progress reporting with abort option
@@ -1336,6 +1336,8 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     PrintError("archive corrupt");
   else if (res == SZ_ERROR_NO_ARCHIVE)
     PrintError("not an archive");
+  else if (res == SZ_ERROR_INPUT_EOF)
+    PrintError("Unexpected end of archive");
   else if (res == SZ_ERROR_READ /* || archiveStream.Res != 0 */)
     PrintError_WRes("Read Error", archiveStream.wres);
   else if (res == SZ_ERROR_PROGRESS)

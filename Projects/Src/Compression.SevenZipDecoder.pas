@@ -355,6 +355,7 @@ procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; c
     SZ_ERROR_MEM = 2;
     SZ_ERROR_CRC = 3;
     SZ_ERROR_UNSUPPORTED = 4;
+    SZ_ERROR_INPUT_EOF = 6;
     SZ_ERROR_ARCHIVE = 16;
     SZ_ERROR_NO_ARCHIVE = 17;
     APPLICATION_ERROR_MASK = $20000000; { From winnt.h }
@@ -367,7 +368,7 @@ procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; c
       case Res of
         SZ_ERROR_UNSUPPORTED, SZ_ERROR_NO_ARCHIVE:
           SevenZipError(SetupMessages[msgArchiveUnsupportedFormat]);
-        SZ_ERROR_DATA, SZ_ERROR_CRC, SZ_ERROR_ARCHIVE:
+        SZ_ERROR_DATA, SZ_ERROR_CRC, SZ_ERROR_INPUT_EOF, SZ_ERROR_ARCHIVE:
           SevenZipError(SetupMessages[msgArchiveIsCorrupted]);
         SZ_ERROR_MEM:
           SevenZipError(Win32ErrorString(DWORD(E_OUTOFMEMORY)));
