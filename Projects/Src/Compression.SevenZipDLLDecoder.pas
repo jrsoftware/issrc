@@ -434,7 +434,7 @@ begin
     the name of other volumes (like archive.7z.002) }
   try
     if propID = kpidName then
-      value := FArchiveFilename
+      value := PathExtractName(FArchiveFilename) { Not the full path: the split handler uses it as the path of its item }
     else
       value := Unassigned; { Not sure if this is really needed }
     Result := S_OK;
@@ -453,8 +453,9 @@ begin
     S_FALSE or set instream to nil when it tries to open a volume which doesn't exists (like
     archive.7z.003 when there's two volumes only). }
   try
-    if NewFileExists(name) then begin
-      const F = TFile.Create(name, fdOpenExisting, faRead, fsRead);
+    const Filename = PathCombine(PathExtractPath(FArchiveFilename), name);
+    if NewFileExists(Filename) then begin
+      const F = TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
       instream := TInStream.Create(F);
     end else
       instream := nil;
