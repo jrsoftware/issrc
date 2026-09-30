@@ -1022,7 +1022,8 @@ end;
 function InternalNewForceDirectories(Dir: String;
   const RecursionDepth: Cardinal = 0): Boolean;
 { Returns True if a new directory was created, or if the directory already
-  existed. Also see MakeDir for similar code (but different return value). }
+  existed. On failure LastError is set. Also see MakeDir for similar code
+  (but different return value). }
 begin
   Dir := RemoveBackslashUnlessRoot(Dir);
 
@@ -1031,8 +1032,10 @@ begin
   if DirExists(Dir) then
     Exit(True);
 
-  if RecursionDepth >= 50 then
+  if RecursionDepth >= 50 then begin
+    SetLastError(ERROR_CANNOT_MAKE);
     Exit(False);
+  end;
   if not InternalNewForceDirectories(PathExtractDir(Dir), RecursionDepth + 1) then
     Exit(False);
 
