@@ -1030,8 +1030,11 @@ begin
   const InStream: IInStream = TInStream.Create(F); { InStream now owns F }
   var ScanSize := DefaultScanSize;
   const OpenCallback: IArchiveOpenCallback = TArchiveOpenFileCallback.Create(ArchiveFileName, Password);
-  if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then begin
-    if clsid = CLSID_HandlerRar then { Try RAR5 instead of RAR4 }
+  const OpenResult = Result.Open(InStream, @ScanSize, OpenCallback);
+  if OpenResult <> S_OK then begin
+    if HResultFacility(OpenResult) = FACILITY_WIN32 then
+      SevenZipWin32Error('Open', DWORD(HResultCode(OpenResult)))
+    else if clsid = CLSID_HandlerRar then { Try RAR5 instead of RAR4 }
       Exit(OpenArchive(ArchiveFilename, Password, CLSID_HandlerRar5, numItems))
     else
       SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot open file as archive' { Just like Client7z.cpp });
