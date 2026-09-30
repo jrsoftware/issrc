@@ -5902,6 +5902,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>Normally two file entries referring to the same source file will be compressed and stored only once. If you have a bunch of identical files in your installation, make them point to the same source file in the script, and the size of your installation can drop significantly. If you wish to disable this feature for some reason, set this directive to <tt>no</tt>.</p>
+<p>The compiler normalizes the pathnames of the source files before comparing them. For example, <tt>Readme.txt</tt> and <tt>.\Readme.txt</tt> refer to the same source file.</p>
 </body>
 </setuptopic>
 
@@ -7115,6 +7116,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p><tt>$p</tt>, replaced by the Sign Tool parameters.</p>
 <p><tt>$q</tt>, replaced by a quote, useful for defining a Sign Tool which contains quotes from the command line.</p>
 <p><tt>$$</tt>, replaced by a single <tt>$</tt> character.</p>
+<p>When signing original source files, the file name for <tt>$f</tt> is an extended-length path, also known as a super path, such as <tt>"\\?\C:\My Program\MyProg.exe"</tt>. Make sure that your Sign Tool supports such paths.</p>
 <p>Assume the following Sign Tools have been defined in the Compiler IDE or <link topic="compilercmdline">on the compiler command line</link>:</p>
 <ul appearance="compact">
 <li>mystandard=signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f</li>

@@ -336,6 +336,15 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   </li>
 </ul>
 
+<p>The compiler now also works with extended-length paths for the source files of <tt>[Files]</tt> section entries.</p>
+
+<p>Related changes:</p>
+<ul>
+  <li>The compiler output and the manifest file created by <tt>OutputManifestFile</tt> now show these source files as extended-length paths.</li>
+  <li>For the <tt>sign</tt> and <tt>signonce</tt> flags, the file name passed to a Sign Tool is now an extended-length path. Make sure that your Sign Tool supports such paths.</li>
+  <li>For <tt>MergeDuplicateFiles</tt>, the compiler now normalizes the pathnames of the source files before comparing them. For example, <tt>Readme.txt</tt> and <tt>.\Readme.txt</tt> now refer to the same source file.</li>
+</ul>
+
 <span class="head2">Security improvements</span>
 
 <ul>
