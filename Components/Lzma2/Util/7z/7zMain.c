@@ -13,6 +13,7 @@
    -Add support for overwriting read-only files by removing the read-only attribute instead of always deleting the file
    -Add option to disable terminal checking
    -Add option to disable path normalization to allow custom implementation by host
+   -Fix mainW to close the output file when writing to it fails
    Otherwise unchanged */
 
 #include "Precomp.h"
@@ -1224,6 +1225,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
               PrintError_WRes("cannot write output file", wres);
               resWRes = wres;
               res = SZ_ERROR_FAIL;
+              File_Close(&outFile);
               break;
             }
           }
