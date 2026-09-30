@@ -7757,7 +7757,12 @@ var
 
           if (FLExtraInfo.Sign = fsYes) or ((FLExtraInfo.Sign = fsOnce) and not SignatureFound) then begin
             AddStatus(Format(SCompilerStatusSigningSourceFile, [FileLocationEntryFilename]));
-            Sign(FileLocationEntryFilename);
+            { Sign Tools might not support super paths }
+            var NormalFilename: String;
+            if PathConvertSuperToNormal(FileLocationEntryFilename, NormalFilename) then
+              Sign(NormalFilename)
+            else
+              Sign(FileLocationEntryFilename);
             CallIdleProc;
           end else if FLExtraInfo.Sign = fsOnce then
             AddStatus(Format(SCompilerStatusSourceFileAlreadySigned, [FileLocationEntryFilename]))
