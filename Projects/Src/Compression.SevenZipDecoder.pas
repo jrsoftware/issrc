@@ -362,7 +362,7 @@ procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; c
     { Logging already done by 7zMain.c }
 
     if (Res and APPLICATION_ERROR_MASK) <> 0 then
-      SevenZipWin32Error('Extract7ZipArchive', DWORD(Res and not APPLICATION_ERROR_MASK))
+      SevenZipWin32Error('Extract', DWORD(Res and not APPLICATION_ERROR_MASK))
     else begin
       case Res of
         SZ_ERROR_UNSUPPORTED, SZ_ERROR_NO_ARCHIVE:
