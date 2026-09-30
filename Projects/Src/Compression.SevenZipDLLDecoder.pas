@@ -278,6 +278,14 @@ begin
     Attrib := Attrib and $3FFF;
 end;
 
+function Win32ErrorToHResult(const ErrorCode: DWORD): HRESULT;
+begin
+  if ErrorCode <> 0 then
+    Result := HResultFromWin32(Integer(ErrorCode))
+  else
+    Result := E_FAIL;
+end;
+
 { TInStream }
 
 constructor TInStream.Create(const AFile: TFile);
@@ -301,6 +309,8 @@ begin
       processedSize^ := BytesRead;
     Result := S_OK;
   except
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -323,6 +333,8 @@ begin
       newPosition^ := UInt64(FFile.Position);
     Result := S_OK;
   except
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -353,6 +365,8 @@ begin
       processedSize^ := size;
     Result := S_OK;
   except
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -446,6 +460,8 @@ begin
       instream := nil;
     Result := S_OK;
   except
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -657,6 +673,8 @@ procedure TArchiveExtractBaseCallback.HandleResult;
   begin
     if Res = E_OUTOFMEMORY then
       SevenZipError(Win32ErrorString(DWORD(E_OUTOFMEMORY)))
+    else if HResultFacility(Res) = FACILITY_WIN32 then
+      SevenZipWin32Error('Extract', DWORD(HResultCode(Res)))
     else
       SevenZipWin32Error('Extract', DWORD(Res));
   end;
@@ -729,7 +747,7 @@ begin
           if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
             OleError(E_ACCESSDENIED);
           if not NewForceDirectories(NewCurrent.ExpandedPath) then
-            OleError(E_FAIL);
+            OleError(Win32ErrorToHResult(GetLastError));
         end;
         outStream := nil;
       end else begin
@@ -746,7 +764,7 @@ begin
         if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
           OleError(E_ACCESSDENIED);
         if not NewForceDirectories(PathExtractDir(NewCurrent.ExpandedPath)) then
-          OleError(E_FAIL);
+          OleError(Win32ErrorToHResult(GetLastError));
         const ExistingFileAttr = GetFileAttributes(PChar(NewCurrent.ExpandedPath));
         if (ExistingFileAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
@@ -782,6 +800,8 @@ begin
   except
     on E: EOleSysError do
       Result := E.ErrorCode;
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -892,6 +912,8 @@ begin
   except
     on E: EOleSysError do
       Result := E.ErrorCode;
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
