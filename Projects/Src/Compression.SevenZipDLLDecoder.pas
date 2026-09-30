@@ -101,13 +101,13 @@ type
 
   TArchiveOpenFileCallback = class(TArchiveOpenCallback, IArchiveOpenVolumeCallback)
   private
-    FArchiveFilename: String;
+    FExpandedArchiveFilename: String;
   protected
     { IArchiveOpenVolumeCallback - queried for by 7-Zip on IArchiveOpenCallback }
     function GetProperty(propID: PROPID; var value: OleVariant): HRESULT; stdcall;
     function GetStream(const name: PChar; var inStream: IInStream): HRESULT; stdcall;
   public
-    constructor Create(const ArchiveFilename, Password: String);
+    constructor Create(const ExpandedArchiveFilename, Password: String);
   end;
 
   TArchiveExtractBaseCallback = class(TArchiveCallback, IArchiveExtractCallback)
@@ -421,10 +421,10 @@ end;
 
 { TArchiveOpenFileCallback }
 
-constructor TArchiveOpenFileCallback.Create(const ArchiveFilename, Password: String);
+constructor TArchiveOpenFileCallback.Create(const ExpandedArchiveFilename, Password: String);
 begin
   inherited Create(Password);
-  FArchiveFilename := ArchiveFilename;
+  FExpandedArchiveFilename := ExpandedArchiveFilename;
 end;
 
 function TArchiveOpenFileCallback.GetProperty(propID: PROPID; var value: OleVariant): HRESULT;
@@ -434,7 +434,7 @@ begin
     the name of other volumes (like archive.7z.002) }
   try
     if propID = kpidName then
-      value := PathExtractName(FArchiveFilename) { Not the full path: the split handler uses it as the path of its item }
+      value := PathExtractName(FExpandedArchiveFilename) { Not the full path: the split handler uses it as the path of its item }
     else
       value := Unassigned; { Not sure if this is really needed }
     Result := S_OK;
@@ -451,9 +451,14 @@ begin
   { This is for multi-volume archives: after 7-Zip figures out the name of other volumes (like
     archive.7z.002) it will then use this callback to open it. The callback must either return
     S_FALSE or set instream to nil when it tries to open a volume which doesn't exists (like
-    archive.7z.003 when there's two volumes only). }
+    archive.7z.003 when there's two volumes only). Note: .cab, .vhd, .vhdx, and .vmdk take the
+    name from the archive content, so validate the name first. }
   try
-    const Filename = PathCombine(PathExtractPath(FArchiveFilename), name);
+    var CleanName: String := name;
+    StringChange(CleanName, '/', '\'); { Just like 7zMain.c }
+    var Filename: String;
+    if not ValidateAndCombinePath(PathExtractPath(FExpandedArchiveFilename), CleanName, Filename) then
+      Exit(S_FALSE);
     if NewFileExists(Filename) then begin
       const F = TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
       instream := TInStream.Create(F);
@@ -1011,7 +1016,7 @@ begin
   end;
 end;
 
-function OpenArchive(const ArchiveFilename, Password: String; const clsid: TGUID;
+function OpenArchive(const ExpandedArchiveFilename, Password: String; const clsid: TGUID;
   out numItems: UInt32): IInArchive;
 const
   DefaultScanSize: Int64 = 1 shl 23; { From Client7z.cpp }
@@ -1023,20 +1028,20 @@ begin
   { Open }
   var F: TFile := nil; { Set to nil to silence compiler }
   try
-    F := TFile.Create(ArchiveFilename, fdOpenExisting, faRead, fsRead);
+    F := TFile.Create(ExpandedArchiveFilename, fdOpenExisting, faRead, fsRead);
   except
     on E: EFileError do
       SevenZipWin32Error('CreateFile', E.ErrorCode);
   end;
   const InStream: IInStream = TInStream.Create(F); { InStream now owns F }
   var ScanSize := DefaultScanSize;
-  const OpenCallback: IArchiveOpenCallback = TArchiveOpenFileCallback.Create(ArchiveFileName, Password);
+  const OpenCallback: IArchiveOpenCallback = TArchiveOpenFileCallback.Create(ExpandedArchiveFilename, Password);
   const OpenResult = Result.Open(InStream, @ScanSize, OpenCallback);
   if OpenResult <> S_OK then begin
     if HResultFacility(OpenResult) = FACILITY_WIN32 then
       SevenZipWin32Error('Open', DWORD(HResultCode(OpenResult)))
     else if clsid = CLSID_HandlerRar then { Try RAR5 instead of RAR4 }
-      Exit(OpenArchive(ArchiveFilename, Password, CLSID_HandlerRar5, numItems))
+      Exit(OpenArchive(ExpandedArchiveFilename, Password, CLSID_HandlerRar5, numItems))
     else
       SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot open file as archive' { Just like Client7z.cpp });
   end;
@@ -1062,7 +1067,7 @@ begin
     if not GetProperty(Result, MainSubFile, kpidPath, MainSubFilePath) then
       Exit;
     if MainSubFilePath = '' then
-      MainSubFilePath := PathChangeExt(ArchiveFilename, '');
+      MainSubFilePath := PathChangeExt(ExpandedArchiveFilename, '');
 
     var SubClsid: TGUID;
     try
@@ -1106,15 +1111,17 @@ begin
 
   LogBannerOnce;
 
+  var ExpandedArchiveFilename, ExpandedDestDir: String;
+  if not PathConvertNormalToSuper(ArchiveFilename, ExpandedArchiveFilename) or
+     not PathConvertNormalToSuper(DestDir, ExpandedDestDir) then
+    InternalError('ExtractArchive: PathConvertNormalToSuper failed');
+
   { Open }
   var numItems: UInt32;
-  const InArchive = OpenArchive(ArchiveFilename, Password,
+  const InArchive = OpenArchive(ExpandedArchiveFilename, Password,
     clsid, numItems);
 
   { Extract }
-  var ExpandedDestDir: String;
-  if not PathConvertNormalToSuper(DestDir, ExpandedDestDir) then
-    InternalError('ExtractArchive: PathConvertNormalToSuper failed');
   const ExtractCallback: IArchiveExtractCallback =
     TArchiveExtractAllCallback.Create(InArchive, numItems,
       ArchiveFilename, ExpandedDestDir, Password, FullPaths, OnExtractionProgress);
@@ -1194,15 +1201,19 @@ begin
 
   LogBannerOnce;
 
-  { Open }
+  var ExpandedArchiveFilename: String;
+  if not PathConvertNormalToSuper(ArchiveFilename, ExpandedArchiveFilename) then
+    InternalError('ArchiveFindFirstFile: PathConvertNormalToSuper failed');
   var State := Default(TArchiveFindState);
-  State.InArchive := OpenArchive(ArchiveFilename, Password, clsid, State.numItems);
   if DestDir <> '' then begin
     var ExpandedDestDir: String;
     if not PathConvertNormalToSuper(DestDir, ExpandedDestDir) then
       InternalError('ArchiveFindFirstFile: PathConvertNormalToSuper failed');
     State.ExpandedDestDir := AddBackslash(ExpandedDestDir);
   end;
+
+  { Open }
+  State.InArchive := OpenArchive(ExpandedArchiveFilename, Password, clsid, State.numItems);
   State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
   State.Password := Password;
   State.RecurseSubDirs := RecurseSubDirs;
