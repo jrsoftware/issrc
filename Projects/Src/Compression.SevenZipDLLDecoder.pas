@@ -34,10 +34,17 @@ procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const
   was found. }
 type
   TArchiveFindHandle = type NativeUInt;
+  { Subset of TWin32FindData, except that cFileName is a String }
+  TArchiveFindData = record
+    dwFileAttributes: DWORD;
+    ftCreationTime, ftLastWriteTime: TFileTime;
+    nFileSizeHigh, nFileSizeLow: DWORD;
+    cFileName: String;
+  end;
   TOnExtractToHandleProgress = procedure(const Bytes, Param: Int64);
 function ArchiveFindFirstFile(const ArchiveFilename, DestDir, Password: String;
-  const RecurseSubDirs, ExtractIntent: Boolean; out FindFileData: TWin32FindData): TArchiveFindHandle;
-function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
+  const RecurseSubDirs, ExtractIntent: Boolean; out FindFileData: TArchiveFindData): TArchiveFindHandle;
+function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TArchiveFindData): Boolean;
 function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
 procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TFile;
   const OnExtractToHandleProgress: TOnExtractToHandleProgress; const OnExtractToHandleProgressParam: Int64);
@@ -1139,8 +1146,8 @@ type
     ExpandedDestDir, ExtractedArchiveName, Password: String;
     RecurseSubDirs: Boolean;
     currentIndex, numItems: UInt32;
-    function GetInitialCurrentFindData(out FindData: TWin32FindData): Boolean;
-    procedure FinishCurrentFindData(var FindData: TWin32FindData);
+    function GetInitialCurrentFindData(out FindData: TArchiveFindData): Boolean;
+    procedure FinishCurrentFindData(var FindData: TArchiveFindData);
   end;
 
   TArchiveFindStates = TList<TArchiveFindState>;
@@ -1148,7 +1155,7 @@ type
 var
   ArchiveFindStates: TArchiveFindStates;
 
-function TArchiveFindState.GetInitialCurrentFindData(out FindData: TWin32FindData): Boolean;
+function TArchiveFindState.GetInitialCurrentFindData(out FindData: TArchiveFindData): Boolean;
 
   function SkipFile(const Path: String; const IsDir: Boolean): Boolean;
   begin
@@ -1165,16 +1172,14 @@ begin
 
   Result := not SkipFile(Path, IsDir);
   if Result then begin
-    FindData := Default(TWin32FindData);
-    if Length(Path) >= MAX_PATH then
-      InternalError('GetInitialCurrentFindData: Length(Path) >= MAX_PATH');
-    StrPCopy(FindData.cFileName, Path);
+    FindData := Default(TArchiveFindData);
+    FindData.cFileName := Path;
     if IsDir then
       FindData.dwFileAttributes := FindData.dwFileAttributes or FILE_ATTRIBUTE_DIRECTORY;
   end;
 end;
 
-procedure TArchiveFindState.FinishCurrentFindData(var FindData: TWin32FindData);
+procedure TArchiveFindState.FinishCurrentFindData(var FindData: TArchiveFindData);
 begin
   if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
     var Attrib: DWORD;
@@ -1191,7 +1196,7 @@ begin
 end;
 
 function ArchiveFindFirstFile(const ArchiveFilename, DestDir, Password: String;
-  const RecurseSubDirs, ExtractIntent: Boolean; out FindFileData: TWin32FindData): TArchiveFindHandle;
+  const RecurseSubDirs, ExtractIntent: Boolean; out FindFileData: TArchiveFindData): TArchiveFindHandle;
 begin
   LogArchiveExtractionModeOnce;
 
@@ -1254,7 +1259,7 @@ begin
     InternalError('CheckFindFileHandle failed');
 end;
 
-function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
+function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TArchiveFindData): Boolean;
 begin
   const I = CheckFindFileHandle(FindFile);
   var State := ArchiveFindStates[I];
@@ -1288,7 +1293,7 @@ procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TF
 begin
   const State = ArchiveFindStates[CheckFindFileHandle(FindFile)];
 
-  var FindData: TWin32FindData;
+  var FindData: TArchiveFindData;
   if not State.GetInitialCurrentFindData(FindData) or
      (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY <> 0) then
     InternalError('ArchiveFindExtract: Invalid current');
