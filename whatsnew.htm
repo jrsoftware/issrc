@@ -177,6 +177,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   </li>
   <li><i>Fix:</i> The compiler didn't display an error message anymore when a <tt>[Files]</tt> section entry installed a DLL file from your own Windows System directory to <tt>{sys}</tt> (broken since 7.0.0). Doing so is unsafe, as explained in the <a href="https://jrsoftware.org/ishelp/index.php?topic=unsafefiles">Unsafe Files</a> help topic.</li>
   <li><i>Fix:</i> Inno Setup 7.0.0 introduced a maximum dictionary size of 3.8 GB instead of 1 GB for compression methods <tt>lzma</tt> and <tt>lzma2</tt> in 64-bit installers, but <tt>lzma2</tt> installers with a dictionary size above 3 GB failed to install, reporting that the source file was corrupted. They now support up to 3.8 GB as well.</li>
+  <li><i>Fix:</i> When <tt>ArchiveExtraction</tt> is set to <tt>basic</tt>, archive extraction reported that an archive was corrupted when it could not be opened, for example because another process had it open. It now reports the actual error.</li>
   <li>Updated the 7-Zip, LZMA SDK, and Scintilla source code used by Inno Setup to the latest versions.</li>
   <li>Other minor improvements and fixes.</li>
 </ul>

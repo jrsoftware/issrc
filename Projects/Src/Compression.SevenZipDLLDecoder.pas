@@ -203,19 +203,6 @@ type
 
 { Helper functions }
 
-procedure SevenZipWin32Error(const FunctionName: String; const ErrorCode: DWORD); overload;
-begin
-  const ExceptMessage = FmtSetupMessage(msgErrorFunctionFailedWithMessage,
-    [FunctionName, IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]);
-  const LogMessage = Format('Function %s returned error code %d', [FunctionName, ErrorCode]);
-  SevenZipError(ExceptMessage, LogMessage);
-end;
-
-procedure SevenZipWin32Error(const FunctionName: String); overload;
-begin
-  SevenZipWin32Error(FunctionName, GetLastError);
-end;
-
 function GetHandler(const Filename, NotFoundErrorMsg: String): TGUID; forward;
 
 const

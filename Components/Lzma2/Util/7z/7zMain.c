@@ -7,6 +7,7 @@
    -Change main to mainW to support Unicode archive names
    -Add specific error text for SZ_ERROR_DATA, SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, and SZ_ERROR_PROGRESS
    -Return res on errors instead of always returning 1
+   -Return wres with bit 29 set instead of 1 if the input file cannot be opened
    -Add optional progress reporting with abort option
    -Add optional output of SzArEx_Extract's output buffer sizes
    -Add support for overwriting read-only files by removing the read-only attribute instead of always deleting the file
@@ -952,7 +953,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     if (wres != 0)
     {
       PrintError_WRes("cannot open input file", wres);
-      return 1;
+      return (int)(wres | 0x20000000); /* APPLICATION_ERROR_MASK: no SRes or system error code has this bit set */
     }
   }
 
