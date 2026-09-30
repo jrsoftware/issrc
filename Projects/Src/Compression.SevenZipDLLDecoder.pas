@@ -456,6 +456,9 @@ begin
   try
     var CleanName: String := name;
     StringChange(CleanName, '/', '\'); { Just like 7zMain.c }
+    { The 7-Zip VHD and VHDX handlers remove a leading '.\' themselves, but the VMDK handler doesn't }
+    while PathStartsWith(CleanName, '.\') do
+      Delete(CleanName, 1, 2);
     var Filename: String;
     if not ValidateAndCombinePath(PathExtractPath(FExpandedArchiveFilename), CleanName, Filename) then
       Exit(S_FALSE);
