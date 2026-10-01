@@ -159,8 +159,6 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Buttons of type <tt>TBitmapButton</tt> can now also be pressed with Enter, instead of only with Space, and take part in default button handling. They now descend from <tt>TButtonControl</tt> instead of <tt>TCustomControl</tt>, and new properties <tt>Cancel</tt> (which allows pressing them with Esc), <tt>Default</tt>, and <tt>ModalResult</tt> were added.</li>
   </ul>
   </li>
-  <li><i>Fix:</i> When archive extraction failed to open, read, or write a file, for example because another process had it open, it could report that the archive was corrupted or an unspecified error. It now reports the actual error.</li>
-  <li><i>Fix:</i> <tt>[Files]</tt> section entries with the <tt>extractarchive</tt> and <tt>recursesubdirs</tt> flags failed with an internal error if the archive contained a path of 260 characters or longer. Support function <tt>ExtractArchive</tt> wasn't affected.</li>
   <li>Updated the 7-Zip, LZMA SDK, and Scintilla source code used by Inno Setup to the latest versions.</li>
   <li>Other minor improvements and fixes.</li>
 </ul>
