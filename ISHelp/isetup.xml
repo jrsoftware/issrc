@@ -7609,7 +7609,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <tr><td>10.0.28000</td><td>Windows 11 Version 26H1</td></tr>
 </table>
 <p>Note that except for Windows 11 there is normally no need to specify the build numbers (i.e., you may simply use <tt>6.2</tt> for Windows 8).</p>
-<p>Windows 11 Version 26H1 has a higher build number than Version 26H2. Because of this, a <tt>MinVersion</tt> of <tt>10.0.26300</tt> also allows Version 26H1.</p>
+<p>Windows 11 Version 26H1 has a higher build number than Version 26H2. Because of this, a <sd>MinVersion</sd> of <tt>10.0.26300</tt> also allows Version 26H1.</p>
 </body>
 </topic>
 
