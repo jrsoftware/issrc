@@ -34,10 +34,17 @@ procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const
   was found. }
 type
   TArchiveFindHandle = type NativeUInt;
+  { Subset of TWin32FindData, except that cFileName is a String }
+  TArchiveFindData = record
+    dwFileAttributes: DWORD;
+    ftCreationTime, ftLastWriteTime: TFileTime;
+    nFileSizeHigh, nFileSizeLow: DWORD;
+    cFileName: String;
+  end;
   TOnExtractToHandleProgress = procedure(const Bytes, Param: Int64);
 function ArchiveFindFirstFile(const ArchiveFilename, DestDir, Password: String;
-  const RecurseSubDirs, ExtractIntent: Boolean; out FindFileData: TWin32FindData): TArchiveFindHandle;
-function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
+  const RecurseSubDirs, ExtractIntent: Boolean; out FindFileData: TArchiveFindData): TArchiveFindHandle;
+function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TArchiveFindData): Boolean;
 function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
 procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TFile;
   const OnExtractToHandleProgress: TOnExtractToHandleProgress; const OnExtractToHandleProgressParam: Int64);
@@ -101,13 +108,13 @@ type
 
   TArchiveOpenFileCallback = class(TArchiveOpenCallback, IArchiveOpenVolumeCallback)
   private
-    FArchiveFilename: String;
+    FExpandedArchiveFilename: String;
   protected
     { IArchiveOpenVolumeCallback - queried for by 7-Zip on IArchiveOpenCallback }
     function GetProperty(propID: PROPID; var value: OleVariant): HRESULT; stdcall;
     function GetStream(const name: PChar; var inStream: IInStream): HRESULT; stdcall;
   public
-    constructor Create(const ArchiveFilename, Password: String);
+    constructor Create(const ExpandedArchiveFilename, Password: String);
   end;
 
   TArchiveExtractBaseCallback = class(TArchiveCallback, IArchiveExtractCallback)
@@ -203,19 +210,6 @@ type
 
 { Helper functions }
 
-procedure SevenZipWin32Error(const FunctionName: String; const ErrorCode: DWORD); overload;
-begin
-  const ExceptMessage = FmtSetupMessage(msgErrorFunctionFailedWithMessage,
-    [FunctionName, IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]);
-  const LogMessage = Format('Function %s returned error code %d', [FunctionName, ErrorCode]);
-  SevenZipError(ExceptMessage, LogMessage);
-end;
-
-procedure SevenZipWin32Error(const FunctionName: String); overload;
-begin
-  SevenZipWin32Error(FunctionName, GetLastError);
-end;
-
 function GetHandler(const Filename, NotFoundErrorMsg: String): TGUID; forward;
 
 const
@@ -291,6 +285,14 @@ begin
     Attrib := Attrib and $3FFF;
 end;
 
+function Win32ErrorToHResult(const ErrorCode: DWORD): HRESULT;
+begin
+  if ErrorCode <> 0 then
+    Result := HResultFromWin32(Integer(ErrorCode))
+  else
+    Result := E_FAIL;
+end;
+
 { TInStream }
 
 constructor TInStream.Create(const AFile: TFile);
@@ -314,6 +316,8 @@ begin
       processedSize^ := BytesRead;
     Result := S_OK;
   except
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -336,6 +340,8 @@ begin
       newPosition^ := UInt64(FFile.Position);
     Result := S_OK;
   except
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -366,6 +372,8 @@ begin
       processedSize^ := size;
     Result := S_OK;
   except
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -420,10 +428,10 @@ end;
 
 { TArchiveOpenFileCallback }
 
-constructor TArchiveOpenFileCallback.Create(const ArchiveFilename, Password: String);
+constructor TArchiveOpenFileCallback.Create(const ExpandedArchiveFilename, Password: String);
 begin
   inherited Create(Password);
-  FArchiveFilename := ArchiveFilename;
+  FExpandedArchiveFilename := ExpandedArchiveFilename;
 end;
 
 function TArchiveOpenFileCallback.GetProperty(propID: PROPID; var value: OleVariant): HRESULT;
@@ -433,7 +441,7 @@ begin
     the name of other volumes (like archive.7z.002) }
   try
     if propID = kpidName then
-      value := FArchiveFilename
+      value := PathExtractName(FExpandedArchiveFilename) { Not the full path: the split handler uses it as the path of its item }
     else
       value := Unassigned; { Not sure if this is really needed }
     Result := S_OK;
@@ -450,15 +458,26 @@ begin
   { This is for multi-volume archives: after 7-Zip figures out the name of other volumes (like
     archive.7z.002) it will then use this callback to open it. The callback must either return
     S_FALSE or set instream to nil when it tries to open a volume which doesn't exists (like
-    archive.7z.003 when there's two volumes only). }
+    archive.7z.003 when there's two volumes only). Note: .cab, .vhd, .vhdx, and .vmdk take the
+    name from the archive content, so validate the name first. }
   try
-    if NewFileExists(name) then begin
-      const F = TFile.Create(name, fdOpenExisting, faRead, fsRead);
+    var CleanName: String := name;
+    StringChange(CleanName, '/', '\'); { Just like 7zMain.c }
+    { The 7-Zip VHD and VHDX handlers remove a leading '.\' themselves, but the VMDK handler doesn't }
+    while PathStartsWith(CleanName, '.\') do
+      Delete(CleanName, 1, 2);
+    var Filename: String;
+    if not ValidateAndCombinePath(PathExtractPath(FExpandedArchiveFilename), CleanName, Filename) then
+      Exit(S_FALSE);
+    if NewFileExists(Filename) then begin
+      const F = TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
       instream := TInStream.Create(F);
     end else
       instream := nil;
     Result := S_OK;
   except
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -670,6 +689,8 @@ procedure TArchiveExtractBaseCallback.HandleResult;
   begin
     if Res = E_OUTOFMEMORY then
       SevenZipError(Win32ErrorString(DWORD(E_OUTOFMEMORY)))
+    else if HResultFacility(Res) = FACILITY_WIN32 then
+      SevenZipWin32Error('Extract', DWORD(HResultCode(Res)))
     else
       SevenZipWin32Error('Extract', DWORD(Res));
   end;
@@ -742,7 +763,7 @@ begin
           if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
             OleError(E_ACCESSDENIED);
           if not NewForceDirectories(NewCurrent.ExpandedPath) then
-            OleError(E_FAIL);
+            OleError(Win32ErrorToHResult(GetLastError));
         end;
         outStream := nil;
       end else begin
@@ -759,7 +780,7 @@ begin
         if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
           OleError(E_ACCESSDENIED);
         if not NewForceDirectories(PathExtractDir(NewCurrent.ExpandedPath)) then
-          OleError(E_FAIL);
+          OleError(Win32ErrorToHResult(GetLastError));
         const ExistingFileAttr = GetFileAttributes(PChar(NewCurrent.ExpandedPath));
         if (ExistingFileAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
@@ -795,6 +816,8 @@ begin
   except
     on E: EOleSysError do
       Result := E.ErrorCode;
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -905,6 +928,8 @@ begin
   except
     on E: EOleSysError do
       Result := E.ErrorCode;
+    on E: EFileError do
+      Result := Win32ErrorToHResult(E.ErrorCode);
     on E: EAbort do
       Result := E_ABORT
     else
@@ -1001,7 +1026,7 @@ begin
   end;
 end;
 
-function OpenArchive(const ArchiveFilename, Password: String; const clsid: TGUID;
+function OpenArchive(const ExpandedArchiveFilename, Password: String; const clsid: TGUID;
   out numItems: UInt32): IInArchive;
 const
   DefaultScanSize: Int64 = 1 shl 23; { From Client7z.cpp }
@@ -1013,17 +1038,20 @@ begin
   { Open }
   var F: TFile := nil; { Set to nil to silence compiler }
   try
-    F := TFile.Create(ArchiveFilename, fdOpenExisting, faRead, fsRead);
+    F := TFile.Create(ExpandedArchiveFilename, fdOpenExisting, faRead, fsRead);
   except
     on E: EFileError do
       SevenZipWin32Error('CreateFile', E.ErrorCode);
   end;
   const InStream: IInStream = TInStream.Create(F); { InStream now owns F }
   var ScanSize := DefaultScanSize;
-  const OpenCallback: IArchiveOpenCallback = TArchiveOpenFileCallback.Create(ArchiveFileName, Password);
-  if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then begin
-    if clsid = CLSID_HandlerRar then { Try RAR5 instead of RAR4 }
-      Exit(OpenArchive(ArchiveFilename, Password, CLSID_HandlerRar5, numItems))
+  const OpenCallback: IArchiveOpenCallback = TArchiveOpenFileCallback.Create(ExpandedArchiveFilename, Password);
+  const OpenResult = Result.Open(InStream, @ScanSize, OpenCallback);
+  if OpenResult <> S_OK then begin
+    if HResultFacility(OpenResult) = FACILITY_WIN32 then
+      SevenZipWin32Error('Open', DWORD(HResultCode(OpenResult)))
+    else if clsid = CLSID_HandlerRar then { Try RAR5 instead of RAR4 }
+      Exit(OpenArchive(ExpandedArchiveFilename, Password, CLSID_HandlerRar5, numItems))
     else
       SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot open file as archive' { Just like Client7z.cpp });
   end;
@@ -1049,7 +1077,7 @@ begin
     if not GetProperty(Result, MainSubFile, kpidPath, MainSubFilePath) then
       Exit;
     if MainSubFilePath = '' then
-      MainSubFilePath := PathChangeExt(ArchiveFilename, '');
+      MainSubFilePath := PathChangeExt(ExpandedArchiveFilename, '');
 
     var SubClsid: TGUID;
     try
@@ -1093,15 +1121,17 @@ begin
 
   LogBannerOnce;
 
+  var ExpandedArchiveFilename, ExpandedDestDir: String;
+  if not PathConvertNormalToSuper(ArchiveFilename, ExpandedArchiveFilename) or
+     not PathConvertNormalToSuper(DestDir, ExpandedDestDir) then
+    InternalError('ExtractArchive: PathConvertNormalToSuper failed');
+
   { Open }
   var numItems: UInt32;
-  const InArchive = OpenArchive(ArchiveFilename, Password,
+  const InArchive = OpenArchive(ExpandedArchiveFilename, Password,
     clsid, numItems);
 
   { Extract }
-  var ExpandedDestDir: String;
-  if not PathConvertNormalToSuper(DestDir, ExpandedDestDir) then
-    InternalError('ExtractArchive: PathConvertNormalToSuper failed');
   const ExtractCallback: IArchiveExtractCallback =
     TArchiveExtractAllCallback.Create(InArchive, numItems,
       ArchiveFilename, ExpandedDestDir, Password, FullPaths, OnExtractionProgress);
@@ -1118,8 +1148,8 @@ type
     ExpandedDestDir, ExtractedArchiveName, Password: String;
     RecurseSubDirs: Boolean;
     currentIndex, numItems: UInt32;
-    function GetInitialCurrentFindData(out FindData: TWin32FindData): Boolean;
-    procedure FinishCurrentFindData(var FindData: TWin32FindData);
+    function GetInitialCurrentFindData(out FindData: TArchiveFindData): Boolean;
+    procedure FinishCurrentFindData(var FindData: TArchiveFindData);
   end;
 
   TArchiveFindStates = TList<TArchiveFindState>;
@@ -1127,7 +1157,7 @@ type
 var
   ArchiveFindStates: TArchiveFindStates;
 
-function TArchiveFindState.GetInitialCurrentFindData(out FindData: TWin32FindData): Boolean;
+function TArchiveFindState.GetInitialCurrentFindData(out FindData: TArchiveFindData): Boolean;
 
   function SkipFile(const Path: String; const IsDir: Boolean): Boolean;
   begin
@@ -1144,16 +1174,14 @@ begin
 
   Result := not SkipFile(Path, IsDir);
   if Result then begin
-    FindData := Default(TWin32FindData);
-    if Length(Path) >= MAX_PATH then
-      InternalError('GetInitialCurrentFindData: Length(Path) >= MAX_PATH');
-    StrPCopy(FindData.cFileName, Path);
+    FindData := Default(TArchiveFindData);
+    FindData.cFileName := Path;
     if IsDir then
       FindData.dwFileAttributes := FindData.dwFileAttributes or FILE_ATTRIBUTE_DIRECTORY;
   end;
 end;
 
-procedure TArchiveFindState.FinishCurrentFindData(var FindData: TWin32FindData);
+procedure TArchiveFindState.FinishCurrentFindData(var FindData: TArchiveFindData);
 begin
   if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
     var Attrib: DWORD;
@@ -1170,7 +1198,7 @@ begin
 end;
 
 function ArchiveFindFirstFile(const ArchiveFilename, DestDir, Password: String;
-  const RecurseSubDirs, ExtractIntent: Boolean; out FindFileData: TWin32FindData): TArchiveFindHandle;
+  const RecurseSubDirs, ExtractIntent: Boolean; out FindFileData: TArchiveFindData): TArchiveFindHandle;
 begin
   LogArchiveExtractionModeOnce;
 
@@ -1181,15 +1209,19 @@ begin
 
   LogBannerOnce;
 
-  { Open }
+  var ExpandedArchiveFilename: String;
+  if not PathConvertNormalToSuper(ArchiveFilename, ExpandedArchiveFilename) then
+    InternalError('ArchiveFindFirstFile: PathConvertNormalToSuper failed');
   var State := Default(TArchiveFindState);
-  State.InArchive := OpenArchive(ArchiveFilename, Password, clsid, State.numItems);
   if DestDir <> '' then begin
     var ExpandedDestDir: String;
     if not PathConvertNormalToSuper(DestDir, ExpandedDestDir) then
       InternalError('ArchiveFindFirstFile: PathConvertNormalToSuper failed');
     State.ExpandedDestDir := AddBackslash(ExpandedDestDir);
   end;
+
+  { Open }
+  State.InArchive := OpenArchive(ExpandedArchiveFilename, Password, clsid, State.numItems);
   State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
   State.Password := Password;
   State.RecurseSubDirs := RecurseSubDirs;
@@ -1229,7 +1261,7 @@ begin
     InternalError('CheckFindFileHandle failed');
 end;
 
-function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
+function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TArchiveFindData): Boolean;
 begin
   const I = CheckFindFileHandle(FindFile);
   var State := ArchiveFindStates[I];
@@ -1263,7 +1295,7 @@ procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TF
 begin
   const State = ArchiveFindStates[CheckFindFileHandle(FindFile)];
 
-  var FindData: TWin32FindData;
+  var FindData: TArchiveFindData;
   if not State.GetInitialCurrentFindData(FindData) or
      (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY <> 0) then
     InternalError('ArchiveFindExtract: Invalid current');

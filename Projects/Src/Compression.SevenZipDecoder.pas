@@ -13,7 +13,7 @@ unit Compression.SevenZipDecoder;
 interface
 
 uses
-  SysUtils;
+  Windows, SysUtils;
 
 type
   TOnExtractionProgress = function(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean of object;
@@ -21,6 +21,8 @@ type
   ESevenZipError = class(Exception);
 
 procedure SevenZipError(const ExceptMessage: String; const LogMessage: String = '');
+procedure SevenZipWin32Error(const FunctionName: String; const ErrorCode: DWORD); overload;
+procedure SevenZipWin32Error(const FunctionName: String); overload;
 
 procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
@@ -28,7 +30,7 @@ procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; c
 implementation
 
 uses
-  Windows, Forms,
+  Forms,
   PathFunc, UnsignedFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc, SetupLdrAndSetup.Messages,
   Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
@@ -331,6 +333,19 @@ begin
   raise ESevenZipError.Create(ExceptMessage);
 end;
 
+procedure SevenZipWin32Error(const FunctionName: String; const ErrorCode: DWORD); overload;
+begin
+  const ExceptMessage = FmtSetupMessage(msgErrorFunctionFailedWithMessage,
+    [FunctionName, IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]);
+  const LogMessage = Format('Function %s returned error code %d', [FunctionName, ErrorCode]);
+  SevenZipError(ExceptMessage, LogMessage);
+end;
+
+procedure SevenZipWin32Error(const FunctionName: String); overload;
+begin
+  SevenZipWin32Error(FunctionName, GetLastError);
+end;
+
 procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 
@@ -340,20 +355,26 @@ procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; c
     SZ_ERROR_MEM = 2;
     SZ_ERROR_CRC = 3;
     SZ_ERROR_UNSUPPORTED = 4;
+    SZ_ERROR_INPUT_EOF = 6;
     SZ_ERROR_ARCHIVE = 16;
     SZ_ERROR_NO_ARCHIVE = 17;
+    APPLICATION_ERROR_MASK = $20000000; { From winnt.h }
   begin
     { Logging already done by 7zMain.c }
 
-    case Res of
-      SZ_ERROR_UNSUPPORTED, SZ_ERROR_NO_ARCHIVE:
-        SevenZipError(SetupMessages[msgArchiveUnsupportedFormat]);
-      SZ_ERROR_DATA, SZ_ERROR_CRC, SZ_ERROR_ARCHIVE:
-        SevenZipError(SetupMessages[msgArchiveIsCorrupted]);
-      SZ_ERROR_MEM:
-        SevenZipError(Win32ErrorString(DWORD(E_OUTOFMEMORY)));
-    else
-      SevenZipError(Res.ToString);
+    if (Res and APPLICATION_ERROR_MASK) <> 0 then
+      SevenZipWin32Error('Extract', DWORD(Res and not APPLICATION_ERROR_MASK))
+    else begin
+      case Res of
+        SZ_ERROR_UNSUPPORTED, SZ_ERROR_NO_ARCHIVE:
+          SevenZipError(SetupMessages[msgArchiveUnsupportedFormat]);
+        SZ_ERROR_DATA, SZ_ERROR_CRC, SZ_ERROR_INPUT_EOF, SZ_ERROR_ARCHIVE:
+          SevenZipError(SetupMessages[msgArchiveIsCorrupted]);
+        SZ_ERROR_MEM:
+          SevenZipError(Win32ErrorString(DWORD(E_OUTOFMEMORY)));
+      else
+        SevenZipError(Res.ToString);
+      end;
     end;
   end;
 

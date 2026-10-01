@@ -1512,7 +1512,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
 
     var VerifySourceF: TFile := nil;
     try
-      var FindData: TWin32FindData;
+      var FindData: TArchiveFindData;
       var H: TArchiveFindHandle := INVALID_HANDLE_VALUE;
       var Failed: String;
       repeat
@@ -1558,7 +1558,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
 
               var SourceFile := UIntToStr(H);
               const DestFile = DestDir + FindData.cFileName;
-              var Size := FindDataFileSizeToInt64(FindData);
+              var Size := HighLowToInt64(FindData.nFileSizeHigh, FindData.nFileSizeLow);
               if Size > ExpectedBytesLeft then begin
                 { Don't allow the progress bar to overflow if the size of the
                   files is greater than when we last checked }
