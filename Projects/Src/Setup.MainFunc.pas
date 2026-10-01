@@ -368,7 +368,7 @@ begin
   Result := Format('%s\%s_is1', [REGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName]);
 end;
 
-{ Based on FindPreviousData in Wizard.pas }
+{ Based on FindPreviousData in Setup.WizardForm.pas }
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
 var
   H: HKEY;
@@ -1972,7 +1972,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
       InternalError('Unexpected CustomDestName flag');
     const DestDir = ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent);
 
-    var FindData: TWin32FindData;
+    var FindData: TArchiveFindData;
     var H := ArchiveFindFirstFile(ArchiveFilename, DestDir,
       ExpandConst(CurFile^.ExtractArchivePassword), foRecurseSubDirsExternal in CurFile^.Options,
       False, FindData);
@@ -3059,7 +3059,7 @@ var
     if not NewFileExists(ArchiveFilename) then
       Exit;
 
-    var FindData: TWin32FindData;
+    var FindData: TArchiveFindData;
     var H := ArchiveFindFirstFile(ArchiveFilename,
       AddBackslash(TempInstallDir), { DestDir isn't known yet, pass a placeholder }
       Password, RecurseSubDirs, False, FindData);
@@ -3071,7 +3071,7 @@ var
             if IsExcluded(FindData.cFileName, Excludes) then
               Continue;
 
-            Inc(Result, FindDataFileSizeToInt64(FindData));
+            Inc(Result, HighLowToInt64(FindData.nFileSizeHigh, FindData.nFileSizeLow));
           end;
         until not ArchiveFindNextFile(H, FindData);
       finally
@@ -3080,7 +3080,7 @@ var
     end;
   end;
   
-  { Also see Install.pas }
+  { Also see Setup.Install.pas }
   function ExistingInstallationAt(const RootKey: HKEY; const SubkeyName: String): Boolean;
   var
     K: HKEY;

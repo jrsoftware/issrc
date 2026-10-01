@@ -12,7 +12,7 @@ unit Shared.SetupMessageIDs;
 interface
 
 { Note: When any messages are added/deleted/changed, MessagesHdrID needs to be
-  updated in Struct.pas }
+  updated in Shared.Struct.pas }
 
 const
   SetupMessageIDPrefixLength = 3;

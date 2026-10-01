@@ -121,7 +121,7 @@ begin
   Result := False;
 
   if InputQueryEdit(Caption, LFmtMessage(SSignToolNamePrompt), SignToolName) then begin
-    if (SignToolName = '') or (Pos('=', SignToolName) <> 0) then begin
+    if (SignToolName = '') or (Pos('=', SignToolName) <> 0) or (Pos(' ', SignToolName) <> 0) then begin
       MsgBox(LFmtMessage(SSignToolInvalidName), Caption, mbCriticalError, MB_OK);
       Exit;
     end;

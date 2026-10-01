@@ -84,7 +84,6 @@ const
 
   optPassToCompiler   = TOptionID(Ord('C') - Ord('A'));
   optEmitEmptyLines   = TOptionID(Ord('E') - Ord('A'));
-  optCircMacroCall    = TOptionID(Ord('R') - Ord('A'));
   optVerbose          = TOptionID(Ord('V') - Ord('A'));
 
 implementation

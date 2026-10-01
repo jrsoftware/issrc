@@ -245,31 +245,6 @@ begin
     Result := agsNone
 end;
 
-{ TMacroCallContext }
-
-var
-  MacroStack: TStrings;
-
-procedure PushMacro(const Name: string);
-begin
-  if MacroStack = nil then
-    MacroStack := TStringList.Create
-  else ;
-    {if MacroStack.IndexOf(UpperCase(Name)) >= 0 then
-      raise EMacroError.CreateFmt(SRecursiveMacroCall, [Name]);}
-  MacroStack.Add(UpperCase(Name));
-end;
-
-procedure PopMacro;
-begin
-  MacroStack.Delete(MacroStack.Count - 1);
-  if MacroStack.Count = 0 then
-  begin
-    MacroStack.Free;
-    MacroStack := nil
-  end;
-end;
-
 type
 
 { TMacroLocalArrayCallContext }
@@ -438,50 +413,45 @@ var
   I: Integer;
   Msg: string;
 begin
-  PushMacro(FMacro.Name);
+  for I := 0 to FMacro.ParamCount - 1 do
+    if not FList[I].Defined then
+      if not (pfHasDefault in FMacro.Params[I].ParamFlags) then
+        ErrorNotSpecified(FMacro.Params[I].Name)
+        //raise EMacroError.CreateFmt(SNoReqParam, [FMacro.Params[I].Name])
+      else
+      begin
+        FList[I].Value.Name := FMacro.Params[I].Name;
+        FList[I].Value.Dim := 0;
+        FList[I].Value.Value[0] := FMacro.Params[I].DefValue;
+        FList[I].Defined := True;
+      end;
   try
-    for I := 0 to FMacro.ParamCount - 1 do
-      if not FList[I].Defined then
-        if not (pfHasDefault in FMacro.Params[I].ParamFlags) then
-          ErrorNotSpecified(FMacro.Params[I].Name)
-          //raise EMacroError.CreateFmt(SNoReqParam, [FMacro.Params[I].Name])
+    Result := Parse(Self, FMacro.Expression, FMacro.DeclPos.Column,
+      @FMacro.ParserOptions);
+  except
+    on E: EParsingError do
+    begin
+      if E.Position > 0 then
+      begin
+        if FMacro.DeclPos.FileIndex > 0 then
+          Msg := Format(SErrorExecutingMacroFile, [FMacro.Name,
+            PeekPreproc.IncludedFiles[FMacro.DeclPos.FileIndex],
+            FMacro.DeclPos.Line, E.Position, E.Message])
         else
-        begin
-          FList[I].Value.Name := FMacro.Params[I].Name;
-          FList[I].Value.Dim := 0;
-          FList[I].Value.Value[0] := FMacro.Params[I].DefValue;
-          FList[I].Defined := True;
-        end;
-    try
-      Result := Parse(Self, FMacro.Expression, FMacro.DeclPos.Column,
-        @FMacro.ParserOptions);
-    except
-      on E: EParsingError do
-      begin
-        if E.Position > 0 then
-        begin
-          if FMacro.DeclPos.FileIndex > 0 then
-            Msg := Format(SErrorExecutingMacroFile, [FMacro.Name,
-              PeekPreproc.IncludedFiles[FMacro.DeclPos.FileIndex],
-              FMacro.DeclPos.Line, E.Position, E.Message])
-          else
-            Msg := Format(SErrorExecutingMacro, [FMacro.Name,
-              FMacro.DeclPos.Line, E.Position, E.Message]);
-          E.Message := Msg;
-          E.Position := 0;
-        end;
-        raise;
+          Msg := Format(SErrorExecutingMacro, [FMacro.Name,
+            FMacro.DeclPos.Line, E.Position, E.Message]);
+        E.Message := Msg;
+        E.Position := 0;
       end;
-      on E: Exception do
-      begin
-        E.Message := Format(SErrorExecutingMacroUnexpected, [FMacro.Name, E.Message]);
-        raise;
-      end;
+      raise;
     end;
-    VerboseMsg(9, SSuccessfullyCalledMacro, [FMacro.Name]);
-  finally
-    PopMacro;
+    on E: Exception do
+    begin
+      E.Message := Format(SErrorExecutingMacroUnexpected, [FMacro.Name, E.Message]);
+      raise;
+    end;
   end;
+  VerboseMsg(9, SSuccessfullyCalledMacro, [FMacro.Name]);
 end;
 
 function TMacroCallContext.Defined(const Name: string): Boolean;

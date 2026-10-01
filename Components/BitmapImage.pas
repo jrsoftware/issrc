@@ -396,6 +396,8 @@ begin
           if Is32bit then begin
             StretchedBitmapValid := False;
             Bmp := Bitmap;
+            W := Bmp.Width;
+            H := Bmp.Height;
           end else begin
             StretchedBitmap.Palette := CopyPalette(Bitmap.Palette);
             StretchedBitmap.Width := W;
@@ -411,7 +413,7 @@ begin
     H := Bmp.Height;
   end;
 
-  if (BackColor <> clNone) and (Is32Bit or (Bmp.Width < FControl.Width) or (Bmp.Height < FControl.Height)) then begin
+  if (BackColor <> clNone) and (Is32Bit or (Bmp.Width < R.Width) or (Bmp.Height < R.Height)) then begin
     var BrushColor := BackColor;
     if Sender is TControl then
       BrushColor := AdjustColorForStyle(TControl(Sender), BrushColor);

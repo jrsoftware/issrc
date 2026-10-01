@@ -1001,7 +1001,7 @@ procedure TWizardForm.GenerateScript;
   end;
 
 var
-  Script, ISPP, Setup, Languages, Tasks, Files, Registry, INI, Icons, Run, UninstallDelete: String;
+  Script, ISPP, Setup, Languages, Tasks, Files, Registry, Icons, Run: String;
   I: Integer;
   AppExeName, AppName, AppAmpEscapedName, AppConstEscapedName, AppConstEscapedVersion, AppAssocKey, LanguageName, LanguageMessagesFile: String;
 begin
@@ -1070,10 +1070,8 @@ begin
   Tasks := '[Tasks]' + SNewLine;
   Files := '[Files]' + SNewLine;
   Registry := '[Registry]' + SNewLine;
-  INI := '[INI]' + SNewLine;
   Icons := '[Icons]' + SNewLine;
   Run := '[Run]' + SNewLine;
-  UninstallDelete := '[UninstallDelete]' + SNewLine;
 
   if not EmptyCheck.Checked then begin
     Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentUniqueAppId, ['AppId']) + SNewLine +
@@ -1252,14 +1250,10 @@ begin
       Script := Script + Files + SLitComment + LFmtMessage(SWizardScriptCommentSharedSystemFiles, ['Flags: ignoreversion']) + SNewLine2;
     if Length(Registry) > Length('[Registry]')+2 then
       Script := Script + Registry + SNewLine;
-    if Length(INI) > Length('[INI]')+2 then
-      Script := Script + INI + SNewLine;
     if Length(Icons) > Length('[Icons]')+2 then
       Script := Script + Icons + SNewLine;
     if Length(Run) > Length('[Run]')+2 then
       Script := Script + Run + SNewLine;
-    if Length(UninstallDelete) > Length('[UninstallDelete]')+2 then
-      Script := Script + UninstallDelete + SNewLine;
 
     FResult := wrComplete;
   end else begin

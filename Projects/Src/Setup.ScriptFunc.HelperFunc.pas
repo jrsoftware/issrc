@@ -646,7 +646,7 @@ begin
   Result := GetPreviousData(ExpandedAppId, 'Inno Setup CodeFile: ' + ValueName, DefaultValueData);
 end;
 
-{ Also see RegisterUninstallInfo in Install.pas }
+{ Also see RegisterUninstallInfo in Setup.Install.pas }
 function SetCodePreviousData(const PreviousDataKey: HKEY; const ValueName, ValueData: String): Boolean;
 begin
   if ValueData <> '' then begin

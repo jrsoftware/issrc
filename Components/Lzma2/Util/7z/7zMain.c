@@ -5,13 +5,15 @@
    -Use CP_UTF8 in PrintPath
    -Fix Utf16_To_Char to handle CP_UTF7 and CP_UTF8's special rules
    -Change main to mainW to support Unicode archive names
-   -Add specific error text for SZ_ERROR_DATA, SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, and SZ_ERROR_PROGRESS
+   -Add specific error text for SZ_ERROR_DATA, SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, SZ_ERROR_INPUT_EOF, and SZ_ERROR_PROGRESS
    -Return res on errors instead of always returning 1
+   -Return wres with bit 29 set on file errors instead of 1, SZ_ERROR_READ, or SZ_ERROR_FAIL
    -Add optional progress reporting with abort option
    -Add optional output of SzArEx_Extract's output buffer sizes
    -Add support for overwriting read-only files by removing the read-only attribute instead of always deleting the file
    -Add option to disable terminal checking
    -Add option to disable path normalization to allow custom implementation by host
+   -Fix mainW to close the output file when writing to it fails
    Otherwise unchanged */
 
 #include "Precomp.h"
@@ -898,6 +900,8 @@ static void GetAttribString(UInt32 wa, BoolInt isDir, char *s)
   #endif
 }
 
+/* APPLICATION_ERROR_MASK: no SRes or system error code has this bit set */
+#define WRES_TO_RESULT(wres) ((int)((wres) | 0x20000000))
 
 int Z7_CDECL mainW(int numargs, WCHAR *args[])
 {
@@ -908,6 +912,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
   CLookToRead2 lookStream;
   CSzArEx db;
   SRes res;
+  WRes resWRes = 0;
   UInt16 *temp = NULL;
   UInt16 *temp2 = NULL;
   size_t tempSize = 0;
@@ -952,7 +957,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     if (wres != 0)
     {
       PrintError_WRes("cannot open input file", wres);
-      return 1;
+      return WRES_TO_RESULT(wres);
     }
   }
 
@@ -1046,7 +1051,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           break;
         }
 
-        if (len > tempSize)
+        if (len > tempSize || !temp)
         {
           SzFree(NULL, temp);
           tempSize = len;
@@ -1204,6 +1209,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
               if (wres)
               {
                 PrintError_WRes("cannot open output file", wres);
+                resWRes = wres;
                 res = SZ_ERROR_FAIL;
                 break;
               }
@@ -1217,7 +1223,9 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
             if (wres != 0 || processedSize != outSizeProcessed)
             {
               PrintError_WRes("cannot write output file", wres);
+              resWRes = wres;
               res = SZ_ERROR_FAIL;
+              File_Close(&outFile);
               break;
             }
           }
@@ -1257,6 +1265,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
               if (wres != 0)
               {
                 PrintError_WRes("cannot close output file", wres);
+                resWRes = wres;
                 res = SZ_ERROR_FAIL;
                 break;
               }
@@ -1327,6 +1336,8 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     PrintError("archive corrupt");
   else if (res == SZ_ERROR_NO_ARCHIVE)
     PrintError("not an archive");
+  else if (res == SZ_ERROR_INPUT_EOF)
+    PrintError("Unexpected end of archive");
   else if (res == SZ_ERROR_READ /* || archiveStream.Res != 0 */)
     PrintError_WRes("Read Error", archiveStream.wres);
   else if (res == SZ_ERROR_PROGRESS)
@@ -1338,5 +1349,9 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
     PrintError(s);
   }
   
+  if (res == SZ_ERROR_READ)
+    resWRes = archiveStream.wres;
+  if (resWRes != 0)
+    return WRES_TO_RESULT(resWRes);
   return res;
 }

@@ -834,7 +834,7 @@ begin
           var OpenCount: ShortInt := 0;
           HandleCompilerDirective(True, I - 1, OpenCount);
         finally
-          ResetCurIndexTo(0);
+          ResetCurIndexTo(1);
         end;
         if not Valid then
           ApplyPendingSquigglyFromToIndex(StartIndex, I - 1);

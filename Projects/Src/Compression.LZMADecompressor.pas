@@ -96,8 +96,12 @@ const
     in Compiler.SetupCompiler.pas. }
   {$IFDEF WIN64}
   MaxDictionarySize = Cardinal(15) shl 28;
+  { Lzma2Dec_GetOldProps in Lzma2Dec.c decodes LZMA2 property 40 as 4 GB - 1, and
+    LzmaDec_Allocate in LzmaDec.c then allocates 4 GB }
+  MaxAllocSize = NativeUInt(4096) shl 20;
   {$ELSE}
   MaxDictionarySize = 1024 shl 20;
+  MaxAllocSize = MaxDictionarySize;
   {$ENDIF}
 
 { Compiled by Visual Studio 2022 using compile.bat }
@@ -148,7 +152,7 @@ end;
 
 function LZMAAllocFunc(p: PLZMAISzAlloc; size: NativeUInt): Pointer; cdecl;
 begin
-  if (size <> 0) and (size <= MaxDictionarySize) then
+  if (size <> 0) and (size <= MaxAllocSize) then
     Result := VirtualAlloc(nil, size, MEM_COMMIT, PAGE_READWRITE)
   else
     Result := nil;
@@ -291,8 +295,14 @@ begin
   if ReadInput(Prop, SizeOf(Prop)) <> SizeOf(Prop) then
     LZMADecompDataError(1);
 
-  if (Prop >= 40) or
-     (LZMA2_DIC_SIZE_FROM_PROP(Prop) > MaxDictionarySize) then
+  if Prop > 40 then
+    LZMADecompDataError(5)
+  else if Prop = 40 then begin
+    { Lzma2Enc_WriteProperties in Lzma2Enc.c writes 40 for any dictionary size above
+      the size for 39, which is 3 GB. So only accept 40 if MaxDictionarySize is above 3 GB. }
+    if LZMA2_DIC_SIZE_FROM_PROP(39) >= MaxDictionarySize then
+      LZMADecompDataError(5);
+  end else if LZMA2_DIC_SIZE_FROM_PROP(Prop) > MaxDictionarySize then
     LZMADecompDataError(5);
 
   var StateSize := IS_Lzma2Dec_StateSize;

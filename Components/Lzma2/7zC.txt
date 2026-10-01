@@ -165,8 +165,8 @@ Memory usage for archive Decompressing:
      - Memory for LZMA decompressing structures
   - Main pool:
      - Memory for decompressed solid block
-     - Memory for temprorary buffers, if BCJ2 fileter is used. Usually these 
-       temprorary buffers can be about 15% of solid block size. 
+     - Memory for temporary buffers, if BCJ2 filter is used. Usually these 
+       temporary buffers can be about 15% of solid block size. 
   
 
 7z Decoder doesn't allocate memory for compressed blocks. 

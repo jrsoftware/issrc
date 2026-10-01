@@ -160,7 +160,7 @@ type
       Item: TJvCustomInspectorItem; Edit: TEdit);
     procedure JvInspectorKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure JvInspectorLeafNameDblClick(Item: TJvCustomInspectorItem);
+    procedure JvInspectorNameDblClick(Item: TJvCustomInspectorItem);
     procedure JvInspectorEditButtonClick(Item: TJvCustomInspectorItem;
       var Value: String);
     procedure MessagesWndProc(var Message: TMessage);
@@ -304,7 +304,7 @@ begin
   FJvInspector.BeforeEdit := JvInspectorBeforeEdit;
   FJvInspector.OnKeyDown := JvInspectorKeyDown;
   FJvInspector.OnEditorKeyDown := JvInspectorKeyDown;
-  FJvInspector.OnLeafNameDblClick := JvInspectorLeafNameDblClick;
+  FJvInspector.OnNameDblClick := JvInspectorNameDblClick;
   FJvInspector.OnEditButtonClick := JvInspectorEditButtonClick;
   FJvInspector.OnGetAsOrdinal := RowGetAsOrdinal;
   FJvInspector.OnGetAsString := RowGetAsString;
@@ -606,7 +606,7 @@ begin
     AMemoLine := FLiveCodeSection.FirstLine + Line;
 end;
 
-procedure TInspector.JvInspectorLeafNameDblClick(Item: TJvCustomInspectorItem);
+procedure TInspector.JvInspectorNameDblClick(Item: TJvCustomInspectorItem);
 begin
   GoToSelectedRow;
 end;
@@ -1447,6 +1447,10 @@ procedure TInspector.UpdateFromCaret(const AForceRebuildNow: Boolean);
     Row.SubIndex := ASubIndex;
     Result := AddRow(AParent, ADisplayName, False, Row);
     Result.Flags := Result.Flags + [iifReadonly];
+    { Like VS Code's Outline: double-clicking a declaration goes to it instead
+      of expanding or collapsing it }
+    if ACodeKind in [ckRoutine, ckType, ckInterface, ckInterfaceMethod] then
+      Result.Flags := Result.Flags + [iifNameDblClickEvent];
   end;
 
   function AnyRoutineChildMatchesFilter(const ARoutine: TCodeSectionRoutine): Boolean;
@@ -1655,10 +1659,6 @@ procedure TInspector.UpdateFromCaret(const AForceRebuildNow: Boolean);
   end;
 
   procedure RebuildRows;
-  { Items must not be added, removed, expanded or collapsed while an in-place
-    edit is open: JvInspector's RebuildVisible can then reselect the wrong
-    item and break the edit. Safe here because Clear ends the edit before the
-    items change. }
   begin
     var SelectedIDWithIndex := '';
     var SelectedIDWithoutIndex := '';
@@ -1672,7 +1672,7 @@ procedure TInspector.UpdateFromCaret(const AForceRebuildNow: Boolean);
       const ExpandedStates = TDictionary<String, Boolean>.Create;
       try
         SaveExpandedStates(ExpandedStates, FJvInspector.Root);
-        FJvInspector.Clear;
+        FJvInspector.Clear; { Ends any edit }
         FRows.Clear;
 
         {$IFDEF DEBUG}
