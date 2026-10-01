@@ -13673,17 +13673,9 @@ begin
           PVariant{$ENDIF}
            (DispParam.rgvarg[i].pvarVal));
 
-          (*
-          {$IFDEF DELPHI4UP}
-            POleVariant
-          {$ELSE}
-            PVariant
-          {$ENDIF}
-           (DispParam.rgvarg[i].pvarVal)^ := Par[High(Par)-i];
-          *)
-          Move(Par[High(Par)-i],Pointer(DispParam.rgvarg[i].pvarVal)^,
-           Sizeof({$IFDEF DELPHI4UP}OleVariant{$ELSE}Variant{$ENDIF}));
-
+          { Must be an owned copy because the Dispose below releases it.
+            PVariant does not convert the type, unlike POleVariant. }
+          PVariant(DispParam.rgvarg[i].pvarVal)^ := Par[High(Par)-i];
         end;
       end;
       i :=Self.Invoke(DispatchId, GUID_NULL, LOCALE_SYSTEM_DEFAULT, Param, DispParam, @Result, @ExceptInfo, @ArgErr);

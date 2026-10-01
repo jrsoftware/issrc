@@ -830,7 +830,7 @@ end;
 
 procedure Test_IDispatchInvoke;
 var
-  Dict, V: Variant;
+  Dict, Inner, V: Variant;
 begin
   Dict := CreateOleObject('Scripting.Dictionary');
   Dict.Add('key', 'value');
@@ -846,6 +846,18 @@ begin
   CheckEqualsString('changed', V[0]);
 
   VarArraySet('again', 0, V);
+  CheckEqualsString('again', V[0]);
+
+  { Passing a COM object as an argument must not release it }
+  Inner := CreateOleObject('Scripting.Dictionary');
+  Inner.Add('key', 'value');
+  Dict.Add('inner', Inner);
+  Inner := Unassigned;
+  CheckEqualsString('value', Dict.Item('inner').Item('key'));
+
+  { Passing a variant array as an argument must not destroy the internal copy twice }
+  Dict.Add('array', V);
+  V := Dict.Item('array');
   CheckEqualsString('again', V[0]);
 end;
 
