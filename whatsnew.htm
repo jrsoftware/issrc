@@ -175,30 +175,42 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 
 <p><b>Using Inno Setup commercially?</b> Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
 
-<span class="head2">Fixes</span>
-
-<ul>
-  <li><i>Fix:</i> The Compiler IDE now applies the selected editor font even when the name of the font contains non-ASCII characters.</li>
-  <li><i>Fix:</i> In the Compiler IDE, clicking OK in the <i>Options</i> dialog or reopening a closed tab could silently discard unsaved changes to an <tt>#include</tt> file, if you had saved that file, or another program had changed it, since the script was last opened or compiled, or if an earlier <tt>#include</tt> file couldn't be opened (broken since tabs for <tt>#include</tt> files were introduced in 6.1.0).</li>
-  <li><i>Fix:</i> In the Compiler IDE, unsaved changes to an <tt>#include</tt> file were lost without a save prompt when the main script was reloaded after another program changed it, or after <i>Automatically open #include files</i> was turned off in the <i>Options</i> dialog (broken since tabs for <tt>#include</tt> files were introduced in 6.1.0).</li>
-  <li><i>Fix:</i> When a compile error was in an <tt>#include</tt> file whose tab you had closed in the Compiler IDE, and the list of <tt>#include</tt> files had changed since the previous compile, the reopened tab and other <tt>#include</tt> tabs could show the contents of a different file (broken since closing tabs was introduced in 6.3.0).</li>
-  <li><i>Fix:</i> In the Compiler IDE, the <i>Back</i> and <i>Forward</i> navigation history could show and go to the wrong <tt>#include</tt> file after a compile changed the list of <tt>#include</tt> files (broken since navigation was introduced in 6.3.0).</li>
-  <li><i>Fix:</i> In the Compiler IDE, navigating back or forward, or opening the dropdown of the <i>Back</i> button, could show an error after a recompile produced shorter preprocessor output (broken since navigation was introduced in 6.3.0).</li>
-  <li><i>Fix:</i> While the Compiler IDE was active, the Calculator key and similar keys did nothing (broken since navigation was introduced in 6.3.0).</li>
-  <li><i>Fix:</i> With multiple selections in the Compiler IDE, Ctrl+Insert pasted instead of copied when the clipboard had one line per selection, and Shift+Insert didn't paste one line per selection like Ctrl+V does (broken since this was introduced for Ctrl+V in 6.4.0).</li>
-  <li><i>Fix:</i> The compiler didn't display an error message anymore when a <tt>[Files]</tt> section entry installed a DLL file from your own Windows System directory to <tt>{sys}</tt> (broken since 7.0.0). Doing so is unsafe, as explained in the <a href="https://jrsoftware.org/ishelp/index.php?topic=unsafefiles">Unsafe Files</a> help topic.</li>
-  <li><i>Fix:</i> Inno Setup 7.0.0 introduced a maximum dictionary size of 3.8 GB instead of 1 GB for compression methods <tt>lzma</tt> and <tt>lzma2</tt> in 64-bit installers, but <tt>lzma2</tt> installers with a dictionary size above 3 GB failed to install, reporting that the source file was corrupted. They now support up to 3.8 GB as well.</li>
-  <li><i>Fix:</i> Buttons in Setup and the Compiler IDE with a long caption which shows its accelerator key in parentheses, such as the <i>Browse</i> button in Korean, could be too narrow, leaving little or no space around the caption (broken since 7.1.0).</li>
-  <li><i>Fix:</i> ISCC's <tt>--messages-jsonl</tt> (<tt>-mj</tt>) option, added in 7.1.0, didn't apply to some errors, such as a script file which couldn't be found or an invalid command-line option, which were still output as plain text.</li>
-  <li><i>Fix:</i> When <tt>--quiet</tt>, <tt>--quiet-progress</tt>, or <tt>--preprocess</tt> was used, ISCC still showed its banner before reporting a command-line error.</li>
-  <li>Other minor fixes.</li>
-</ul>
-
 <span class="head2">Changes</span>
 
 <ul>
   <li>Compiler IDE: Enabled dark mode support for the menus on Windows 11 Version 26H2 (2026 Update).</li>
   <li>Inno Setup 7.0.0 changed the file name passed to a Sign Tool for the <tt>[Files]</tt> section flags <tt>sign</tt> and <tt>signonce</tt> to always be an extended-length path (also known as a super path). For backward compatibility with Sign Tools which don't support such paths, it's now a normal path again, unless the file can only be accessed using an extended-length path, for example because its path is 260 characters or longer.</li>
+</ul>
+
+<span class="head2">Fixes</span>
+
+<ul>
+  <li>Buttons in Setup and the Compiler IDE with a long caption which shows its accelerator key in parentheses, such as the <i>Browse</i> button in Korean, could be too narrow, leaving little or no space around the caption (broken since 7.1.0).</li>
+  <li>The compiler didn't display an error message anymore when a <tt>[Files]</tt> section entry installed a DLL file from your own Windows System directory to <tt>{sys}</tt> (broken since 7.0.0). Doing so is unsafe, as explained in the <a href="https://jrsoftware.org/ishelp/index.php?topic=unsafefiles">Unsafe Files</a> help topic.</li>
+  <li>Inno Setup 7.0.0 introduced a maximum dictionary size of 3.8 GB instead of 1 GB for compression methods <tt>lzma</tt> and <tt>lzma2</tt> in 64-bit installers, but <tt>lzma2</tt> installers with a dictionary size above 3 GB failed to install, reporting that the source file was corrupted. They now support up to 3.8 GB as well.</li>
+  <li>When archive extraction failed to open, read, or write a file, for example because another process had it open, it could report that the archive was corrupted or an unspecified error. It now reports the actual error.</li>
+  <li><tt>[Files]</tt> section entries with the <tt>extractarchive</tt> and <tt>recursesubdirs</tt> flags failed with an internal error if the archive contained a path of 260 characters or longer. Support function <tt>ExtractArchive</tt> wasn't affected.</li>
+  <li>Security improvement: During archive extraction, a crafted <tt>.cab</tt>, <tt>.vhd</tt>, <tt>.vhdx</tt>, or <tt>.vmdk</tt> archive could make Setup open a file outside the archive's directory as a volume for reading.</li>
+  <li>Pascal Scripting: When a COM object or a variant array was passed as an argument to a method of a <a href="https://jrsoftware.org/ishelp/index.php?topic=scriptautomation">COM Automation object</a>, such as in <tt>ParentNode.appendChild(ChildNode)</tt>, or assigned to a property of one, it was released one time too many. This could cause access violations, for example when using MSXML after installing a September 2026 Windows update with a new MSXML version, such as KB5124007 or KB5124008.</li>
+  <li>Compiler IDE:
+  <ul>
+    <li>The editor font selected in the <i>Options</i> dialog wasn't applied when the name of the font contained non-ASCII characters.</li>
+    <li>Clicking OK in the <i>Options</i> dialog or reopening a closed tab could silently discard unsaved changes to an <tt>#include</tt> file, if you had saved that file, or another program had changed it, since the script was last opened or compiled, or if an earlier <tt>#include</tt> file couldn't be opened (broken since tabs for <tt>#include</tt> files were introduced in 6.1.0).</li>
+    <li>Unsaved changes to an <tt>#include</tt> file were lost without a save prompt when the main script was reloaded after another program changed it, or after <i>Automatically open #include files</i> was turned off in the <i>Options</i> dialog (broken since tabs for <tt>#include</tt> files were introduced in 6.1.0).</li>
+    <li>When a compile error was in an <tt>#include</tt> file whose tab you had closed, and the list of <tt>#include</tt> files had changed since the previous compile, the reopened tab and other <tt>#include</tt> tabs could show the contents of a different file (broken since closing tabs was introduced in 6.3.0).</li>
+    <li>The <i>Back</i> and <i>Forward</i> navigation history could show and go to the wrong <tt>#include</tt> file after a compile changed the list of <tt>#include</tt> files (broken since navigation was introduced in 6.3.0).</li>
+    <li>Navigating back or forward, or opening the dropdown of the <i>Back</i> button, could show an error after a recompile produced shorter preprocessor output (broken since navigation was introduced in 6.3.0).</li>
+    <li>While the Compiler IDE was active, the Calculator key and similar keys did nothing (broken since navigation was introduced in 6.3.0).</li>
+    <li>With multiple selections, Ctrl+Insert pasted instead of copied when the clipboard had one line per selection, and Shift+Insert didn't paste one line per selection like Ctrl+V does (broken since this was introduced for Ctrl+V in 6.4.0).</li>
+  </ul>
+  </li>
+  <li>Command-Line Compiler (ISCC):
+  <ul>
+    <li>The <tt>--messages-jsonl</tt> (<tt>-mj</tt>) option, added in 7.1.0, didn't apply to some errors, such as a script file which couldn't be found or an invalid command-line option, which were still output as plain text.</li>
+    <li>When <tt>--quiet</tt>, <tt>--quiet-progress</tt>, or <tt>--preprocess</tt> was used, ISCC still showed its banner before reporting a command-line error.</li>
+  </ul>
+  </li>
+  <li>Other minor fixes.</li>
 </ul>
 
 <span class="head2">Digitally signing Setup</span>
