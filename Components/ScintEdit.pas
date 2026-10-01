@@ -1631,7 +1631,7 @@ begin
       end;
     SCN_CHARADDED:
       begin
-        if Assigned(FOnCharAdded) then
+        if Assigned(FOnCharAdded) and (N.ch <= Ord(High(AnsiChar))) then
           FOnCharAdded(Self, AnsiChar(N.ch));
       end;
     SCN_MARGINCLICK:
@@ -1671,7 +1671,7 @@ begin
       begin
         if Assigned(FOnZoom) then
           FOnZoom(Self);
-        if FLineNumbers then
+        if FLineNumbers or FFoldLevelNumbersOrLineState then
           UpdateLineNumbersWidth;
       end;
   end;
@@ -2157,6 +2157,7 @@ begin
       Call(SCI_CLEARDOCUMENTSTYLE, 0, 0);
       Call(SCI_STARTSTYLING, 0, 0);
       UpdateStyleAttributes;
+      UpdateLineNumbersWidth;
     end;
   end;
 end;
@@ -2550,10 +2551,11 @@ var
     const Attr: TScintStyleAttributes; const Force: Boolean);
   begin
     if Force or (Attr.FontName <> DefaultAttr.FontName) then
-      Call(SCI_STYLESETFONT, StyleNumber, AnsiString(Attr.FontName));
-    if Force or (Attr.FontSize <> DefaultAttr.FontSize) then
+      Call(SCI_STYLESETFONT, StyleNumber, UTF8String(Attr.FontName));
+    if Force or (Attr.FontSize <> DefaultAttr.FontSize) then begin
       { Note: Scintilla doesn't support negative point sizes like the VCL }
       Call(SCI_STYLESETSIZE, StyleNumber, Abs(Attr.FontSize));
+    end;
     if Force or (Attr.FontCharset <> DefaultAttr.FontCharset) then
       Call(SCI_STYLESETCHARACTERSET, StyleNumber, Attr.FontCharset);
     if Force or (Attr.FontStyle <> DefaultAttr.FontStyle) then begin
@@ -2620,7 +2622,7 @@ begin
     SetStyleAttr(FAutoCompleteStyle, DefaultAttr, True);
     Call(SCI_AUTOCSETSTYLE, FAutoCompleteStyle, 0);
   end else
-    Call(SCI_AUTOCSETSTYLE, 0, 0);
+    Call(SCI_AUTOCSETSTYLE, STYLE_DEFAULT, 0);
 end;
 
 function TScintEdit.WordAtCaret: String;
@@ -2656,6 +2658,7 @@ procedure TScintEdit.CMFontChanged(var Message: TMessage);
 begin
   inherited;
   UpdateStyleAttributes;
+  UpdateLineNumbersWidth;
 end;
 
 procedure TScintEdit.CMHintShow(var Message: TCMHintShow);

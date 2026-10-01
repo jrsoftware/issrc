@@ -93,6 +93,7 @@ begin
   CheckEqualsInt64($0100, Ord(#$0100));
 
   (* paren-star comment *)
+  (*) { a paren-star comment's opening '*' also closes it }
   // line comment
 
   { '@' address-of token: exercised by procedural variable tests }

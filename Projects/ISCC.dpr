@@ -152,6 +152,14 @@ begin
   end;
 end;
 
+procedure WriteError(const S: String);
+begin
+  if Options.MessagesJsonl then
+    WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', S, True, False)
+  else
+    WriteStdErr(S, True);
+end;
+
 function GetCursorPos: TPoint;
 var
   CSBI: TConsoleScreenBufferInfo;
@@ -367,7 +375,7 @@ begin
     InitISCmplrLibrary;
   except
     begin
-      WriteStdErr(Format('Could not load %s: %s', [ISCmplrDLL, GetExceptMessage]), True);
+      WriteError(Format('Could not load %s: %s', [ISCmplrDLL, GetExceptMessage]));
       Halt(1);
     end;
   end;
@@ -417,6 +425,14 @@ procedure ProcessCommandLine;
     WriteStdOut('');
   end;
 
+  procedure ShowCommandLineErrorAndHalt(const Message: String);
+  begin
+    if not Options.Quiet then
+      ShowBanner;
+    WriteError(Message);
+    Halt(1);
+  end;
+
   procedure ReadOptionsParam(var Options: TOptions; Symbol: Char);
   var
     I: Integer;
@@ -426,18 +442,13 @@ procedure ProcessCommandLine;
     begin
       S := NewParamStr(I);
       if (Length(S) >= 2) and ((S[1] = '/') or (S[1] = '-')) and (UpCase(S[2]) = Symbol) then begin
-        if (Length(S) <> 4) or not CharInSet(UpCase(S[3]), ['A'..'Z']) then begin
-          ShowBanner;
-          WriteStdErr('Invalid option: ' + S, True);
-          Halt(1);
-        end;
+        if (Length(S) <> 4) or not CharInSet(UpCase(S[3]), ['A'..'Z']) then
+          ShowCommandLineErrorAndHalt('Invalid option: ' + S);
         case S[4] of
           '-': SetOption(Options, S[3], False);
           '+': SetOption(Options, S[3], True)
         else
-          ShowBanner;
-          WriteStdErr('Invalid option: ' + S, True);
-          Halt(1);
+          ShowCommandLineErrorAndHalt('Invalid option: ' + S);
         end;
       end;
     end;
@@ -504,12 +515,10 @@ procedure ProcessCommandLine;
          StartsWithSingleDashLongParam(S, 'include') or
          StartsWithSingleDashLongParam(S, 'define') or
          StartsWithSingleDashLongParam(S, 'verbose'))) then begin
-      ShowBanner;
       const EqualsPos = Pos('=', S);
       const SuggestedParam = LowerCase(Copy(S, 2, EqualsPos - 2)) + Copy(S, EqualsPos, MaxInt);
       { The suggestion may still be invalid (for example '--output=Yes') but that's ok }
-      WriteStdErr(Format('Invalid option: %s (did you mean --%s?)', [S, SuggestedParam]), True);
-      Halt(1);
+      ShowCommandLineErrorAndHalt(Format('Invalid option: %s (did you mean --%s?)', [S, SuggestedParam]));
     end;
   end;
 
@@ -567,6 +576,25 @@ var
   I: Integer;
   S: String;
 begin
+  { MessagesJsonl and Quiet are needed before any command-line error is reported. Also see below. }
+  for I := 1 to NewParamCount do begin
+    S := NewParamStr(I);
+    if GetFlagParam(S, 'MJ', 'messages-jsonl') then
+      Options.MessagesJsonl := True
+    else if GetFlagParam(S, 'Q', 'quiet') then
+      Options.Quiet := True
+    else if GetFlagParam(S, 'QP', 'quiet-progress') then begin
+      Options.Quiet := True;
+      Options.ShowProgress := True;
+    end else if GetFlagParam(S, 'E', 'preprocess') then
+      Options.OutputPreprocessed := True;
+  end;
+
+  if Options.OutputPreprocessed then begin
+    Options.Quiet := True;
+    Options.ShowProgress := False;
+  end;
+
   if IsppMode then begin
     InitIsppOptions(Options.IsppOptions, Options.Definitions, Options.IncludePath, Options.IncludeFiles);
     { Also see below }
@@ -578,13 +606,9 @@ begin
     S := NewParamStr(I);
     if (S = '') or IsParam(S) or IsLongParam(S) then begin
       RejectSingleDashLongParam(S);
-      if GetFlagParam(S, 'MJ', 'messages-jsonl') then
-        Options.MessagesJsonl := True
-      else if GetFlagParam(S, 'Q', 'quiet') then
-        Options.Quiet := True
-      else if GetFlagParam(S, 'QP', 'quiet-progress') then begin
-        Options.Quiet := True;
-        Options.ShowProgress := True;
+      if GetFlagParam(S, 'MJ', 'messages-jsonl') or GetFlagParam(S, 'Q', 'quiet') or
+         GetFlagParam(S, 'QP', 'quiet-progress') or GetFlagParam(S, 'E', 'preprocess') then begin
+        { Already handled above }
       end else if GetFlagParam(S, 'O+', 'output=yes') then
         Options.Output := 'yes'
       else if GetFlagParam(S, 'O-', 'output=no') then
@@ -594,11 +618,8 @@ begin
       else if GetParam(S, 'F', 'output-filename') then
         Options.OutputFilename := S
       else if GetParam(S, 'S', 'signtool') then begin
-        if Pos('=', S) = 0 then begin
-          ShowBanner;
-          WriteStdErr('Invalid option: ' + NewParamStr(I), True);
-          Halt(1);
-        end;
+        if Pos('=', S) = 0 then
+          ShowCommandLineErrorAndHalt('Invalid option: ' + NewParamStr(I));
         SignTools.Add(S);
       end else if GetFlagParam(S, 'NC', 'no-compression') then
         Options.NoCompression := True
@@ -608,8 +629,6 @@ begin
         Options.NoSignCheck := True
       else if GetFlagParam(S, 'NS', 'no-signing') then
         Options.NoSigning := True
-      else if GetFlagParam(S, 'E', 'preprocess') then
-        Options.OutputPreprocessed := True
       else if IsppMode and GetParam(S, 'D', 'define') then
         Options.Definitions := Options.Definitions + S + #1
       else if IsppMode and GetParam(S, 'I', 'include-dirs') then
@@ -635,31 +654,23 @@ begin
         InitCompiler;
         WriteStdOut(String(CompilerVersionInfo.Version));
         Halt(0);
-      end else begin
-        ShowBanner;
-        WriteStdErr('Unknown option: ' + NewParamStr(I), True);
-        Halt(1);
-      end;
+      end else
+        ShowCommandLineErrorAndHalt('Unknown option: ' + NewParamStr(I));
     end else begin
       { Not a switch; must be the script filename }
-      if Options.ScriptFilename <> '' then begin
-        ShowBanner;
-        WriteStdErr('You may not specify more than one script filename.', True);
-        Halt(1);
-      end;
+      if Options.ScriptFilename <> '' then
+        ShowCommandLineErrorAndHalt('You may not specify more than one script filename.');
       Options.ScriptFilename := S;
     end;
   end;
 
   if Options.ScriptFilename = '' then begin
-    ShowBanner;
+    if Options.MessagesJsonl then
+      ShowCommandLineErrorAndHalt('No script filename specified.');
+    if not Options.Quiet then
+      ShowBanner;
     ShowUsage;
     Halt(1);
-  end;
-
-  if Options.OutputPreprocessed then begin
-    Options.Quiet := True;
-    Options.ShowProgress := False;
   end;
 
   if not Options.Quiet then
@@ -720,7 +731,7 @@ begin
 
   if CompilerVersionInfo.BinVersion < $05000500 then begin
     { 5.0.5 or later is required since we use TCompileScriptParamsEx }
-    WriteStdErr('Incompatible compiler engine version.', True);
+    WriteError('Incompatible compiler engine version.');
     Halt(1);
   end;
 
@@ -807,15 +818,12 @@ begin
       isceNoError: ;
       isceCompileFailure: begin
           ExitCode := 2;
-          if Options.MessagesJsonl then
-            WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', 'Compile aborted.', True, False)
-          else
-            WriteStdErr('Compile aborted.', True);
+          WriteError('Compile aborted.');
         end;
     else
       ExitCode := 1;
-      WriteStdErr(Format('Internal error: ISDllCompileScript returned ' +
-        'unexpected result (%d).', [Res]), True);
+      WriteError(Format('Internal error: ISDllCompileScript returned ' +
+        'unexpected result (%d).', [Res]));
     end;
   finally
     FreeScriptLines;
@@ -850,7 +858,7 @@ begin
     except
       { Show a friendlier exception message. (By default, Delphi prints out
         the exception class and address.) }
-      WriteStdErr(GetExceptMessage, True);
+      WriteError(GetExceptMessage);
       Halt(2);
     end;
   finally

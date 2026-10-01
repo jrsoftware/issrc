@@ -25,7 +25,7 @@ type
 implementation
 
 uses
-  ActiveX, oleacc, SysUtils, StdCtrls, OleAccFunc;
+  ActiveX, oleacc, SysUtils, Classes, StdCtrls, OleAccFunc;
 
 type
   TNewCheckListBoxAccess = class(TNewCheckListBox);
@@ -97,8 +97,10 @@ end;
 function TNewCheckListBoxMSAAHelper.HandleMSAAGetObject(var Message: TMessage): Boolean;
 begin
   { Per docs, lParam must be casted to DWORD (32 bits) because it may be
-    sign-extended in a 64-bit process }
-  Result := (DWORD(Message.LParam) = OBJID_CLIENT) and InitializeOleAcc;
+    sign-extended in a 64-bit process. Bail when destroying: the window
+    outlives the DisconnectMSAAObject call in Destroy. }
+  Result := (DWORD(Message.LParam) = OBJID_CLIENT) and
+    not (csDestroying in ComponentState) and InitializeOleAcc;
   if Result then begin
     if FAccObjectInstance = nil then begin
       try
@@ -316,9 +318,11 @@ begin
        (TVarData(pvarState).VType = VT_I4) and
        Assigned(FControl) then begin
       ItemState := FControl.ItemStates[TVarData(varChild).VInteger-1];
-      case ItemState.State of
-        cbChecked: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_CHECKED;
-        cbGrayed: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_MIXED;
+      if ItemState.ItemType <> itGroup then begin
+        case ItemState.State of
+          cbChecked: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_CHECKED;
+          cbGrayed: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_MIXED;
+        end;
       end;
       if not ItemState.Enabled then
         TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_UNAVAILABLE;

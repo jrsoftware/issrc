@@ -144,6 +144,9 @@ type
     function Valid: Boolean;
   end;
 
+  { Maps a memo to the memo which took over its file, or to nil if no memo did }
+  TIDEScintEditNavMemoMap = TDictionary<TIDEScintEdit, TIDEScintEdit>;
+
   { Not using TStack since it lacks a way the keep a maximum amount of items by discarding the oldest }
   TIDEScintEditNavStack = class(TList<TIDEScintEditNavItem>)
   public
@@ -152,6 +155,7 @@ type
     procedure Optimize;
     function RemoveMemo(const AMemo: TIDEScintEdit): Boolean;
     function RemoveMemoBadLines(const AMemo: TIDEScintEdit): Boolean;
+    function ReplaceMemos(const AMemoMap: TIDEScintEditNavMemoMap): Boolean;
   end;
 
   TIDEScintEditNavStacks = class
@@ -168,6 +172,7 @@ type
     procedure LinesInserted(const AMemo: TIDEScintEdit; const FirstLine, LineCount: Integer);
     function RemoveMemo(const AMemo: TIDEScintEdit): Boolean;
     function RemoveMemoBadLines(const AMemo: TIDEScintEdit): Boolean;
+    function ReplaceMemos(const AMemoMap: TIDEScintEditNavMemoMap): Boolean;
     property Back: TIDEScintEditNavStack read FBackNavStack;
     property Forward: TIDEScintEditNavStack read FForwardNavStack;
   end;
@@ -662,6 +667,27 @@ begin
     Optimize;
 end;
 
+function TIDEScintEditNavStack.ReplaceMemos(
+  const AMemoMap: TIDEScintEditNavMemoMap): Boolean;
+begin
+  Result := False;
+  for var I := Count-1 downto 0 do begin
+    var NavItem := Items[I];
+    var NewMemo: TIDEScintEdit;
+    if AMemoMap.TryGetValue(NavItem.Memo, NewMemo) then begin
+      if NewMemo <> nil then begin
+        NavItem.Memo := NewMemo;
+        Items[I] := NavItem;
+      end else begin
+        Delete(I);
+        Result := True;
+      end;
+    end;
+  end;
+  if Result then
+    Optimize;
+end;
+
 { TIDEScintEditNavStacks }
 
 constructor TIDEScintEditNavStacks.Create;
@@ -733,6 +759,13 @@ function TIDEScintEditNavStacks.RemoveMemoBadLines(
 begin
   Result := FBackNavStack.RemoveMemoBadLines(AMemo);
   Result := FForwardNavStack.RemoveMemoBadLines(AMemo) or Result;
+end;
+
+function TIDEScintEditNavStacks.ReplaceMemos(
+  const AMemoMap: TIDEScintEditNavMemoMap): Boolean;
+begin
+  Result := FBackNavStack.ReplaceMemos(AMemoMap);
+  Result := FForwardNavStack.ReplaceMemos(AMemoMap) or Result;
 end;
 
 end.

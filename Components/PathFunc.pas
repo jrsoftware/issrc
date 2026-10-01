@@ -40,7 +40,9 @@ function PathComponentIsReservedName(const Filename: String): Boolean;
 function PathConvertNormalToSuper(const Filename: String): String; overload;
 function PathConvertNormalToSuper(const Filename: String;
   out SuperFilename: String): Boolean; overload;
-function PathConvertSuperToNormal(const Filename: String): String;
+function PathConvertSuperToNormal(const Filename: String): String; overload;
+function PathConvertSuperToNormal(const Filename: String;
+  out NormalFilename: String): Boolean; overload;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
   const IncludeSignificantSlash: Boolean): Integer;
@@ -335,6 +337,31 @@ begin
   end;
 
   Result := Filename;
+end;
+
+function PathConvertSuperToNormal(const Filename: String;
+  out NormalFilename: String): Boolean;
+{ Like the other overload, but returns False if the normal form can't be used
+  in place of Filename by code that doesn't support super paths: when Filename
+  is a super path that can't be converted, when the normal form is MAX_PATH or
+  longer, or when it doesn't convert back to Filename. The latter happens with
+  trailing dots or spaces and with reserved device names, which only super
+  paths can access because they skip Win32 path normalization.
+  If False is returned, NormalFilename is empty. }
+begin
+  const NewNormalFilename = PathConvertSuperToNormal(Filename);
+  if PathStartsWith(NewNormalFilename, '\\?\') or
+     (Length(NewNormalFilename) >= MAX_PATH) then
+    Exit(False);
+  { If Filename was already a normal path, there is nothing to check }
+  if NewNormalFilename <> Filename then begin
+    var SuperFilename: String;
+    if not PathConvertNormalToSuper(NewNormalFilename, SuperFilename) or
+       not PathSame(SuperFilename, Filename) then
+      Exit(False);
+  end;
+  NormalFilename := NewNormalFilename;
+  Result := True;
 end;
 
 function PathDrivePartLength(const Filename: String): Integer;

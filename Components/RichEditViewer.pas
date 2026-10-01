@@ -71,13 +71,6 @@ const
 type
 {$IF RtlVersion < 36.0}
   PEnLink = ^TEnLink;
-  TENLink = record
-    nmhdr: TNMHdr;
-    msg: UINT;
-    wParam: WPARAM;
-    lParam: LPARAM;
-    chrg: TCharRange;
-  end;
 {$ENDIF}
 
   TTextRange = record

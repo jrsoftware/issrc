@@ -463,19 +463,21 @@ end;
 
 procedure TNewCheckListBox.CNDrawItem(var Message: TWMDrawItem);
 begin
-  with Message.DrawItemStruct^ do begin
-    { Note: itemID is -1 when there are no items }
-    if Integer(itemID) >= 0 then begin
-      var L := ItemStates[Integer(itemID)].Level;
-      if ItemStates[Integer(itemID)].ItemType <> itGroup then Inc(L);
-      rcItem.Left := rcItem.Left + (FCheckWidth + 2 * FOffset) * L;
-      FlipRect(rcItem, ClientRect, IsRightToLeft);
+  if not (csDestroying in ComponentState) then begin
+    with Message.DrawItemStruct^ do begin
+      { Note: itemID is -1 when there are no items }
+      if Integer(itemID) >= 0 then begin
+        var L := ItemStates[Integer(itemID)].Level;
+        if ItemStates[Integer(itemID)].ItemType <> itGroup then Inc(L);
+        rcItem.Left := rcItem.Left + (FCheckWidth + 2 * FOffset) * L;
+        FlipRect(rcItem, ClientRect, IsRightToLeft);
+      end;
+      { Don't let TCustomListBox.CNDrawItem draw the focus }
+      if FWantTabs or
+        (SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS <> 0) then
+        itemState := itemState and not ODS_FOCUS;
+      inherited;
     end;
-    { Don't let TCustomListBox.CNDrawItem draw the focus }
-    if FWantTabs or
-      (SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS <> 0) then
-      itemState := itemState and not ODS_FOCUS;
-    inherited;
   end;
 end;
 

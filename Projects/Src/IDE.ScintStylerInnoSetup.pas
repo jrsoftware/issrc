@@ -1441,7 +1441,9 @@ begin
               ConsumeAllRemaining;
               CommitStyle(stComment);
             end else if (C = '(') and ConsumeChar('*') then begin
-              if not FinishConsumingStarComment then begin
+              if ConsumeChar(')') then { The opener's '*' may close it, like the ROPS tokenizer }
+                CommitStyle(stComment)
+              else if not FinishConsumingStarComment then begin
                 SpanState := spStarComment;
                 Exit;
               end;
@@ -1970,7 +1972,7 @@ begin
           var OpenCount: ShortInt := 0;
           HandleCompilerDirective(True, I - 1, OpenCount);
         finally
-          ResetCurIndexTo(0);
+          ResetCurIndexTo(1);
         end;
         if not Valid then
           ApplyPendingSquigglyFromToIndex(StartIndex, I - 1);

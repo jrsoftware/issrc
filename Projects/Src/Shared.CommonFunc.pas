@@ -164,7 +164,8 @@ function IsAdminLoggedOn: Boolean;
 function IsPowerUserLoggedOn: Boolean;
 function FontExists(const FaceName: String): Boolean;
 function GetUILanguage: LANGID;
-function RemoveAccelChar(const S: String): String;
+function RemoveAccelChar(const S: String;
+  const RemoveParenthesizedAccessKeys: Boolean = True): String;
 function GetTextWidth(const DC: HDC; S: String; const Prefix: Boolean): Integer;
 function AddPeriod(const S: String): String;
 function GetExceptMessage: String;
@@ -1245,27 +1246,40 @@ begin
   end;
 end;
 
-function RemoveAccelChar(const S: String): String;
-var
-  I: Integer;
+function RemoveAccelChar(const S: String;
+  const RemoveParenthesizedAccessKeys: Boolean = True): String;
+{ Removes access key prefixes ('&') and optionally entire parenthesized access
+  keys, which are used in CJK (e.g., 'File(&F)' -> 'File') }
 begin
   Result := S;
-  I := 1;
+  var I := 1;
+  var LookBehindStopIndex := I;
   while I <= Length(Result) do begin
     if Result[I] = '&' then begin
-      { Just like Vcl.Menus.StripHotkey. Note that its SysLocale.FarEast check
+      { Based on Vcl.Menus.StripHotkey. Note that its SysLocale.FarEast check
         is always True on UNICODE. }
-      if (I > 1) and (Length(Result)-I >= 2) and
-         (Result[I-1] = '(') and (Result[I+2] = ')') then begin
-        Delete(Result, I-1, 4);
-        { Unlike StripHotkey also remove a space in front of the accelerator,
+      if RemoveParenthesizedAccessKeys and
+         (I > LookBehindStopIndex) and (Length(Result)-I >= 2) and
+         (Result[I-1] = '(') and (Result[I+1] <> '&') and
+         (Result[I+2] = ')') then begin
+        Dec(I);
+        Delete(Result, I, 4);
+        { Unlike StripHotkey also remove a space in front of the access key,
           used by for example Chinese Traditional }
-        if (I > 2) and (Result[I-2] = ' ') then
-          Delete(Result, I-2, 1);
-      end else
+        if (I > LookBehindStopIndex) and (Result[I-1] = ' ') then begin
+          Dec(I);
+          Delete(Result, I, 1);
+        end;
+      end else begin
         Delete(Result, I, 1);
-    end;
-    Inc(I);
+        Inc(I);
+      end;
+      { Prevent double-processing of access key characters. For example, with
+        '&(&A)', '(' is an access key; it isn't also the start of a
+        parenthesized access key. }
+      LookBehindStopIndex := I;
+    end else
+      Inc(I);
   end;
 end;
 
@@ -1277,7 +1291,7 @@ var
 begin
   { This procedure is 10x faster than using DrawText with the DT_CALCRECT flag }
   if Prefix then
-    S := RemoveAccelChar(S);
+    S := RemoveAccelChar(S, False);
   GetTextExtentPoint32(DC, PChar(S), Length(S), Size);
   Result := Size.cx;
 end;
