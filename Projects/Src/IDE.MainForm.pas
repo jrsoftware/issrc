@@ -1120,7 +1120,7 @@ begin
 
   FNavStacks := TIDEScintEditNavStacks.Create;
   UpdateNavigationButtons;
-  FCurrentNavItem.Invalidate;
+  FCurrentNavItem.Clear;
 
   BackNavButton.Style := tbsDropDown;
   BackNavButton.DropdownMenu := TMainFormPopupMenu.Create(Self, NavPopupMenu);
@@ -1683,7 +1683,7 @@ begin
 
   FNavStacks.Clear;
   UpdateNavigationButtons;
-  FCurrentNavItem.Invalidate;
+  FCurrentNavItem.Clear;
 end;
 
 { Breakpoints are preserved on a per-file basis }

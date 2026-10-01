@@ -46,7 +46,7 @@ begin
   if FNavStacks.RemoveMemo(AMemo) then
     UpdateNavigationButtons;
   if FCurrentNavItem.Memo = AMemo then
-    FCurrentNavItem.Invalidate;
+    FCurrentNavItem.Clear;
 end;
 
 procedure TMainFormNavigationHelper.RemoveMemoBadLinesFromNavigation(const AMemo: TIDEScintEdit);
@@ -66,7 +66,7 @@ begin
     if NewMemo <> nil then
       FCurrentNavItem.Memo := NewMemo
     else
-      FCurrentNavItem.Invalidate;
+      FCurrentNavItem.Clear;
   end;
 end;
 
