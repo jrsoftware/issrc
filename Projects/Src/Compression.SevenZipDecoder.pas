@@ -21,7 +21,8 @@ type
   ESevenZipError = class(Exception);
 
 procedure SevenZipError(const ExceptMessage: String; const LogMessage: String = '');
-procedure SevenZipWin32Error(const FunctionName: String; const ErrorCode: DWORD); overload;
+procedure SevenZipWin32Error(const FunctionName: String; const ErrorCode: DWORD;
+  const AlsoLog: Boolean = True); overload;
 procedure SevenZipWin32Error(const FunctionName: String); overload;
 
 procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
@@ -333,12 +334,15 @@ begin
   raise ESevenZipError.Create(ExceptMessage);
 end;
 
-procedure SevenZipWin32Error(const FunctionName: String; const ErrorCode: DWORD); overload;
+procedure SevenZipWin32Error(const FunctionName: String; const ErrorCode: DWORD;
+  const AlsoLog: Boolean); overload;
 begin
   const ExceptMessage = FmtSetupMessage(msgErrorFunctionFailedWithMessage,
     [FunctionName, IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]);
-  const LogMessage = Format('Function %s returned error code %d', [FunctionName, ErrorCode]);
-  SevenZipError(ExceptMessage, LogMessage);
+  if AlsoLog then
+    SevenZipError(ExceptMessage, Format('Function %s returned error code %d', [FunctionName, ErrorCode]))
+  else
+    SevenZipError(ExceptMessage);
 end;
 
 procedure SevenZipWin32Error(const FunctionName: String); overload;
@@ -363,7 +367,7 @@ procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; c
     { Logging already done by 7zMain.c }
 
     if (Res and APPLICATION_ERROR_MASK) <> 0 then
-      SevenZipWin32Error('Extract', DWORD(Res and not APPLICATION_ERROR_MASK))
+      SevenZipWin32Error('Extract', DWORD(Res and not APPLICATION_ERROR_MASK), False)
     else begin
       case Res of
         SZ_ERROR_UNSUPPORTED, SZ_ERROR_NO_ARCHIVE:
