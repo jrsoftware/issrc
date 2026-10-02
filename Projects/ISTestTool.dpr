@@ -55,7 +55,8 @@ uses
   StringScanner in '..\Components\StringScanner.pas',
   StringScanner.Test in '..\Components\StringScanner.Test.pas',
   UnsignedFunc in '..\Components\UnsignedFunc.pas',
-  UnsignedFunc.Test in '..\Components\UnsignedFunc.Test.pas';
+  UnsignedFunc.Test in '..\Components\UnsignedFunc.Test.pas',
+  uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas';
 
 {$APPTYPE CONSOLE}
 {$SETPEOSVERSION 6.1}
@@ -147,6 +148,23 @@ begin
 end;
 
 procedure CommandTest(const ATestScriptFilename: String);
+
+  procedure uPSUtilsRunTests;
+  begin
+    { Not a ROPS script test: a script can't change the decimal separator, and the user's might already be a dot }
+    const SavedDecimalSeparator = FormatSettings.DecimalSeparator;
+    FormatSettings.DecimalSeparator := ','; { Not a dot, should be ignored }
+    try
+      const FloatResult = String(uPSUtils.FloatToStr(-1.5));
+      if FloatResult <> '-1.5' then
+        RaiseFatalErrorFmt('uPSUtils.FloatToStr test failed: got "%s"', [FloatResult]);
+      const CurrResult = String(uPSUtils.CurrToStr(-1.5));
+      if CurrResult <> '-1.5' then
+        RaiseFatalErrorFmt('uPSUtils.CurrToStr test failed: got "%s"', [CurrResult]);
+    finally
+      FormatSettings.DecimalSeparator := SavedDecimalSeparator;
+    end;
+  end;
 
   procedure ScriptRunTests;
 
@@ -361,6 +379,7 @@ begin
     SimpleExpressionRunTests;
     StringScannerRunTests;
     UnsignedFuncRunTests;
+    uPSUtilsRunTests; { Implemented above, because ROPS has no test units }
 
     PrintUnlessQuiet('OK');
 
