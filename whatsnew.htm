@@ -92,6 +92,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Navigating back or forward, or opening the dropdown of the <i>Back</i> button, could show an error after a recompile produced shorter preprocessor output (broken since navigation was introduced in 6.3.0).</li>
     <li>While the Compiler IDE was active, the Calculator key and similar keys did nothing (broken since navigation was introduced in 6.3.0).</li>
     <li>With multiple selections, Ctrl+Insert pasted instead of copied when the clipboard had one line per selection, and Shift+Insert didn't paste one line per selection like Ctrl+V does (broken since this was introduced for Ctrl+V in 6.4.0).</li>
+    <li>When the main script or an <tt>#include</tt> file was reloaded after another program changed it, a breakpoint marker could stay visible on a line without a breakpoint. This only happened with <i>Allow Undo after reload</i> enabled, which is the default (broken since 6.5.2).</li>
   </ul>
   </li>
   <li>Command-Line Compiler (ISCC):

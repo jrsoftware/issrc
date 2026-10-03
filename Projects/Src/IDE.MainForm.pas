@@ -527,6 +527,7 @@ type
     procedure BringToForeground;
     procedure BuildAndSaveBreakPointLines(const AMemo: TIDEScintFileEdit);
     procedure BuildAndSaveKnownIncludedAndHiddenFiles;
+    procedure ClearBreakPoints(const AMemo: TIDEScintFileEdit; const AUpdateLineMarkers: Boolean);
     procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
@@ -1666,7 +1667,7 @@ begin
   InvalidateStatusPanel(spHiddenFilesCount);
   for Memo in FFileMemos do
     if Memo.Used then
-      Memo.BreakPoints.Clear;
+      ClearBreakPoints(Memo, IsReload and (Memo = FMainMemo));
   DestroyDebugInfo;
 
   FMainMemo.Filename := '';
@@ -1738,6 +1739,20 @@ begin
       a fatal error }
     Application.HandleException(Self);
   end;
+end;
+
+procedure TMainForm.ClearBreakPoints(const AMemo: TIDEScintFileEdit; const AUpdateLineMarkers: Boolean);
+{ AUpdateLineMarkers is only needed if the markers will stay, such as on a reload
+  using SCI_REPLACETARGETMINIMAL }
+begin
+  if AUpdateLineMarkers then begin
+    for var I := AMemo.BreakPoints.Count-1 downto 0 do begin
+      const Line = AMemo.BreakPoints[I];
+      AMemo.BreakPoints.Delete(I);
+      UpdateLineMarkers(AMemo, Line);
+    end;
+  end else
+    AMemo.BreakPoints.Clear;
 end;
 
 { Known included and hidden files are preserved on a per-main-file basis }
@@ -1924,7 +1939,7 @@ begin
       if AMemo = FMainMemo then
         NewMainFile(IsReload)
       else begin
-        AMemo.BreakPoints.Clear;
+        ClearBreakPoints(AMemo, IsReload);
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
       end;
@@ -6880,11 +6895,7 @@ begin
   { Also see AnyMemoHasBreakPoint }
   for var Memo in FFileMemos do begin
     if Memo.Used and (Memo.BreakPoints.Count > 0) then begin
-      for var I := Memo.BreakPoints.Count-1 downto 0 do begin
-        var Line := Memo.BreakPoints[I];
-        Memo.BreakPoints.Delete(I);
-        UpdateLineMarkers(Memo, Line);
-      end;
+      ClearBreakPoints(Memo, True);
       BuildAndSaveBreakPointLines(Memo);
     end;
   end;
