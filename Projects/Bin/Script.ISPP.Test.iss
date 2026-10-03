@@ -652,10 +652,17 @@
 #call CheckEqualsInt(7, MultiParamMacro(3, 4))
 #define StringParamMacro(S) S + '!'
 #call CheckEqualsString('hello!', StringParamMacro('hello'))
+// No blank or multiple blanks between the closing parenthesis and the expression
+#define NoBlankMacro(X)X + 1
+#call CheckEqualsInt(6, NoBlankMacro(5))
+#define MultipleBlanksMacro(X)   X + 1
+#call CheckEqualsInt(6, MultipleBlanksMacro(5))
 #undef ParameterlessMacro
 #undef SingleParamMacro
 #undef MultiParamMacro
 #undef StringParamMacro
+#undef NoBlankMacro
+#undef MultipleBlanksMacro
 //
 // Default parameter values
 //
