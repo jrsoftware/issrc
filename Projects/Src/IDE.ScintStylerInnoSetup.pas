@@ -451,12 +451,12 @@ begin
     var S := ConsumeString(ISPPIdentChars);
     for var ISPPDirective in ISPPDirectives do
       if SameRawText(S, ISPPDirective.Name) then begin
-        if SameRawText(S, 'error') then
-          ErrorDirective := True
-        else if SameRawText(S, 'include') then
+        if SameRawText(S, 'include') then
           DoIncludeFileNotationCheck := True { See above }
-        else
+        else begin
           NeedIspp := True; { Built-in preprocessor only supports '#include' }
+          ErrorDirective := SameRawText(S, 'error');
+        end;
         ForDirectiveExpressionsNext := SameRawText(S, 'for'); { #for uses ';' as an expressions list separator so we need to remember that ';' doesn't start a comment until the list is done }
         Inc(OpenCount, ISPPDirective.OpenCountChange);
         if OpenCount < 0 then begin

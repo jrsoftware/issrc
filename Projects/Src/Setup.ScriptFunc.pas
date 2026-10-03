@@ -1566,7 +1566,7 @@ var
     end);
     RegisterScriptFunc('COMPAREPACKEDVERSION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetInt(PStart, CompareInt64(Stack.GetInt64(PStart-1), Stack.GetInt64(PStart-2)));
+      Stack.SetInt(PStart, CompareUInt64(UInt64(Stack.GetInt64(PStart-1)), UInt64(Stack.GetInt64(PStart-2))));
     end);
     RegisterScriptFunc('SAMEPACKEDVERSION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin

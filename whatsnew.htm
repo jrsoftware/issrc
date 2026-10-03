@@ -178,6 +178,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 <ul>
   <li>Compiler IDE: Enabled dark mode support for the menus on Windows 11 Version 26H2 (2026 Update).</li>
   <li>Inno Setup 7.0.0 changed the file name passed to a Sign Tool for the <tt>[Files]</tt> section flags <tt>sign</tt> and <tt>signonce</tt> to always be an extended-length path (also known as a super path). For backward compatibility with Sign Tools which don't support such paths, it's now a normal path again, unless the file can only be accessed using an extended-length path, for example because its path is 260 characters or longer.</li>
+  <li>Updated the official Brazilian Portuguese and Italian translations.</li>
 </ul>
 
 <span class="head2">Fixes</span>
@@ -189,7 +190,13 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <li>When archive extraction failed to open, read, or write a file, for example because another process had it open, it could report that the archive was corrupted or an unspecified error. It now reports the actual error.</li>
   <li><tt>[Files]</tt> section entries with the <tt>extractarchive</tt> and <tt>recursesubdirs</tt> flags failed with an internal error if the archive contained a path of 260 characters or longer. Support function <tt>ExtractArchive</tt> wasn't affected.</li>
   <li>Security improvement: During archive extraction, a crafted <tt>.cab</tt>, <tt>.vhd</tt>, <tt>.vhdx</tt>, or <tt>.vmdk</tt> archive could make Setup open a file outside the archive's directory as a volume for reading.</li>
-  <li>Pascal Scripting: When a COM object or a variant array was passed as an argument to a method of a <a href="https://jrsoftware.org/ishelp/index.php?topic=scriptautomation">COM Automation object</a>, such as in <tt>ParentNode.appendChild(ChildNode)</tt>, or assigned to a property of one, it was released one time too many. This could cause access violations, for example when using MSXML after installing a September 2026 Windows update with a new MSXML version, such as KB5124007 or KB5124008.</li>
+  <li>Pascal Scripting and ISPP support function <tt>ComparePackedVersion</tt> returned the wrong result if one of the two versions had a major version of 32768 or higher (broken since 6.6.0).</li>
+  <li>Pascal Scripting:
+  <ul>
+    <li>When a COM object or a variant array was passed as an argument to a method of a <a href="https://jrsoftware.org/ishelp/index.php?topic=scriptautomation">COM Automation object</a>, such as in <tt>ParentNode.appendChild(ChildNode)</tt>, or assigned to a property of one, it was released one time too many. This could cause access violations, for example when using MSXML after installing a September 2026 Windows update with a new MSXML version, such as KB5124007 or KB5124008.</li>
+    <li>Support function <tt>FloatToStr</tt> used the decimal point from the user's regional settings, such as a comma, instead of always a dot as documented. Support function <tt>StrToFloat</tt> then raised an exception when given the result (broken since 7.0.0).</li>
+  </ul>
+  </li>
   <li>Compiler IDE:
   <ul>
     <li>The editor font selected in the <i>Options</i> dialog wasn't applied when the name of the font contained non-ASCII characters.</li>
@@ -200,6 +207,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Navigating back or forward, or opening the dropdown of the <i>Back</i> button, could show an error after a recompile produced shorter preprocessor output (broken since navigation was introduced in 6.3.0).</li>
     <li>While the Compiler IDE was active, the Calculator key and similar keys did nothing (broken since navigation was introduced in 6.3.0).</li>
     <li>With multiple selections, Ctrl+Insert pasted instead of copied when the clipboard had one line per selection, and Shift+Insert didn't paste one line per selection like Ctrl+V does (broken since this was introduced for Ctrl+V in 6.4.0).</li>
+    <li>When the main script or an <tt>#include</tt> file was reloaded after another program changed it, a breakpoint marker could stay visible on a line without a breakpoint. For an <tt>#include</tt> file, the marker of a compile error could also stay visible on the wrong line. This only happened with <i>Allow Undo after reload</i> enabled, which is the default (broken since 6.5.2).</li>
   </ul>
   </li>
   <li>Command-Line Compiler (ISCC):

@@ -664,13 +664,14 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         NextToken;
         const AParamCount = ParseFormalParams(Parser, ParamList);
         try
+          while CharInSet(FExpr^, [#1..#32]) do Inc(FExpr);
           P := FExpr;
           MacroExprPos.FileIndex := FCurrentFile;
           MacroExprPos.Line := FCurrentLine;
           MacroExprPos.Column := Integer((FExpr - Start) + ParamsOffset);
           while P^ <> #0 do Inc(P);
           SetString(AExpr, FExpr, P - FExpr);
-          AExpr := Trim(AExpr);
+          AExpr := TrimRight(AExpr);
           if AExpr = '' then RaiseError(SMacroExpressionExpected);
           FIdentManager.DefineMacro(Name, AExpr, MacroExprPos, FOptions.ParserOptions,
             Slice(ParamList^, AParamCount), Scope);

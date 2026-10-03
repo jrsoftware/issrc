@@ -168,6 +168,7 @@
         <DCCReference Include="..\Components\StringScanner.Test.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.Test.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -897,7 +897,7 @@ begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-      MakeInt(ResPtr^, CompareInt64(Get(0).AsInt64, Get(1).AsInt64));
+      MakeInt(ResPtr^, CompareUInt64(UInt64(Get(0).AsInt64), UInt64(Get(1).AsInt64)));
   except
     on E: Exception do
       FuncResult.RaiseError(PChar(E.Message));

@@ -193,7 +193,7 @@ function ClientAreaAnimationsActive: Boolean;
 function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function DarkModeActive: Boolean;
 function DeleteFileOrDirByHandle(const H: THandle): Boolean;
-function CompareInt64(const N1, N2: Int64): Integer;
+function CompareUInt64(const N1, N2: UInt64): Integer;
 function HighLowToInt64(const High, Low: UInt32): Int64;
 function HighLowToUInt64(const High, Low: UInt32): UInt64;
 function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
@@ -1726,7 +1726,7 @@ begin
     SizeOf(Info));
 end;
 
-function CompareInt64(const N1, N2: Int64): Integer;
+function CompareUInt64(const N1, N2: UInt64): Integer;
 begin
   if N1 = N2 then
     Result := 0

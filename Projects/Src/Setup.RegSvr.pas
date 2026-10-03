@@ -186,7 +186,7 @@ begin
                 back in as an admin the files will get registered for real,
                 and we won't suppress error messages then. }
               if not NoErrorMessages then
-                MsgBox(RegFilename + SNewLine2 +
+                MsgBox(PathConvertSuperToNormal(RegFilename) + SNewLine2 +
                   FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage),
                   SetupMessages[msgSetupAppTitle], mbError, MB_OK);
             end;
