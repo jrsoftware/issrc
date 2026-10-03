@@ -85,7 +85,7 @@ procedure SaveWindowState(const Form: TForm;
 implementation
 
 uses
-  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
+  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, StrUtils,
   Messages,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
   IDE.MainForm, IDE.Messages;
@@ -197,11 +197,17 @@ end;
 
 function GetCleanFileNameOfFile(const Filename: String): String;
 begin
-  var Files := TDirectory.GetFiles(PathExtractDir(Filename), PathExtractName(Filename));
-  if Length(Files) = 1 then
-    Result := Files[0]
-  else
-    Result := Filename;
+  var FindData: TWin32FindData;
+  const H = FindFirstFile(PChar(Filename), FindData);
+  if H <> INVALID_HANDLE_VALUE then begin
+    Windows.FindClose(H);
+    { If the specified name is an 8.3 short name, FindFirstFile returns the
+      long name. Don't use that result. In other words, only use a result that
+      equals the specified name, ignoring case. }
+    if PathSame(FindData.cFileName, PathExtractName(Filename)) then
+      Exit(PathExtractPath(Filename) + FindData.cFileName);
+  end;
+  Result := Filename;
 end;
 
 function GetLastWriteTimeOfFile(const Filename: String;
