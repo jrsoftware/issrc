@@ -1939,6 +1939,8 @@ begin
       if AMemo = FMainMemo then
         NewMainFile(IsReload)
       else begin
+        if IsReload and (AMemo = FErrorMemo) then
+          HideError;
         ClearBreakPoints(AMemo, IsReload);
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
