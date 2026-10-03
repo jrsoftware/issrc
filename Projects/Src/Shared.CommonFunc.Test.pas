@@ -266,16 +266,17 @@ begin
   Assert(not TryStrToBoolean('2', BoolResult));
   Assert(BoolResult);
 
-  { CompareInt64: ordering across the full Int64 range, including signs }
-  Assert(CompareInt64(0, 0) = 0);
-  Assert(CompareInt64(5, 5) = 0);
-  Assert(CompareInt64(5, 4) = 1);
-  Assert(CompareInt64(4, 5) = -1);
-  Assert(CompareInt64(-1, 1) = -1);
-  Assert(CompareInt64(1, -1) = 1);
-  Assert(CompareInt64(High(Int64), Low(Int64)) = 1);
-  Assert(CompareInt64(Low(Int64), High(Int64)) = -1);
-  Assert(CompareInt64(Low(Int64), Low(Int64)) = 0);
+  { CompareUInt64: ordering across the full UInt64 range, including values
+    with the high bit set }
+  Assert(CompareUInt64(0, 0) = 0);
+  Assert(CompareUInt64(5, 5) = 0);
+  Assert(CompareUInt64(5, 4) = 1);
+  Assert(CompareUInt64(4, 5) = -1);
+  Assert(CompareUInt64(UInt64(1) shl 63, 1) = 1);
+  Assert(CompareUInt64(1, UInt64(1) shl 63) = -1);
+  Assert(CompareUInt64(High(UInt64), 0) = 1);
+  Assert(CompareUInt64(0, High(UInt64)) = -1);
+  Assert(CompareUInt64(High(UInt64), High(UInt64)) = 0);
 
   { HighLowToInt64 / HighLowToUInt64: pack two UInt32s into a 64-bit value;
     Int64 reinterprets the same bit pattern as signed }
