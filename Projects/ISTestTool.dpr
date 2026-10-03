@@ -33,7 +33,6 @@ uses
   ChaCha20.Test in '..\Components\ChaCha20.Test.pas',
   Compiler.StringLists in 'Src\Compiler.StringLists.pas',
   Compiler.StringLists.Test in 'Src\Compiler.StringLists.Test.pas',
-  uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas',
   IDE.ScriptModel in 'Src\IDE.ScriptModel.pas',
   IDE.ScriptModel.Metadata in 'Src\IDE.ScriptModel.Metadata.pas',
   IDE.ScriptModel.Metadata.Extra in 'Src\IDE.ScriptModel.Metadata.Extra.pas',
