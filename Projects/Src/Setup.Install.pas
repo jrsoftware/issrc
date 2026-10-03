@@ -1546,7 +1546,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
         end;
       until (Failed = '') or
             AbortRetryIgnoreTaskDialogMsgBox(
-              ArchiveFilename + SNewLine2 + SetupMessages[msgErrorExtracting] + SNewLine + Failed,
+              PathConvertSuperToNormal(ArchiveFilename) + SNewLine2 + SetupMessages[msgErrorExtracting] + SNewLine + Failed,
               [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
       if H <> INVALID_HANDLE_VALUE then begin
         try
@@ -1670,7 +1670,7 @@ begin
           until FoundFiles or
                 (foSkipIfSourceDoesntExist in CurFile^.Options) or
                 AbortRetryIgnoreTaskDialogMsgBox(
-                  SetupMessages[msgErrorReadingSource] + SNewLine + AddPeriod(FmtSetupMessage(msgSourceDoesntExist, [SourceWildcard])),
+                  SetupMessages[msgErrorReadingSource] + SNewLine + AddPeriod(FmtSetupMessage(msgSourceDoesntExist, [PathConvertSuperToNormal(SourceWildcard)])),
                   [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
           { In case we didn't end up copying all the expected bytes, bump
             the progress bar up to the expected amount }
@@ -2422,7 +2422,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
         Log('Registration failed:' + SNewLine + GetExceptMessage);
         if not NoErrorMessages then
           if not AbortRetryIgnoreTaskDialogMsgBox(
-                   Filename + SNewLine2 + FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage),
+                   PathConvertSuperToNormal(Filename) + SNewLine2 + FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage),
                    [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreIgnoreNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then
             NeedToRetry := True;
       end;
@@ -2457,7 +2457,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
         Log('Registration failed:' + SNewLine + GetExceptMessage);
         if not NoErrorMessages then
           if not AbortRetryIgnoreTaskDialogMsgBox(
-                   Filename + SNewLine2 + FmtSetupMessage1(msgErrorRegisterTypeLib, GetExceptMessage),
+                   PathConvertSuperToNormal(Filename) + SNewLine2 + FmtSetupMessage1(msgErrorRegisterTypeLib, GetExceptMessage),
                    [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreIgnoreNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then
             NeedToRetry := True;
       end;
