@@ -1964,6 +1964,14 @@ begin
       if MainMemoAddToRecentDocs then
         AddFileToRecentDocs(AFilename);
       LoadKnownIncludedAndHiddenFilesAndUpdateMemos(AFilename);
+      if IsReload and (FIncludedFiles.Count = 0) then begin
+        { On a reload NewMainFile passes DontUpdateRelatedVisibilty=True to UpdatePreprocMemos.
+          LoadKnownIncludedAndHiddenFilesAndUpdateMemos only calls UpdatePreprocMemos again,
+          with DontUpdateRelatedVisibilty=False, when it adds included files. So on reload, with
+          no included files, we must still update visibility. }
+        UpdateMemosTabSetVisibility;
+        UpdateBevel1Visibility;
+      end;
       InvalidateStatusPanel(spHiddenFilesCount);
     end;
     LoadBreakPointLinesAndUpdateLineMarkers(AMemo);
