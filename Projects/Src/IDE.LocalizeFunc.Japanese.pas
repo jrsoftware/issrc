@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..964] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..967] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -226,6 +226,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: 'ファイルを開くときにエラーが発生しました。リストから削除しますか？'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: '%1 ファイルのテキストが変更されています。%n%n変更を保存しますか？'),
     (English: 'Please stop the compile process before performing this command.'; Localized: 'このコマンドを実行する前に、コンパイルプロセスを停止してください。'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: '%1 ファイルがソースエディター外で変更されましたが、コンパイルプロセスの実行中は再読み込みできません。'),
     (English: 'A compile is already in progress.'; Localized: 'コンパイルは既に実行中です。'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: '%1 ファイルのテキストが変更されているため、コンパイル前に保存する必要があります。%n%n変更を保存して続行しますか？'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: 'コンパイル前にスクリプトを保存しますか？%n%n「いいえ」を選択すると、コンパイルされたインストーラーは既定でマイ ドキュメントフォルダーの下に配置されます。'),
@@ -266,7 +267,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: '%1 の終了コードを取得できません (%2 が失敗しました)'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1 はまだ実行中のため、終了コードを取得できません'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: 'このコマンドを実行する前に、実行中の %1 プロセスを停止してください。'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: '%2 ファイルがソースエディター外で変更されましたが、%1 プロセスの実行中は再読み込みできません。'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: 'このコマンドは、実行中の %1 プロセスからデバッガーを切り離します。続行しますか？'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: '%2 ファイルがソースエディター外で変更されており、まもなく再読み込みされます。%n%nこれにより、実行中の %1 プロセスからデバッガーが切り離されます。続行しますか？'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: '行った変更は、再コンパイルするまで反映されません。%n%nこのまま実行を続行しますか？'),
     (English: 'A pause is already pending.'; Localized: '一時停止は既に保留中です。'),
     (English: 'No code was generated for the current line.'; Localized: '現在の行に対して生成されたコードはありません。'),

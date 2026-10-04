@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..964] of TTranslationPair = (
+  DutchIDETranslations: array [0..967] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -226,6 +226,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: 'Er is een fout opgetreden bij het openen van het bestand. Uit de lijst verwijderen?'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: 'De tekst in het bestand %1 is gewijzigd.%n%nWilt u de wijzigingen opslaan?'),
     (English: 'Please stop the compile process before performing this command.'; Localized: 'Stop het compilatieproces voordat u deze opdracht uitvoert.'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: 'Het bestand %1 is buiten de broneditor gewijzigd, maar kan niet opnieuw worden geladen terwijl het compilatieproces actief is.'),
     (English: 'A compile is already in progress.'; Localized: 'Er is al een compilatie bezig.'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: 'De tekst in het bestand %1 is gewijzigd en moet worden opgeslagen vóór het compileren.%n%nDe wijzigingen opslaan en doorgaan?'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: 'Wilt u het script opslaan vóór het compileren?%n%nAls u Nee antwoordt, wordt de gecompileerde installatie standaard in uw map Mijn documenten geplaatst.'),
@@ -266,7 +267,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: 'Kan afsluitcode van %1 niet ophalen (%2 mislukt)'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1 wordt nog uitgevoerd; kan afsluitcode niet ophalen'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: 'Stop het actieve %1-proces voordat u deze opdracht uitvoert.'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: 'Het bestand %2 is buiten de broneditor gewijzigd, maar kan niet opnieuw worden geladen terwijl het %1-proces actief is.'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: 'Met deze opdracht wordt de debugger losgekoppeld van het actieve %1-proces. Doorgaan?'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: 'Het bestand %2 is buiten de broneditor gewijzigd en staat op het punt opnieuw te worden geladen.%n%nHierdoor wordt de debugger losgekoppeld van het actieve %1-proces. Doorgaan?'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: 'De wijzigingen die u hebt aangebracht, worden pas van kracht nadat u opnieuw compileert.%n%nToch doorgaan met uitvoeren?'),
     (English: 'A pause is already pending.'; Localized: 'Er is al een pauze in behandeling.'),
     (English: 'No code was generated for the current line.'; Localized: 'Er is geen code gegenereerd voor de huidige regel.'),
