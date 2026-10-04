@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ChineseTraditionalIDETranslations: array [0..1009] of TTranslationPair = (
+  ChineseTraditionalIDETranslations: array [0..1012] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '命令列用法：'),
     (English: 'Examples:'; Localized: '範例：'),
     (English: 'script file'; Localized: '指令碼檔案'),
@@ -234,6 +234,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: '開啟檔案時發生錯誤。要將它從清單中移除嗎？'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: '%1 檔案中的文字已變更。%n%n您要儲存變更嗎？'),
     (English: 'Please stop the compile process before performing this command.'; Localized: '請先停止編譯，再執行此命令。'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: '%1 檔案已在來源編輯器外部被修改，但在編譯進行期間無法重新載入。'),
     (English: 'A compile is already in progress.'; Localized: '編譯已在進行中。'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: '%1 檔案中的文字已變更，必須在編譯前儲存。%n%n要儲存變更並繼續嗎？'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: '您要在編譯前儲存指令碼嗎？%n%n如果您回答「否」，編譯後的安裝程式預設將放在您的「文件」資料夾中。'),
@@ -274,7 +275,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: '無法取得%1的結束代碼 (%2 失敗)'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1仍在執行；無法取得結束代碼'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: '請先停止正在執行的%1處理序，再執行此命令。'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: '%2 檔案已在來源編輯器外部被修改，但在%1處理序執行期間無法重新載入。'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: '此命令會將偵錯工具與正在執行的%1處理序中斷連結。要繼續嗎？'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: '%2 檔案已在來源編輯器外部被修改，即將重新載入。%n%n這會將偵錯工具與正在執行的%1處理序中斷連結。要繼續嗎？'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: '您所做的變更在重新編譯之前不會生效。%n%n仍要繼續執行嗎？'),
     (English: 'A pause is already pending.'; Localized: '已有暫停要求擱置中。'),
     (English: 'No code was generated for the current line.'; Localized: '未為目前這一行產生任何程式碼。'),

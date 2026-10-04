@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  FrenchIDETranslations: array [0..1009] of TTranslationPair = (
+  FrenchIDETranslations: array [0..1012] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Utilisation en ligne de commande :'),
     (English: 'Examples:'; Localized: 'Exemples :'),
     (English: 'script file'; Localized: 'fichier de script'),
@@ -234,6 +234,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: 'Une erreur s''est produite à l''ouverture du fichier. Le supprimer de la liste ?'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: 'Le texte du fichier %1 a été modifié.%n%nVoulez-vous enregistrer les modifications ?'),
     (English: 'Please stop the compile process before performing this command.'; Localized: 'Veuillez arrêter la compilation avant d''exécuter cette commande.'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: 'Le fichier %1 a été modifié en dehors de l''éditeur de source, mais ne peut pas être rechargé tant que la compilation est en cours.'),
     (English: 'A compile is already in progress.'; Localized: 'Une compilation est déjà en cours.'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: 'Le texte du fichier %1 a été modifié et doit être enregistré avant la compilation.%n%nEnregistrer les modifications et continuer ?'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: 'Voulez-vous enregistrer le script avant de compiler ?%n%nSi vous répondez Non, l''installation compilée sera placée par défaut dans votre dossier Mes documents.'),
@@ -274,7 +275,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: 'Impossible d''obtenir le code de sortie du processus %1 (échec de %2)'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1 est toujours en cours d''exécution ; impossible d''obtenir le code de sortie'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: 'Veuillez arrêter le processus %1 en cours avant d''exécuter cette commande.'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: 'Le fichier %2 a été modifié en dehors de l''éditeur de source, mais ne peut pas être rechargé tant que le processus %1 est en cours d''exécution.'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: 'Cette commande détachera le débogueur du processus %1 en cours. Continuer ?'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: 'Le fichier %2 a été modifié en dehors de l''éditeur de source et est sur le point d''être rechargé.%n%nCela détachera le débogueur du processus %1 en cours. Continuer ?'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: 'Les modifications effectuées ne prendront effet qu''après une recompilation.%n%nContinuer l''exécution quand même ?'),
     (English: 'A pause is already pending.'; Localized: 'Une pause est déjà en attente.'),
     (English: 'No code was generated for the current line.'; Localized: 'Aucun code n''a été généré pour la ligne actuelle.'),
