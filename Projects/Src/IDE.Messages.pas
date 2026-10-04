@@ -296,6 +296,7 @@ const
   SCompilerFileModifiedOutside = 'The %1 file has been modified outside of the source editor. You might want to reload it.';
   SCompilerFileModifiedReload = 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?';
   SCompilerFileModifiedReloadChanged = 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?';
+  SCompilerFileChangedSavePromptBeforeReload = 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?';
   SCompilerFileNotOpened = 'File not opened.';
   SGotoLineTitle = 'Go to Line';
   SGotoLinePrompt = 'Line number:';
