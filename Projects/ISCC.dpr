@@ -152,10 +152,10 @@ begin
   end;
 end;
 
-procedure WriteError(const S: String);
+procedure WriteError(const S: String; const Filename: String = '');
 begin
   if Options.MessagesJsonl then
-    WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', S, True, False)
+    WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, Filename, S, True, False)
   else
     WriteStdErr(S, True);
 end;
@@ -738,16 +738,21 @@ begin
   ProgressPoint.X := -1;
   ExitCode := 0;
   try
-    if Options.ScriptFilename <> '<stdin>' then
-      F := TTextFileReader.Create(Options.ScriptFilename, fdOpenExisting, faRead, fsRead)
-    else
-      F := TTextFileReader.CreateWithExistingHandle(GetStdHandle(STD_INPUT_HANDLE));
-    if not F.CanDetectUTF8WithoutBOM then
-      F.CodePage := CP_UTF8; { Assume UTF-8 }
     try
-      ReadScriptLines(F);
-    finally
-      F.Free;
+      if Options.ScriptFilename <> '<stdin>' then
+        F := TTextFileReader.Create(Options.ScriptFilename, fdOpenExisting, faRead, fsRead)
+      else
+        F := TTextFileReader.CreateWithExistingHandle(GetStdHandle(STD_INPUT_HANDLE));
+      if not F.CanDetectUTF8WithoutBOM then
+        F.CodePage := CP_UTF8; { Assume UTF-8 }
+      try
+        ReadScriptLines(F);
+      finally
+        F.Free;
+      end;
+    except
+      WriteError(GetExceptMessage, Options.ScriptFilename);
+      Halt(2);
     end;
 
     if not Options.Quiet then begin
