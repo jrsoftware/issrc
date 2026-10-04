@@ -631,8 +631,9 @@ type
       const IsReload: Boolean = False);
     procedure OpenMRUMainFile(const AFilename: String);
     procedure ParseDebugInfo(DebugInfo: Pointer);
-    function PromptToSaveIncludedFileMemos: Boolean;
-    function PromptToSaveMemo(const AMemo: TIDEScintFileEdit): Boolean;
+    function PromptToSaveIncludedFileMemos(const BeforeMainFileReload: Boolean = False): Boolean;
+    function PromptToSaveMemo(const AMemo: TIDEScintFileEdit;
+      const BeforeMainFileReload: Boolean = False): Boolean;
     procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
     function SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
@@ -2386,14 +2387,18 @@ begin
   end;
 end;
 
-function TMainForm.PromptToSaveMemo(const AMemo: TIDEScintFileEdit): Boolean;
-var
-  FileTitle: String;
+function TMainForm.PromptToSaveMemo(const AMemo: TIDEScintFileEdit;
+  const BeforeMainFileReload: Boolean): Boolean;
 begin
   Result := True;
   if AMemo.Modified then begin
-    FileTitle := GetFileTitle(AMemo.Filename);
-    case MsgBox(LFmtMessage(SCompilerFileChangedSavePrompt, [FileTitle]),
+    const FileTitle = GetFileTitle(AMemo.Filename);
+    var Prompt: String;
+    if BeforeMainFileReload then
+      Prompt := LFmtMessage(SCompilerFileChangedSavePromptBeforeReload, [FMainMemo.Filename, FileTitle, '#include'])
+    else
+      Prompt := LFmtMessage(SCompilerFileChangedSavePrompt, [FileTitle]);
+    case MsgBox(Prompt,
        LFmtMessage(SCompilerFormCaption), mbError,
        MB_YESNOCANCEL) of
       IDYES: Result := SaveFile(AMemo, False);
@@ -2404,10 +2409,10 @@ begin
   end;
 end;
 
-function TMainForm.PromptToSaveIncludedFileMemos: Boolean;
+function TMainForm.PromptToSaveIncludedFileMemos(const BeforeMainFileReload: Boolean): Boolean;
 begin
   for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do
-    if FFileMemos[I].Used and not PromptToSaveMemo(FFileMemos[I]) then
+    if FFileMemos[I].Used and not PromptToSaveMemo(FFileMemos[I], BeforeMainFileReload) then
       Exit(False);
   Result := True;
 end;
@@ -7316,7 +7321,7 @@ const
         if (not Memo.Modified and FOptions.Autoreload) or
            (MsgBox(LFmtMessage(ReloadMessages[Memo.Modified], [Memo.Filename]),
               LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES) then
-          if ConfirmCloseFile(False) and ((Memo <> FMainMemo) or PromptToSaveIncludedFileMemos) then begin
+          if ConfirmCloseFile(False) and ((Memo <> FMainMemo) or PromptToSaveIncludedFileMemos(True)) then begin
             OpenFile(Memo, Memo.Filename, False, FOptions.UndoAfterReload);
             Result := Memo = FMainMemo;
           end;
