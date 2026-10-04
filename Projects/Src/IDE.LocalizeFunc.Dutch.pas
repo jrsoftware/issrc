@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..1015] of TTranslationPair = (
+  DutchIDETranslations: array [0..1009] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -249,6 +249,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: 'Het bestand %1 is buiten de broneditor gewijzigd. Misschien wilt u het opnieuw laden.'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: 'Het bestand %1 is buiten de broneditor gewijzigd.%n%nWilt u het bestand opnieuw laden?'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: 'Het bestand %1 is buiten de broneditor gewijzigd. Er zijn ook wijzigingen aangebracht in de broneditor.%n%nWilt u het bestand opnieuw laden en de in de broneditor aangebrachte wijzigingen verliezen?'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: 'Het bestand %1 is buiten de broneditor gewijzigd en staat op het punt opnieuw te worden geladen, samen met de bijbehorende %3-bestanden.%n%nDe tekst in het %3-bestand %2 is gewijzigd.%n%nWilt u de wijzigingen opslaan?'),
     (English: 'File not opened.'; Localized: 'Bestand niet geopend.'),
     (English: 'Go to Line'; Localized: 'Ga naar regel'),
     (English: 'Line number:'; Localized: 'Regelnummer:'),
@@ -715,7 +716,6 @@ const
     (English: 'Identifier expected'; Localized: 'Identifier verwacht'),
     (English: 'Invalid binary value'; Localized: 'Ongeldige binaire waarde'),
     (English: 'Invalid stream format'; Localized: 'Ongeldige streamindeling'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '''%s'' is een ongeldig masker op (%d)'),
     (English: '''''%s'''' is not a valid component name'; Localized: '''''%s'''' is geen geldige componentnaam'),
     (English: 'Invalid property value'; Localized: 'Ongeldige eigenschapswaarde'),
     (English: 'Invalid property path'; Localized: 'Ongeldig eigenschapspad'),
@@ -756,12 +756,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: 'Parameter %s mag niet nil zijn'),
     (English: 'Parameter %s cannot be a negative value'; Localized: 'Parameter %s mag geen negatieve waarde zijn'),
     (English: 'Invalid characters in path'; Localized: 'Ongeldige tekens in pad'),
-    (English: 'Invalid characters in search pattern'; Localized: 'Ongeldige tekens in zoekpatroon'),
-    (English: 'Path is empty'; Localized: 'Pad is leeg'),
-    (English: 'Search pattern is empty'; Localized: 'Zoekpatroon is leeg'),
-    (English: 'The specified path is too long'; Localized: 'Het opgegeven pad is te lang'),
-    (English: 'The specified path was not found'; Localized: 'Het opgegeven pad is niet gevonden'),
-    (English: 'The path format is not supported'; Localized: 'De padindeling wordt niet ondersteund'),
     (English: 'No help viewer that supports filters'; Localized: 'Geen Help-viewer die filters ondersteunt'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: 'Stringindex buiten bereik (%d).  Moet >= %d en <= %d zijn'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: 'Ongeldige UTF32-tekenwaarde.  Moet >= 0 en <= $10FFFF zijn, met uitzondering van surrogaatpaarbereiken'),

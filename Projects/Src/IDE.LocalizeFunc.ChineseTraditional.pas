@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ChineseTraditionalIDETranslations: array [0..1015] of TTranslationPair = (
+  ChineseTraditionalIDETranslations: array [0..1009] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '命令列用法：'),
     (English: 'Examples:'; Localized: '範例：'),
     (English: 'script file'; Localized: '指令碼檔案'),
@@ -249,6 +249,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: '%1 檔案已在來源編輯器外部被修改。您可能需要重新載入它。'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: '%1 檔案已在來源編輯器外部被修改。%n%n您要重新載入檔案嗎？'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: '%1 檔案已在來源編輯器外部被修改，來源編輯器中也已進行變更。%n%n您要重新載入檔案並放棄在來源編輯器中所做的變更嗎？'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: '%1 檔案已在來源編輯器外部被修改，即將與其 %3 檔案一起重新載入。%n%n%3 檔案 %2 中的文字已變更。%n%n您要儲存變更嗎？'),
     (English: 'File not opened.'; Localized: '檔案未開啟。'),
     (English: 'Go to Line'; Localized: '移至行'),
     (English: 'Line number:'; Localized: '行號：'),
@@ -716,7 +717,6 @@ const
     (English: 'Identifier expected'; Localized: '應為識別項'),
     (English: 'Invalid binary value'; Localized: '無效的二進位值'),
     (English: 'Invalid stream format'; Localized: '無效的資料流格式'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '「%s」是無效的遮罩，位於 (%d)'),
     (English: '''''%s'''' is not a valid component name'; Localized: '「%s」不是有效的元件名稱'),
     (English: 'Invalid property value'; Localized: '屬性值無效'),
     (English: 'Invalid property path'; Localized: '無效的屬性路徑'),
@@ -757,12 +757,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: '參數 %s 不可為 nil'),
     (English: 'Parameter %s cannot be a negative value'; Localized: '參數 %s 不可為負值'),
     (English: 'Invalid characters in path'; Localized: '路徑中有無效的字元'),
-    (English: 'Invalid characters in search pattern'; Localized: '搜尋模式中有無效的字元'),
-    (English: 'Path is empty'; Localized: '路徑為空白'),
-    (English: 'Search pattern is empty'; Localized: '搜尋模式為空白'),
-    (English: 'The specified path is too long'; Localized: '指定的路徑太長'),
-    (English: 'The specified path was not found'; Localized: '找不到指定的路徑'),
-    (English: 'The path format is not supported'; Localized: '不支援此路徑格式'),
     (English: 'No help viewer that supports filters'; Localized: '沒有支援篩選的說明檢視器'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: '字串索引超出範圍 (%d)。必須 >= %d 且 <= %d'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: '無效的 UTF32 字元值。必須 >= 0 且 <= $10FFFF，代理字組範圍除外'),

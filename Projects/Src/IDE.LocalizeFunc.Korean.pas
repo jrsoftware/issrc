@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  KoreanIDETranslations: array [0..1015] of TTranslationPair = (
+  KoreanIDETranslations: array [0..1009] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '명령줄 사용법:'),
     (English: 'Examples:'; Localized: '사용 예:'),
     (English: 'script file'; Localized: '스크립트 파일'),
@@ -249,6 +249,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: '%1 파일이 소스 편집기 외부에서 수정되었습니다. 다시 로드하는 것이 좋습니다.'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: '%1 파일이 소스 편집기 외부에서 수정되었습니다.%n%n파일을 다시 로드하시겠습니까?'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: '%1 파일이 소스 편집기 외부에서 수정되었습니다. 소스 편집기에서도 변경한 내용이 있습니다.%n%n파일을 다시 로드하고 소스 편집기에서 변경한 내용을 버리시겠습니까?'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: '%1 파일이 소스 편집기 외부에서 수정되었으며 곧 해당 %3 파일과 함께 다시 로드됩니다.%n%n%3 파일 %2의 텍스트가 변경되었습니다.%n%n변경 내용을 저장하시겠습니까?'),
     (English: 'File not opened.'; Localized: '파일이 열리지 않았습니다.'),
     (English: 'Go to Line'; Localized: '줄로 이동'),
     (English: 'Line number:'; Localized: '줄 번호:'),
@@ -716,7 +717,6 @@ const
     (English: 'Identifier expected'; Localized: '식별자가 필요합니다'),
     (English: 'Invalid binary value'; Localized: '잘못된 이진 값'),
     (English: 'Invalid stream format'; Localized: '잘못된 스트림 형식'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '''%s''은(는) (%d)에서 잘못된 마스크입니다'),
     (English: '''''%s'''' is not a valid component name'; Localized: '''''%s''''은(는) 올바른 구성 요소 이름이 아닙니다'),
     (English: 'Invalid property value'; Localized: '잘못된 속성 값'),
     (English: 'Invalid property path'; Localized: '잘못된 속성 경로'),
@@ -757,12 +757,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: '매개 변수 %s은(는) nil일 수 없습니다'),
     (English: 'Parameter %s cannot be a negative value'; Localized: '매개 변수 %s은(는) 음수 값일 수 없습니다'),
     (English: 'Invalid characters in path'; Localized: '경로에 잘못된 문자가 있습니다'),
-    (English: 'Invalid characters in search pattern'; Localized: '검색 패턴에 잘못된 문자가 있습니다'),
-    (English: 'Path is empty'; Localized: '경로가 비어 있습니다'),
-    (English: 'Search pattern is empty'; Localized: '검색 패턴이 비어 있습니다'),
-    (English: 'The specified path is too long'; Localized: '지정한 경로가 너무 깁니다'),
-    (English: 'The specified path was not found'; Localized: '지정한 경로를 찾을 수 없습니다'),
-    (English: 'The path format is not supported'; Localized: '경로 형식이 지원되지 않습니다'),
     (English: 'No help viewer that supports filters'; Localized: '필터를 지원하는 도움말 뷰어가 없습니다'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: '문자열 인덱스가 범위를 벗어났습니다 (%d).  >= %d 및 <= %d이어야 합니다'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: '잘못된 UTF32 문자 값입니다.  서로게이트 쌍 범위를 제외하고 >= 0 및 <= $10FFFF이어야 합니다'),

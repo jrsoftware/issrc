@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..1015] of TTranslationPair = (
+  GermanIDETranslations: array [0..1009] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -249,6 +249,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: 'Die Datei %1 wurde außerhalb des Quelltexteditors geändert. Sie sollten sie möglicherweise neu laden.'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: 'Die Datei %1 wurde außerhalb des Quelltexteditors geändert.%n%nMöchten Sie die Datei neu laden?'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: 'Die Datei %1 wurde außerhalb des Quelltexteditors geändert. Es wurden auch Änderungen im Quelltexteditor vorgenommen.%n%nMöchten Sie die Datei neu laden und die im Quelltexteditor vorgenommenen Änderungen verwerfen?'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: 'Die Datei %1 wurde außerhalb des Quelltexteditors geändert und wird gleich zusammen mit ihren %3-Dateien neu geladen.%n%nDer Text in der %3-Datei %2 wurde geändert.%n%nMöchten Sie die Änderungen speichern?'),
     (English: 'File not opened.'; Localized: 'Datei nicht geöffnet.'),
     (English: 'Go to Line'; Localized: 'Gehe zu Zeile'),
     (English: 'Line number:'; Localized: 'Zeilennummer:'),
@@ -715,7 +716,6 @@ const
     (English: 'Identifier expected'; Localized: 'Bezeichner erwartet'),
     (English: 'Invalid binary value'; Localized: 'Ungültiger Binärwert'),
     (English: 'Invalid stream format'; Localized: 'Ungültiges Stream-Format'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '''%s'' ist eine ungültige Maske bei (%d)'),
     (English: '''''%s'''' is not a valid component name'; Localized: '''''%s'''' ist kein gültiger Komponentenname'),
     (English: 'Invalid property value'; Localized: 'Ungültiger Eigenschaftswert'),
     (English: 'Invalid property path'; Localized: 'Ungültiger Eigenschaftspfad'),
@@ -756,12 +756,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: 'Parameter %s darf nicht nil sein'),
     (English: 'Parameter %s cannot be a negative value'; Localized: 'Parameter %s darf kein negativer Wert sein'),
     (English: 'Invalid characters in path'; Localized: 'Ungültige Zeichen im Pfad'),
-    (English: 'Invalid characters in search pattern'; Localized: 'Ungültige Zeichen im Suchmuster'),
-    (English: 'Path is empty'; Localized: 'Pfad ist leer'),
-    (English: 'Search pattern is empty'; Localized: 'Suchmuster ist leer'),
-    (English: 'The specified path is too long'; Localized: 'Der angegebene Pfad ist zu lang'),
-    (English: 'The specified path was not found'; Localized: 'Der angegebene Pfad wurde nicht gefunden'),
-    (English: 'The path format is not supported'; Localized: 'Das Pfadformat wird nicht unterstützt'),
     (English: 'No help viewer that supports filters'; Localized: 'Kein Hilfe-Viewer, der Filter unterstützt'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: 'Stringindex außerhalb des gültigen Bereichs (%d).  Muss >= %d und <= %d sein'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: 'Ungültiger UTF32-Zeichenwert.  Muss >= 0 und <= $10FFFF sein, ausschließlich der Ersatzzeichenpaar-Bereiche'),
