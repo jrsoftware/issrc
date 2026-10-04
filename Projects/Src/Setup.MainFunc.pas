@@ -4346,10 +4346,7 @@ begin
       Entries[I] := nil;
       for var J := List.Count-1 downto 0 do begin
         P := List[J];
-        if EntryStrings[I] <> 0 then
-          SEFreeRec(P, EntryStrings[I], EntryAnsiStrings[I])
-        else
-          FreeMem(P);
+        SEFreeRec(P, EntryStrings[I], EntryAnsiStrings[I]);
       end;
       List.Free;
     end;
