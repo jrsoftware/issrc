@@ -6672,6 +6672,11 @@ const
 
     { If it has been, offer to reload it }
     if Changed then begin
+      if Memo <> FMainMemo then begin
+        { Set regardless of the answer to the reload question: unlike for the main
+          script, the next compile uses the new file even if it is not reloaded }
+        FModifiedAnySinceLastCompile := True;
+      end;
       if IsWindowEnabled(Handle) then begin
         if (not Memo.Modified and FOptions.Autoreload) or
            (MsgBox(LFmtMessage(ReloadMessages[Memo.Modified], [Memo.Filename]),
