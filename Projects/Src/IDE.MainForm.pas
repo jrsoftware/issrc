@@ -576,7 +576,7 @@ type
     procedure AppOnActivate(Sender: TObject);
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
-    function AskToDetachDebugger: Boolean;
+    function AskToDetachDebugger(const ReloadFilename: String = ''): Boolean;
     procedure BringToForeground;
     procedure BuildAndSaveBreakPointLines(const AMemo: TIDEScintFileEdit);
     procedure BuildAndSaveKnownIncludedAndHiddenFiles;
@@ -584,7 +584,8 @@ type
     procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
-    function ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
+    function ConfirmCloseFile(const PromptToSave: Boolean;
+      const ReloadFilename: String = ''): Boolean;
     procedure DebuggingStopped(const WaitForTermination: Boolean);
     procedure DebugLogMessage(const S: String);
     procedure DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
@@ -2417,17 +2418,22 @@ begin
   Result := True;
 end;
 
-function TMainForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
+function TMainForm.ConfirmCloseFile(const PromptToSave: Boolean;
+  const ReloadFilename: String): Boolean;
+const
+  StopCompileMessages: array[Boolean] of String = (
+    SCompilerStopCompileBeforeCommand,
+    SCompilerStopCompileBeforeReload);
 var
   Memo: TIDEScintFileEdit;
 begin
   if FCompiling then begin
-    MsgBox(LFmtMessage(SCompilerStopCompileBeforeCommand),
+    MsgBox(LFmtMessage(StopCompileMessages[ReloadFilename <> ''], [ReloadFilename]),
       LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
     Result := False;
     Exit;
   end;
-  if FDebugging and not AskToDetachDebugger then begin
+  if FDebugging and not AskToDetachDebugger(ReloadFilename) then begin
     Result := False;
     Exit;
   end;
@@ -6271,13 +6277,22 @@ begin
   DebuggingStopped(False);
 end;
 
-function TMainForm.AskToDetachDebugger: Boolean;
+function TMainForm.AskToDetachDebugger(const ReloadFilename: String): Boolean;
+const
+  StopDebugTargetMessages: array[Boolean] of String = (
+    SCompilerStopDebugTargetBeforeCommand,
+    SCompilerStopDebugTargetBeforeReload);
+  DetachDebuggerMessages: array[Boolean] of String = (
+    SCompilerDetachDebuggerConfirm,
+    SCompilerDetachDebuggerConfirmBeforeReload);
 begin
+  const DebugTarget = LFmtMessage(DebugTargetStrings[FDebugTarget]);
+  const BeforeReload = ReloadFilename <> '';
   if FDebugClientWnd = 0 then begin
-    MsgBox(LFmtMessage(SCompilerStopDebugTargetBeforeCommand, [LFmtMessage(DebugTargetStrings[FDebugTarget])]),
+    MsgBox(LFmtMessage(StopDebugTargetMessages[BeforeReload], [DebugTarget, ReloadFilename]),
       LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
     Result := False;
-  end else if MsgBox(LFmtMessage(SCompilerDetachDebuggerConfirm, [LFmtMessage(DebugTargetStrings[FDebugTarget])]),
+  end else if MsgBox(LFmtMessage(DetachDebuggerMessages[BeforeReload], [DebugTarget, ReloadFilename]),
      LFmtMessage(SCompilerFormCaption), mbError, MB_OKCANCEL) = IDOK then begin
     DetachDebugger;
     Result := True;
@@ -7317,11 +7332,16 @@ const
 
     { If it has been, offer to reload it }
     if Changed then begin
+      if Memo <> FMainMemo then begin
+        { Set regardless of the answer to the reload question: unlike for the main
+          script, the next compile uses the new file even if it is not reloaded }
+        FModifiedAnySinceLastCompile := True;
+      end;
       if IsWindowEnabled(Handle) then begin
         if (not Memo.Modified and FOptions.Autoreload) or
            (MsgBox(LFmtMessage(ReloadMessages[Memo.Modified], [Memo.Filename]),
               LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES) then
-          if ConfirmCloseFile(False) and ((Memo <> FMainMemo) or PromptToSaveIncludedFileMemos(True)) then begin
+          if ConfirmCloseFile(False, Memo.Filename) and ((Memo <> FMainMemo) or PromptToSaveIncludedFileMemos(True)) then begin
             OpenFile(Memo, Memo.Filename, False, FOptions.UndoAfterReload);
             Result := Memo = FMainMemo;
           end;
