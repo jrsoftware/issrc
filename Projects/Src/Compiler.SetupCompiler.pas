@@ -118,6 +118,7 @@ type
     UsedUserAreas: TStringList;
 
     PreprocIncludedFilenames: TStringList;
+    PreprocIncludedFilesLastWriteTimes: TList<TFileTime>;
     PreprocOutput: String;
 
     DefaultLangData: TLangData;
@@ -319,6 +320,7 @@ type
     function GetOutputBaseFileName: String;
     function GetOutputDir: String;
     function GetPreprocIncludedFilenames: TStringList;
+    function GetPreprocIncludedFilesLastWriteTimes: TList<TFileTime>;
     function GetPreprocOutput: String;
     function GetSlicesPerDisk: Longint;
     procedure SetBytesCompressedSoFar(const Value: Int64);
@@ -448,6 +450,7 @@ begin
   UsedUserAreas.Sorted := True;
   UsedUserAreas.Duplicates := dupIgnore;
   PreprocIncludedFilenames := TStringList.Create;
+  PreprocIncludedFilesLastWriteTimes := TList<TFileTime>.Create;
   DefaultLangData := TLangData.Create;
   PreLangDataList := TList.Create;
   LangDataList := TList.Create;
@@ -482,6 +485,7 @@ begin
   LangDataList.Free;
   PreLangDataList.Free;
   DefaultLangData.Free;
+  PreprocIncludedFilesLastWriteTimes.Free;
   PreprocIncludedFilenames.Free;
   UsedUserAreas.Free;
   ExpectedCustomMessageNames.Free;
@@ -784,6 +788,11 @@ begin
   Result := PreprocIncludedFilenames;
 end;
 
+function TSetupCompiler.GetPreprocIncludedFilesLastWriteTimes: TList<TFileTime>;
+begin
+  Result := PreprocIncludedFilesLastWriteTimes;
+end;
+
 function TSetupCompiler.GetPreprocOutput: String;
 begin
   Result := PreprocOutput;
@@ -970,8 +979,13 @@ begin
   try
     if FromPreProcessor then begin
       Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
-      if Data.MainScript then
+      if Data.MainScript then begin
         Data.Compiler.PreprocIncludedFilenames.Add(Filename);
+        var LastWriteTime: TFileTime;
+        if not GetLastWriteTimeOfFile(Filename, @LastWriteTime) then
+          LastWriteTime := Default(TFileTime);
+        Data.Compiler.PreprocIncludedFilesLastWriteTimes.Add(LastWriteTime);
+      end;
     end;
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
@@ -8280,6 +8294,7 @@ begin
     FillChar(SetupHeader, SizeOf(SetupHeader), 0);
     InitDebugInfo;
     PreprocIncludedFilenames.Clear;
+    PreprocIncludedFilesLastWriteTimes.Clear;
 
     { Initialize defaults }
     OriginalSourceDir := AddBackslash(PathExpand(SourceDir));
