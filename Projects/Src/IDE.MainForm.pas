@@ -478,6 +478,7 @@ type
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
     FModifiedAnySinceLastCompile, FModifiedAnySinceLastCompileAndGo: Boolean;
+    FCompilePreprocMemosUpdatePending: Boolean;
     FDebugEntries: PDebugEntryArray;
     FDebugEntriesCount: Integer;
     FVariableDebugEntries: PVariableDebugEntryArray;
@@ -2381,6 +2382,17 @@ procedure TMainForm.CompileFile(AFilename: String; const ReadFromFile: Boolean);
     end;
   end;
 
+  { Call after UpdatePreprocMemos }
+  function IncludedFileMemoDiffersFromCompiledFile: Boolean;
+  begin
+    for var IncludedFile in FIncludedFiles do
+      if (IncludedFile.Memo <> nil) and IncludedFile.HasLastWriteTimeWhenCompiled and
+         (not IncludedFile.Memo.HasFileLastWriteTime or
+          (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTimeWhenCompiled) <> 0)) then
+        Exit(True);
+    Result := False;
+  end;
+
 var
   SourcePath, S, Options: String;
   Params: TCompileScriptParamsEx;
@@ -2440,7 +2452,7 @@ begin
   OldActiveMemo := FActiveMemo;
   AppData := Default(TAppData);
   AppData.Lines := TStringList.Create;
-  var PreprocMemosUpdated := False;
+  FCompilePreprocMemosUpdatePending := True;
   try
     FBuildAnimationFrame := 0;
     FProgress := 0;
@@ -2516,7 +2528,7 @@ begin
       if not ReadFromFile and (AppData.ErrorLine > 0) then begin
         { The included files may have changed, so first reassign the memos }
         UpdatePreprocMemos(False, AppData.IncludedFilesJustAdded);
-        PreprocMemosUpdated := True;
+        FCompilePreprocMemosUpdatePending := False;
         Memo := GetMemoFromErrorFilename(AppData.ErrorFilename);
         if Memo <> nil then begin
           { Move the caret to the line number the error occurred on }
@@ -2556,8 +2568,10 @@ begin
     UpdateEditModeStatusPanel;
     UpdateRunMenuItems;
     UpdateCaption;
-    if not PreprocMemosUpdated then
+    if FCompilePreprocMemosUpdatePending then begin
+      FCompilePreprocMemosUpdatePending := False;
       UpdatePreprocMemos(False, AppData.IncludedFilesJustAdded);
+    end;
     if AppData.DebugInfo <> nil then begin
       try
         ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
@@ -2571,7 +2585,7 @@ begin
     StatusBar.Panels[spExtraStatus].Text := '';
   end;
   FCompiledExe := AppData.OutputExe;
-  FModifiedAnySinceLastCompile := False;
+  FModifiedAnySinceLastCompile := IncludedFileMemoDiffersFromCompiledFile;
   FModifiedAnySinceLastCompileAndGo := False;
 end;
 
@@ -6697,6 +6711,11 @@ const
     var NewTime: TFileTime;
     if GetLastWriteTimeOfFile(Memo.Filename, @NewTime) then begin
       if not Memo.HasFileLastWriteTime or (CompareFileTime(Memo.FileLastWriteTime, NewTime) <> 0) then begin
+        if FCompilePreprocMemosUpdatePending and (Memo <> FMainMemo) then begin
+          Memo.HasFileLastWriteTime := False; { Triggers UpdatePreprocMemos to reload afterwards }
+          FModifiedAnySinceLastCompile := True;
+          Exit;
+        end;
         Memo.FileLastWriteTime := NewTime;
         Memo.HasFileLastWriteTime := True;
         Changed := True;
