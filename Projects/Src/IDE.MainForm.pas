@@ -1947,7 +1947,7 @@ begin
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
       end;
-      GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
+      AMemo.HasFileLastWriteTime := GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
       Stream.Seek(0, soFromBeginning);
       const TextStr = LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
@@ -2055,7 +2055,7 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
     if not RenameFile(TempFN, FN) then
       raise Exception.Create(LFmtMessage(SCompilerSaveErrorRenameTemp,
         [GetLastError]));
-    GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
+    AMemo.HasFileLastWriteTime := GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
   end;
 
 begin
@@ -4561,7 +4561,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, Include
             PathSame(IncludedFile.Memo.Filename, IncludedFile.Filename);
           if not MemoHasFile or
              (IncludedFilesJustAdded and
-              (not IncludedFile.HasLastWriteTimeWhenAdded or
+              (not IncludedFile.HasLastWriteTimeWhenAdded or not IncludedFile.Memo.HasFileLastWriteTime or
                (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTimeWhenAdded) <> 0))) then begin
             IncludedFile.Memo.Filename := IncludedFile.Filename;
             IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
@@ -6679,8 +6679,9 @@ const
     var Changed := False;
     var NewTime: TFileTime;
     if GetLastWriteTimeOfFile(Memo.Filename, @NewTime) then begin
-      if CompareFileTime(Memo.FileLastWriteTime, NewTime) <> 0 then begin
+      if not Memo.HasFileLastWriteTime or (CompareFileTime(Memo.FileLastWriteTime, NewTime) <> 0) then begin
         Memo.FileLastWriteTime := NewTime;
+        Memo.HasFileLastWriteTime := True;
         Changed := True;
       end;
     end;
