@@ -69,6 +69,8 @@ type
     CompilerFileIndex: Integer;
     LastWriteTimeWhenAdded: TFileTime;
     HasLastWriteTimeWhenAdded: Boolean;
+    LastWriteTimeWhenCompiled: TFileTime;
+    HasLastWriteTimeWhenCompiled: Boolean;
     Memo: TIDEScintFileEdit; { nil if the amount of #include files (visible or hidden) is more than MaxMemos allows }
   end;
 
@@ -2197,8 +2199,9 @@ type
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: NativeInt): Integer; stdcall;
 
-  procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles;
-    const AutoHideNew: Boolean; const HiddenFiles: TStringList);
+  procedure DecodeIncludedFilenames(P: PChar; LastWriteTime: PFileTime;
+    const IncludedFiles: TIncludedFiles; const AutoHideNew: Boolean;
+    const HiddenFiles: TStringList);
   begin
     if P <> nil then begin
       var PrevIncludedFiles: TStringList := nil;
@@ -2221,6 +2224,14 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
             IncludedFile.CompilerFileIndex := I;
             IncludedFile.HasLastWriteTimeWhenAdded := GetLastWriteTimeOfFile(IncludedFile.Filename,
               @IncludedFile.LastWriteTimeWhenAdded);
+            if (LastWriteTime <> nil) and ((LastWriteTime.dwLowDateTime <> 0) or
+               (LastWriteTime.dwHighDateTime <> 0)) then begin
+              IncludedFile.LastWriteTimeWhenCompiled := LastWriteTime^;
+              IncludedFile.HasLastWriteTimeWhenCompiled := True;
+            end else begin
+              IncludedFile.LastWriteTimeWhenCompiled := IncludedFile.LastWriteTimeWhenAdded;
+              IncludedFile.HasLastWriteTimeWhenCompiled := IncludedFile.HasLastWriteTimeWhenAdded;
+            end;
             IncludedFiles.Add(IncludedFile);
 
             if AutoHideNew and (PrevIncludedFiles.IndexOf(IncludedFile.Filename) = -1) then begin
@@ -2231,6 +2242,8 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
           end;
 
           Inc(P, StrLen(P) + 1);
+          if LastWriteTime <> nil then
+            Inc(LastWriteTime);
           Inc(I);
         end;
       finally
@@ -2310,9 +2323,13 @@ begin
       iscbNotifyPreproc:
         begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
-          { Also stores last write time }
-          DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles,
-            Form.FOptions.AutoHideNewIncludedFiles, Form.FHiddenFiles);
+          var LastWriteTimes: PFileTime;
+          if Form.FCompilerVersion.BinVersion >= $7010100 then
+            LastWriteTimes := Data.IncludedFilesLastWriteTimes
+          else
+            LastWriteTimes := nil;
+          DecodeIncludedFilenames(Data.IncludedFilenames, LastWriteTimes,
+            Form.FIncludedFiles, Form.FOptions.AutoHideNewIncludedFiles, Form.FHiddenFiles);
           IncludedFilesJustAdded := True;
           CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
           Form.InvalidateStatusPanel(spHiddenFilesCount);
@@ -6004,9 +6021,9 @@ procedure TMainForm.CompileIfNecessary;
   begin
     Result := False;
     for IncludedFile in FIncludedFiles do begin
-      if (IncludedFile.Memo = nil) and IncludedFile.HasLastWriteTimeWhenAdded and
+      if (IncludedFile.Memo = nil) and IncludedFile.HasLastWriteTimeWhenCompiled and
          GetLastWriteTimeOfFile(IncludedFile.Filename, @NewTime) and
-         (CompareFileTime(IncludedFile.LastWriteTimeWhenAdded, NewTime) <> 0) then begin
+         (CompareFileTime(IncludedFile.LastWriteTimeWhenCompiled, NewTime) <> 0) then begin
         Result := True;
         Exit;
       end;
