@@ -6665,7 +6665,7 @@ begin
                     Result := false
                   else
                   begin
-                    if not Class_IS(Self, TObject(var1^), var2type) then
+                    if (TObject(var1^) <> nil) and not Class_IS(Self, TObject(var1^), var2type) then
                       Result := false
                   end;
                 end;

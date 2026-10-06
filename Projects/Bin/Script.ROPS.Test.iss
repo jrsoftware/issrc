@@ -1606,6 +1606,11 @@ begin
   finally
     List.Free;
   end;
+
+  { as cast of nil returns nil }
+  Obj := nil;
+  List := Obj as TStringList;
+  CheckTrue(List = nil);
 end;
 
 var
