@@ -67,6 +67,8 @@ type
     constructor Create(AOwner: TComponent); override;
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
+    function CalculateButtonWidthWithExtraWidths(const ButtonCaptions: array of String;
+      const ExtraWidths: array of Integer): Integer;
     procedure InitializeFont(const KeepSizeX: Boolean = False; const KeepSizeY: Boolean = False);
     class function ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer; overload; static;
     class function ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer; overload; static;
@@ -240,14 +242,22 @@ end;
 
 function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
 begin
-  { Same code as TIDEForm.CalculateButtonWidth }
+  Result := CalculateButtonWidthWithExtraWidths(ButtonCaptions, []);
+end;
+
+function TSetupForm.CalculateButtonWidthWithExtraWidths(const ButtonCaptions: array of String;
+  const ExtraWidths: array of Integer): Integer;
+begin
+  { Also see TIDEForm.CalculateButtonWidth }
   Result := ScalePixelsX(75);
   { Increase the button size if there are unusually long button captions }
   const DC = GetDC(0);
   try
     SelectObject(DC, Font.Handle);
     for var I := Low(ButtonCaptions) to High(ButtonCaptions) do begin
-      const W = GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
+      var W := GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
+      if I <= High(ExtraWidths) then
+        Inc(W, ExtraWidths[I]);
       if Result < W then
         Result := W;
     end;
