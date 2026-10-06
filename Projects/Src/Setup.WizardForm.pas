@@ -342,7 +342,7 @@ implementation
 
 uses
   ShellApi, ShlObj, Types, Generics.Collections, Themes,
-  PathFunc, RestartManager, SHA256,
+  BidiUtils, PathFunc, RestartManager, SHA256,
   SetupLdrAndSetup.Messages, Setup.MainForm, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
   Setup.LoggingFunc, Setup.ScriptRunner, Shared.SetupTypes, Shared.EncryptionFunc, Shared.SetupSteps,
@@ -1784,6 +1784,9 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
         Result.ShowBaseNameInsteadOfUrl := True;
         AddPage(Result, -1);
         Result.Initialize;
+        { The wizard form flips its controls only once, from Setup.MainFunc's InitializeWizard }
+        if ControlsFlipped then
+          FlipControls(Result.Surface);
         FDownloadArchivesPage := Result;
       except
         FreeAndNil(Result);
