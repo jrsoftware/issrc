@@ -57,10 +57,6 @@ type
     procedure CreateWnd; override;
     function GetExtraClientWidth: Integer;
     function GetExtraClientHeight: Integer;
-    procedure FlipControlsIfNeeded;
-    procedure CenterIfNeeded(const ACenterInsideControl: Boolean;
-      const CenterInsideControlCtl: TWinControl;
-      const CenterInsideControlInsideClientArea: Boolean);
     procedure VisibleChanging; override;
     procedure WndProc(var Message: TMessage); override;
   public
@@ -466,27 +462,6 @@ begin
     option Building->Delphi Compiler->Compiling->Debugging->Use debug .dcus. }
 end;
 
-procedure TSetupForm.FlipControlsIfNeeded;
-begin
-  if FFlipControlsOnShow then begin
-    FFlipControlsOnShow := False;
-    FControlsFlipped := not FControlsFlipped;
-    FlipControls(Self);
-  end;
-end;
-
-procedure TSetupForm.CenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
-begin
-  if FCenterOnShow then begin
-    FCenterOnShow := False;
-    { Center }
-    if ACenterInsideControl and (CenterInsideControlCtl <> nil) then
-      CenterInsideControl(CenterInsideControlCtl, CenterInsideControlInsideClientArea)
-    else
-      Center;
-  end;
-end;
-
 function TSetupForm.ShouldSizeX: Boolean;
 begin
   Result := not FKeepSizeX and (SetupHeader.WizardSizePercentX > 100);
@@ -499,9 +474,31 @@ end;
 
 procedure TSetupForm.FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean;
   const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+
+  procedure FlipControlsIfNeeded;
+  begin
+    if FFlipControlsOnShow then begin
+      FFlipControlsOnShow := False;
+      FControlsFlipped := not FControlsFlipped;
+      FlipControls(Self);
+    end;
+  end;
+
+  procedure CenterIfNeeded;
+  begin
+    if FCenterOnShow then begin
+      FCenterOnShow := False;
+      { Center }
+      if ACenterInsideControl and (CenterInsideControlCtl <> nil) then
+        CenterInsideControl(CenterInsideControlCtl, CenterInsideControlInsideClientArea)
+      else
+        Center;
+    end;
+  end;
+
 begin
   FlipControlsIfNeeded;
-  CenterIfNeeded(ACenterInsideControl, CenterInsideControlCtl, CenterInsideControlInsideClientArea);
+  CenterIfNeeded;
 end;
 
 type
