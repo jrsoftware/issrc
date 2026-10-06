@@ -1980,7 +1980,6 @@ type
   TArrayOfProcessInfo = array[0..(MaxInt div SizeOf(RM_PROCESS_INFO))-1] of RM_PROCESS_INFO;
   PArrayOfProcessInfo = ^TArrayOfProcessInfo;
 var
-  Y: Integer;
   ProcessInfosCount, ProcessInfosCountNeeded, RebootReasons: Cardinal;
   ProcessInfos: PArrayofProcessInfo;
   AppName: String;
@@ -2049,19 +2048,19 @@ begin
       PreparingLabel.Caption := SetupMessages[msgApplicationsFound2]
     else
       PreparingLabel.Caption := SetupMessages[msgApplicationsFound];
-    Y := PreparingLabel.Top + PreparingLabel.Height + ScalePixelsY(12);
-    PreparingMemo.Top := Y;
-    Y := AdjustLabelHeight(PreparingLabel);
-    IncTopDecHeight(PreparingMemo, Y);
+    AdjustLabelHeight(PreparingLabel);
+    const NoRadioTop = PreparingPage.ClientHeight - ScalePixelsY(15) - PreparingNoRadio.Height;
+    const YesRadioTop = NoRadioTop - ScalePixelsY(22);
+    const MemoTop = PreparingLabel.Top + PreparingLabel.Height + ScalePixelsY(12);
+    PreparingMemo.SetBounds(PreparingMemo.Left, MemoTop, PreparingMemo.Width, YesRadioTop - ScalePixelsY(12) - MemoTop);
     PreparingErrorBitmapImage.Visible := True;
     PreparingLabel.Visible := True;
     PreparingMemo.Text := Result;
     PreparingMemo.Visible := True;
-    Y := PreparingMemo.Top + PreparingMemo.Height + ScalePixelsY(12);
-    PreparingYesRadio.Top := Y;
+    PreparingYesRadio.Top := YesRadioTop;
     PreparingYesRadio.Caption := SetupMessages[msgCloseApplications];
     PreparingYesRadio.Visible := True;
-    PreparingNoRadio.Top := Y + ScalePixelsY(22);
+    PreparingNoRadio.Top := NoRadioTop;
     PreparingNoRadio.Caption := SetupMessages[msgDontCloseApplications];
     PreparingNoRadio.Visible := True;
   end;
