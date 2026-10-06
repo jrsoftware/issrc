@@ -251,6 +251,10 @@ begin
   CheckEqualsFloat(1.5, C, 0);
   C := 0.0001;
   CheckEqualsFloat(0.0001, C, 1e-18);
+
+  { Currency in an array of const }
+  C := 12;
+  CheckEqualsString('12', Format('%.0f', [C]));
 end;
 
 procedure Test_BooleanLikeTypes;
@@ -3070,6 +3074,10 @@ end;
 procedure Test_TypelessParamFunctions;
 var
   S: String;
+  VAnsiString: AnsiString;
+  VWideString: WideString;
+  VChar: Char;
+  VAnsiChar: AnsiChar;
   I: Integer;
   DA: array of Integer;
   SA: array[0..2] of Integer;
@@ -3086,6 +3094,23 @@ begin
   SetLength(S, 6);
   CheckEqualsInt64(6, Length(S));
   CheckEqualsString('hel', Copy(S, 1, 3));
+
+  { Low / High on strings }
+  S := 'hello';
+  CheckEqualsInt64(1, Low(S));
+  CheckEqualsInt64(5, High(S));
+  VAnsiString := 'abc';
+  CheckEqualsInt64(1, Low(VAnsiString));
+  CheckEqualsInt64(3, High(VAnsiString));
+  VWideString := 'ab';
+  CheckEqualsInt64(1, Low(VWideString));
+  CheckEqualsInt64(2, High(VWideString));
+
+  { Low / High on characters }
+  CheckEqualsInt64(0, Low(VChar));
+  CheckEqualsInt64(65535, High(VChar));
+  CheckEqualsInt64(0, Low(VAnsiChar));
+  CheckEqualsInt64(255, High(VAnsiChar));
 
   { GetArrayLength on nil dynamic array }
   CheckEqualsInt64(0, GetArrayLength(DA));
@@ -3420,6 +3445,22 @@ begin
   end;
 end;
 
+procedure Test_PublishedCharProperty;
+var
+  Edit: TNewEdit;
+  C: Char;
+begin
+  { Published Char property write then read, through RTTI }
+  Edit := TNewEdit.Create(nil);
+  try
+    Edit.PasswordChar := '*';
+    C := Edit.PasswordChar;
+    CheckEqualsString('*', C);
+  finally
+    Edit.Free;
+  end;
+end;
+
 function Test_ExternalDll_GetCurrentProcessId: Cardinal; external 'GetCurrentProcessId@kernel32.dll stdcall';
 procedure Test_ExternalDll_SetLastError(ErrorCode: Cardinal); external 'SetLastError@kernel32.dll stdcall';
 
@@ -3524,6 +3565,7 @@ begin
   Test_FindFirstNextClose;
   Test_TPersistentAssign;
   Test_VirtualConstructor;
+  Test_PublishedCharProperty;
   Test_ExternalDll;
 end;
 

@@ -1551,10 +1551,10 @@ begin
 
     case pp^.PropType^.Kind of
       tkInteger: begin Result := IntToStr(GetOrdProp(Instance, pp)); exit; end;
-      tkChar: begin Result := '#'+IntToStr(GetOrdProp(Instance, pp)); exit; end;
+      tkChar, tkWChar: begin Result := '#'+IntToStr(GetOrdProp(Instance, pp)); exit; end;
       tkEnumeration: begin Result := tbtstring(GetEnumName(pp^.PropType{$IFNDEF FPC}{$IFDEF DELPHI3UP}^{$ENDIF}{$ENDIF}, GetOrdProp(Instance, pp))); exit; end;
       {$IFNDEF PS_NOINT64}
-      tkInt64: begin Result := IntToStr(GetInt64Prop(Instance, pp)); exit; end;
+      tkInt64: begin Result := tbtString(SysUtils.IntToStr(GetInt64Prop(Instance, pp))); exit; end;
      {$ENDIF}
       tkFloat: begin Result := FloatToStr(GetFloatProp(Instance, PP)); exit; end;
       tkString, tkLString: begin Result := ''''+tbtString(GetStrProp(Instance, PP))+''''; exit; end;
@@ -1607,7 +1607,7 @@ begin
         Result := 'Variant(IDispatch)'
       else if TVarData(p.Dta^).VType = varNull then
         REsult := 'Null'
-      else if (TVarData(p.Dta^).VType = varOleStr) then
+      else if (TVarData(p.Dta^).VType = varOleStr){$IFDEF UNICODE} or (TVarData(p.Dta^).VType = varUString){$ENDIF} then
       {$IFDEF PS_NOWIDESTRING}
         Result := MakeString(Variant(p.Dta^))
       {$ELSE}
@@ -2132,6 +2132,7 @@ begin
   FProcs.Clear;
   FGlobalVars.Clear;
   FStack.Clear;
+  FTempVars.Clear;
   for I := Longint(FTypes.Count) - 1downto 0  do
     TPSTypeRec(FTypes.Data^[i]).Free;
   FTypes.Clear;
@@ -2380,7 +2381,7 @@ var
       varp: PIFVariant;
 
     begin
-      if (not Read(NameLen, 4)) or (NameLen > Length(s) - Longint(Pos)) then
+      if (not Read(NameLen, 4)) or (NameLen < 0) or (NameLen > Length(s) - Longint(Pos)) then
       begin
         CMD_Err(ErOutOfRange);
         Result := false;
@@ -2479,7 +2480,7 @@ var
             end;
           btPchar, btString:
           begin
-            if not read(NameLen, 4) then
+            if (not read(NameLen, 4)) or (NameLen < 0) or (NameLen > Length(s) - Longint(Pos)) then
             begin
                 Cmd_Err(erOutOfRange);
                 Result := False;
@@ -2495,7 +2496,7 @@ var
           {$IFNDEF PS_NOWIDESTRING}
           btWidestring:
             begin
-              if not read(NameLen, 4) then
+              if (not read(NameLen, 4)) or (NameLen < 0) or (NameLen > (Length(s) - Longint(Pos)) div 2) then
               begin
                 Cmd_Err(erOutOfRange);
                 Result := False;
@@ -2510,7 +2511,7 @@ var
             end;
           btUnicodeString:
             begin
-              if not read(NameLen, 4) then
+              if (not read(NameLen, 4)) or (NameLen < 0) or (NameLen > (Length(s) - Longint(Pos)) div 2) then
               begin
                 Cmd_Err(erOutOfRange);
                 Result := False;
@@ -2868,7 +2869,7 @@ var
         TPSExternalProcRec(Curr).Name := n;
         if (Rec.Flags and 3 = 3) then
         begin
-          if (not Read(L2, 4)) or (L2 > Length(s) - Pos) then
+          if (not Read(L2, 4)) or (L2 < 0) or (L2 > Length(s) - Pos) then
           begin
             Curr.Free;
             cmd_err(erUnexpectedEof);
@@ -2902,7 +2903,7 @@ var
           LoadProcs := False;
           exit;
         end;
-        if (L2 < 0) or (L2 >= Length(s)) or (L2 + L3 > Length(s)) or (L3 = 0) then begin
+        if (L2 < 0) or (L3 <= 0) or (L2 >= Length(s)) or (Int64(L2) + L3 > Length(s)) then begin
           Curr.Free;
           cmd_err(erUnexpectedEof);
           LoadProcs := False;
@@ -2919,7 +2920,7 @@ var
             LoadProcs := False;
             exit;
           end;
-          if L3 > PSAddrNegativeStackStart then begin
+          if (L3 < 0) or (L3 > PSAddrNegativeStackStart) then begin
             Curr.Free;
             cmd_err(erUnexpectedEof);
             LoadProcs := False;
@@ -2938,7 +2939,7 @@ var
             LoadProcs := False;
             exit;
           end;
-          if L3 > PSAddrNegativeStackStart then begin
+          if (L3 < 0) or (L3 > PSAddrNegativeStackStart) then begin
             Curr.Free;
             cmd_err(erUnexpectedEof);
             LoadProcs := False;
@@ -2995,7 +2996,7 @@ var
       end;
       if (Rec.Flags and 1) <> 0 then
       begin
-        if not read(n, 4) then begin
+        if (not read(n, 4)) or (n < 0) or (n > Length(s) - Longint(Pos)) then begin
           cmd_err(erUnexpectedEof);
           LoadVars := False;
           exit;
@@ -4872,6 +4873,7 @@ begin
       begin
         Result := False;
         ExceptionProc(EPSException(tmp).ProcNo, EPSException(tmp).ProcPos, erCustomError, tbtString(EPSException(tmp).Message), nil);
+        Tmp.Free;
         exit;
       end else
       if Tmp is EDivByZero then
@@ -5527,11 +5529,6 @@ begin
           if var2Type.BaseType = btSet then
           begin
             Cmd := PSGetUInt(var1, var1type);
-            if not Result then
-            begin
-              CMD_Err(erTypeMismatch);
-              exit;
-            end;
             if Cmd >= Cardinal(TPSTypeRec_Set(var2Type).aBitSize) then
             begin
               cmd_Err(erOutofRecordRange);
@@ -5597,6 +5594,7 @@ begin
       begin
         Result := False;
         ExceptionProc(EPSException(tmp).ProcNo, EPSException(tmp).ProcPos, erCustomError, tbtString(EPSException(tmp).Message), nil);
+        Tmp.Free;
         exit;
       end else
       if Tmp is EDivByZero then
@@ -6703,6 +6701,7 @@ begin
       begin
         Result := False;
         ExceptionProc(EPSException(tmp).ProcNo, EPSException(tmp).ProcPos, erCustomError, tbtString(EPSException(tmp).Message), nil);
+        Tmp.Free;
         exit;
       end else
       if Tmp is EDivByZero then
@@ -7649,6 +7648,7 @@ begin
           begin
             Result := False;
             ExceptionProc(EPSException(tmp).ProcNo, EPSException(tmp).ProcPos, erCustomError, tbtString(EPSException(tmp).Message), nil);
+            Tmp.Free;
             exit;
           end else
           if Tmp is EDivByZero then
@@ -8074,7 +8074,6 @@ begin
                 if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                 {$ENDIF}
                 FTempVars.FLength := P;
-                if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
 
                 CMD_Err(erInvalidOpcodeParameter);
                 break;
@@ -8102,7 +8101,6 @@ begin
                   if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                   {$ENDIF}
                   FTempVars.FLength := P;
-                  if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
                 end;
                 Break;
               end;
@@ -8117,7 +8115,6 @@ begin
                 if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                 {$ENDIF}
                 FTempVars.FLength := P;
-                if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
               end;
             end;
           CM_CA:
@@ -8162,7 +8159,6 @@ begin
                 if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                 {$ENDIF}
                 FTempVars.FLength := P;
-                if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
                 CMD_Err(erInvalidOpcodeParameter);
                 break;
               end;
@@ -8181,7 +8177,6 @@ begin
                   if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                   {$ENDIF}
                   FTempVars.FLength := P;
-                  if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
                 end;
                 Break;
               end;
@@ -8196,7 +8191,6 @@ begin
                 if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                 {$ENDIF}
                 FTempVars.FLength := P;
-                if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
               end;
             end;
           CM_P:
@@ -8224,7 +8218,6 @@ begin
                   if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                   {$ENDIF}
                   FTempVars.FLength := P;
-                  if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
                 end;
                 break;
               end;
@@ -8239,7 +8232,6 @@ begin
                 if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                 {$ENDIF}
                 FTempVars.FLength := P;
-                if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
               end;
             end;
           CM_PV:
@@ -8340,6 +8332,7 @@ begin
                     if Tmp is EPSException then
                     begin
                       ExceptionProc(EPSException(tmp).ProcNo, EPSException(tmp).ProcPos, erCustomError, tbtString(EPSException(tmp).Message), nil);
+                      Tmp.Free;
                       Break;
                     end else
                     if Tmp is EDivByZero then
@@ -8821,6 +8814,11 @@ begin
                   end;
                 0:
                   begin
+                    if (FExceptionStack.Count = 0) then
+                    begin
+                      cmd_err(ErOutOfRange);
+                      Break;
+                    end;
                     pp := FExceptionStack.Data^[FExceptionStack.Count -1];
                     if pp = nil then begin
                       cmd_err(ErOutOfRange);
@@ -8852,6 +8850,11 @@ begin
                   end;
                 1:
                   begin
+                    if (FExceptionStack.Count = 0) then
+                    begin
+                      cmd_err(ErOutOfRange);
+                      Break;
+                    end;
                     pp := FExceptionStack.Data^[FExceptionStack.Count -1];
                     if pp = nil then begin
                       cmd_err(ErOutOfRange);
@@ -8888,6 +8891,11 @@ begin
                   end;
                 3:
                   begin
+                    if (FExceptionStack.Count = 0) then
+                    begin
+                      cmd_err(ErOutOfRange);
+                      Break;
+                    end;
                     pp := FExceptionStack.Data^[FExceptionStack.Count -1];
                     if pp = nil then begin
                       cmd_err(ErOutOfRange);
@@ -9128,6 +9136,7 @@ begin
                       if Tmp is EPSException then
                       begin
                         ExceptionProc(EPSException(tmp).ProcNo, EPSException(tmp).ProcPos, erCustomError, tbtString(EPSException(tmp).Message), nil);
+                        Tmp.Free;
                         break;
                       end else
                       if Tmp is EDivByZero then
@@ -9203,7 +9212,6 @@ begin
                 if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                 {$ENDIF}
                 FTempVars.FLength := P;
-                if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
                 CMD_Err(erInvalidOpcodeParameter);
                 break;
               end;
@@ -9222,7 +9230,6 @@ begin
                   if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                   {$ENDIF}
                   FTempVars.FLength := P;
-                  if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
                 end;
                 Break;
               end;
@@ -9238,7 +9245,6 @@ begin
                 if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                 {$ENDIF}
                 FTempVars.FLength := P;
-                if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
               end;
               if vs.FreeType <> vtNone then
               begin
@@ -9251,7 +9257,6 @@ begin
                 if FTempVars.FCheckCount > FMaxCheckCount then FTempVars.Recreate;
                 {$ENDIF}
                 FTempVars.FLength := P;
-                if ((FTempVars.FCapacity - FTempVars.FLength) shr 12) > 2 then FTempVars.AdjustLength;
               end;
             end;
 
@@ -9830,8 +9835,16 @@ begin
     btArray      : Stack.SetInt(-1,0);
     btStaticArray: Stack.SetInt(-1,TPSTypeRec_StaticArray(arr.aType).StartOffset);
     btString     : Stack.SetInt(-1,1);
+{$IFNDEF PS_NOWIDESTRING}
+    btWideString,
+    btUnicodeString: Stack.SetInt(-1,1);
+{$ENDIF}
+    btChar,
     btU8         : Stack.SetInt(-1,Low(Byte));        //Byte: 0
     btS8         : Stack.SetInt(-1,Low(ShortInt));    //ShortInt: -128
+{$IFNDEF PS_NOWIDESTRING}
+    btWideChar,
+{$ENDIF}
     btU16        : Stack.SetInt(-1,Low(Word));        //Word: 0
     btS16        : Stack.SetInt(-1,Low(SmallInt));    //SmallInt: -32768
     btU32        : Stack.SetInt(-1,Low(Cardinal));    //Cardinal/LongWord: 0
@@ -9854,8 +9867,16 @@ begin
     btArray      : Stack.SetInt(-1,PSDynArrayGetLength(Pointer(arr.Dta^),arr.aType)-1);
     btStaticArray: Stack.SetInt(-1,TPSTypeRec_StaticArray(arr.aType).StartOffset+TPSTypeRec_StaticArray(arr.aType).Size-1);
     btString     : Stack.SetInt(-1,Length(tbtstring(arr.Dta^)));
+{$IFNDEF PS_NOWIDESTRING}
+    btWideString : Stack.SetInt(-1,Length(tbtWidestring(arr.Dta^)));
+    btUnicodeString: Stack.SetInt(-1,Length(tbtUnicodeString(arr.Dta^)));
+{$ENDIF}
+    btChar,
     btU8         : Stack.SetInt(-1,High(Byte));       //Byte: 255
     btS8         : Stack.SetInt(-1,High(ShortInt));   //ShortInt: 127
+{$IFNDEF PS_NOWIDESTRING}
+    btWideChar,
+{$ENDIF}
     btU16        : Stack.SetInt(-1,High(Word));       //Word: 65535
     btS16        : Stack.SetInt(-1,High(SmallInt));   //SmallInt: 32767
     btU32        : Stack.SetUInt(-1,High(Cardinal));  //Cardinal/LongWord: 4294967295
@@ -10246,6 +10267,12 @@ begin
             New(tvarrec(p^).VExtended);
             tvarrec(p^).VExtended^ := tbtdouble(cp^);
           end;
+        btCurrency:
+          begin
+            tvarrec(p^).VType := vtCurrency;
+            New(tvarrec(p^).VCurrency);
+            tvarrec(p^).VCurrency^ := tbtcurrency(cp^);
+          end;
         {$IFNDEF PS_NOWIDESTRING}
         btwidechar: begin
             tvarrec(p^).VType := vtWideChar;
@@ -10393,6 +10420,11 @@ begin
           if v^.VarParam then
             tbtextended(cp^) := tvarrec(p^).vextended^;
           dispose(tvarrec(p^).vextended);
+        end;
+        btCurrency: begin
+          if v^.VarParam then
+            tbtcurrency(cp^) := tvarrec(p^).VCurrency^;
+          dispose(tvarrec(p^).VCurrency);
         end;
         {$IFNDEF PS_NOINT64}
         btS64: begin
@@ -11339,9 +11371,9 @@ begin
             ltemp := GetOrdProp(TObject(FSelf), PPropInfo(p.Ext1));
             move(ltemp, Byte(n.Dta^), TPSTypeRec_Set(n.aType).aByteSize);
           end;
-        btU8: tbtu8(n.Dta^) := GetOrdProp(TObject(FSelf), p.Ext1);
+        btChar, btU8: tbtu8(n.Dta^) := GetOrdProp(TObject(FSelf), p.Ext1);
         btS8: tbts8(n.Dta^) := GetOrdProp(TObject(FSelf), p.Ext1);
-        btU16: tbtu16(n.Dta^) := GetOrdProp(TObject(FSelf), p.Ext1);
+        {$IFNDEF PS_NOWIDESTRING}btwidechar, {$ENDIF}btU16: tbtu16(n.Dta^) := GetOrdProp(TObject(FSelf), p.Ext1);
         btS16: tbts16(n.Dta^) := GetOrdProp(TObject(FSelf), p.Ext1);
         btU32: tbtu32(n.Dta^) := GetOrdProp(TObject(FSelf), p.Ext1);
         btS32: tbts32(n.Dta^) := GetOrdProp(TObject(FSelf), p.Ext1);
@@ -11569,6 +11601,12 @@ begin
       exit;
     end;
     FSelf := Tobject(n.dta^);
+    if FSelf = nil then
+    begin
+      Caller.CMD_Err(erCouldNotCallProc);
+      Result := False;
+      exit;
+    end;
     n := NewTPSVariantIFC(Stack[Longint(Stack.Count) - 1], True); // Result
     if (n.aType.BaseType <> btU32) and (n.aType.BaseType <> btProcPtr) then
     begin
@@ -11613,6 +11651,12 @@ begin
       exit;
     end;
     FSelf := Tobject(n.dta^);
+    if FSelf = nil then
+    begin
+      Caller.CMD_Err(erCouldNotCallProc);
+      Result := False;
+      exit;
+    end;
     n := NewTPSVariantIFC(Stack[Longint(Stack.Count) - 2], false);
     if (n.Dta = nil) or ((n.aType.BaseType <> btu32) and (n.aType.BaseType <> btProcPtr)) then
     begin
@@ -13155,6 +13199,7 @@ const
 { TPSStack }
 
 procedure TPSStack.AdjustLength;
+{ Only grows, never shrinks }
 var
   MyLen: Longint;
 begin
@@ -13351,7 +13396,6 @@ begin
   FLength := IPointer(p1) - IPointer(FDataPtr);
   if TPSTypeRec(p1^).BaseType in NeedFinalization then
     FinalizeVariant(Pointer(IPointer(p1)+PointerSize), Pointer(p1^));
-  if ((FCapacity - FLength) shr 12) > 2 then AdjustLength;
 end;
 
 function TPSStack.Push(TotalSize: Longint): PPSVariant;
