@@ -1,4 +1,4 @@
-; *** Inno Setup version 7.1.0+ Icelandic messages ***
+; *** Inno Setup version 6.5.0+ Icelandic messages ***
 ;
 ; Translator: Stefán Örvar Sigmundsson
 ; E-mail: stefan.orvar.sigmundsson@proton.me
@@ -31,13 +31,13 @@ HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nVilla %2: %3
-SetupFileMissing=Skrána %1 vantar í uppsetningarskráasafnið. Vinsamlega leiðréttu vandamálið eða fáðu nýtt afrita af forritinu.
-SetupFileCorrupt=Uppsetningarskrárnar eru spilltar. Vinsamlega fáðu nýtt afrita af forritinu.
+SetupFileMissing=Skrána %1 vantar í uppsetningarskráasafnið. Vinsamlega leiðréttu vandamálið eða fáðu nýtt afrit af forritinu.
+SetupFileCorrupt=Uppsetningarskrárnar eru spilltar. Vinsamlega fáðu nýtt afrit af forritinu.
 SetupFileCorruptOrWrongVer=Uppsetningarskrárnar eru spilltar eða eru ósamrýmanlegar við þessa útgáfu af Uppsetningu. Vinsamlega leiðréttu vandamálið eða fáðu nýtt afrit af forritinu.
 InvalidParameter=Ógild færibreyta var afhend á skipanalínunni:%n%n%1
 SetupAlreadyRunning=Uppsetning er nú þegar keyrandi.
 WindowsVersionNotSupported=Þetta forrit styður ekki útgáfuna af Windows sem tölvan þín er keyrandi.
-WindowsServicePackRequired=Þetta forrit krefst Þjónustupakka %2 eða síðari.
+WindowsServicePackRequired=Þetta forrit krefst %1 Þjónustupakka %2 eða síðari.
 NotOnThisPlatform=Þetta forrit mun ekki keyra á %1.
 OnlyOnThisPlatform=Þetta forrit verður að keyra á %1.
 OnlyOnTheseArchitectures=Þetta forrit er einungis hægt að setja upp á útgáfur af Windows hannaðar fyrir eftirfarandi gjörvahannanir:%n%n%1
@@ -104,7 +104,7 @@ WelcomeLabel2=Þetta mun setja upp [name/ver] á þína tölvu.%n%nÞað er rá�
 ; *** "Password" wizard page
 WizardPassword=Aðgangsorð
 PasswordLabel1=Þessi uppsetning er aðgangsorðsvarin.
-PasswordLabel3=Vinsamlega veitu aðgangsorðið, smelltu síðan á Næst til að halda áfram. Aðgangsorð eru hástafanæm.
+PasswordLabel3=Vinsamlega veittu aðgangsorðið, smelltu síðan á Næst til að halda áfram. Aðgangsorð eru hástafanæm.
 PasswordEditLabel=&Aðgangsorð:
 IncorrectPassword=Aðgangsorðið sem þú slóst inn er ekki rétt. Vinsamlega reyndu aftur.
 
@@ -185,7 +185,7 @@ NoProgramGroupCheck2=&Ekki skapa Upphafsvalmyndarmöppu
 ; *** "Ready to Install" wizard page
 WizardReady=Tilbúin til að setja upp
 ReadyLabel1=Uppsetning er núna tilbúin til að hefja uppsetningu [name] á tölvuna þína.
-ReadyLabel2a=Smelltu á Setja upp til að halda áfram uppsetningunni eða smelltu á Til baka ef þú vilt endurskoða eða breyta einhverjum stillingum.
+ReadyLabel2a=Smelltu á Setja upp til að halda áfram uppsetningunni eða smelltu á Fyrri ef þú vilt endurskoða eða breyta einhverjum stillingum.
 ReadyLabel2b=Smelltu á Setja upp til að halda áfram uppsetningunni.
 ReadyMemoUserInfo=Notandaupplýsingar:
 ReadyMemoDir=Áfangastaðsetning:
@@ -329,7 +329,7 @@ ErrorRestartReplace=RestartReplace mistókst:
 ErrorRenamingTemp=Villa kom upp meðan reynt var að endurnefna skrá í áfangaskráasafninu:
 ErrorRegisterServer=Ófært um að skrá DLL/OCX: %1
 ErrorRegSvr32Failed=RegSvr32 mistókst með skilakóðann %1
-ErrorRegisterTypeLib=Ófært um að skrá tegundasafnið: $1
+ErrorRegisterTypeLib=Ófært um að skrá tegundasafnið: %1
 
 ; *** Uninstall display name markings
 UninstallDisplayNameMark=%1 (%2)
@@ -380,7 +380,7 @@ ProgramOnTheWeb=%1 á vefnum
 UninstallProgram=Niðurtaka %1
 LaunchProgram=Ræsa %1
 AssocFileExtension=&Tengja %1 við %2-skráarframlenginguna
-AssocingFileExtension=&Tengjandi %1 við %2-skráarframlenginguna…
+AssocingFileExtension=Tengjandi %1 við %2-skráarframlenginguna…
 AutoStartProgramGroupDescription=Ræsing:
-AutoStartProgram=Sjálfvikt ræsa %1
+AutoStartProgram=Sjálfvirkt ræsa %1
 AddonHostProgramNotFound=%1 var ekki fundið í möppunni sem þú valdir.%n%nVilt þú halda áfram hvort sem er?
