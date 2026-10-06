@@ -996,7 +996,8 @@ end;
 function InternalNewForceDirectories(Dir: String;
   const RecursionDepth: Cardinal = 0): Boolean;
 { Returns True if a new directory was created, or if the directory already
-  existed. Also see MakeDir for similar code (but different return value). }
+  existed. On failure LastError is set. Also see MakeDir for similar code
+  (but different return value). }
 begin
   Dir := RemoveBackslashUnlessRoot(Dir);
 
@@ -1005,8 +1006,10 @@ begin
   if DirExists(Dir) then
     Exit(True);
 
-  if RecursionDepth >= 50 then
+  if RecursionDepth >= 50 then begin
+    SetLastError(ERROR_CANNOT_MAKE);
     Exit(False);
+  end;
   if not InternalNewForceDirectories(PathExtractDir(Dir), RecursionDepth + 1) then
     Exit(False);
 
@@ -1076,21 +1079,22 @@ end;
 procedure ShellChangeNotifyPath(const EventId: Integer; const Path: String;
   const Flush: Boolean; const DirChangeNotifyList: TSimpleStringList);
 { Calls SHChangeNotify with SHCNF_PATH only if the normal version of Path is
-  at most MAX_PATH long. If DirChangeNotifyList is assigned, the normalized
-  directory is added to the list (if it fits MAX_PATH and isn't already there).
-  If the path is too long then Flush is ignored, so when batching calls with
-  Flush only on the final one, ensure the final call uses the shortest path. }
+  usable, as determined by PathConvertSuperToNormal. If DirChangeNotifyList is
+  assigned, the normalized directory is added to the list (if it's usable and
+  isn't already there). If the path isn't usable then Flush is ignored, so when
+  batching calls with Flush only on the final one, ensure the final call uses
+  the shortest path. }
 begin
-  const NormalPath = PathConvertSuperToNormal(Path);
-  if Length(NormalPath) < MAX_PATH then begin
+  var NormalPath: String;
+  if PathConvertSuperToNormal(Path, NormalPath) then begin
     var Flags: UINT := SHCNF_PATH;
     if Flush then
       Flags := Flags or SHCNF_FLUSH;
     SHChangeNotify(EventId, Flags, PChar(NormalPath), nil);
   end;
   if DirChangeNotifyList <> nil then begin
-    const NormalDir = PathExtractDir(NormalPath);
-    if Length(NormalDir) < MAX_PATH then
+    var NormalDir: String;
+    if PathConvertSuperToNormal(PathExtractDir(Path), NormalDir) then
       DirChangeNotifyList.AddIfDoesntExist(NormalDir);
   end;
 end;

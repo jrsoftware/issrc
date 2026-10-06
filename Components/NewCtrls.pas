@@ -282,8 +282,9 @@ begin
   if Length(Buffer) > 1 then
   begin
     BufferLength := Length(Buffer);
-    if Button_GetNote(Handle, PChar(Buffer), BufferLength) then
+    if Button_GetNote(Handle, PChar(Buffer), BufferLength) then { BufferLength is a var parameter with an undocumented value on success }
     begin
+      SetLength(Buffer, Length(Buffer) - 1);
       Inc(DrawRect.Top, R.Height + 2); { R is the DT_CALCRECT result } 
       ACanvas.Font.Height := MulDiv(ACanvas.Font.Height, 2, 3);
       R := DrawRect;

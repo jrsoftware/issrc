@@ -93,6 +93,7 @@ begin
   CheckEqualsInt64($0100, Ord(#$0100));
 
   (* paren-star comment *)
+  (*) { a paren-star comment's opening '*' also closes it }
   // line comment
 
   { '@' address-of token: exercised by procedural variable tests }
@@ -250,6 +251,10 @@ begin
   CheckEqualsFloat(1.5, C, 0);
   C := 0.0001;
   CheckEqualsFloat(0.0001, C, 1e-18);
+
+  { Currency in an array of const }
+  C := 12;
+  CheckEqualsString('12', Format('%.0f', [C]));
 end;
 
 procedure Test_BooleanLikeTypes;
@@ -829,7 +834,7 @@ end;
 
 procedure Test_IDispatchInvoke;
 var
-  Dict, V: Variant;
+  Dict, Inner, V: Variant;
 begin
   Dict := CreateOleObject('Scripting.Dictionary');
   Dict.Add('key', 'value');
@@ -845,6 +850,18 @@ begin
   CheckEqualsString('changed', V[0]);
 
   VarArraySet('again', 0, V);
+  CheckEqualsString('again', V[0]);
+
+  { Passing a COM object as an argument must not release it }
+  Inner := CreateOleObject('Scripting.Dictionary');
+  Inner.Add('key', 'value');
+  Dict.Add('inner', Inner);
+  Inner := Unassigned;
+  CheckEqualsString('value', Dict.Item('inner').Item('key'));
+
+  { Passing a variant array as an argument must not destroy the internal copy twice }
+  Dict.Add('array', V);
+  V := Dict.Item('array');
   CheckEqualsString('again', V[0]);
 end;
 
@@ -1593,6 +1610,11 @@ begin
   finally
     List.Free;
   end;
+
+  { as cast of nil returns nil }
+  Obj := nil;
+  List := Obj as TStringList;
+  CheckTrue(List = nil);
 end;
 
 var
@@ -3052,6 +3074,10 @@ end;
 procedure Test_TypelessParamFunctions;
 var
   S: String;
+  VAnsiString: AnsiString;
+  VWideString: WideString;
+  VChar: Char;
+  VAnsiChar: AnsiChar;
   I: Integer;
   DA: array of Integer;
   SA: array[0..2] of Integer;
@@ -3068,6 +3094,23 @@ begin
   SetLength(S, 6);
   CheckEqualsInt64(6, Length(S));
   CheckEqualsString('hel', Copy(S, 1, 3));
+
+  { Low / High on strings }
+  S := 'hello';
+  CheckEqualsInt64(1, Low(S));
+  CheckEqualsInt64(5, High(S));
+  VAnsiString := 'abc';
+  CheckEqualsInt64(1, Low(VAnsiString));
+  CheckEqualsInt64(3, High(VAnsiString));
+  VWideString := 'ab';
+  CheckEqualsInt64(1, Low(VWideString));
+  CheckEqualsInt64(2, High(VWideString));
+
+  { Low / High on characters }
+  CheckEqualsInt64(0, Low(VChar));
+  CheckEqualsInt64(65535, High(VChar));
+  CheckEqualsInt64(0, Low(VAnsiChar));
+  CheckEqualsInt64(255, High(VAnsiChar));
 
   { GetArrayLength on nil dynamic array }
   CheckEqualsInt64(0, GetArrayLength(DA));
@@ -3402,6 +3445,22 @@ begin
   end;
 end;
 
+procedure Test_PublishedCharProperty;
+var
+  Edit: TNewEdit;
+  C: Char;
+begin
+  { Published Char property write then read, through RTTI }
+  Edit := TNewEdit.Create(nil);
+  try
+    Edit.PasswordChar := '*';
+    C := Edit.PasswordChar;
+    CheckEqualsString('*', C);
+  finally
+    Edit.Free;
+  end;
+end;
+
 function Test_ExternalDll_GetCurrentProcessId: Cardinal; external 'GetCurrentProcessId@kernel32.dll stdcall';
 procedure Test_ExternalDll_SetLastError(ErrorCode: Cardinal); external 'SetLastError@kernel32.dll stdcall';
 
@@ -3506,6 +3565,7 @@ begin
   Test_FindFirstNextClose;
   Test_TPersistentAssign;
   Test_VirtualConstructor;
+  Test_PublishedCharProperty;
   Test_ExternalDll;
 end;
 

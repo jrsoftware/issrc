@@ -114,6 +114,8 @@ function NewFileExists(const Name: String): Boolean;
 function DirExists(const Name: String): Boolean;
 function FileOrDirExists(const Name: String): Boolean;
 function IsDirectoryAndNotReparsePoint(const Name: String): Boolean;
+function GetLastWriteTimeOfFile(const Filename: String;
+  LastWriteTime: PFileTime): Boolean;
 function GetIniString(const Section, Key: String; Default: String; const Filename: String): String;
 function GetIniInt(const Section, Key: String; const Default, Min, Max: Longint; const Filename: String): Longint;
 function GetIniBool(const Section, Key: String; const Default: Boolean; const Filename: String): Boolean;
@@ -164,7 +166,8 @@ function IsAdminLoggedOn: Boolean;
 function IsPowerUserLoggedOn: Boolean;
 function FontExists(const FaceName: String): Boolean;
 function GetUILanguage: LANGID;
-function RemoveAccelChar(const S: String): String;
+function RemoveAccelChar(const S: String;
+  const RemoveParenthesizedAccessKeys: Boolean = True): String;
 function GetTextWidth(const DC: HDC; S: String; const Prefix: Boolean): Integer;
 function AddPeriod(const S: String): String;
 function GetExceptMessage: String;
@@ -187,7 +190,7 @@ function ClientAreaAnimationsActive: Boolean;
 function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function DarkModeActive: Boolean;
 function DeleteFileOrDirByHandle(const H: THandle): Boolean;
-function CompareInt64(const N1, N2: Int64): Integer;
+function CompareUInt64(const N1, N2: UInt64): Integer;
 function HighLowToInt64(const High, Low: UInt32): Int64;
 function HighLowToUInt64(const High, Low: UInt32): UInt64;
 function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
@@ -255,6 +258,21 @@ begin
   Result := (Attr <> INVALID_FILE_ATTRIBUTES) and
     (Attr and FILE_ATTRIBUTE_DIRECTORY <> 0) and
     (Attr and FILE_ATTRIBUTE_REPARSE_POINT = 0);
+end;
+
+function GetLastWriteTimeOfFile(const Filename: String;
+  LastWriteTime: PFileTime): Boolean;
+var
+  H: THandle;
+begin
+  H := CreateFile(PChar(Filename), 0, FILE_SHARE_READ or FILE_SHARE_WRITE,
+    nil, OPEN_EXISTING, 0, 0);
+  if H <> INVALID_HANDLE_VALUE then begin
+    Result := GetFileTime(H, nil, nil, LastWriteTime);
+    CloseHandle(H);
+  end
+  else
+    Result := False;
 end;
 
 function GetIniString(const Section, Key: String; Default: String;
@@ -1245,27 +1263,40 @@ begin
   end;
 end;
 
-function RemoveAccelChar(const S: String): String;
-var
-  I: Integer;
+function RemoveAccelChar(const S: String;
+  const RemoveParenthesizedAccessKeys: Boolean = True): String;
+{ Removes access key prefixes ('&') and optionally entire parenthesized access
+  keys, which are used in CJK (e.g., 'File(&F)' -> 'File') }
 begin
   Result := S;
-  I := 1;
+  var I := 1;
+  var LookBehindStopIndex := I;
   while I <= Length(Result) do begin
     if Result[I] = '&' then begin
-      { Just like Vcl.Menus.StripHotkey. Note that its SysLocale.FarEast check
+      { Based on Vcl.Menus.StripHotkey. Note that its SysLocale.FarEast check
         is always True on UNICODE. }
-      if (I > 1) and (Length(Result)-I >= 2) and
-         (Result[I-1] = '(') and (Result[I+2] = ')') then begin
-        Delete(Result, I-1, 4);
-        { Unlike StripHotkey also remove a space in front of the accelerator,
+      if RemoveParenthesizedAccessKeys and
+         (I > LookBehindStopIndex) and (Length(Result)-I >= 2) and
+         (Result[I-1] = '(') and (Result[I+1] <> '&') and
+         (Result[I+2] = ')') then begin
+        Dec(I);
+        Delete(Result, I, 4);
+        { Unlike StripHotkey also remove a space in front of the access key,
           used by for example Chinese Traditional }
-        if (I > 2) and (Result[I-2] = ' ') then
-          Delete(Result, I-2, 1);
-      end else
+        if (I > LookBehindStopIndex) and (Result[I-1] = ' ') then begin
+          Dec(I);
+          Delete(Result, I, 1);
+        end;
+      end else begin
         Delete(Result, I, 1);
-    end;
-    Inc(I);
+        Inc(I);
+      end;
+      { Prevent double-processing of access key characters. For example, with
+        '&(&A)', '(' is an access key; it isn't also the start of a
+        parenthesized access key. }
+      LookBehindStopIndex := I;
+    end else
+      Inc(I);
   end;
 end;
 
@@ -1277,7 +1308,7 @@ var
 begin
   { This procedure is 10x faster than using DrawText with the DT_CALCRECT flag }
   if Prefix then
-    S := RemoveAccelChar(S);
+    S := RemoveAccelChar(S, False);
   GetTextExtentPoint32(DC, PChar(S), Length(S), Size);
   Result := Size.cx;
 end;
@@ -1693,7 +1724,7 @@ begin
     SizeOf(Info));
 end;
 
-function CompareInt64(const N1, N2: Int64): Integer;
+function CompareUInt64(const N1, N2: UInt64): Integer;
 begin
   if N1 = N2 then
     Result := 0

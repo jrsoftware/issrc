@@ -265,7 +265,7 @@ begin
         if OpenKey(Get(1).AsStr, False) and ((Name = '') or ValueExists(Name)) then
           case GetDataType(Name) of
             rdString, rdExpandString: MakeStr(ResPtr^, ReadString(Name));
-            rdInteger: MakeInt(ResPtr^, ReadInteger(Name));
+            rdInteger: MakeInt(ResPtr^, UInt32(ReadInteger(Name))); { The UInt32 cast prevents sign extension }
             {$IF RtlVersion >= 36.0}
             rdInt64: MakeInt(ResPtr^, ReadInt64(Name));
             {$ENDIF}
@@ -897,7 +897,7 @@ begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-      MakeInt(ResPtr^, CompareInt64(Get(0).AsInt64, Get(1).AsInt64));
+      MakeInt(ResPtr^, CompareUInt64(UInt64(Get(0).AsInt64), UInt64(Get(1).AsInt64)));
   except
     on E: Exception do
       FuncResult.RaiseError(PChar(E.Message));

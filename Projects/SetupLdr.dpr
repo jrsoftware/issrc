@@ -260,24 +260,30 @@ begin
       We do not want to trigger guard pages and confuse the application. }
     if (MemInfo.State = MEM_COMMIT) and (MemInfo.Protect and PAGE_GUARD = 0) then begin
       ChangedProtection := False;
+      var Writeable := True;
 
       { Determine if the pages in this region are nonwriteable }
       if (MemInfo.Protect = PAGE_NOACCESS) or
          (MemInfo.Protect = PAGE_READONLY) or
          (MemInfo.Protect = PAGE_EXECUTE) or
          (MemInfo.Protect = PAGE_EXECUTE_READ) then begin
-        { Nonwriteable region, make it writeable (with the least protection) }
+        { Nonwriteable region, make it writeable (with the least protection).
+          This fails when, for example, Arbitrary Code Guard is enforced. }
         if VirtualProtect(MemInfo.BaseAddress, MemInfo.RegionSize,
            PAGE_EXECUTE_READWRITE, @OrigProtect) then
-          ChangedProtection := True;
+          ChangedProtection := True
+        else
+          Writeable := False;
       end;
 
       { Write to every page in the region.
         This forces the page to be in RAM and swapped to the paging file. }
-      var Offset: SIZE_T := 0;
-      while Offset < MemInfo.RegionSize do begin
-        Touch(PInteger(PByte(MemInfo.BaseAddress) + Offset)^);
-        Inc(Offset, SysInfo.dwPageSize);
+      if Writeable then begin
+        var Offset: SIZE_T := 0;
+        while Offset < MemInfo.RegionSize do begin
+          Touch(PInteger(PByte(MemInfo.BaseAddress) + Offset)^);
+          Inc(Offset, SysInfo.dwPageSize);
+        end;
       end;
 
       { If we changed the protection, change it back }

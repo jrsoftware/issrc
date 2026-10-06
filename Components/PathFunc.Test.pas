@@ -358,6 +358,19 @@ procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
       Error('PathConvertSuperToNormal test failed');
   end;
 
+  var TestPathConvertSuperToNormalBooleanCounter: Integer;
+  procedure TestPathConvertSuperToNormalBoolean(const Filename, ExpectedNormal: String;
+    const ExpectedResult: Boolean);
+  begin
+    Inc(TestPathConvertSuperToNormalBooleanCounter);
+    var NormalFilename := 'unchanged';
+    if PathConvertSuperToNormal(Filename, NormalFilename) <> ExpectedResult then
+      Error('PathConvertSuperToNormal test failed (%d/1)', [TestPathConvertSuperToNormalBooleanCounter]);
+    if NormalFilename <> ExpectedNormal then
+      Error('PathConvertSuperToNormal test failed (%d/2: got ''%s'' expected ''%s'')',
+        [TestPathConvertSuperToNormalBooleanCounter, NormalFilename, ExpectedNormal]);
+  end;
+
   procedure TestPathLastDelimiter(const Delimiters, S: String; const ExpectedResult: Integer);
   begin
     if PathLastDelimiter(Delimiters, S) <> ExpectedResult then
@@ -863,6 +876,22 @@ begin
   TestPathConvertSuperToNormal('\\?\C:xxx', '\\?\C:xxx');   { can't convert }
   TestPathConvertSuperToNormal('\\?\', '\\?\');             { short prefix }
   TestPathConvertSuperToNormal('\\?\\:', '\\?\\:');         { slash as drive letter }
+
+  TestPathConvertSuperToNormalBooleanCounter := 0;
+  TestPathConvertSuperToNormalBoolean('\\?\C:\dir\file', 'C:\dir\file', True);
+  TestPathConvertSuperToNormalBoolean('\\?\UNC\server\share\x', '\\server\share\x', True);
+  TestPathConvertSuperToNormalBoolean('\\?\unc\server\share\x', '\\server\share\x', True);
+  TestPathConvertSuperToNormalBoolean('C:\dir\file', 'C:\dir\file', True);
+  TestPathConvertSuperToNormalBoolean('\\?\GLOBALROOT\Device\HarddiskVolume1\x', '', False);   { can't convert }
+  { Only accessible with a super path }
+  TestPathConvertSuperToNormalBoolean('\\?\C:\dir\file.', '', False);
+  TestPathConvertSuperToNormalBoolean('\\?\C:\dir\file ', '', False);
+  TestPathConvertSuperToNormalBoolean('\\?\C:\dir.\file', '', False);
+  TestPathConvertSuperToNormalBoolean('\\?\C:\NUL', '', False);
+  { 'C:\' + LongName is MAX_PATH - 1 long }
+  const LongName = StringOfChar('a', MAX_PATH - 4);
+  TestPathConvertSuperToNormalBoolean('\\?\C:\' + LongName, 'C:\' + LongName, True);
+  TestPathConvertSuperToNormalBoolean('\\?\C:\' + LongName + 'a', '', False);
 
   TestPathLastDelimiter('\/', 'a\b/c', 4);
   TestPathLastDelimiter('\/', 'abc', 0);

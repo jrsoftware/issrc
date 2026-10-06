@@ -23,10 +23,11 @@ type
   TMainFormNavigationHelper = class helper(TMainFormUAHHelper) for TMainForm
     procedure RemoveMemoFromNavigation(const AMemo: TIDEScintEdit);
     procedure RemoveMemoBadLinesFromNavigation(const AMemo: TIDEScintEdit);
+    procedure ReplaceMemosInNavigation(const AMemoMap: TIDEScintEditNavMemoMap);
     procedure UpdateNavigationButtons;
     procedure NavigateBack;
     procedure NavigateForward;
-    procedure HandleNavigationAppCommand(var Message: TMessage);
+    function HandleNavigationAppCommand(const Message: TMessage): Boolean;
     procedure UpdateNavigationMenu(const Menu: TMenuItem);
     procedure UpdateBackNavigationStack;
     { Private }
@@ -45,7 +46,7 @@ begin
   if FNavStacks.RemoveMemo(AMemo) then
     UpdateNavigationButtons;
   if FCurrentNavItem.Memo = AMemo then
-    FCurrentNavItem.Invalidate;
+    FCurrentNavItem.Clear;
 end;
 
 procedure TMainFormNavigationHelper.RemoveMemoBadLinesFromNavigation(const AMemo: TIDEScintEdit);
@@ -54,6 +55,19 @@ begin
     UpdateNavigationButtons;
   { We do NOT update FCurrentNav here so it might point to a line that's
     deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
+end;
+
+procedure TMainFormNavigationHelper.ReplaceMemosInNavigation(const AMemoMap: TIDEScintEditNavMemoMap);
+begin
+  if FNavStacks.ReplaceMemos(AMemoMap) then
+    UpdateNavigationButtons;
+  var NewMemo: TIDEScintEdit;
+  if AMemoMap.TryGetValue(FCurrentNavItem.Memo, NewMemo) then begin
+    if NewMemo <> nil then
+      FCurrentNavItem.Memo := NewMemo
+    else
+      FCurrentNavItem.Clear;
+  end;
 end;
 
 procedure TMainFormNavigationHelper.UpdateNavigationButtons;
@@ -70,11 +84,12 @@ begin
     always showing two dropdowns we keep the back button enabled when we need
     the dropdown. So we need to check for this. }
   if FNavStacks.Back.Count = 0 then begin
-    Beep;
+    SysUtils.Beep;
     Exit;
   end;
 
-  FNavStacks.Forward.Add(FCurrentNavItem);
+  if FCurrentNavItem.Valid then
+    FNavStacks.Forward.Add(FCurrentNavItem);
   var NewNavItem := FNavStacks.Back.ExtractAt(FNavStacks.Back.Count-1);
   UpdateNavigationButtons;
   FCurrentNavItem := NewNavItem; { Must be done *before* moving }
@@ -84,7 +99,8 @@ end;
 
 procedure TMainFormNavigationHelper.NavigateForward;
 begin
-  FNavStacks.Back.Add(FCurrentNavItem);
+  if FCurrentNavItem.Valid then
+    FNavStacks.Back.Add(FCurrentNavItem);
   var NewNavItem := FNavStacks.Forward.ExtractAt(FNavStacks.Forward.Count-1);
   UpdateNavigationButtons;
   FCurrentNavItem := NewNavItem; { Must be done *before* moving }
@@ -92,19 +108,19 @@ begin
     NewNavItem.Memo.GetPositionFromLineColumn(NewNavItem.Line, NewNavItem.Column), False, True, NewNavItem.VirtualSpace);
 end;
 
-procedure TMainFormNavigationHelper.HandleNavigationAppCommand(var Message: TMessage);
+function TMainFormNavigationHelper.HandleNavigationAppCommand(const Message: TMessage): Boolean;
 begin
-  var Command := GET_APPCOMMAND_LPARAM(Integer(Message.LParam));
+  const Command = GET_APPCOMMAND_LPARAM(Integer(Message.LParam));
 
+  Result := True;
   if Command = APPCOMMAND_BROWSER_BACKWARD then begin
     if BackNavButton.Enabled then
       BackNavButton.Click;
-    Message.Result := 1;
   end else if Command = APPCOMMAND_BROWSER_FORWARD then begin
     if ForwardNavButton.Enabled then
       ForwardNavButton.Click;
-    Message.Result := 1;
-  end;
+  end else
+    Result := False;
 end;
 
 procedure TMainFormNavigationHelper._NavigationMenuItemClick(Sender: TObject);
@@ -169,7 +185,8 @@ begin
 
   for var I := 0 to FNavStacks.Forward.Count-1 do
     AddNavItemToMenu(FNavStacks.Forward[I], False, FNavStacks.Forward.Count-I, Menu);
-  AddNavItemToMenu(FCurrentNavItem, True, 0, Menu);
+  if FCurrentNavItem.Valid then
+    AddNavItemToMenu(FCurrentNavItem, True, 0, Menu);
   for var I := FNavStacks.Back.Count-1 downto 0 do
     AddNavItemToMenu(FNavStacks.Back[I], False, -(FNavStacks.Back.Count-I), Menu);
 end;

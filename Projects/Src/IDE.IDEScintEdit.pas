@@ -120,6 +120,7 @@ type
     FCompilerFileIndex: Integer;
     FFilename: String;
     FFileLastWriteTime: TFileTime;
+    FHasFileLastWriteTime: Boolean;
     FSaveEncoding: TSaveEncoding;
   public
     ErrorLine, ErrorCaretPosition: Integer;
@@ -132,6 +133,7 @@ type
     property Filename: String read FFileName write FFilename;
     property CompilerFileIndex: Integer read FCompilerFileIndex write FCompilerFileIndex;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;
+    property HasFileLastWriteTime: Boolean read FHasFileLastWriteTime write FHasFileLastWriteTime;
     property SaveEncoding: TSaveEncoding read FSaveEncoding write FSaveEncoding;
   end;
 
@@ -140,9 +142,12 @@ type
     Line, Column, VirtualSpace: Integer;
     constructor Create(const AMemo: TIDEScintEdit);
     function EqualMemoAndLine(const ANavItem: TIDEScintEditNavItem): Boolean;
-    procedure Invalidate;
+    procedure Clear;
     function Valid: Boolean;
   end;
+
+  { Maps a memo to the memo which took over its file, or to nil if no memo did }
+  TIDEScintEditNavMemoMap = TDictionary<TIDEScintEdit, TIDEScintEdit>;
 
   { Not using TStack since it lacks a way the keep a maximum amount of items by discarding the oldest }
   TIDEScintEditNavStack = class(TList<TIDEScintEditNavItem>)
@@ -152,6 +157,7 @@ type
     procedure Optimize;
     function RemoveMemo(const AMemo: TIDEScintEdit): Boolean;
     function RemoveMemoBadLines(const AMemo: TIDEScintEdit): Boolean;
+    function ReplaceMemos(const AMemoMap: TIDEScintEditNavMemoMap): Boolean;
   end;
 
   TIDEScintEditNavStacks = class
@@ -168,6 +174,7 @@ type
     procedure LinesInserted(const AMemo: TIDEScintEdit; const FirstLine, LineCount: Integer);
     function RemoveMemo(const AMemo: TIDEScintEdit): Boolean;
     function RemoveMemoBadLines(const AMemo: TIDEScintEdit): Boolean;
+    function ReplaceMemos(const AMemoMap: TIDEScintEditNavMemoMap): Boolean;
     property Back: TIDEScintEditNavStack read FBackNavStack;
     property Forward: TIDEScintEditNavStack read FForwardNavStack;
   end;
@@ -572,7 +579,7 @@ begin
   Result := (Memo = ANavItem.Memo) and (Line = ANavItem.Line);
 end;
 
-procedure TIDEScintEditNavItem.Invalidate;
+procedure TIDEScintEditNavItem.Clear;
 begin
   Memo := nil;
 end;
@@ -662,6 +669,27 @@ begin
     Optimize;
 end;
 
+function TIDEScintEditNavStack.ReplaceMemos(
+  const AMemoMap: TIDEScintEditNavMemoMap): Boolean;
+begin
+  Result := False;
+  for var I := Count-1 downto 0 do begin
+    var NavItem := Items[I];
+    var NewMemo: TIDEScintEdit;
+    if AMemoMap.TryGetValue(NavItem.Memo, NewMemo) then begin
+      if NewMemo <> nil then begin
+        NavItem.Memo := NewMemo;
+        Items[I] := NavItem;
+      end else begin
+        Delete(I);
+        Result := True;
+      end;
+    end;
+  end;
+  if Result then
+    Optimize;
+end;
+
 { TIDEScintEditNavStacks }
 
 constructor TIDEScintEditNavStacks.Create;
@@ -733,6 +761,13 @@ function TIDEScintEditNavStacks.RemoveMemoBadLines(
 begin
   Result := FBackNavStack.RemoveMemoBadLines(AMemo);
   Result := FForwardNavStack.RemoveMemoBadLines(AMemo) or Result;
+end;
+
+function TIDEScintEditNavStacks.ReplaceMemos(
+  const AMemoMap: TIDEScintEditNavMemoMap): Boolean;
+begin
+  Result := FBackNavStack.ReplaceMemos(AMemoMap);
+  Result := FForwardNavStack.ReplaceMemos(AMemoMap) or Result;
 end;
 
 end.

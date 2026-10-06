@@ -67,8 +67,10 @@ type
   TIncludedFile = class
     Filename: String;
     CompilerFileIndex: Integer;
-    LastWriteTime: TFileTime;
-    HasLastWriteTime: Boolean;
+    LastWriteTimeWhenAdded: TFileTime;
+    HasLastWriteTimeWhenAdded: Boolean;
+    LastWriteTimeWhenCompiled: TFileTime;
+    HasLastWriteTimeWhenCompiled: Boolean;
     Memo: TIDEScintFileEdit; { nil if the amount of #include files (visible or hidden) is more than MaxMemos allows }
   end;
 
@@ -476,6 +478,7 @@ type
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
     FModifiedAnySinceLastCompile, FModifiedAnySinceLastCompileAndGo: Boolean;
+    FCompilePreprocMemosUpdatePending: Boolean;
     FDebugEntries: PDebugEntryArray;
     FDebugEntriesCount: Integer;
     FVariableDebugEntries: PVariableDebugEntryArray;
@@ -519,17 +522,20 @@ type
     FUpdatePanelMessages: TUpdatePanelMessages;
     FHighContrastActive: Boolean;
     FDonateImageMenuItem: TMenuItem;
+    FInAppOnActivate: Boolean;
     procedure AppOnActivate(Sender: TObject);
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
-    function AskToDetachDebugger: Boolean;
+    function AskToDetachDebugger(const ReloadFilename: String = ''): Boolean;
     procedure BringToForeground;
     procedure BuildAndSaveBreakPointLines(const AMemo: TIDEScintFileEdit);
     procedure BuildAndSaveKnownIncludedAndHiddenFiles;
+    procedure ClearBreakPoints(const AMemo: TIDEScintFileEdit; const AUpdateLineMarkers: Boolean);
     procedure CloseTab(const TabIndex: Integer);
     procedure CompileFile(AFilename: String; const ReadFromFile: Boolean);
     procedure CompileIfNecessary;
-    function ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
+    function ConfirmCloseFile(const PromptToSave: Boolean;
+      const ReloadFilename: String = ''): Boolean;
     procedure DebuggingStopped(const WaitForTermination: Boolean);
     procedure DebugLogMessage(const S: String);
     procedure DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
@@ -573,6 +579,9 @@ type
       const IsReload: Boolean = False);
     procedure OpenMRUMainFile(const AFilename: String);
     procedure ParseDebugInfo(DebugInfo: Pointer);
+    function PromptToSaveIncludedFileMemos(const BeforeMainFileReload: Boolean = False): Boolean;
+    function PromptToSaveMemo(const AMemo: TIDEScintFileEdit;
+      const BeforeMainFileReload: Boolean = False): Boolean;
     procedure ReopenTabOrTabs(const HiddenFileIndex: Integer; const Activate: Boolean);
     procedure ResetAllMemosLineState;
     function SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
@@ -596,7 +605,8 @@ type
       const ASecondsRemaining: Integer; const ABytesCompressedPerSecond: Cardinal);
     procedure UpdateEditModeStatusPanel;
     procedure UpdateFindRegExUI;
-    procedure UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean = False);
+    procedure UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean = False;
+      const IncludedFilesJustAdded: Boolean = False);
     procedure UpdateLineMarkers(const AMemo: TIDEScintFileEdit; const Line: Integer);
     procedure UpdateImages;
     procedure UpdateMarginsAndAutoCompleteIcons;
@@ -1116,7 +1126,7 @@ begin
 
   FNavStacks := TIDEScintEditNavStacks.Create;
   UpdateNavigationButtons;
-  FCurrentNavItem.Invalidate;
+  FCurrentNavItem.Clear;
 
   BackNavButton.Style := tbsDropDown;
   BackNavButton.DropdownMenu := TMainFormPopupMenu.Create(Self, NavPopupMenu);
@@ -1464,7 +1474,8 @@ begin
         HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD_PTR(@KLink));
       end;
     end;
-  end else if ((Key = Ord('V')) or (Key = VK_INSERT)) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl]) then begin
+  end else if ((Key = Ord('V')) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl])) or
+              ((Key = VK_INSERT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift])) then begin
     if FActiveMemo.CanPaste then
       if MultipleSelectionPasteFromClipboard(FActiveMemo) then
         Key := 0;
@@ -1661,7 +1672,7 @@ begin
   InvalidateStatusPanel(spHiddenFilesCount);
   for Memo in FFileMemos do
     if Memo.Used then
-      Memo.BreakPoints.Clear;
+      ClearBreakPoints(Memo, IsReload and (Memo = FMainMemo));
   DestroyDebugInfo;
 
   FMainMemo.Filename := '';
@@ -1678,7 +1689,7 @@ begin
 
   FNavStacks.Clear;
   UpdateNavigationButtons;
-  FCurrentNavItem.Invalidate;
+  FCurrentNavItem.Clear;
 end;
 
 { Breakpoints are preserved on a per-file basis }
@@ -1735,6 +1746,20 @@ begin
   end;
 end;
 
+procedure TMainForm.ClearBreakPoints(const AMemo: TIDEScintFileEdit; const AUpdateLineMarkers: Boolean);
+{ AUpdateLineMarkers is only needed if the markers will stay, such as on a reload
+  using SCI_REPLACETARGETMINIMAL }
+begin
+  if AUpdateLineMarkers then begin
+    for var I := AMemo.BreakPoints.Count-1 downto 0 do begin
+      const Line = AMemo.BreakPoints[I];
+      AMemo.BreakPoints.Delete(I);
+      UpdateLineMarkers(AMemo, Line);
+    end;
+  end else
+    AMemo.BreakPoints.Clear;
+end;
+
 { Known included and hidden files are preserved on a per-main-file basis }
 procedure TMainForm.LoadKnownIncludedAndHiddenFilesAndUpdateMemos;
 begin
@@ -1752,12 +1777,12 @@ begin
               var IncludedFile := TIncludedFile.Create;
               IncludedFile.Filename := Filename;
               IncludedFile.CompilerFileIndex := UnknownCompilerFileIndex;
-              IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
-                @IncludedFile.LastWriteTime);
+              IncludedFile.HasLastWriteTimeWhenAdded := GetLastWriteTimeOfFile(IncludedFile.Filename,
+                @IncludedFile.LastWriteTimeWhenAdded);
               FIncludedFiles.Add(IncludedFile);
             end;
           finally
-            UpdatePreprocMemos;
+            UpdatePreprocMemos(False, True);
           end;
         end;
       finally
@@ -1910,7 +1935,6 @@ begin
   AMemo.OpeningFile := True;
   try
     AFilename := PathExpand(AFilename);
-    const NameChange = not PathSame(AMemo.Filename, AFilename);
     const FilePosition = GetFilePosition(AMemo);
 
     Stream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
@@ -1920,24 +1944,30 @@ begin
       if AMemo = FMainMemo then
         NewMainFile(IsReload)
       else begin
-        AMemo.BreakPoints.Clear;
+        if IsReload and (AMemo = FErrorMemo) then
+          HideError;
+        ClearBreakPoints(AMemo, IsReload);
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
-        if NameChange then  { Also see below the other case which needs to be done after load }
-          RemoveMemoFromNavigation(AMemo);
       end;
-      GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
+      AMemo.HasFileLastWriteTime := GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
       Stream.Seek(0, soFromBeginning);
       const TextStr = LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
-      if IsReload and (AMemo.ChangeHistory <> schDisabled) then begin
-        { Workaround to minimize change history on reload }
-        AMemo.Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
-        const RawTextStr = AMemo.ConvertStringToRawString(TextStr);
-        AMemo.Call(SCI_REPLACETARGETMINIMAL, Length(RawTextStr), RawTextStr);
-      end else
-        AMemo.Lines.Text := TextStr;
-      if (AMemo <> FMainMemo) and not NameChange then
+      const WasReadOnly = AMemo.ReadOnly; { True during a compile }
+      AMemo.ReadOnly := False;
+      try
+        if IsReload and (AMemo.ChangeHistory <> schDisabled) then begin
+          { Workaround to minimize change history on reload }
+          AMemo.Call(SCI_TARGETWHOLEDOCUMENT, 0, 0);
+          const RawTextStr = AMemo.ConvertStringToRawString(TextStr);
+          AMemo.Call(SCI_REPLACETARGETMINIMAL, Length(RawTextStr), RawTextStr);
+        end else
+          AMemo.Lines.Text := TextStr;
+      finally
+        AMemo.ReadOnly := WasReadOnly;
+      end;
+      if AMemo <> FMainMemo then
         RemoveMemoBadLinesFromNavigation(AMemo);
     finally
       if IsReload then
@@ -1956,6 +1986,14 @@ begin
       if MainMemoAddToRecentDocs then
         AddFileToRecentDocs(AFilename);
       LoadKnownIncludedAndHiddenFilesAndUpdateMemos(AFilename);
+      if IsReload and (FIncludedFiles.Count = 0) then begin
+        { On a reload NewMainFile passes DontUpdateRelatedVisibilty=True to UpdatePreprocMemos.
+          LoadKnownIncludedAndHiddenFilesAndUpdateMemos only calls UpdatePreprocMemos again,
+          with DontUpdateRelatedVisibilty=False, when it adds included files. So on reload, with
+          no included files, we must still update visibility. }
+        UpdateMemosTabSetVisibility;
+        UpdateBevel1Visibility;
+      end;
       InvalidateStatusPanel(spHiddenFilesCount);
     end;
     LoadBreakPointLinesAndUpdateLineMarkers(AMemo);
@@ -2020,7 +2058,7 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
     if not RenameFile(TempFN, FN) then
       raise Exception.Create(LFmtMessage(SCompilerSaveErrorRenameTemp,
         [GetLastError]));
-    GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
+    AMemo.HasFileLastWriteTime := GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
   end;
 
 begin
@@ -2061,36 +2099,52 @@ begin
   end;
 end;
 
-function TMainForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
-
-  function PromptToSaveMemo(const AMemo: TIDEScintFileEdit): Boolean;
-  var
-    FileTitle: String;
-  begin
-    Result := True;
-    if AMemo.Modified then begin
-      FileTitle := GetFileTitle(AMemo.Filename);
-      case MsgBox(LFmtMessage(SCompilerFileChangedSavePrompt, [FileTitle]),
-         LFmtMessage(SCompilerFormCaption), mbError,
-         MB_YESNOCANCEL) of
-        IDYES: Result := SaveFile(AMemo, False);
-        IDNO: ;
-      else
-        Result := False;
-      end;
+function TMainForm.PromptToSaveMemo(const AMemo: TIDEScintFileEdit;
+  const BeforeMainFileReload: Boolean): Boolean;
+begin
+  Result := True;
+  if AMemo.Modified then begin
+    const FileTitle = GetFileTitle(AMemo.Filename);
+    var Prompt: String;
+    if BeforeMainFileReload then
+      Prompt := LFmtMessage(SCompilerFileChangedSavePromptBeforeReload, [FMainMemo.Filename, FileTitle, '#include'])
+    else
+      Prompt := LFmtMessage(SCompilerFileChangedSavePrompt, [FileTitle]);
+    case MsgBox(Prompt,
+       LFmtMessage(SCompilerFormCaption), mbError,
+       MB_YESNOCANCEL) of
+      IDYES: Result := SaveFile(AMemo, False);
+      IDNO: ;
+    else
+      Result := False;
     end;
   end;
+end;
 
+function TMainForm.PromptToSaveIncludedFileMemos(const BeforeMainFileReload: Boolean): Boolean;
+begin
+  for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do
+    if FFileMemos[I].Used and not PromptToSaveMemo(FFileMemos[I], BeforeMainFileReload) then
+      Exit(False);
+  Result := True;
+end;
+
+function TMainForm.ConfirmCloseFile(const PromptToSave: Boolean;
+  const ReloadFilename: String): Boolean;
+const
+  StopCompileMessages: array[Boolean] of String = (
+    SCompilerStopCompileBeforeCommand,
+    SCompilerStopCompileBeforeReload);
 var
   Memo: TIDEScintFileEdit;
 begin
   if FCompiling then begin
-    MsgBox(LFmtMessage(SCompilerStopCompileBeforeCommand),
+    MsgBox(LFmtMessage(StopCompileMessages[ReloadFilename <> ''], [ReloadFilename]),
       LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
     Result := False;
     Exit;
   end;
-  if FDebugging and not AskToDetachDebugger then begin
+  if FDebugging and not AskToDetachDebugger(ReloadFilename) then begin
     Result := False;
     Exit;
   end;
@@ -2140,13 +2194,15 @@ type
     ErrorFilename: String;
     ErrorLine: Integer;
     Aborted: Boolean;
+    IncludedFilesJustAdded: Boolean;
   end;
 
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: NativeInt): Integer; stdcall;
 
-  procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles;
-    const AutoHideNew: Boolean; const HiddenFiles: TStringList);
+  procedure DecodeIncludedFilenames(P: PChar; LastWriteTime: PFileTime;
+    const IncludedFiles: TIncludedFiles; const AutoHideNew: Boolean;
+    const HiddenFiles: TStringList);
   begin
     if P <> nil then begin
       var PrevIncludedFiles: TStringList := nil;
@@ -2167,8 +2223,16 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
             const IncludedFile = TIncludedFile.Create;
             IncludedFile.Filename := GetCleanFileNameOfFile(P);
             IncludedFile.CompilerFileIndex := I;
-            IncludedFile.HasLastWriteTime := GetLastWriteTimeOfFile(IncludedFile.Filename,
-              @IncludedFile.LastWriteTime);
+            IncludedFile.HasLastWriteTimeWhenAdded := GetLastWriteTimeOfFile(IncludedFile.Filename,
+              @IncludedFile.LastWriteTimeWhenAdded);
+            if (LastWriteTime <> nil) and ((LastWriteTime.dwLowDateTime <> 0) or
+               (LastWriteTime.dwHighDateTime <> 0)) then begin
+              IncludedFile.LastWriteTimeWhenCompiled := LastWriteTime^;
+              IncludedFile.HasLastWriteTimeWhenCompiled := True;
+            end else begin
+              IncludedFile.LastWriteTimeWhenCompiled := IncludedFile.LastWriteTimeWhenAdded;
+              IncludedFile.HasLastWriteTimeWhenCompiled := IncludedFile.HasLastWriteTimeWhenAdded;
+            end;
             IncludedFiles.Add(IncludedFile);
 
             if AutoHideNew and (PrevIncludedFiles.IndexOf(IncludedFile.Filename) = -1) then begin
@@ -2179,6 +2243,8 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
           end;
 
           Inc(P, StrLen(P) + 1);
+          if LastWriteTime <> nil then
+            Inc(LastWriteTime);
           Inc(I);
         end;
       finally
@@ -2258,9 +2324,14 @@ begin
       iscbNotifyPreproc:
         begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
-          { Also stores last write time }
-          DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles,
-            Form.FOptions.AutoHideNewIncludedFiles, Form.FHiddenFiles);
+          var LastWriteTimes: PFileTime;
+          if Form.FCompilerVersion.BinVersion >= $7010100 then
+            LastWriteTimes := Data.IncludedFilesLastWriteTimes
+          else
+            LastWriteTimes := nil;
+          DecodeIncludedFilenames(Data.IncludedFilenames, LastWriteTimes,
+            Form.FIncludedFiles, Form.FOptions.AutoHideNewIncludedFiles, Form.FHiddenFiles);
+          IncludedFilesJustAdded := True;
           CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
           Form.InvalidateStatusPanel(spHiddenFilesCount);
           Form.BuildAndSaveKnownIncludedAndHiddenFiles;
@@ -2309,6 +2380,17 @@ procedure TMainForm.CompileFile(AFilename: String; const ReadFromFile: Boolean);
       end;
       Result := nil;
     end;
+  end;
+
+  { Call after UpdatePreprocMemos }
+  function IncludedFileMemoDiffersFromCompiledFile: Boolean;
+  begin
+    for var IncludedFile in FIncludedFiles do
+      if (IncludedFile.Memo <> nil) and IncludedFile.HasLastWriteTimeWhenCompiled and
+         (not IncludedFile.Memo.HasFileLastWriteTime or
+          (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTimeWhenCompiled) <> 0)) then
+        Exit(True);
+    Result := False;
   end;
 
 var
@@ -2370,6 +2452,7 @@ begin
   OldActiveMemo := FActiveMemo;
   AppData := Default(TAppData);
   AppData.Lines := TStringList.Create;
+  FCompilePreprocMemosUpdatePending := True;
   try
     FBuildAnimationFrame := 0;
     FProgress := 0;
@@ -2443,6 +2526,9 @@ begin
     if ISCompileScript(Params, False) <> isceNoError then begin
     {$ENDIF}
       if not ReadFromFile and (AppData.ErrorLine > 0) then begin
+        { The included files may have changed, so first reassign the memos }
+        UpdatePreprocMemos(False, AppData.IncludedFilesJustAdded);
+        FCompilePreprocMemosUpdatePending := False;
         Memo := GetMemoFromErrorFilename(AppData.ErrorFilename);
         if Memo <> nil then begin
           { Move the caret to the line number the error occurred on }
@@ -2482,7 +2568,10 @@ begin
     UpdateEditModeStatusPanel;
     UpdateRunMenuItems;
     UpdateCaption;
-    UpdatePreprocMemos;
+    if FCompilePreprocMemosUpdatePending then begin
+      FCompilePreprocMemosUpdatePending := False;
+      UpdatePreprocMemos(False, AppData.IncludedFilesJustAdded);
+    end;
     if AppData.DebugInfo <> nil then begin
       try
         ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
@@ -2496,7 +2585,7 @@ begin
     StatusBar.Panels[spExtraStatus].Text := '';
   end;
   FCompiledExe := AppData.OutputExe;
-  FModifiedAnySinceLastCompile := False;
+  FModifiedAnySinceLastCompile := IncludedFileMemoDiffersFromCompiledFile;
   FModifiedAnySinceLastCompileAndGo := False;
 end;
 
@@ -4002,8 +4091,11 @@ begin
 
     const SaveLanguage = FOptions.Language;
 
-    if OptionsForm.ShowModal <> mrOK then
-      Exit;
+    repeat
+      if OptionsForm.ShowModal <> mrOK then
+        Exit;
+    until not FOptions.OpenIncludedFiles or OptionsForm.OpenIncludedFilesCheck.Checked or
+      PromptToSaveIncludedFileMemos;
 
     FOptions.ShowStartupForm := OptionsForm.StartupCheck.Checked;
     FOptions.UseWizard := OptionsForm.WizardCheck.Checked;
@@ -4148,9 +4240,9 @@ begin
       raise Exception.CreateFmt('MemoToTabIndex called for hidden file memo: %s',
         [GetDisplayFilename((AMemo as TIDEScintFileEdit).Filename)]);
 
-   { Filter memos explicitly hidden by the user }
+    { Filter unused memos and memos explicitly hidden by the user }
     for var MemoIndex := Result-1 downto 0 do
-      if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) <> -1 then
+      if not FFileMemos[MemoIndex].Used or (FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) <> -1) then
         Dec(Result);
   end;
 end;
@@ -4172,10 +4264,10 @@ begin
   else if FPreprocessorOutputMemo.Used and (ATabIndex = AMaxTabIndex) then
     Result := FMemos[1] { Last tab displays the preprocessor output memo which is FMemos[1] }
   else begin
-    { Only count memos not explicitly hidden by the user }
+    { Only count used memos not explicitly hidden by the user }
     var TabIndex := 0;
     for var MemoIndex := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
-      if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) = -1 then begin
+      if FFileMemos[MemoIndex].Used and (FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) = -1) then begin
         Inc(TabIndex);
         if TabIndex = ATabIndex then begin
           Result := FMemos[MemoIndex + 1];   { Other tabs display include files which start at second tab but at FMemos[2] }
@@ -4298,7 +4390,10 @@ end;
 
 procedure TMainForm.WMAppCommand(var Message: TMessage);
 begin
-  HandleNavigationAppCommand(Message);
+  if HandleNavigationAppCommand(Message) then
+    Message.Result := 1
+  else
+    inherited;
 end;
 
 procedure TMainForm.NavPopupMenuClick(Sender: TObject);
@@ -4388,7 +4483,11 @@ end;
 
 procedure TMainForm.UpdateMemosTabSetVisibility;
 begin
-  MemosTabSet.Visible := FPreprocessorOutputMemo.Used or FFileMemos[FirstIncludedFilesMemoIndex].Used;
+  var AnyIncludedFileMemoUsed := False;
+  for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do
+    if FFileMemos[I].Used then
+      AnyIncludedFileMemoUsed := True;
+  MemosTabSet.Visible := FPreprocessorOutputMemo.Used or AnyIncludedFileMemoUsed;
   if not MemosTabSet.Visible then
     MemosTabSet.TabIndex := 0; { For next time }
 end;
@@ -4401,8 +4500,10 @@ begin
     StatusBar.Panels[spModified].Text := '';
 end;
 
-{ Set DontUpdateRelatedVisibilty if you're going to call this function again, avoids flicker }
-procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean);
+{ Set DontUpdateRelatedVisibilty if you're going to call this function again, avoids flicker.
+  Set IncludedFilesJustAdded if FIncludedFiles was just filled, to reload memos which no longer match
+  their file on disk. The memos must be unmodified, because the reload discards changes without a prompt. }
+procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, IncludedFilesJustAdded: Boolean);
 
   procedure UpdatePreprocessorOutputMemo(const NewTabs, NewHints: TStringList;
     const NewCloseButtons: TBoolList);
@@ -4419,6 +4520,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
       finally
         FPreprocessorOutputMemo.ReadOnly := True;
       end;
+      RemoveMemoBadLinesFromNavigation(FPreprocessorOutputMemo);
       FPreprocessorOutputMemo.Used := True;
     end else begin
       if FPreprocessorOutputMemo.Used then
@@ -4428,37 +4530,81 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
     end;
   end;
 
+  procedure HideFileMemo(const Memo: TIDEScintFileEdit);
+  begin
+    Memo.BreakPoints.Clear;
+    RemoveMemoFromNavigation(Memo); { Also for an unused memo, which can still hold entries }
+    Memo.Used := False;
+    Memo.Visible := False;
+  end;
+
+  { Moves the navigation entries of the files which moved to another memo. Must
+    be called after the memos have been assigned to the included files but
+    before OpenFile is called for any of them, else the moved entries are
+    checked against the wrong file }
+  procedure UpdateNavigationForNewIncludedFilesMemos;
+  begin
+    const MemoMap = TIDEScintEditNavMemoMap.Create;
+    try
+      for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
+        const Memo = FFileMemos[I];
+        if Memo.Used then begin
+          var NewMemo: TIDEScintFileEdit := nil; { Stays nil if the file is no longer included or has no memo anymore }
+          for var IncludedFile in FIncludedFiles do begin
+            if PathSame(IncludedFile.Filename, Memo.Filename) then begin
+              NewMemo := IncludedFile.Memo;
+              Break;
+            end;
+          end;
+          if NewMemo <> Memo then
+            MemoMap.Add(Memo, NewMemo);
+        end;
+      end;
+      ReplaceMemosInNavigation(MemoMap);
+    finally
+      MemoMap.Free;
+    end;
+  end;
+
   procedure UpdateIncludedFilesMemos(const NewTabs, NewHints: TStringList;
     const NewCloseButtons: TBoolList);
   begin
     if FOptions.OpenIncludedFiles and (FIncludedFiles.Count > 0) then begin
+      { Assign all memos first, so the navigation entries can follow their files
+        before any file is loaded, and so a file which fails to open below does
+        not move the files after it to other memos }
       var NextMemoIndex := FirstIncludedFilesMemoIndex;
+      for var IncludedFile in FIncludedFiles do begin
+        if NextMemoIndex < FFileMemos.Count then begin
+          IncludedFile.Memo := FFileMemos[NextMemoIndex];
+          Inc(NextMemoIndex);
+        end else
+          IncludedFile.Memo := nil; { We're out of memos :( }
+      end;
+      UpdateNavigationForNewIncludedFilesMemos;
+
       var NextTabIndex := 1; { First tab displays the main memo  }
-      for var IncludedFileIndex := 0 to FIncludedFiles.Count-1 do begin
-        const IncludedFile = FIncludedFiles[IncludedFileIndex];
-
-        if NextMemoIndex = FFileMemos.Count then begin
-          { We're out of memos :( }
-          IncludedFile.Memo := nil;
+      for var IncludedFile in FIncludedFiles do begin
+        if IncludedFile.Memo = nil then
           Continue;
-        end;
-
-        IncludedFile.Memo := FFileMemos[NextMemoIndex];
         try
-          if not IncludedFile.Memo.Used or
-             not PathSame(IncludedFile.Memo.Filename, IncludedFile.Filename) or
-             not IncludedFile.HasLastWriteTime or
-             (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTime) <> 0) then begin
+          const MemoHasFile = IncludedFile.Memo.Used and
+            PathSame(IncludedFile.Memo.Filename, IncludedFile.Filename);
+          if not MemoHasFile or
+             (IncludedFilesJustAdded and
+              (not IncludedFile.HasLastWriteTimeWhenAdded or not IncludedFile.Memo.HasFileLastWriteTime or
+               (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTimeWhenAdded) <> 0))) then begin
             IncludedFile.Memo.Filename := IncludedFile.Filename;
             IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
-            OpenFile(IncludedFile.Memo, IncludedFile.Filename, False); { Also updates FileLastWriteTime }
+            OpenFile(IncludedFile.Memo, IncludedFile.Filename, False,
+              MemoHasFile and FOptions.UndoAfterReload); { Also updates FileLastWriteTime }
             IncludedFile.Memo.Used := True;
           end else begin
             { The memo assigned to the included file already has that file loaded
-              and is up-to-date so no call to OpenFile is needed. However, it could be
-              that CompilerFileIndex is not set yet. This happens if the initial
-              load was from the history loaded by LoadKnownIncludedAndHiddenFiles
-              and is followed by the user doing a compile. }
+              so no call to OpenFile is needed. However, it could be that
+              CompilerFileIndex is not set yet. This happens if the initial load
+              was from the history loaded by LoadKnownIncludedAndHiddenFiles and
+              is followed by the user doing a compile. }
             if IncludedFile.Memo.CompilerFileIndex = UnknownCompilerFileIndex then
               IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
           end;
@@ -4469,31 +4615,20 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
             NewCloseButtons.Insert(NextTabIndex, True);
             Inc(NextTabIndex);
           end;
-
-          Inc(NextMemoIndex);
         except on E: Exception do
           begin
             StatusMessage(smkWarning, LFmtMessage(SCompilerStatusFailedToOpenIncludedFile, [E.Message]));
+            HideFileMemo(IncludedFile.Memo);
             IncludedFile.Memo := nil;
           end;
         end;
       end;
       { Hide any remaining memos }
-      for var I := NextMemoIndex to FFileMemos.Count-1 do begin
-        FFileMemos[I].BreakPoints.Clear;
-        if FFileMemos[I].Used then
-          RemoveMemoFromNavigation(FFileMemos[I]);
-        FFileMemos[I].Used := False;
-        FFileMemos[I].Visible := False;
-      end;
+      for var I := NextMemoIndex to FFileMemos.Count-1 do
+        HideFileMemo(FFileMemos[I]);
     end else begin
-      for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do begin
-        FFileMemos[I].BreakPoints.Clear;
-        if FFileMemos[I].Used then
-          RemoveMemoFromNavigation(FFileMemos[I]);
-        FFileMemos[I].Used := False;
-        FFileMemos[I].Visible := False;
-      end;
+      for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do
+        HideFileMemo(FFileMemos[I]);
       for var IncludedFile in FIncludedFiles do
         IncludedFile.Memo := nil;
     end;
@@ -5594,13 +5729,22 @@ begin
   DebuggingStopped(False);
 end;
 
-function TMainForm.AskToDetachDebugger: Boolean;
+function TMainForm.AskToDetachDebugger(const ReloadFilename: String): Boolean;
+const
+  StopDebugTargetMessages: array[Boolean] of String = (
+    SCompilerStopDebugTargetBeforeCommand,
+    SCompilerStopDebugTargetBeforeReload);
+  DetachDebuggerMessages: array[Boolean] of String = (
+    SCompilerDetachDebuggerConfirm,
+    SCompilerDetachDebuggerConfirmBeforeReload);
 begin
+  const DebugTarget = LFmtMessage(DebugTargetStrings[FDebugTarget]);
+  const BeforeReload = ReloadFilename <> '';
   if FDebugClientWnd = 0 then begin
-    MsgBox(LFmtMessage(SCompilerStopDebugTargetBeforeCommand, [LFmtMessage(DebugTargetStrings[FDebugTarget])]),
+    MsgBox(LFmtMessage(StopDebugTargetMessages[BeforeReload], [DebugTarget, ReloadFilename]),
       LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
     Result := False;
-  end else if MsgBox(LFmtMessage(SCompilerDetachDebuggerConfirm, [LFmtMessage(DebugTargetStrings[FDebugTarget])]),
+  end else if MsgBox(LFmtMessage(DetachDebuggerMessages[BeforeReload], [DebugTarget, ReloadFilename]),
      LFmtMessage(SCompilerFormCaption), mbError, MB_OKCANCEL) = IDOK then begin
     DetachDebugger;
     Result := True;
@@ -5891,9 +6035,9 @@ procedure TMainForm.CompileIfNecessary;
   begin
     Result := False;
     for IncludedFile in FIncludedFiles do begin
-      if (IncludedFile.Memo = nil) and IncludedFile.HasLastWriteTime and
+      if (IncludedFile.Memo = nil) and IncludedFile.HasLastWriteTimeWhenCompiled and
          GetLastWriteTimeOfFile(IncludedFile.Filename, @NewTime) and
-         (CompareFileTime(IncludedFile.LastWriteTime, NewTime) <> 0) then begin
+         (CompareFileTime(IncludedFile.LastWriteTimeWhenCompiled, NewTime) <> 0) then begin
         Result := True;
         Exit;
       end;
@@ -6554,34 +6698,44 @@ const
   ReloadMessages: array[Boolean] of String = (
     SCompilerFileModifiedReload,
     SCompilerFileModifiedReloadChanged);
-var
-  Memo: TIDEScintFileEdit;
-  NewTime: TFileTime;
-  Changed: Boolean;
-begin
-  for Memo in FFileMemos do begin
+
+  function OfferReloadIfModifiedOutside(const Memo: TIDEScintFileEdit): Boolean;
+  { Returns True if the main script was reloaded }
+  begin
+    Result := False;
     if (Memo.Filename = '') or not Memo.Used then
-      Continue;
+      Exit;
 
     { See if the file has been modified outside the editor }
-    Changed := False;
+    var Changed := False;
+    var NewTime: TFileTime;
     if GetLastWriteTimeOfFile(Memo.Filename, @NewTime) then begin
-      if CompareFileTime(Memo.FileLastWriteTime, NewTime) <> 0 then begin
+      if not Memo.HasFileLastWriteTime or (CompareFileTime(Memo.FileLastWriteTime, NewTime) <> 0) then begin
+        if FCompilePreprocMemosUpdatePending and (Memo <> FMainMemo) then begin
+          Memo.HasFileLastWriteTime := False; { Triggers UpdatePreprocMemos to reload afterwards }
+          FModifiedAnySinceLastCompile := True;
+          Exit;
+        end;
         Memo.FileLastWriteTime := NewTime;
+        Memo.HasFileLastWriteTime := True;
         Changed := True;
       end;
     end;
 
     { If it has been, offer to reload it }
     if Changed then begin
+      if Memo <> FMainMemo then begin
+        { Set regardless of the answer to the reload question: unlike for the main
+          script, the next compile uses the new file even if it is not reloaded }
+        FModifiedAnySinceLastCompile := True;
+      end;
       if IsWindowEnabled(Handle) then begin
         if (not Memo.Modified and FOptions.Autoreload) or
            (MsgBox(LFmtMessage(ReloadMessages[Memo.Modified], [Memo.Filename]),
               LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES) then
-          if ConfirmCloseFile(False) then begin
+          if ConfirmCloseFile(False, Memo.Filename) and ((Memo <> FMainMemo) or PromptToSaveIncludedFileMemos(True)) then begin
             OpenFile(Memo, Memo.Filename, False, FOptions.UndoAfterReload);
-            if Memo = FMainMemo then
-              Break; { Reloading the main script will also reload all include files }
+            Result := Memo = FMainMemo;
           end;
       end
       else begin
@@ -6592,24 +6746,39 @@ begin
       end;
     end;
   end;
+
+begin
+  { A prompt below lets the user switch away and back, which calls this again }
+  if FInAppOnActivate then
+    Exit;
+  FInAppOnActivate := True;
+  try
+    { Check included files with unsaved edits first, so the user sees any external
+      change before a main script reload offers to save them }
+    for var I := FirstIncludedFilesMemoIndex to FFileMemos.Count-1 do
+      if FFileMemos[I].Modified then
+        OfferReloadIfModifiedOutside(FFileMemos[I]);
+
+    for var Memo in FFileMemos do
+      if OfferReloadIfModifiedOutside(Memo) then
+        Break; { The main script was reloaded, which also reloads all include files }
+  finally
+    FInAppOnActivate := False;
+  end;
 end;
 
 procedure TMainForm.CompilerOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 const
   ThemeColors: array [TStatusMessageKind] of TThemeColor = (tcGreen, tcFore, tcOrange, tcRed);
-var
-  Canvas: TCanvas;
-  S: String;
-  StatusMessageKind: TStatusMessageKind;
 begin
-  Canvas := CompilerOutputList.Canvas;
-  S := CompilerOutputList.Items[Index];
+  const Canvas = CompilerOutputList.Canvas;
+  const S = CompilerOutputList.Items[Index];
 
   Canvas.FillRect(Rect);
-  Inc(Rect.Left, 2);
+  Inc(Rect.Left, ToCurrentPPI(2));
   if FOptions.ColorizeCompilerOutput and not (odSelected in State) then begin
-    StatusMessageKind := TStatusMessageKind(CompilerOutputList.Items.Objects[Index]);
+    const StatusMessageKind = TStatusMessageKind(CompilerOutputList.Items.Objects[Index]);
     Canvas.Font.Color := FTheme.Colors[ThemeColors[StatusMessageKind]];
   end;
   Canvas.TextOut(Rect.Left, Rect.Top, S);
@@ -6617,15 +6786,12 @@ end;
 
 procedure TMainForm.DebugOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
-var
-  Canvas: TCanvas;
-  S: String;
 begin
-  Canvas := DebugOutputList.Canvas;
-  S := DebugOutputList.Items[Index];
+  const Canvas = DebugOutputList.Canvas;
+  const S = DebugOutputList.Items[Index];
 
   Canvas.FillRect(Rect);
-  Inc(Rect.Left, 2);
+  Inc(Rect.Left, ToCurrentPPI(2));
   if (S <> '') and (S[1] = #9) then
     Canvas.TextOut(Rect.Left + FDebugLogListTimestampsWidth, Rect.Top, Copy(S, 2, Maxint))
   else begin
@@ -6641,15 +6807,12 @@ end;
 
 procedure TMainForm.DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
   State: TOwnerDrawState);
-var
-  Canvas: TCanvas;
-  S: String;
 begin
-  Canvas := DebugCallStackList.Canvas;
-  S := DebugCallStackList.Items[Index];
+  const Canvas = DebugCallStackList.Canvas;
+  const S = DebugCallStackList.Items[Index];
 
   Canvas.FillRect(Rect);
-  Inc(Rect.Left, 2);
+  Inc(Rect.Left, ToCurrentPPI(2));
   Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;
 
@@ -6678,40 +6841,36 @@ end;
 
 procedure TMainForm.FindResultsListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
   State: TOwnerDrawState);
-var
-  Canvas: TCanvas;
-  S, S2: String;
-  FindResult: TFindResult;
-  SaveColor: TColor;
 begin
-  Canvas := FindResultsList.Canvas;
-  S := FindResultsList.Items[Index];
-  FindResult := FindResultsList.Items.Objects[Index] as TFindResult;
+  const Canvas = FindResultsList.Canvas;
+  const S = FindResultsList.Items[Index];
+  const FindResult = FindResultsList.Items.Objects[Index] as TFindResult;
 
   Canvas.FillRect(Rect);
-  Inc(Rect.Left, 2);
+  Inc(Rect.Left, ToCurrentPPI(2));
   if FindResult = nil then begin
     Canvas.Font.Style := [fsBold];
     Canvas.TextOut(Rect.Left, Rect.Top, S);
   end else if not (odSelected in State) then begin
     if FindResult.StartIndex > 1 then begin
-      Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, FindResult.StartIndex-1));
+      const Prefix = Copy(S, 1, FindResult.StartIndex-1);
+      Canvas.TextOut(Rect.Left, Rect.Top, Prefix);
       Rect.Left := Canvas.PenPos.X;
     end;
-    SaveColor := Canvas.Brush.Color;
+    const SaveColor = Canvas.Brush.Color;
     if FTheme.Dark then
       Canvas.Brush.Color := FTheme.Colors[tcRed]
     else
       Canvas.Brush.Color := FTheme.Colors[tcSelBack];
-    S2 := Copy(S, FindResult.StartIndex, FindResult.EndIndex-FindResult.StartIndex);
-    Rect.Right := Rect.Left + Canvas.TextWidth(S2);
-    Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2); { TextRect instead of TextOut to avoid a margin around the text }
+    const Match = Copy(S, FindResult.StartIndex, FindResult.EndIndex-FindResult.StartIndex);
+    Rect.Right := Rect.Left + Canvas.TextWidth(Match);
+    Canvas.TextRect(Rect, Rect.Left, Rect.Top, Match); { TextRect instead of TextOut to avoid a margin around the text }
     if FindResult.EndIndex <= Length(S) then begin
       Canvas.Brush.Color := SaveColor;
-      S2 := Copy(S, FindResult.EndIndex, MaxInt);
+      const Postfix = Copy(S, FindResult.EndIndex, MaxInt);
       Rect.Left := Rect.Right;
-      Rect.Right := Rect.Left + Canvas.TextWidth(S2);
-      Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2);
+      Rect.Right := Rect.Left + Canvas.TextWidth(Postfix);
+      Canvas.TextRect(Rect, Rect.Left, Rect.Top, Postfix);
     end;
   end else
     Canvas.TextOut(Rect.Left, Rect.Top, S)
@@ -6800,11 +6959,7 @@ begin
   { Also see AnyMemoHasBreakPoint }
   for var Memo in FFileMemos do begin
     if Memo.Used and (Memo.BreakPoints.Count > 0) then begin
-      for var I := Memo.BreakPoints.Count-1 downto 0 do begin
-        var Line := Memo.BreakPoints[I];
-        Memo.BreakPoints.Delete(I);
-        UpdateLineMarkers(Memo, Line);
-      end;
+      ClearBreakPoints(Memo, True);
       BuildAndSaveBreakPointLines(Memo);
     end;
   end;

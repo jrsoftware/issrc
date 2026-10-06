@@ -118,6 +118,7 @@ type
     UsedUserAreas: TStringList;
 
     PreprocIncludedFilenames: TStringList;
+    PreprocIncludedFilesLastWriteTimes: TList<TFileTime>;
     PreprocOutput: String;
 
     DefaultLangData: TLangData;
@@ -319,6 +320,7 @@ type
     function GetOutputBaseFileName: String;
     function GetOutputDir: String;
     function GetPreprocIncludedFilenames: TStringList;
+    function GetPreprocIncludedFilesLastWriteTimes: TList<TFileTime>;
     function GetPreprocOutput: String;
     function GetSlicesPerDisk: Longint;
     procedure SetBytesCompressedSoFar(const Value: Int64);
@@ -448,6 +450,7 @@ begin
   UsedUserAreas.Sorted := True;
   UsedUserAreas.Duplicates := dupIgnore;
   PreprocIncludedFilenames := TStringList.Create;
+  PreprocIncludedFilesLastWriteTimes := TList<TFileTime>.Create;
   DefaultLangData := TLangData.Create;
   PreLangDataList := TList.Create;
   LangDataList := TList.Create;
@@ -482,6 +485,7 @@ begin
   LangDataList.Free;
   PreLangDataList.Free;
   DefaultLangData.Free;
+  PreprocIncludedFilesLastWriteTimes.Free;
   PreprocIncludedFilenames.Free;
   UsedUserAreas.Free;
   ExpectedCustomMessageNames.Free;
@@ -784,6 +788,11 @@ begin
   Result := PreprocIncludedFilenames;
 end;
 
+function TSetupCompiler.GetPreprocIncludedFilesLastWriteTimes: TList<TFileTime>;
+begin
+  Result := PreprocIncludedFilesLastWriteTimes;
+end;
+
 function TSetupCompiler.GetPreprocOutput: String;
 begin
   Result := PreprocOutput;
@@ -970,8 +979,13 @@ begin
   try
     if FromPreProcessor then begin
       Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
-      if Data.MainScript then
+      if Data.MainScript then begin
         Data.Compiler.PreprocIncludedFilenames.Add(Filename);
+        var LastWriteTime: TFileTime;
+        if not GetLastWriteTimeOfFile(Filename, @LastWriteTime) then
+          LastWriteTime := Default(TFileTime);
+        Data.Compiler.PreprocIncludedFilesLastWriteTimes.Add(LastWriteTime);
+      end;
     end;
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
@@ -3099,6 +3113,7 @@ begin
           SetupEncryptionHeader.EncryptionUse := euNone;
       end;
     ssEncryptionKeyDerivation: begin
+        Value := LowerCase(Value);
         if Value = 'pbkdf2' then
           SetupEncryptionHeader.KDFIterations := DefaultKDFIterations
         else if Copy(Value, 1, 7) = 'pbkdf2/' then begin
@@ -5151,9 +5166,6 @@ type
     UnsafeNonSysRegFiles: array[0..5] of String = (
       'COMCAT.DLL', 'MSVBVM50.DLL', 'MSVBVM60.DLL', 'OLEAUT32.DLL',
       'OLEPRO32.DLL', 'STDOLE2.TLB');
-  var
-    SourceFileDir, SysWow64Dir: String;
-    I: Integer;
   begin
     if AllowUnsafeFiles then
       Exit;
@@ -5162,11 +5174,15 @@ type
       { Any DLL deployed from system's own System directory }
       if not ExternalFile and
          SameText(PathExtractExt(Filename), '.DLL') then begin
-        SourceFileDir := PathExpand(PathExtractDir(SourceFile));
-        SysWow64Dir := GetSysWow64Dir;
-        if (PathCompare(SourceFileDir, GetSystemDir) = 0) or
-           ((SysWow64Dir <> '') and ((PathCompare(SourceFileDir, SysWow64Dir) = 0))) then
-        AbortCompile(SCompilerFilesSystemDirUsed);
+        { SourceFile is a super path but the System directories are not. So
+          using PathConvertSuperToNormal because PathSame does not consider
+          a super path and its normal form to be the same. This use of
+          PathConvertSuperToNormal does not introduce a limitation. }
+        const SourceFileDir = PathExtractDir(PathConvertSuperToNormal(SourceFile));
+        const SysWow64Dir = GetSysWow64Dir;
+        if PathSame(SourceFileDir, GetSystemDir) or
+           ((SysWow64Dir <> '') and PathSame(SourceFileDir, SysWow64Dir)) then
+          AbortCompile(SCompilerFilesSystemDirUsed);
       end;
       { CTL3D32.DLL }
       if not ExternalFile and
@@ -5175,14 +5191,14 @@ type
          FileSizeAndCRCIs(SourceFile, 27136, $28A66C20) then
         AbortCompileFmt(SCompilerFilesUnsafeFile, ['CTL3D32.DLL, Windows NT-specific version']);
       { Remaining files }
-      for I := Low(UnsafeSysFiles) to High(UnsafeSysFiles) do
+      for var I := Low(UnsafeSysFiles) to High(UnsafeSysFiles) do
         if CompareText(Filename, UnsafeSysFiles[I]) = 0 then
           AbortCompileFmt(SCompilerFilesUnsafeFile, [UnsafeSysFiles[I]]);
     end
     else begin
       { Files that MUST be deployed to the user's System directory }
       if IsRegistered then
-        for I := Low(UnsafeNonSysRegFiles) to High(UnsafeNonSysRegFiles) do
+        for var I := Low(UnsafeNonSysRegFiles) to High(UnsafeNonSysRegFiles) do
           if CompareText(Filename, UnsafeNonSysRegFiles[I]) = 0 then
             AbortCompileFmt(SCompilerFilesSystemDirNotUsed, [UnsafeNonSysRegFiles[I]]);
     end;
@@ -7140,18 +7156,14 @@ procedure TSetupCompiler.Compile;
     Inno Setup license agreement; see LICENSE.TXT. }
 
   procedure InitDebugInfo;
-  var
-    Header: TDebugInfoHeader;
   begin
     DebugEntryCount := 0;
     VariableDebugEntryCount := 0;
     DebugInfo.Clear;
     CodeDebugInfo.Clear;
+    var Header := Default(TDebugInfoHeader);
     Header.ID := DebugInfoHeaderID;
     Header.Version := DebugInfoHeaderVersion;
-    Header.DebugEntryCount := 0;
-    Header.CompiledCodeTextLength := 0;
-    Header.CompiledCodeDebugInfoLength := 0;
     DebugInfo.WriteBuffer(Header, SizeOf(Header));
   end;
 
@@ -7725,7 +7737,12 @@ var
 
           if (FLExtraInfo.Sign = fsYes) or ((FLExtraInfo.Sign = fsOnce) and not SignatureFound) then begin
             AddStatus(Format(SCompilerStatusSigningSourceFile, [FileLocationEntryFilename]));
-            Sign(FileLocationEntryFilename);
+            { Sign Tools might not support super paths }
+            var NormalFilename: String;
+            if PathConvertSuperToNormal(FileLocationEntryFilename, NormalFilename) then
+              Sign(NormalFilename)
+            else
+              Sign(FileLocationEntryFilename);
             CallIdleProc;
           end else if FLExtraInfo.Sign = fsOnce then
             AddStatus(Format(SCompilerStatusSourceFileAlreadySigned, [FileLocationEntryFilename]))
@@ -8277,6 +8294,7 @@ begin
     FillChar(SetupHeader, SizeOf(SetupHeader), 0);
     InitDebugInfo;
     PreprocIncludedFilenames.Clear;
+    PreprocIncludedFilesLastWriteTimes.Clear;
 
     { Initialize defaults }
     OriginalSourceDir := AddBackslash(PathExpand(SourceDir));

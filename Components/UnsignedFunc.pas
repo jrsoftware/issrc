@@ -100,9 +100,15 @@ begin
   Result := True;
   if P1 <> P2 then begin
     while Length > 0 do begin
+      {$IF RtlVersion >= 36.0}
       var SignedLength := High(NativeInt);
       if Length < NativeUInt(SignedLength) then
         SignedLength := NativeInt(Length);
+      {$ELSE}
+      var SignedLength := High(Integer);
+      if Length < Cardinal(SignedLength) then
+        SignedLength := Integer(Length);
+      {$ENDIF}
       if not CompareMem(P1, P2, SignedLength) then
         Exit(False);
       Dec(Length, SignedLength);

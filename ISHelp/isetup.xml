@@ -109,7 +109,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 7.1.0</b><br/>
+<b>Inno Setup version 7.1.1-dev</b><br/>
 <b>Copyright &copy; 1997-2026 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2026 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -1877,7 +1877,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="download">
 <p>This flag instructs Setup not to copy an existing file, but instead to download it. Optionally use the <tt>DownloadUserName</tt> and <tt>DownloadPassword</tt> parameters to specify a basic authentication username and password.</p>
-<p>This flag must be combined with the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters. When <tt>download</tt> is combined with <tt>extractarchive</tt>, the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</p>
+<p>This flag must be combined with the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters. When <tt>download</tt> is combined with <tt>extractarchive</tt>, Setup first downloads the archive to a temporary directory, and the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</p>
 <p>This flag also must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag cannot be combined with the <tt>comparetimestamp</tt> and <tt>skipifsourcedoesntexist</tt> flags.</p>
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
@@ -1887,7 +1887,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>When combined with the <tt>download</tt> or <tt>extractarchive</tt> flags, Setup does not copy the file, but instead downloads or extracts it.</p>
 </flag>
 <flag name="extractarchive">
-<p>This flag instructs Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
+<p>This flag instructs Setup not to copy an existing archive file, but instead to extract it to the directory specified by the <tt>DestDir</tt> parameter. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
 <p>The supported archive formats, beyond <tt>.7z</tt>, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive, that must not be set to <tt>basic</tt>.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
@@ -1921,8 +1921,10 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="isreadme">
-<p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will be asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like <tt>.txt</tt> or <tt>.doc</tt>.</p>
+<p>File is the "README" file. When a file has this flag, Setup will show a checkbox on the <i>Setup Completed</i> wizard page, asking the user if they would like to view the README file. If it's checked, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like <tt>.txt</tt> or <tt>.doc</tt>.</p>
 <p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <sn>[Setup]</sn> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
+<p>This flag is ignored if Setup is running silently.</p>
+<p>The compiler implements this flag using a generated <sn>[Run]</sn> entry. See the <sn>[Run]</sn> section flag <tt><link topic="runsection" anchor="postinstall">postinstall</link></tt> for details.</p>
 </flag>
 <flag name="nocompression">
 <p>Prevents the compiler from attempting to compress the file. Use this flag on file types that you know can't benefit from compression (for example, JPEG images) to speed up the compilation process and save a few bytes in the resulting installation.</p>
@@ -2904,7 +2906,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <flag name="postinstall">
 <p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to create a checkbox on the <i>Setup Completed</i> wizard page. The user can uncheck or check this checkbox and thereby choose whether this entry should be processed or not. Previously this flag was called <tt>showcheckbox</tt>.</p>
 <p>If Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <sn>[Setup]</sn> section directive is <tt>yes</tt>), there will not be an opportunity for the checkbox to be displayed and therefore the entry will never be processed.</p>
-<p>The <tt>isreadme</tt> flag for entries in the <sn>[Files]</sn> section is now obsolete. If the compiler detects an entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the <sn>[Files]</sn> entry and inserts a generated <tt>[Run]</tt> entry at the head of the list of <tt>[Run]</tt> entries. This generated <tt>[Run]</tt> entry runs the README file and has flags <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, <tt>postinstall</tt>, and <tt>skipifsilent</tt>.</p>
+<p>The <tt><link topic="filessection" anchor="isreadme">isreadme</link></tt> flag for entries in the <sn>[Files]</sn> section is implemented using this flag. If the compiler detects an entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the <sn>[Files]</sn> entry and inserts a generated <tt>[Run]</tt> entry at the head of the list of <tt>[Run]</tt> entries. This generated <tt>[Run]</tt> entry runs the README file and has flags <tt>postinstall</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, and <tt>skipifsilent</tt>.</p>
 </flag>
 <flag name="runascurrentuser">
 <p>If this flag is specified, the spawned process will inherit Setup/Uninstall's user credentials (typically, full administrative privileges).</p>
@@ -2936,10 +2938,10 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <p>When this flag is used, <tt>Filename</tt> must be an absolute path.</p>
 </flag>
 <flag name="skipifnotsilent">
-<p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to skip this entry if Setup is not running (very) silent.</p>
+<p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to skip this entry if Setup is not running silently.</p>
 </flag>
 <flag name="skipifsilent">
-<p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to skip this entry if Setup is running (very) silent.</p>
+<p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to skip this entry if Setup is running silently.</p>
 </flag>
 <flag name="unchecked">
 <p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to initially uncheck the checkbox. The user can still check the checkbox if they wish to process the entry. This flag is ignored if the <tt>postinstall</tt> flag isn't also specified.</p>
@@ -5528,7 +5530,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>Dictionary sizes larger than 1 GB are only supported by <link topic="setup_setuparchitecture">64-bit Setup</link>.</p>
 <p>The compression memory requirements are approximately 60% of the above when <sd>LZMAMatchFinder</sd> is set to <tt>HC</tt> at the expense of compression ratio.</p>
 </indent>
-<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <sd>LZMANumBlockThreads</sd>). If a compression level isn't specified, it defaults to <tt>max</tt>. Like LZMA, LZMA2 can consume a <i>lot</i> of memory; see the above table. Do note: LZMA2 only supports a limited number of dictionary sizes and other sizes will be rounded up to the next supported size. Supported sizes are powers of two starting at 4 (4, 8, 16, 32, etc.) and the midway points between them (6, 12, 24, etc.). For instance, a dictionary size of 524289 (512 MB + 1 byte) has the same memory requirements as one of 786432 (768 MB).</p>
+<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <sd>LZMANumBlockThreads</sd>). If a compression level isn't specified, it defaults to <tt>max</tt>. Like LZMA, LZMA2 can consume a <i>lot</i> of memory; see the above table. Do note: LZMA2 only supports a limited number of dictionary sizes and other sizes will be rounded up to the next supported size. Supported sizes are powers of two starting at 4 (4, 8, 16, 32, etc.) and the midway points between them (6, 12, 24, etc.). For instance, a dictionary size of 524289 (512 MB + 1 KB) has the same memory requirements as one of 786432 (768 MB).</p>
 <p><tt>none</tt> specifies that no compression be used.</p>
 <p><b>See also:</b><br/>
 <sd>SolidCompression</sd><br/>
@@ -5567,6 +5569,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <body>
 <p>If <tt>yes</tt>, solid compression will be enabled. This causes all files to be compressed at once instead of separately. This can result in a much greater overall compression ratio if your installation contains many files with common content, such as text files, especially if such common content files are grouped together within the <sn>[Files]</sn> section.</p>
 <p>The disadvantage to using solid compression is that because all files are compressed into a single compressed stream, Setup can no longer randomly access the files. This can decrease performance. If a certain file isn't going to be extracted on the user's system, it has to decompress the data for that file anyway (into memory) before it can decompress the next file. And if, for example, there was an error while extracting a particular file and the user clicks Retry, it can't just seek to the beginning of that file's compressed data; since all files are stored in one stream, it has seek to the very beginning. If disk spanning was enabled, the user would have to re-insert disk 1.</p>
+<p>To reduce this disadvantage, you can use the <sn>[Files]</sn> section flag <tt><link topic="filessection" anchor="solidbreak">solidbreak</link></tt> to start a new compression stream at specific files.</p>
 </body>
 </setuptopic>
 
@@ -5901,6 +5904,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>Normally two file entries referring to the same source file will be compressed and stored only once. If you have a bunch of identical files in your installation, make them point to the same source file in the script, and the size of your installation can drop significantly. If you wish to disable this feature for some reason, set this directive to <tt>no</tt>.</p>
+<p>The compiler normalizes the pathnames of the source files before comparing them. For example, <tt>Readme.txt</tt> and <tt>.\Readme.txt</tt> refer to the same source file.</p>
 </body>
 </setuptopic>
 
@@ -6010,7 +6014,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setuptopic directive="InfoAfterFile">
 <body>
 <p>Specifies the name of an optional "readme" file, in <tt>.txt</tt> or <tt>.rtf</tt> (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
-<p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
+<p>This differs from <tt><link topic="filessection" anchor="isreadme">isreadme</link></tt> files in that this text is displayed as a page of the wizard, instead of being opened in a separate program.</p>
 <p>If the user selects a language for which the <tt>InfoAfterFile</tt> parameter is set, this directive is effectively ignored. See the <sn>[Languages]</sn> section documentation for more information.</p>
 <p>If a Unicode <tt>.txt</tt> file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a <tt>.rtf</tt> file with custom colors, see <sd>LicenseFile</sd> for special considerations.</p>
@@ -7071,7 +7075,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <setupdefault><tt>yes</tt> if a <sd>SignTool</sd> is set, <tt>no</tt> otherwise</setupdefault>
 <body>
 <p>Specifies whether the uninstaller program (<tt>unins???.exe</tt>) should be deployed with a digital signature attached. When the uninstaller has a valid digital signature, users will not see an "unknown publisher" warning when launching it.</p>
-<p>When set to <tt>yes</tt>, any temporary self-copies used by Setup are digitally signed too.</p>
+<p>When set to <tt>yes</tt>, any temporary self-copies used by Setup are digitally signed too. When set to <tt>no</tt>, they are not, and security software can block them from running. See <sd>SignTool</sd> for more information.</p>
 <p>If the <sd>SignTool</sd> directive is set, the file will be signed automatically on the fly. Otherwise:</p>
 <ul>
   <li>The first time you compile a script with <tt>SignedUninstaller</tt> set to <tt>yes</tt>, a uniquely-named non-temporary copy of the uninstaller EXE file will be created in the directory specified by the <sd>SignedUninstallerDir</sd> directive (which defaults to the <link topic="setup_outputdir">output directory</link>).</li>
@@ -7104,11 +7108,12 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>Specifies the name and parameters of the Sign Tool to be used to digitally sign:</p>
 <ul appearance="compact">
 <li>Setup</li>
-<li>Uninstall if <sd>SignedUninstaller</sd> is set to <tt>yes</tt></li>
+<li>Uninstall and any temporary self-copies used by Setup, unless <sd>SignedUninstaller</sd> is set to <tt>no</tt></li>
 <li>Original source files if the <sn>[Files]</sn> section's <tt>sign</tt> or <tt>signonce</tt> flag is used</li>
 </ul>
 <p>When Setup has a valid digital signature, users will not see an "unidentified program" warning when launching it.</p>
-<p>The specified Sign Tool name and its command have to be defined in the Compiler IDE (via the <i>Tools | Configure Sign Tools...</i> menu) or on the <link topic="compilercmdline">compiler command line</link> (via the <tt>--signtool</tt> or <tt>-s</tt> option), else an error will occur.</p>
+<p><i>Note:</i> When Setup is started, it may use temporary self-copies. If you digitally sign Setup yourself after compilation, instead of using a Sign Tool, these copies are <b>not</b> signed by default. Security software can then block them from running, making Setup fail to start. One example is Microsoft Defender's Attack Surface Reduction (ASR) rule <extlink href="https://learn.microsoft.com/en-us/defender-endpoint/attack-surface-reduction-rules-reference#block-executable-files-from-running-unless-they-meet-a-prevalence-age-or-trusted-list-criterion">Block executable files from running unless they meet a prevalence, age, or trusted list criterion</extlink>. If you can't use a Sign Tool, at least set <sd>SignedUninstaller</sd> to <tt>yes</tt>.</p>
+<p>The specified Sign Tool name and its command have to be defined in the Compiler IDE (via the <i>Tools | Configure Sign Tools...</i> menu) or on the <link topic="compilercmdline">compiler command line</link> (via the <tt>--signtool</tt> or <tt>-s</tt> option), else an error will occur. The name can't contain spaces or <tt>=</tt> characters.</p>
 <p>The following special sequences may be used in Sign Tool parameters and commands:</p>
 <p><tt>$f</tt>, replaced by the quoted file name of the file to be signed. (required)</p>
 <p><tt>$p</tt>, replaced by the Sign Tool parameters.</p>
@@ -7147,6 +7152,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 </examples>
 <p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <sd>DiskSliceSize</sd> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned <tt>.bin</tt> files undergo SHA-256 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-256 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
+<p>Alternatively, use the <sn>[Files]</sn> section flag <tt><link topic="filessection" anchor="download">download</link></tt> to download large files during installation instead of including them in Setup. Downloaded files don't undergo this verification. To verify them, also use the <tt><link topic="filessection" anchor="issigverify">issigverify</link></tt> flag or the <tt><link topic="filessection" anchor="Hash">Hash</link></tt> parameter.</p>
 <p><b>See also:</b><br/>
 <sd>SignToolMinimumTimeBetween</sd><br/>
 <sd>SignToolRetryCount</sd><br/>
@@ -7442,9 +7448,11 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <tr><td>10.0.22631</td><td>Windows 11 Version 23H2 (2023 Update)</td></tr>
 <tr><td>10.0.26100</td><td>Windows 11 Version 24H2 (2024 Update)<br/>or Windows Server 2025</td></tr>
 <tr><td>10.0.26200</td><td>Windows 11 Version 25H2 (2025 Update)</td></tr>
+<tr><td>10.0.26300</td><td>Windows 11 Version 26H2 (2026 Update)</td></tr>
 <tr><td>10.0.28000</td><td>Windows 11 Version 26H1</td></tr>
 </table>
 <p>Note that except for Windows 11 there is normally no need to specify the build numbers (i.e., you may simply use <tt>6.2</tt> for Windows 8).</p>
+<p>Windows 11 Version 26H1 has a higher build number than Version 26H2. Because of this, a <sd>MinVersion</sd> of <tt>10.0.26300</tt> also allows Version 26H1.</p>
 </body>
 </topic>
 

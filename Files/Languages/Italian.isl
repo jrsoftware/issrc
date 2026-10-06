@@ -258,7 +258,7 @@ InstallingLabel=Attendi il completamento dell'installazione di [name] nel comput
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Installazione di [name] completata
 FinishedLabelNoIcons=Installazione di [name] completata.
-FinishedLabel=Installazione di [name] completata.%n%nL'applicazione può essere eseguita selezionando le relative icone.
+FinishedLabel=Installazione di [name] completata.%n%nL'applicazione può essere eseguita selezionando i collegamenti installati.
 ClickFinish=Per uscire dall'installazione seleziona "Fine".
 FinishedRestartLabel=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare il sistema?
 FinishedRestartMessage=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare il sistema?
@@ -292,7 +292,7 @@ StatusClosingApplications=Chiusura applicazioni...
 StatusCreateDirs=Creazione cartelle...
 StatusExtractFiles=Estrazione file...
 StatusDownloadFiles=Download file...
-StatusCreateIcons=Creazione icone...
+StatusCreateIcons=Creazione collegamenti...
 StatusCreateIniEntries=Creazione voci nei file INI...
 StatusCreateRegistryEntries=Creazione voci di registro...
 StatusRegisterFiles=Registrazione file...
@@ -402,9 +402,9 @@ ShutdownBlockReasonUninstallingApp=Disinstallazione di %1.
 [CustomMessages]
 
 NameAndVersion=%1 versione %2
-AdditionalIcons=Icone aggiuntive:
-CreateDesktopIcon=Crea un'icona sul &desktop
-CreateQuickLaunchIcon=Crea un'icona nella &barra 'Avvio veloce'
+AdditionalIcons=Collegamenti aggiuntivi:
+CreateDesktopIcon=Crea un collegamento sul &desktop
+CreateQuickLaunchIcon=Crea un collegamento nella &barra 'Avvio veloce'
 ProgramOnTheWeb=Sito web %1
 UninstallProgram=Disinstalla %1
 LaunchProgram=Esegui %1

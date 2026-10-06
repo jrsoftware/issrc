@@ -1441,7 +1441,9 @@ begin
               ConsumeAllRemaining;
               CommitStyle(stComment);
             end else if (C = '(') and ConsumeChar('*') then begin
-              if not FinishConsumingStarComment then begin
+              if ConsumeChar(')') then { The opener's '*' may close it, like the ROPS tokenizer }
+                CommitStyle(stComment)
+              else if not FinishConsumingStarComment then begin
                 SpanState := spStarComment;
                 Exit;
               end;
@@ -1600,12 +1602,12 @@ begin
     var S := ConsumeString(ISPPIdentChars);
     for var ISPPDirective in ISPPDirectives do
       if SameRawText(S, ISPPDirective.Name) then begin
-        if SameRawText(S, 'error') then
-          ErrorDirective := True
-        else if SameRawText(S, 'include') then
+        if SameRawText(S, 'include') then
           DoIncludeFileNotationCheck := True { See above }
-        else
+        else begin
           NeedIspp := True; { Built-in preprocessor only supports '#include' }
+          ErrorDirective := SameRawText(S, 'error');
+        end;
         ForDirectiveExpressionsNext := SameRawText(S, 'for'); { #for uses ';' as an expressions list separator so we need to remember that ';' doesn't start a comment until the list is done }
         Inc(OpenCount, ISPPDirective.OpenCountChange);
         if OpenCount < 0 then begin
@@ -1970,7 +1972,7 @@ begin
           var OpenCount: ShortInt := 0;
           HandleCompilerDirective(True, I - 1, OpenCount);
         finally
-          ResetCurIndexTo(0);
+          ResetCurIndexTo(1);
         end;
         if not Valid then
           ApplyPendingSquigglyFromToIndex(StartIndex, I - 1);

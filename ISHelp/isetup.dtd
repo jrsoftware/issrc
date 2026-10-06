@@ -14,6 +14,7 @@
 <!ENTITY ndash  "&#x2013;">
 <!ENTITY mdash  "&#x2014;">
 <!ENTITY rarr   "&#x2192;">
+<!ENTITY minus  "&#x2212;">
 <!ENTITY approx "&#x2248;">
 <!ENTITY le     "&#x2264;">
 <!ENTITY ge     "&#x2265;">

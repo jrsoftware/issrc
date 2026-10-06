@@ -31,8 +31,6 @@ function InitFormThemeIsDark: Boolean;
 function GetDisplayFilename(const Filename: String): String;
 function GetFileTitle(const Filename: String): String;
 function GetCleanFileNameOfFile(const Filename: String): String;
-function GetLastWriteTimeOfFile(const Filename: String;
-  LastWriteTime: PFileTime): Boolean;
 procedure AddFileToRecentDocs(const Filename: String);
 function GenerateGuid: String;
 function ISPPInstalled: Boolean;
@@ -85,7 +83,7 @@ procedure SaveWindowState(const Form: TForm;
 implementation
 
 uses
-  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
+  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, StrUtils,
   Messages,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
   IDE.MainForm, IDE.Messages;
@@ -197,26 +195,17 @@ end;
 
 function GetCleanFileNameOfFile(const Filename: String): String;
 begin
-  var Files := TDirectory.GetFiles(PathExtractDir(Filename), PathExtractName(Filename));
-  if Length(Files) = 1 then
-    Result := Files[0]
-  else
-    Result := Filename;
-end;
-
-function GetLastWriteTimeOfFile(const Filename: String;
-  LastWriteTime: PFileTime): Boolean;
-var
-  H: THandle;
-begin
-  H := CreateFile(PChar(Filename), 0, FILE_SHARE_READ or FILE_SHARE_WRITE,
-    nil, OPEN_EXISTING, 0, 0);
+  var FindData: TWin32FindData;
+  const H = FindFirstFile(PChar(Filename), FindData);
   if H <> INVALID_HANDLE_VALUE then begin
-    Result := GetFileTime(H, nil, nil, LastWriteTime);
-    CloseHandle(H);
-  end
-  else
-    Result := False;
+    Windows.FindClose(H);
+    { If the specified name is an 8.3 short name, FindFirstFile returns the
+      long name. Don't use that result. In other words, only use a result that
+      equals the specified name, ignoring case. }
+    if PathSame(FindData.cFileName, PathExtractName(Filename)) then
+      Exit(PathExtractPath(Filename) + FindData.cFileName);
+  end;
+  Result := Filename;
 end;
 
 procedure AddFileToRecentDocs(const Filename: String);
@@ -657,7 +646,7 @@ var
     finally
       ReleaseDC(0, DC);
     end;
-    Inc(Size.cx, 5);
+    Inc(Size.cx, MulDiv(5, ListBox.CurrentPPI, 96));
     if TimestampPrefixTab then
       Inc(Size.cx, PrefixParam);
     if Size.cx > SendMessage(ListBox.Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
