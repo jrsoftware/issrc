@@ -540,6 +540,9 @@ begin
 
   ComponentsDiskSpaceLabel.Caption := ExpandMBOrGBSetupMessage(
     msgComponentsDiskSpaceMBLabel, msgComponentsDiskSpaceGBLabel, CurrentComponentsSpace);
+  const HeightChange = AdjustLabelHeight(ComponentsDiskSpaceLabel);
+  ComponentsDiskSpaceLabel.Top := ComponentsDiskSpaceLabel.Top - HeightChange;
+  ComponentsList.Height := ComponentsList.Height - HeightChange;
 end;
 
 procedure TWizardForm.UpdateComponentSizesEnum(Index: Integer; HasChildren: Boolean; Ext: NativeInt);
@@ -944,9 +947,6 @@ begin
   I := AdjustLabelHeight(SelectComponentsLabel);
   TypesCombo.Top := TypesCombo.Top + I;
   IncTopDecHeight(ComponentsList, I);
-  ComponentsDiskSpaceLabel.Caption := ExpandMBOrGBSetupMessage(
-    msgComponentsDiskSpaceMBLabel, msgComponentsDiskSpaceGBLabel, MinimumSpace);
-  AdjustLabelHeight(ComponentsDiskSpaceLabel);
 
   if HasCustomType and (Entries[seType].Count = 1) then begin
     TypesCombo.Visible := False;
