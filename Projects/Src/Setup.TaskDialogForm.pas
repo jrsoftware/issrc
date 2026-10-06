@@ -167,7 +167,7 @@ end;
 procedure TTaskDialogForm.Finish(const DefCommonButton: Integer);
 begin
   if RightToLeft then begin
-    { FlipSizeAndCenterIfNeeded does not update Align or Padding }
+    { FlipAndCenterIfNeeded does not update Align or Padding }
     if LeftPanel.Visible then
       LeftPanel.Align := alRight;
     MainStackPanel.Padding.Right := MainStackPanel.Padding.Left;
