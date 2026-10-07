@@ -1170,6 +1170,8 @@
 #call CheckTrue(ComparePackedVersion(PackVersionComponents(1, 0, 0, 0), PackVersionComponents(40000, 0, 0, 0)) < 0)
 #call CheckTrue(SamePackedVersion(PackVersionComponents(1, 2, 3, 4), PackVersionComponents(1, 2, 3, 4)))
 #call CheckFalse(SamePackedVersion(PackVersionComponents(1, 0, 0, 0), PackVersionComponents(2, 0, 0, 0)))
+#call CheckEqualsString('', GetPackedVersion(__PATHFILENAME__, VersionPacked))
+#call CheckEqualsString('', GetVersionNumbers(__PATHFILENAME__, UnpackedMS, UnpackedLS))
 #undef VersionPacked
 #undef VersionMajor
 #undef VersionMinor

@@ -79,6 +79,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
   <li>Pascal Scripting and ISPP support function <tt>ComparePackedVersion</tt> returned the wrong result if one of the two versions had a major version of 32768 or higher (broken since 6.6.0).</li>
   <li>ISPP support function <tt>ReadReg</tt> returned a negative number for <tt>REG_DWORD</tt> values of 0x80000000 or higher, for example -1 instead of 4294967295 for 0xFFFFFFFF (broken since 6.1.0).</li>
+  <li>ISPP support functions <tt>GetPackedVersion</tt> and <tt>GetVersionNumbers</tt> failed with an error for files without version info, instead of returning an empty string as documented.</li>
   <li>Pascal Scripting:
   <ul>
     <li>When a COM object or a variant array was passed as an argument to a method of a <a href="https://jrsoftware.org/ishelp/index.php?topic=scriptautomation">COM Automation object</a>, such as in <tt>ParentNode.appendChild(ChildNode)</tt>, or assigned to a property of one, it was released one time too many. This could cause access violations, for example when using MSXML after installing a September 2026 Windows update with a new MSXML version, such as KB5124007 or KB5124008.</li>

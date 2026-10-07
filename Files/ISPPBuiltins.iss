@@ -190,13 +190,15 @@
 
 #define GetPackedVersion(str FileName, *Version) \
   Local[0] = GetVersionComponents(FileName, Local[1], Local[2], Local[3], Local[4]), \
-  Version = PackVersionComponents(Local[1], Local[2], Local[3], Local[4]), \
-  Local[0]
+  Local[0] == "" ? "" : ( \
+    Version = PackVersionComponents(Local[1], Local[2], Local[3], Local[4]), \
+  Local[0])
 
 #define GetVersionNumbers(str FileName, *VersionMS, *VersionLS) \
   Local[0] = GetPackedVersion(FileName, Local[1]), \
-  UnpackVersionNumbers(Local[1], VersionMS, VersionLS), \
-  Local[0]
+  Local[0] == "" ? "" : ( \
+    UnpackVersionNumbers(Local[1], VersionMS, VersionLS), \
+  Local[0])
 
 #define PackVersionNumbers(int VersionMS, int VersionLS) \
   VersionMS << 32 | (VersionLS & 0xFFFFFFFF)
