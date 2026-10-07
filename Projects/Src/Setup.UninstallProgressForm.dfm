@@ -132,6 +132,7 @@ object UninstallProgressForm: TUninstallProgressForm
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
           Caption = '*'
+          ShowAccelChar = False
           TabOrder = 0
         end
       end
@@ -145,6 +146,7 @@ object UninstallProgressForm: TUninstallProgressForm
     Anchors = [akLeft, akBottom]
     Caption = '*'
     Enabled = False
+    ShowAccelChar = False
     TabOrder = 1
     Transparent = False
     Visible = False

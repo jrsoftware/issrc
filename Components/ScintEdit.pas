@@ -84,6 +84,12 @@ type
   end;
   TScintRawCharSet = set of AnsiChar;
   TScintRawString = type RawByteString;
+  TScintRawStringHelper = record helper for TScintRawString
+    function IsBlank: Boolean;
+    function SameText(const S2: TScintRawString): Boolean;
+    function Trim: TScintRawString;
+    function TrimLeft: TScintRawString;
+  end;
   TScintRectangle = record
     Left, Top, Right, Bottom: Integer;
   end;
@@ -341,7 +347,6 @@ type
     procedure PasteFromClipboard;
     function RawMainSelTextEquals(const S: TScintRawString;
       const Options: TScintFindOptions): Boolean;
-    class function RawStringIsBlank(const S: TScintRawString): Boolean; static;
     procedure Redo;
     procedure RemoveAdditionalSelections;
     procedure ReplaceMainSelText(const S: String;
@@ -525,6 +530,7 @@ type
   private
     FCaretIndex: Integer;
     FCurIndex: Integer;
+    FFirstLine: Integer;
     FLineState: TScintLineState;
     FStyleStartIndex: Integer;
     FStyleStr: AnsiString;
@@ -560,6 +566,7 @@ type
     property CurChar: AnsiChar read GetCurChar;
     property CurIndex: Integer read FCurIndex;
     property EndOfLine: Boolean read GetEndOfLine;
+    property FirstLine: Integer read FFirstLine;
     property LineState: TScintLineState read FLineState write FLineState;
     property StyleStartIndex: Integer read FStyleStartIndex;
     property Text: TScintRawString read FText;
@@ -1731,14 +1738,6 @@ begin
   end;
 end;
 
-class function TScintEdit.RawStringIsBlank(const S: TScintRawString): Boolean;
-begin
-  for var I := 1 to Length(S) do
-    if not(S[I] in [#9, ' ']) then
-      Exit(False);
-  Result := True;
-end;
-
 procedure TScintEdit.Redo;
 begin
   Call(SCI_REDO, 0, 0);
@@ -2345,6 +2344,7 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       insert and remove a ';' character before a [Setup] directive, i.e.
       toggle comment styling.) }
 
+    FStyler.FFirstLine := FirstLine;
     FStyler.FCaretIndex := CalcCaretIndex(FirstLine, LastLine);
     FStyler.FCurIndex := 1;
     FStyler.FStyleStartIndex := 1;
@@ -3260,6 +3260,57 @@ end;
 function TScintCaretAndAnchorList.Count: Integer;
 begin
   Result := Integer(inherited Count);
+end;
+
+{ TScintRawStringHelper }
+
+function TScintRawStringHelper.IsBlank: Boolean;
+begin
+  for var I := 1 to Length(Self) do
+    if not(Self[I] in [#9, ' ']) then
+      Exit(False);
+  Result := True;
+end;
+
+function TScintRawStringHelper.SameText(const S2: TScintRawString): Boolean;
+var
+  Len, I: Integer;
+  C1, C2: AnsiChar;
+begin
+  Len := Length(Self);
+  if Length(S2) <> Len then begin
+    Result := False;
+    Exit;
+  end;
+  for I := 1 to Len do begin
+    C1 := Self[I];
+    C2 := S2[I];
+    if C1 in ['A'..'Z'] then
+      Inc(C1, 32);
+    if C2 in ['A'..'Z'] then
+      Inc(C2, 32);
+    if C1 <> C2 then begin
+      Result := False;
+      Exit;
+    end;
+  end;
+  Result := True;
+end;
+
+function TScintRawStringHelper.Trim: TScintRawString;
+begin
+  var I := Length(Self);
+  while (I > 0) and (Self[I] <= ' ') do
+    Dec(I);
+  Result := Copy(Self, 1, I).TrimLeft;
+end;
+
+function TScintRawStringHelper.TrimLeft: TScintRawString;
+begin
+  var I := 1;
+  while (I <= Length(Self)) and (Self[I] <= ' ') do
+    Inc(I);
+  Result := Copy(Self, I, MaxInt);
 end;
 
 end.

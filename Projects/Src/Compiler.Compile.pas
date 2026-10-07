@@ -77,6 +77,7 @@ function ISCompileScript(const Params: TCompileScriptParamsEx;
     Data.PreprocessedScript := PChar(SetupCompiler.GetPreprocOutput);
     S := EncodeIncludedFilenames(SetupCompiler.GetPreprocIncludedFilenames);
     Data.IncludedFilenames := PChar(S);
+    Data.IncludedFilesLastWriteTimes := Pointer(SetupCompiler.GetPreprocIncludedFilesLastWriteTimes.List);
     Params.CallbackProc(iscbNotifyPreproc, Data, Params.AppData);
   end;
 

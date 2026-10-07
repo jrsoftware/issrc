@@ -69,6 +69,8 @@ type
     CompilerFileIndex: Integer;
     LastWriteTimeWhenAdded: TFileTime;
     HasLastWriteTimeWhenAdded: Boolean;
+    LastWriteTimeWhenCompiled: TFileTime;
+    HasLastWriteTimeWhenCompiled: Boolean;
     Memo: TIDEScintFileEdit; { nil if the amount of #include files (visible or hidden) is more than MaxMemos allows }
   end;
 
@@ -527,6 +529,7 @@ type
     FCompileWantAbort: Boolean;
     FBecameIdle: Boolean;
     FModifiedAnySinceLastCompile, FModifiedAnySinceLastCompileAndGo: Boolean;
+    FCompilePreprocMemosUpdatePending: Boolean;
     FDebugEntries: PDebugEntryArray;
     FDebugEntriesCount: Integer;
     FVariableDebugEntries: PVariableDebugEntryArray;
@@ -2239,7 +2242,7 @@ begin
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
       end;
-      GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
+      AMemo.HasFileLastWriteTime := GetFileTime(Stream.Handle, nil, nil, @AMemo.FileLastWriteTime);
       AMemo.SaveEncoding := GetStreamSaveEncoding(Stream);
       Stream.Seek(0, soFromBeginning);
       const TextStr = LoadFromStream(Stream, GetEncoding(AMemo.SaveEncoding));
@@ -2347,7 +2350,7 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
     if not RenameFile(TempFN, FN) then
       raise Exception.Create(LFmtMessage(SCompilerSaveErrorRenameTemp,
         [GetLastError]));
-    GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
+    AMemo.HasFileLastWriteTime := GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
   end;
 
 begin
@@ -2489,8 +2492,9 @@ type
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
   AppData: NativeInt): Integer; stdcall;
 
-  procedure DecodeIncludedFilenames(P: PChar; const IncludedFiles: TIncludedFiles;
-    const AutoHideNew: Boolean; const HiddenFiles: TStringList);
+  procedure DecodeIncludedFilenames(P: PChar; LastWriteTime: PFileTime;
+    const IncludedFiles: TIncludedFiles; const AutoHideNew: Boolean;
+    const HiddenFiles: TStringList);
   begin
     if P <> nil then begin
       var PrevIncludedFiles: TStringList := nil;
@@ -2513,6 +2517,14 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
             IncludedFile.CompilerFileIndex := I;
             IncludedFile.HasLastWriteTimeWhenAdded := GetLastWriteTimeOfFile(IncludedFile.Filename,
               @IncludedFile.LastWriteTimeWhenAdded);
+            if (LastWriteTime <> nil) and ((LastWriteTime.dwLowDateTime <> 0) or
+               (LastWriteTime.dwHighDateTime <> 0)) then begin
+              IncludedFile.LastWriteTimeWhenCompiled := LastWriteTime^;
+              IncludedFile.HasLastWriteTimeWhenCompiled := True;
+            end else begin
+              IncludedFile.LastWriteTimeWhenCompiled := IncludedFile.LastWriteTimeWhenAdded;
+              IncludedFile.HasLastWriteTimeWhenCompiled := IncludedFile.HasLastWriteTimeWhenAdded;
+            end;
             IncludedFiles.Add(IncludedFile);
 
             if AutoHideNew and (PrevIncludedFiles.IndexOf(IncludedFile.Filename) = -1) then begin
@@ -2523,6 +2535,8 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
           end;
 
           Inc(P, StrLen(P) + 1);
+          if LastWriteTime <> nil then
+            Inc(LastWriteTime);
           Inc(I);
         end;
       finally
@@ -2602,9 +2616,13 @@ begin
       iscbNotifyPreproc:
         begin
           Form.FPreprocessorOutput := TrimRight(Data.PreprocessedScript);
-          { Also stores last write time }
-          DecodeIncludedFilenames(Data.IncludedFilenames, Form.FIncludedFiles,
-            Form.FOptions.AutoHideNewIncludedFiles, Form.FHiddenFiles);
+          var LastWriteTimes: PFileTime;
+          if Form.FCompilerVersion.BinVersion >= $7010100 then
+            LastWriteTimes := Data.IncludedFilesLastWriteTimes
+          else
+            LastWriteTimes := nil;
+          DecodeIncludedFilenames(Data.IncludedFilenames, LastWriteTimes,
+            Form.FIncludedFiles, Form.FOptions.AutoHideNewIncludedFiles, Form.FHiddenFiles);
           IncludedFilesJustAdded := True;
           CleanHiddenFiles(Form.FIncludedFiles, Form.FHiddenFiles);
           Form.InvalidateStatusPanel(spHiddenFilesCount);
@@ -2654,6 +2672,17 @@ procedure TMainForm.CompileFile(AFilename: String; const ReadFromFile: Boolean);
       end;
       Result := nil;
     end;
+  end;
+
+  { Call after UpdatePreprocMemos }
+  function IncludedFileMemoDiffersFromCompiledFile: Boolean;
+  begin
+    for var IncludedFile in FIncludedFiles do
+      if (IncludedFile.Memo <> nil) and IncludedFile.HasLastWriteTimeWhenCompiled and
+         (not IncludedFile.Memo.HasFileLastWriteTime or
+          (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTimeWhenCompiled) <> 0)) then
+        Exit(True);
+    Result := False;
   end;
 
 var
@@ -2715,7 +2744,7 @@ begin
   OldActiveMemo := FActiveMemo;
   AppData := Default(TAppData);
   AppData.Lines := TStringList.Create;
-  var PreprocMemosUpdated := False;
+  FCompilePreprocMemosUpdatePending := True;
   try
     FBuildAnimationFrame := 0;
     FProgress := 0;
@@ -2792,7 +2821,7 @@ begin
       if not ReadFromFile and (AppData.ErrorLine > 0) then begin
         { The included files may have changed, so first reassign the memos }
         UpdatePreprocMemos(False, AppData.IncludedFilesJustAdded);
-        PreprocMemosUpdated := True;
+        FCompilePreprocMemosUpdatePending := False;
         Memo := GetMemoFromErrorFilename(AppData.ErrorFilename);
         if Memo <> nil then begin
           { Move the caret to the line number the error occurred on }
@@ -2833,8 +2862,10 @@ begin
     FInspector.UpdateReadOnly;
     UpdateRunMenuItems;
     UpdateCaption;
-    if not PreprocMemosUpdated then
+    if FCompilePreprocMemosUpdatePending then begin
+      FCompilePreprocMemosUpdatePending := False;
       UpdatePreprocMemos(False, AppData.IncludedFilesJustAdded);
+    end;
     if AppData.DebugInfo <> nil then begin
       try
         ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
@@ -2848,7 +2879,7 @@ begin
     StatusBar.Panels[spExtraStatus].Text := '';
   end;
   FCompiledExe := AppData.OutputExe;
-  FModifiedAnySinceLastCompile := False;
+  FModifiedAnySinceLastCompile := IncludedFileMemoDiffersFromCompiledFile;
   FModifiedAnySinceLastCompileAndGo := False;
 end;
 
@@ -4251,7 +4282,7 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     const TextToFind: TScintRawString; const Options: TScintFindOptions;
     const Selections, IndicatorRanges: TScintRangeList);
   begin
-    if TScintEdit.RawStringIsBlank(TextToFind) then
+    if TextToFind.IsBlank then
       Exit;
 
     var StartPos := 0;
@@ -5134,7 +5165,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, Include
             PathSame(IncludedFile.Memo.Filename, IncludedFile.Filename);
           if not MemoHasFile or
              (IncludedFilesJustAdded and
-              (not IncludedFile.HasLastWriteTimeWhenAdded or
+              (not IncludedFile.HasLastWriteTimeWhenAdded or not IncludedFile.Memo.HasFileLastWriteTime or
                (CompareFileTime(IncludedFile.Memo.FileLastWriteTime, IncludedFile.LastWriteTimeWhenAdded) <> 0))) then begin
             IncludedFile.Memo.Filename := IncludedFile.Filename;
             IncludedFile.Memo.CompilerFileIndex := IncludedFile.CompilerFileIndex;
@@ -5552,7 +5583,7 @@ procedure TMainForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
   function LineIsBlank(const Line: Integer): Boolean;
   begin
     var S := FActiveMemo.Lines.RawLines[Line];
-    Result := TScintEdit.RawStringIsBlank(S);
+    Result := S.IsBlank;
   end;
 
 begin
@@ -6632,9 +6663,9 @@ procedure TMainForm.CompileIfNecessary;
   begin
     Result := False;
     for IncludedFile in FIncludedFiles do begin
-      if (IncludedFile.Memo = nil) and IncludedFile.HasLastWriteTimeWhenAdded and
+      if (IncludedFile.Memo = nil) and IncludedFile.HasLastWriteTimeWhenCompiled and
          GetLastWriteTimeOfFile(IncludedFile.Filename, @NewTime) and
-         (CompareFileTime(IncludedFile.LastWriteTimeWhenAdded, NewTime) <> 0) then begin
+         (CompareFileTime(IncludedFile.LastWriteTimeWhenCompiled, NewTime) <> 0) then begin
         Result := True;
         Exit;
       end;
@@ -7324,8 +7355,14 @@ const
     var Changed := False;
     var NewTime: TFileTime;
     if GetLastWriteTimeOfFile(Memo.Filename, @NewTime) then begin
-      if CompareFileTime(Memo.FileLastWriteTime, NewTime) <> 0 then begin
+      if not Memo.HasFileLastWriteTime or (CompareFileTime(Memo.FileLastWriteTime, NewTime) <> 0) then begin
+        if FCompilePreprocMemosUpdatePending and (Memo <> FMainMemo) then begin
+          Memo.HasFileLastWriteTime := False; { Triggers UpdatePreprocMemos to reload afterwards }
+          FModifiedAnySinceLastCompile := True;
+          Exit;
+        end;
         Memo.FileLastWriteTime := NewTime;
+        Memo.HasFileLastWriteTime := True;
         Changed := True;
       end;
     end;

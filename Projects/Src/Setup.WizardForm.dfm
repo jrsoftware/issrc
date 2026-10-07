@@ -398,6 +398,7 @@ object WizardForm: TWizardForm
             Caption = '*'
             ShowAccelChar = False
             TabOrder = 3
+            WordWrap = True
           end
           object FComponentsList: TNewCheckListBox
             Left = 0

@@ -377,7 +377,7 @@ begin
   ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and not FActiveMemo.SelEmpty;
   ECopy.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
   EPaste.Enabled := MemoHasFocus and FActiveMemo.CanPaste;
-  EDelete.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
+  EDelete.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty; { Also when read-only: deselects, like the Delete key }
   ESelectAll.Enabled := MemoHasFocus;
   ESelectNextOccurrence.Enabled := MemoHasFocus;
   ESelectAllOccurrences.Enabled := MemoHasFocus;

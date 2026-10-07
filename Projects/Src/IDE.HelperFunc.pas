@@ -35,8 +35,6 @@ function InitFormThemeIsDark: Boolean;
 function GetDisplayFilename(const Filename: String): String;
 function GetFileTitle(const Filename: String): String;
 function GetCleanFileNameOfFile(const Filename: String): String;
-function GetLastWriteTimeOfFile(const Filename: String;
-  LastWriteTime: PFileTime): Boolean;
 procedure AddFileToRecentDocs(const Filename: String);
 function GenerateGuid: String;
 function ISPPInstalled: Boolean;
@@ -221,21 +219,6 @@ begin
       Exit(PathExtractPath(Filename) + FindData.cFileName);
   end;
   Result := Filename;
-end;
-
-function GetLastWriteTimeOfFile(const Filename: String;
-  LastWriteTime: PFileTime): Boolean;
-var
-  H: THandle;
-begin
-  H := CreateFile(PChar(Filename), 0, FILE_SHARE_READ or FILE_SHARE_WRITE,
-    nil, OPEN_EXISTING, 0, 0);
-  if H <> INVALID_HANDLE_VALUE then begin
-    Result := GetFileTime(H, nil, nil, LastWriteTime);
-    CloseHandle(H);
-  end
-  else
-    Result := False;
 end;
 
 procedure AddFileToRecentDocs(const Filename: String);

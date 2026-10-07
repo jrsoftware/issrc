@@ -265,7 +265,7 @@ begin
         if OpenKey(Get(1).AsStr, False) and ((Name = '') or ValueExists(Name)) then
           case GetDataType(Name) of
             rdString, rdExpandString: MakeStr(ResPtr^, ReadString(Name));
-            rdInteger: MakeInt(ResPtr^, ReadInteger(Name));
+            rdInteger: MakeInt(ResPtr^, UInt32(ReadInteger(Name))); { The UInt32 cast prevents sign extension }
             {$IF RtlVersion >= 36.0}
             rdInt64: MakeInt(ResPtr^, ReadInt64(Name));
             {$ENDIF}

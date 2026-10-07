@@ -120,6 +120,7 @@ type
     FCompilerFileIndex: Integer;
     FFilename: String;
     FFileLastWriteTime: TFileTime;
+    FHasFileLastWriteTime: Boolean;
     FSaveEncoding: TSaveEncoding;
   public
     ErrorLine, ErrorCaretPosition: Integer;
@@ -132,6 +133,7 @@ type
     property Filename: String read FFileName write FFilename;
     property CompilerFileIndex: Integer read FCompilerFileIndex write FCompilerFileIndex;
     property FileLastWriteTime: TFileTime read FFileLastWriteTime write FFileLastWriteTime;
+    property HasFileLastWriteTime: Boolean read FHasFileLastWriteTime write FHasFileLastWriteTime;
     property SaveEncoding: TSaveEncoding read FSaveEncoding write FSaveEncoding;
   end;
 

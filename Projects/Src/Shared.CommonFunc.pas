@@ -118,6 +118,8 @@ function NewFileExists(const Name: String): Boolean;
 function DirExists(const Name: String): Boolean;
 function FileOrDirExists(const Name: String): Boolean;
 function IsDirectoryAndNotReparsePoint(const Name: String): Boolean;
+function GetLastWriteTimeOfFile(const Filename: String;
+  LastWriteTime: PFileTime): Boolean;
 function GetIniString(const Section, Key: String; Default: String; const Filename: String): String;
 function GetIniInt(const Section, Key: String; const Default, Min, Max: Longint; const Filename: String): Longint;
 function GetIniBool(const Section, Key: String; const Default: Boolean; const Filename: String): Boolean;
@@ -265,6 +267,21 @@ begin
   Result := (Attr <> INVALID_FILE_ATTRIBUTES) and
     (Attr and FILE_ATTRIBUTE_DIRECTORY <> 0) and
     (Attr and FILE_ATTRIBUTE_REPARSE_POINT = 0);
+end;
+
+function GetLastWriteTimeOfFile(const Filename: String;
+  LastWriteTime: PFileTime): Boolean;
+var
+  H: THandle;
+begin
+  H := CreateFile(PChar(Filename), 0, FILE_SHARE_READ or FILE_SHARE_WRITE,
+    nil, OPEN_EXISTING, 0, 0);
+  if H <> INVALID_HANDLE_VALUE then begin
+    Result := GetFileTime(H, nil, nil, LastWriteTime);
+    CloseHandle(H);
+  end
+  else
+    Result := False;
 end;
 
 function GetIniString(const Section, Key: String; Default: String;

@@ -2,7 +2,7 @@ unit Setup.ScriptRunner;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -299,8 +299,12 @@ var
 begin
   ScriptRunner := Sender.ID;
 
-  if Assigned(ScriptRunner.FOnException) then
+  if Assigned(ScriptRunner.FOnException) then begin
+    { Position is past the failing instruction, so it can be where the next line starts }
+    if Position > 0 then
+      Dec(Position);
     ScriptRunner.FOnException(PSErrorToString(ExError, ExParam), ScriptRunner.FPSExec.TranslatePosition(ProcNo, Position));
+  end;
 
   { Clear any previous 'step over' state after an exception. Like Delphi,
     when F8 is pressed after an exception it should go to the first line of
