@@ -69,21 +69,21 @@ HelpTextNote=
 
 ; *** Başlangıç hata iletileri
 LastErrorMessage=%1.%n%nHata %2: %3
-SetupFileMissing=Kurulum klasöründe %1 dosyası eksik. Lütfen sorunu çözün ya da uygulamanın yeni bir kopyasıyla yeniden deneyin.
-SetupFileCorrupt=Kurulum dosyaları bozulmuş. Lütfen uygulamanın yeni bir kopyasıyla yeniden kurmayı deneyin.
-SetupFileCorruptOrWrongVer=Kurulum dosyaları bozulmuş ya da bu kurulum yardımcısı sürümü ile uyumlu değil. Lütfen sorunu çözün ya da uygulamanın yeni bir kopyasıyla yeniden kurmayı deneyin.
+SetupFileMissing=Kurulum klasöründe %1 dosyası eksik. Lütfen sorunu çözün ya da uygulamanın yeni bir kopyasını edinin.
+SetupFileCorrupt=Kurulum dosyaları bozulmuş. Lütfen uygulamanın yeni bir kopyasını edinin.
+SetupFileCorruptOrWrongVer=Kurulum dosyaları bozulmuş ya da bu kurulum yardımcısı sürümü ile uyumlu değil. Lütfen sorunu çözün ya da uygulamanın yeni bir kopyasını edinin.
 InvalidParameter=Komut satırında geçersiz bir parametre yazılmış:%n%n%1
 SetupAlreadyRunning=Kurulum yardımcısı zaten çalışıyor.
 WindowsVersionNotSupported=Bu uygulama, bilgisayarınızda yüklü olan Windows sürümü ile uyumlu değil.
-WindowsServicePackRequired=Bu uygulama, %1 hizmet paketi %2 ve üzerindeki sürümler ile çalışır.
+WindowsServicePackRequired=Bu uygulama için %1 hizmet paketi %2 ya da üzeri gereklidir.
 NotOnThisPlatform=Bu uygulama, %1 üzerinde çalışmaz.
 OnlyOnThisPlatform=Bu uygulama, %1 üzerinde çalıştırılmalıdır.
-OnlyOnTheseArchitectures=Bu uygulama, yalnızca şu işlemci mimarileri için tasarlanmış Windows sürümleriyle çalışır:%n%n%1
+OnlyOnTheseArchitectures=Bu uygulama, yalnızca şu işlemci mimarileri için tasarlanmış Windows sürümlerine kurulabilir:%n%n%1
 WinVersionTooLowError=Bu uygulama için %1 sürüm %2 ya da üzeri gereklidir.
 WinVersionTooHighError=Bu uygulama, %1 sürüm %2 ya da üzerine kurulamaz.
-AdminPrivilegesRequired=Bu uygulamayı kurmak için Yönetici yetkileri olan bir kullanıcı ile oturum açılmış olmalıdır.
+AdminPrivilegesRequired=Bu uygulamayı kurmak için yönetici yetkileri olan bir kullanıcı ile oturum açılmış olmalıdır.
 ; 'Power Users group' is an outdated term but should still be translated, not dropped or modernized
-PowerUserPrivilegesRequired=Bu uygulamayı kurarken, Yönetici ya da Güçlü Kullanıcılar grubundaki bir kullanıcı ile oturum açılmış olması gereklidir.
+PowerUserPrivilegesRequired=Bu uygulamayı kurarken, yönetici ya da Güçlü Kullanıcılar grubundaki bir kullanıcı ile oturum açılmış olması gereklidir.
 ; 'instance' may also be translated as 'copy'
 SetupAppRunningError=Kurulum yardımcısı %1 uygulamasının açık olduğunu algıladı.%n%nLütfen uygulamanın tüm açık kopyalarını kapatıp, ilerlemek için Tamam, çıkmak için İptal üzerine tıklayın.
 UninstallAppRunningError=Kaldırma yardımcısı, %1 uygulamasının açık olduğunu algıladı.%n%nLütfen uygulamanın tüm açık kopyalarını kapatıp, ilerlemek için Tamam ya da çıkmak için İptal üzerine tıklayın.
@@ -91,8 +91,8 @@ UninstallAppRunningError=Kaldırma yardımcısı, %1 uygulamasının açık oldu
 ; *** Başlangıç soruları
 PrivilegesRequiredOverrideTitle=Kurulum kipini seçin
 PrivilegesRequiredOverrideInstruction=Kurulum kipini seçin
-PrivilegesRequiredOverrideText1=%1 tüm kullanıcılar için (yönetici izinleri gerekir) ya da yalnızca sizin hesabınız için kurulabilir.
-PrivilegesRequiredOverrideText2=%1 yalnızca sizin hesabınız için ya da tüm kullanıcılar için (yönetici izinleri gerekir) kurulabilir.
+PrivilegesRequiredOverrideText1=%1 tüm kullanıcılar için (yönetici yetkileri gerekir) ya da yalnızca sizin hesabınız için kurulabilir.
+PrivilegesRequiredOverrideText2=%1 yalnızca sizin hesabınız için ya da tüm kullanıcılar için (yönetici yetkileri gerekir) kurulabilir.
 PrivilegesRequiredOverrideAllUsers=&Tüm kullanıcılar için kurulsun
 PrivilegesRequiredOverrideAllUsersRecommended=&Tüm kullanıcılar için kurulsun (önerilir)
 PrivilegesRequiredOverrideCurrentUser=&Yalnızca geçerli kullanıcı için kurulsun
@@ -127,11 +127,11 @@ ButtonWizardBrowse=Göz a&t...
 ButtonNewFolder=Ye&ni klasör oluştur
 
 ; *** "Kurulum dilini seçin" sayfası iletileri
-SelectLanguageTitle=Kurulum Yardımcısı dilini seçin
+SelectLanguageTitle=Kurulum yardımcısı dilini seçin
 SelectLanguageLabel=Kurulum süresince kullanılacak dili seçin.
 
 ; *** Ortak metinler
-ClickNext=İlerlemek için Sonraki, çıkmak için İptal üzerine tıklayın.
+ClickNext=İlerlemek için Sonraki, kurulum yardımcısından çıkmak için İptal üzerine tıklayın.
 BeveledLabel=
 BrowseDialogTitle=Klasöre göz at
 BrowseDialogLabel=Aşağıdaki listeden bir klasör seçip, Tamam üzerine tıklayın.
@@ -155,11 +155,11 @@ LicenseLabel3=Lütfen aşağıdaki lisans anlaşmasını okuyun. Uygulamayı kur
 LicenseAccepted=Anlaşmayı kabul &ediyorum
 LicenseNotAccepted=Anlaşmayı kabul et&miyorum
 
-; *** "Bilgiler" sayfası
-WizardInfoBefore=Bilgiler
+; *** "Bilgi" sayfası
+WizardInfoBefore=Bilgi
 InfoBeforeLabel=Lütfen ilerlemeden önce aşağıdaki önemli bilgileri okuyun.
 InfoBeforeClickLabel=Uygulamayı kurmaya hazır olduğunuzda Sonraki üzerine tıklayın.
-WizardInfoAfter=Bilgiler
+WizardInfoAfter=Bilgi
 InfoAfterLabel=Lütfen ilerlemeden önce aşağıdaki önemli bilgileri okuyun.
 InfoAfterClickLabel=Uygulamayı kurmaya hazır olduğunuzda Sonraki üzerine tıklayın.
 
@@ -179,11 +179,11 @@ SelectDirBrowseLabel=İlerlemek için Sonraki üzerine tıklayın. Farklı bir k
 DiskSpaceGBLabel=En az [gb] GB boş disk alanı gereklidir.
 DiskSpaceMBLabel=En az [mb] MB boş disk alanı gereklidir.
 CannotInstallToNetworkDrive=Uygulama bir ağ sürücüsü üzerine kurulamaz.
-CannotInstallToUNCPath=Uygulama bir UNC yolu üzerine (\\yol gibi) kurulamaz.
-InvalidPath=Sürücü adı ile tam yolu yazmalısınız. Örnek:%n%nC:\APP%n%nya da şu şekilde bir UNC yolu:%n%n\\sunucu\paylaşım
+CannotInstallToUNCPath=Uygulama bir UNC yolu üzerine kurulamaz.
+InvalidPath=Sürücü adı ile tam yolu yazmalısınız. Örnek:%n%nC:\App%n%nya da şu şekilde bir UNC yolu:%n%n\\sunucu\paylaşım
 InvalidDrive=Sürücü ya da UNC paylaşımı yok ya da erişilemiyor. Lütfen başka bir tane seçin.
 DiskSpaceWarningTitle=Yeterli boş disk alanı yok
-DiskSpaceWarning=Kurulum için %1 KB boş alan gerekli, ancak seçilmiş sürücüde yalnızca %2 KB boş alan var.%n%nGene de ilerlemek istiyor musunuz?
+DiskSpaceWarning=Kurulum için en az %1 KB boş alan gerekli, ancak seçilmiş sürücüde yalnızca %2 KB boş alan var.%n%nYine de ilerlemek istiyor musunuz?
 DirNameTooLong=Klasör adı ya da yol çok uzun.
 InvalidDirName=Klasör adı geçersiz.
 BadDirName32=Klasör adlarında şu karakterler bulunamaz:%n%n%1
@@ -199,10 +199,10 @@ SelectComponentsLabel2=Kurmak istediğiniz bileşenleri seçin; kurmak istemedi�
 ; don't translate 'Full' as 'Normal' or 'Default'
 FullInstallation=Tam kurulum
 ; Olabiliyorsa 'Compact' ifadesini kendi dilinizde 'Minimal' anlamında çevirmeyin
-CompactInstallation=Normal kurulum
+CompactInstallation=Kompakt kurulum
 CustomInstallation=Özel kurulum
 NoUninstallWarningTitle=Bileşenler zaten var
-NoUninstallWarning=Şu bileşenlerin bilgisayarınızda zaten kurulu olduğu algılandı:%n%n%1%n%nBu bileşenlerin işaretlerinin kaldırılması bileşenleri kaldırmaz.%n%nGene de ilerlemek istiyor musunuz?
+NoUninstallWarning=Şu bileşenlerin bilgisayarınızda zaten kurulu olduğu algılandı:%n%n%1%n%nBu bileşenlerin işaretlerinin kaldırılması bileşenleri kaldırmaz.%n%nYine de ilerlemek istiyor musunuz?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=Seçilmiş bileşenler için diskte en az [gb] GB boş alan bulunması gerekli.
@@ -211,7 +211,7 @@ ComponentsDiskSpaceMBLabel=Seçilmiş bileşenler için diskte en az [mb] MB bo�
 ; *** "Ek işlemleri seçin" sayfası
 WizardSelectTasks=Ek işlemleri seçin
 SelectTasksDesc=Başka hangi işlemler yapılsın?
-SelectTasksLabel2=[name] kurulumu sırasında yapılmasını istediğiniz ek işleri seçin ve Sonraki üzerine tıklayın.
+SelectTasksLabel2=[name] kurulumu sırasında yapılmasını istediğiniz ek işlemleri seçin ve Sonraki üzerine tıklayın.
 
 ; *** "Başlat menüsü klasörünü seçin" sayfası
 WizardSelectProgramGroup=Başlat menüsü klasörünü seçin
@@ -227,8 +227,8 @@ NoProgramGroupCheck2=Başlat menüsü klasörü &oluşturulmasın
 ; *** "Kurulmaya hazır" sayfası
 WizardReady=Kurulmaya hazır
 ReadyLabel1=[name] bilgisayarınıza kurulmaya hazır.
-ReadyLabel2a=Kuruluma başlamak için Sonraki üzerine, ayarları gözden geçirip değiştirmek için Önceki üzerine tıklayın.
-ReadyLabel2b=Kuruluma başlamak için Sonraki üzerine tıklayın.
+ReadyLabel2a=Kuruluma başlamak için Kur üzerine, ayarları gözden geçirip değiştirmek için Önceki üzerine tıklayın.
+ReadyLabel2b=Kuruluma başlamak için Kur üzerine tıklayın.
 ReadyMemoUserInfo=Kullanıcı bilgileri:
 ReadyMemoDir=Kurulum konumu:
 ReadyMemoType=Kurulum türü:
@@ -237,17 +237,17 @@ ReadyMemoGroup=Başlat menüsü klasörü:
 ReadyMemoTasks=Ek işlemler:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel2=Ek dosyalar indiriliyor...
+DownloadingLabel2=Dosyalar indiriliyor...
 ButtonStopDownload=İndirmeyi &durdur
 StopDownload=İndirmeyi durdurmak istediğinize emin misiniz?
 ErrorDownloadAborted=İndirme durduruldu
 ErrorDownloadFailed=İndirilemedi: %1 %2
 ErrorDownloadSizeFailed=Boyut alınamadı: %1 %2
-ErrorProgress=Adım geçersiz: %1 / %2
+ErrorProgress=İlerleme geçersiz: %1 / %2
 ErrorFileSize=Dosya boyutu geçersiz: %1 olması gerekirken %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
-ExtractingLabel=Ek dosyalar ayıklanıyor...
+ExtractingLabel=Dosyalar ayıklanıyor...
 ButtonStopExtraction=Ayıklamayı &durdur
 StopExtraction=Ayıklamayı durdurmak istediğinize emin misiniz?
 ErrorExtractionAborted=Ayıklama durduruldu
@@ -262,12 +262,12 @@ ArchiveUnsupportedFormat=Arşiv biçimi desteklenmiyor
 WizardPreparing=Kuruluma hazırlanılıyor
 PreparingDesc=[name] bilgisayarınıza kurulmaya hazırlanıyor.
 PreviousInstallNotCompleted=Önceki uygulama kurulumu ya da kaldırılması tamamlanmamış. Bu kurulumun tamamlanması için bilgisayarınızı yeniden başlatmalısınız.%n%nBilgisayarınızı yeniden başlattıktan sonra işlemi tamamlamak için [name] kurulum yardımcısını yeniden çalıştırın.
-CannotContinue=Kurulum yapılamadı. Çıkmak için İptal üzerine tıklayın.
-ApplicationsFound=Kurulum yardımcısı tarafından güncellenmesi gereken dosyalar, şu uygulamalar tarafından kullanıyor. Kurulum yardımcısının bu uygulamaları otomatik olarak kapatmasına izin vermeniz önerilir.
-ApplicationsFound2=Kurulum yardımcısı tarafından güncellenmesi gereken dosyalar, şu uygulamalar tarafından kullanıyor. Kurulum yardımcısının bu uygulamaları otomatik olarak kapatmasına izin vermeniz önerilir. Kurulum tamamlandıktan sonra, uygulamalar yeniden başlatılmaya çalışılacak.
-CloseApplications=&Uygulamalar kapatılsın
+CannotContinue=Kurulum yardımcısı ilerleyemiyor. Lütfen çıkmak için İptal üzerine tıklayın.
+ApplicationsFound=Kurulum yardımcısı tarafından güncellenmesi gereken dosyalar, şu uygulamalar tarafından kullanılıyor. Kurulum yardımcısının bu uygulamaları otomatik olarak kapatmasına izin vermeniz önerilir.
+ApplicationsFound2=Kurulum yardımcısı tarafından güncellenmesi gereken dosyalar, şu uygulamalar tarafından kullanılıyor. Kurulum yardımcısının bu uygulamaları otomatik olarak kapatmasına izin vermeniz önerilir. Kurulum tamamlandıktan sonra, uygulamalar yeniden başlatılmaya çalışılacak.
+CloseApplications=&Uygulamalar otomatik olarak kapatılsın
 DontCloseApplications=Uygulamalar &kapatılmasın
-ErrorCloseApplications=Kurulum yardımcısı uygulamaları kapatamadı. Kurulum yardımcısı tarafından güncellenmesi gereken dosyaları kullanan uygulamaları el ile kapatmanız önerilir.
+ErrorCloseApplications=Kurulum yardımcısı tüm uygulamaları otomatik olarak kapatamadı. İlerlemeden önce, kurulum yardımcısı tarafından güncellenmesi gereken dosyaları kullanan tüm uygulamaları kapatmanız önerilir.
 PrepareToInstallNeedsRestart=Kurulum için bilgisayarın yeniden başlatılması gerekiyor. Bilgisayarı yeniden başlattıktan sonra [name] kurulumunu tamamlamak için kurulum yardımcısını yeniden çalıştırın.%n%nBilgisayarı şimdi yeniden başlatmak ister misiniz?
 
 ; *** "Kuruluyor" sayfası
@@ -277,7 +277,7 @@ InstallingLabel=Lütfen [name] bilgisayarınıza kurulurken bekleyin.
 ; *** "Kurulum Tamamlandı" sayfası
 FinishedHeadingLabel=[name] kurulum yardımcısı tamamlanıyor
 FinishedLabelNoIcons=Bilgisayarınıza [name] kurulumu tamamlandı.
-FinishedLabel=Bilgisayarınıza [name] kurulumu tamamlandı. Simgeleri yüklemeyi seçtiyseniz, simgelere tıklayarak uygulamayı başlatabilirsiniz.
+FinishedLabel=Bilgisayarınıza [name] kurulumu tamamlandı. Uygulama, kurulan kısayollar seçilerek başlatılabilir.
 ClickFinish=Kurulum yardımcısından çıkmak için Bitti üzerine tıklayın.
 FinishedRestartLabel=[name] kurulumunun tamamlanması için, bilgisayarınız yeniden başlatılmalı. Şimdi yeniden başlatmak ister misiniz?
 FinishedRestartMessage=[name] kurulumunun tamamlanması için, bilgisayarınız yeniden başlatılmalı.%n%nŞimdi yeniden başlatmak ister misiniz?
@@ -302,8 +302,8 @@ AbortRetryIgnoreSelectAction=Yapılacak işlemi seçin
 AbortRetryIgnoreRetry=&Yeniden denensin
 AbortRetryIgnoreIgnore=&Sorun yok sayılıp ilerlensin
 AbortRetryIgnoreCancel=Kurulum iptal edilsin
-RetryCancelSelectAction=İşlem seçin
-RetryCancelRetry=&Yeniden dene
+RetryCancelSelectAction=Yapılacak işlemi seçin
+RetryCancelRetry=&Yeniden denensin
 RetryCancelCancel=İptal
 
 ; *** Kurulum durumu iletileri
@@ -313,7 +313,7 @@ StatusExtractFiles=Dosyalar ayıklanıyor...
 StatusDownloadFiles=Dosyalar indiriliyor...
 StatusCreateIcons=Kısayollar oluşturuluyor...
 StatusCreateIniEntries=INI kayıtları oluşturuluyor...
-StatusCreateRegistryEntries=Kayıt Defteri kayıtları oluşturuluyor...
+StatusCreateRegistryEntries=Kayıt defteri kayıtları oluşturuluyor...
 StatusRegisterFiles=Dosyalar kaydediliyor...
 StatusSavingUninstall=Kaldırma bilgileri kaydediliyor...
 StatusRunProgram=Kurulum tamamlanıyor...
@@ -348,7 +348,7 @@ VerificationFileNameIncorrect=Dosyanın adı yanlış
 VerificationFileTagIncorrect=Dosyanın etiketi yanlış
 VerificationFileSizeIncorrect=Dosyanın boyutu yanlış
 VerificationFileHashIncorrect=Dosyanın karma değeri yanlış
-ExistingFileReadOnly2=Var olan dosya salt okunabilir olarak işaretlenmiş olduğundan üzerine yazılamadı.
+ExistingFileReadOnly2=Var olan dosya salt okunur olarak işaretlenmiş olduğundan üzerine yazılamadı.
 ExistingFileReadOnlyRetry=&Salt okunur işareti kaldırılıp yeniden denensin
 ExistingFileReadOnlyKeepExisting=&Var olan dosya korunsun
 ErrorReadingExistingDest=Var olan dosya okunmaya çalışılırken bir sorun çıktı:
@@ -356,7 +356,7 @@ FileExistsSelectAction=Yapılacak işlemi seçin
 FileExists2=Dosya zaten var.
 FileExistsOverwriteExisting=&Var olan dosyanın üzerine yazılsın
 FileExistsKeepExisting=Var &olan dosya korunsun
-FileExistsOverwriteOrKeepAll=&Sonraki çakışmalarda da bu işlem yapılsın
+FileExistsOverwriteOrKeepAll=&Sonraki çakışmalarda bu işlem yapılsın
 ExistingFileNewerSelectAction=Yapılacak işlemi seçin
 ExistingFileNewer2=Var olan dosya, kurulum yardımcısı tarafından yazılmaya çalışılandan daha yeni.
 ExistingFileNewerOverwriteExisting=&Var olan dosyanın üzerine yazılsın
@@ -372,9 +372,9 @@ ErrorReplacingExistingFile=Var olan dosya değiştirilirken sorun çıktı:
 ; 'RestartReplace' bir iç adlandırmadır. Aynen kullanabilirsiniz
 ErrorRestartReplace=RestartReplace tamamlanamadı:
 ErrorRenamingTemp=Kurulum klasöründeki bir dosyanın adı değiştirilirken sorun çıktı:
-ErrorRegisterServer=DLL/OCX kayıt edilemedi: %1
-ErrorRegSvr32Failed=RegSvr32 işlemi şu kod ile tamamlanamadı: %1
-ErrorRegisterTypeLib=Tür kitaplığı kayıt defterine eklenemedi: %1
+ErrorRegisterServer=DLL/OCX kaydedilemedi: %1
+ErrorRegSvr32Failed=RegSvr32 işlemi şu çıkış kodu ile tamamlanamadı: %1
+ErrorRegisterTypeLib=Tür kitaplığı kaydedilemedi: %1
 
 ; *** Kaldırma sırasında görüntülenecek ad işaretleri
 ; used for example as 'My Program (32-bit)'
@@ -388,7 +388,7 @@ UninstallDisplayNameMarkCurrentUser=Geçerli kullanıcı
 
 ; *** Kurulum sonrası hataları
 ErrorOpeningReadme=README dosyası açılırken sorun çıktı.
-ErrorRestartingComputer=Kurulum yardımcısı bilgisayarınızı yeniden başlatamıyor. Lütfen bilgisayarınızı yeniden başlatın.
+ErrorRestartingComputer=Kurulum yardımcısı bilgisayarınızı yeniden başlatamıyor. Lütfen bilgisayarınızı el ile yeniden başlatın.
 
 ; *** Kaldırma yardımcısı iletileri
 UninstallNotFound="%1" dosyası bulunamadı. Uygulama kaldırılamıyor.
@@ -399,14 +399,14 @@ ConfirmUninstall=%1 uygulamasını tüm bileşenleri ile birlikte tamamen kaldı
 UninstallOnlyOnWin64=Bu kurulum yalnızca 64 bit Windows üzerinden kaldırılabilir.
 OnlyAdminCanUninstall=Bu kurulum yalnızca yönetici yetkileri olan bir kullanıcı tarafından kaldırılabilir.
 UninstallStatusLabel=Lütfen %1 uygulaması bilgisayarınızdan kaldırılırken bekleyin.
-UninstalledAll=%1 uygulaması bilgisayarınızdan kaldırıldı.
+UninstalledAll=%1 uygulaması bilgisayarınızdan başarıyla kaldırıldı.
 UninstalledMost=%1 uygulaması kaldırıldı.%n%nBazı bileşenler kaldırılamadı. Bunları el ile silebilirsiniz.
 UninstalledAndNeedsRestart=%1 kaldırma işleminin tamamlanması için bilgisayarınızın yeniden başlatılması gerekli.%n%nŞimdi yeniden başlatmak ister misiniz?
 UninstallDataCorrupted="%1" dosyası bozulmuş. Kaldırılamıyor
 
 ; *** Kaldırma aşaması iletileri
 ConfirmDeleteSharedFileTitle=Paylaşılan dosya silinsin mi?
-ConfirmDeleteSharedFile2=Sisteme göre, paylaşılan şu dosya başka bir uygulama tarafından kullanılmıyor ve kaldırılabilir. Bu paylaşılmış dosyayı silmek ister misiniz?%n%nBu dosya, başka herhangi bir uygulama tarafından kullanılıyor ise, silindiğinde diğer uygulama düzgün çalışmayabilir. Emin değilseniz Hayır üzerine tıklayın. Dosyayı sisteminizde bırakmanın bir zararı olmaz.
+ConfirmDeleteSharedFile2=Sisteme göre, paylaşılan şu dosya başka bir uygulama tarafından kullanılmıyor. Bu paylaşılmış dosyayı silmek ister misiniz?%n%nBu dosya, başka herhangi bir uygulama tarafından kullanılıyor ise, silindiğinde diğer uygulama düzgün çalışmayabilir. Emin değilseniz Hayır üzerine tıklayın. Dosyayı sisteminizde bırakmanın bir zararı olmaz.
 SharedFileNameLabel=Dosya adı:
 SharedFileLocationLabel=Konum:
 WizardUninstalling=Kaldırma durumu
@@ -422,9 +422,9 @@ ShutdownBlockReasonUninstallingApp=%1 kaldırılıyor.
 [CustomMessages]
 
 NameAndVersion=%1 %2 sürümü
-AdditionalIcons=Ek simgeler:
-CreateDesktopIcon=Masaüstü simg&esi oluşturulsun
-CreateQuickLaunchIcon=Hızlı başlat simgesi &oluşturulsun
+AdditionalIcons=Ek kısayollar:
+CreateDesktopIcon=&Masaüstü kısayolu oluşturulsun
+CreateQuickLaunchIcon=Hızlı başlat kısayolu &oluşturulsun
 ProgramOnTheWeb=%1 sitesi
 UninstallProgram=%1 uygulamasını kaldır
 LaunchProgram=%1 uygulamasını çalıştır
