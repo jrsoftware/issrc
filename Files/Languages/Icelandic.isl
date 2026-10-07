@@ -40,7 +40,7 @@ WindowsVersionNotSupported=Þetta forrit styður ekki útgáfuna af Windows sem 
 WindowsServicePackRequired=Þetta forrit krefst %1 þjónustupakka %2 eða síðari.
 NotOnThisPlatform=Þetta forrit mun ekki keyra á %1.
 OnlyOnThisPlatform=Þetta forrit verður að keyra á %1.
-OnlyOnTheseArchitectures=Þetta forrit er einungis hægt að setja upp á útgáfur af Windows hannaðar fyrir eftirfarandi gjörvahaganir:%n%n%1
+OnlyOnTheseArchitectures=Þetta forrit er einungis hægt að setja upp á útgáfur af Windows hannaðar fyrir eftirfarandi gjörvahannanir:%n%n%1
 WinVersionTooLowError=Þetta forrit krefst %1-útgáfu %2 eða síðari.
 WinVersionTooHighError=Þetta forrit er ekki hægt að setja upp á %1-útgáfu %2 eða síðari.
 AdminPrivilegesRequired=Þú verður að vera innskráð(ur) sem stjórnandi við uppsetningu þessa forrits.
@@ -269,7 +269,7 @@ StatusExtractFiles=Dragandi út skrár…
 StatusDownloadFiles=Niðurhlaðandi skrám…
 StatusCreateIcons=Skapandi flýtileiðir…
 StatusCreateIniEntries=Skapandi INI-færslur…
-StatusCreateRegistryEntries=Skapandi kerfisskrárfærslur…
+StatusCreateRegistryEntries=Skapandi stýriskrárfærslur…
 StatusRegisterFiles=Skrásetjandi skrár…
 StatusSavingUninstall=Vistandi niðurtökuupplýsingar…
 StatusRunProgram=Ljúkandi uppsetningu…
@@ -284,9 +284,9 @@ ErrorFunctionFailedWithMessage=%1 mistókst; kóði %2.%n%3
 ErrorExecutingProgram=Ófært um að keyra skrá:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Villa við opnun kerfisskrárlykils:%n%1\%2
-ErrorRegCreateKey=Villa við sköpun kerfisskrárlykils:%n%1\%2
-ErrorRegWriteKey=Villa við ritun í kerfisskrárlykil:%n%1\%2
+ErrorRegOpenKey=Villa við opnun stýriskrárlykils:%n%1\%2
+ErrorRegCreateKey=Villa við sköpun stýriskrárlykils:%n%1\%2
+ErrorRegWriteKey=Villa við ritun í stýriskrárlykil:%n%1\%2
 
 ; *** INI errors
 ErrorIniEntry=Villa við sköpun INI-færslu í skránni „%1“.
@@ -303,7 +303,7 @@ VerificationKeyNotFound=Undirskriftarskráin „%1“ notar óþekktan lykil
 VerificationFileNameIncorrect=Nafn skrárinnar er rangt
 VerificationFileTagIncorrect=Merki skrárinnar er rangt
 VerificationFileSizeIncorrect=Stærð skrárinnar er röng
-VerificationFileHashIncorrect=Tætigildi skrárinnar er rangt
+VerificationFileHashIncorrect=Tæti skrárinnar er rangt
 ExistingFileReadOnly2=Hina gildandi skrá var ekki hægt að yfirrita því hún er merkt sem skrifvarin.
 ExistingFileReadOnlyRetry=&Fjarlægja skrifvarnareigindið og reyna aftur
 ExistingFileReadOnlyKeepExisting=&Halda hinni gildandi skrá
