@@ -2726,9 +2726,6 @@ begin
   Succeeded := False;
   Log('Starting the installation process.');
   SetCurrentDir(WinSystemDir);
-  var InstallFilesSize, AfterInstallFilesSize: Int64;
-  CalcFilesSize(InstallFilesSize, AfterInstallFilesSize);
-  InitProgressGauge(InstallFilesSize);
   var RegisterFilesList: TList := nil;
   const UninstLog = TSetupUninstallLog.Create;
   try
@@ -2738,15 +2735,19 @@ begin
     var UninstLogCleared := False;
     var UninstallTempExeFilename, UninstallDataFilename, UninstallMsgFilename: String; { There's also UninstallExeFilename but it's a global }
     try
-      { Get AppId, UninstallRegKeyBaseName, and Uninstallable now so the user
-        can't change them while we're installing }
+      const Uninstallable = EvalDirectiveCheck(SetupHeader.Uninstallable);
+      var InstallFilesSize, AfterInstallFilesSize: Int64;
+      CalcFilesSize(Uninstallable, InstallFilesSize, AfterInstallFilesSize);
+      InitProgressGauge(InstallFilesSize);
+
+      { Get AppId and UninstallRegKeyBaseName now so the user can't change them
+        while we're installing }
       const ExpandedAppId = ExpandConst(SetupHeader.AppId);
       if ExpandedAppId = '' then
         InternalError('Failed to get a non empty installation "AppId"');
       if TUninstallLog.WriteSafeHeaderString(nil, ExpandedAppId, 0) > 128 then
         InternalError('"AppId" cannot exceed 128 bytes (encoded)');
       const UninstallRegKeyBaseName = GetUninstallRegKeyBaseName(ExpandedAppId);
-      const Uninstallable = EvalDirectiveCheck(SetupHeader.Uninstallable);
 
       { Init }
       UninstLog.InstallMode64Bit := Is64BitInstallMode;

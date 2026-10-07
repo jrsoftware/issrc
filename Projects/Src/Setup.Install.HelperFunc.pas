@@ -30,7 +30,8 @@ procedure SetStatusLabelText(const S: String;
   const ClearFilenameLabelText: Boolean = True);
 procedure InstallMessageBoxCallback(const Flags: Cardinal; const After: Boolean;
   const Param: NativeInt);
-procedure CalcFilesSize(var InstallFilesSize, AfterInstallFilesSize: Int64);
+procedure CalcFilesSize(const Uninstallable: Boolean;
+  var InstallFilesSize, AfterInstallFilesSize: Int64);
 procedure InitProgressGauge(const InstallFilesSize: Int64);
 procedure UpdateProgressGauge;
 procedure FinishProgressGauge(const HideGauge: Boolean);
@@ -117,7 +118,8 @@ begin
   SetAppTaskbarProgressState(States[NewState]);
 end;
 
-procedure CalcFilesSize(var InstallFilesSize, AfterInstallFilesSize: Int64);
+procedure CalcFilesSize(const Uninstallable: Boolean;
+  var InstallFilesSize, AfterInstallFilesSize: Int64);
 var
   CurFile: PSetupFileEntry;
 begin
@@ -125,7 +127,8 @@ begin
   AfterInstallFilesSize := InstallFilesSize;
   for var N := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][N]);
-    if ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
+    if ((CurFile^.FileType <> ftUninstExe) or Uninstallable) and
+       ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
       with CurFile^ do begin
         var FileSize: Int64;
         if LocationEntry <> -1 then  { not an "external" file }
