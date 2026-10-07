@@ -871,7 +871,8 @@ begin
         GetMem(Buf, Size);
         try
           if GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf) and
-             VerQueryValue(Buf, '\', Pointer(FI), S) then
+             VerQueryValue(Buf, '\', Pointer(FI), S) and
+             (S >= SizeOf(TVSFixedFileInfo)) then
           begin
             MakeStr(ResPtr^,
               IntToStr((FI.dwFileVersionMS and $FFFF0000) shr 16) + '.' +
