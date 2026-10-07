@@ -3715,7 +3715,7 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     const TextToFind: TScintRawString; const Options: TScintFindOptions;
     const Selections, IndicatorRanges: TScintRangeList);
   begin
-    if TScintEdit.RawStringIsBlank(TextToFind) then
+    if TextToFind.IsBlank then
       Exit;
 
     var StartPos := 0;
@@ -5004,7 +5004,7 @@ procedure TMainForm.MemoCharAdded(Sender: TObject; Ch: AnsiChar);
   function LineIsBlank(const Line: Integer): Boolean;
   begin
     var S := FActiveMemo.Lines.RawLines[Line];
-    Result := TScintEdit.RawStringIsBlank(S);
+    Result := S.IsBlank;
   end;
 
 begin

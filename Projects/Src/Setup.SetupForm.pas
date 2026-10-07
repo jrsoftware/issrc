@@ -57,16 +57,14 @@ type
     procedure CreateWnd; override;
     function GetExtraClientWidth: Integer;
     function GetExtraClientHeight: Integer;
-    procedure FlipControlsIfNeeded;
-    procedure CenterIfNeeded(const ACenterInsideControl: Boolean;
-      const CenterInsideControlCtl: TWinControl;
-      const CenterInsideControlInsideClientArea: Boolean);
     procedure VisibleChanging; override;
     procedure WndProc(var Message: TMessage); override;
   public
     constructor Create(AOwner: TComponent); override;
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
+    function CalculateButtonWidthWithExtraWidths(const ButtonCaptions: array of String;
+      const ExtraWidths: array of Integer): Integer;
     procedure InitializeFont(const KeepSizeX: Boolean = False; const KeepSizeY: Boolean = False);
     class function ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer; overload; static;
     class function ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer; overload; static;
@@ -240,14 +238,22 @@ end;
 
 function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
 begin
-  { Same code as TIDEForm.CalculateButtonWidth }
+  Result := CalculateButtonWidthWithExtraWidths(ButtonCaptions, []);
+end;
+
+function TSetupForm.CalculateButtonWidthWithExtraWidths(const ButtonCaptions: array of String;
+  const ExtraWidths: array of Integer): Integer;
+begin
+  { Also see TIDEForm.CalculateButtonWidth }
   Result := ScalePixelsX(75);
   { Increase the button size if there are unusually long button captions }
   const DC = GetDC(0);
   try
     SelectObject(DC, Font.Handle);
     for var I := Low(ButtonCaptions) to High(ButtonCaptions) do begin
-      const W = GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
+      var W := GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
+      if I <= High(ExtraWidths) then
+        Inc(W, ExtraWidths[I]);
       if Result < W then
         Result := W;
     end;
@@ -456,27 +462,6 @@ begin
     option Building->Delphi Compiler->Compiling->Debugging->Use debug .dcus. }
 end;
 
-procedure TSetupForm.FlipControlsIfNeeded;
-begin
-  if FFlipControlsOnShow then begin
-    FFlipControlsOnShow := False;
-    FControlsFlipped := not FControlsFlipped;
-    FlipControls(Self);
-  end;
-end;
-
-procedure TSetupForm.CenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
-begin
-  if FCenterOnShow then begin
-    FCenterOnShow := False;
-    { Center }
-    if ACenterInsideControl and (CenterInsideControlCtl <> nil) then
-      CenterInsideControl(CenterInsideControlCtl, CenterInsideControlInsideClientArea)
-    else
-      Center;
-  end;
-end;
-
 function TSetupForm.ShouldSizeX: Boolean;
 begin
   Result := not FKeepSizeX and (SetupHeader.WizardSizePercentX > 100);
@@ -489,9 +474,31 @@ end;
 
 procedure TSetupForm.FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean;
   const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+
+  procedure FlipControlsIfNeeded;
+  begin
+    if FFlipControlsOnShow then begin
+      FFlipControlsOnShow := False;
+      FControlsFlipped := not FControlsFlipped;
+      FlipControls(Self);
+    end;
+  end;
+
+  procedure CenterIfNeeded;
+  begin
+    if FCenterOnShow then begin
+      FCenterOnShow := False;
+      { Center }
+      if ACenterInsideControl and (CenterInsideControlCtl <> nil) then
+        CenterInsideControl(CenterInsideControlCtl, CenterInsideControlInsideClientArea)
+      else
+        Center;
+    end;
+  end;
+
 begin
   FlipControlsIfNeeded;
-  CenterIfNeeded(ACenterInsideControl, CenterInsideControlCtl, CenterInsideControlInsideClientArea);
+  CenterIfNeeded;
 end;
 
 type

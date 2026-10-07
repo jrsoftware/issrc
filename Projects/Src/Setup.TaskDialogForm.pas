@@ -51,7 +51,7 @@ type
     FMainButtons: array of TNewButton;
     FCopyFormat: TCopyFormat;
     procedure Finish(const DefCommonButton: Integer);
-    procedure UpdateCommonButtons(const CommonButtons: Cardinal);
+    procedure UpdateCommonButtons(const CommonButtons: Cardinal; const ShieldButton: Integer);
     procedure UpdateIcon(const Icon: PChar);
     procedure UpdateInstructionAndText(const Instruction, Text: String);
     procedure UpdateHeight;
@@ -88,7 +88,7 @@ begin
     Form.Caption := Caption;
     Form.UpdateInstructionAndText(Instruction, Text);
     Form.UpdateIcon(Icon);
-    Form.UpdateCommonButtons(CommonButtons);
+    Form.UpdateCommonButtons(CommonButtons, ShieldButton);
     Form.UpdateVerificationText(VerificationText);
 
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
@@ -167,7 +167,7 @@ end;
 procedure TTaskDialogForm.Finish(const DefCommonButton: Integer);
 begin
   if RightToLeft then begin
-    { FlipSizeAndCenterIfNeeded does not update Align or Padding }
+    { FlipAndCenterIfNeeded does not update Align or Padding }
     if LeftPanel.Visible then
       LeftPanel.Align := alRight;
     MainStackPanel.Padding.Right := MainStackPanel.Padding.Left;
@@ -193,9 +193,10 @@ begin
   end;
 end;
 
-procedure TTaskDialogForm.UpdateCommonButtons(const CommonButtons: Cardinal);
+procedure TTaskDialogForm.UpdateCommonButtons(const CommonButtons: Cardinal; const ShieldButton: Integer);
 var
   VisibleCaptions: array of String;
+  VisibleExtraWidths: array of Integer;
 begin
   var NVisibleCaptions := 0;
   for var I := 0 to Length(FCommonButtons)-1 do begin
@@ -203,15 +204,23 @@ begin
     const CommonButtonFlag = FCommonButtonFlags[I];
     CommonButton.Visible := CommonButtons and CommonButtonFlag <> 0;
     if CommonButton.Visible then begin
+      CommonButton.ElevationRequired := CommonButton.ModalResult = ShieldButton;
       Inc(NVisibleCaptions);
       SetLength(VisibleCaptions, NVisibleCaptions);
+      SetLength(VisibleExtraWidths, NVisibleCaptions);
       VisibleCaptions[NVisibleCaptions-1] := CommonButton.Caption;
+      { Room for the shield, assumed to be 16 pixels wide at 96 DPI, and for the unscaled
+        2 pixel gap after it, as in TButtonStyleHook.DrawButton }
+      if CommonButton.ElevationRequired then
+        VisibleExtraWidths[NVisibleCaptions-1] := MulDiv(16, CurrentPPI, Screen.DefaultPixelsPerInch) + 2
+      else
+        VisibleExtraWidths[NVisibleCaptions-1] := 0;
     end;
   end;
 
   BottomPanel.Visible := NVisibleCaptions > 0;
   if BottomPanel.Visible then begin
-    const W = CalculateButtonWidth(VisibleCaptions);
+    const W = CalculateButtonWidthWithExtraWidths(VisibleCaptions, VisibleExtraWidths);
     for var CommonButton in FCommonButtons do
       if CommonButton.Visible then
         CommonButton.Width := W;

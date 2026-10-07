@@ -195,7 +195,7 @@ ReadyMemoGroup=Upphafsvalmyndarmappa:
 ReadyMemoTasks=Aukaleg verk:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel2=Niðurhlaðandi skrám…
+DownloadingLabel2=Hlaðandi niður skrám…
 ButtonStopDownload=&Stöðva niðurhleðslu
 StopDownload=Ert þú viss um að þú viljir stöðva niðurhleðsluna?
 ErrorDownloadAborted=Niðurhleðslu hætt
@@ -219,7 +219,7 @@ ArchiveUnsupportedFormat=Safnskráarsniðið er ekki stutt
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Undirbúandi uppsetningu
 PreparingDesc=Uppsetning er að undirbúa uppsetningu [name] á tölvuna þína.
-PreviousInstallNotCompleted=Uppsetningu/Fjarlægingu fyrra forrits var ekki lokið. Þú þarft að endurræsa tölvuna þína til að ljúka þeirri uppsetningu.%n%nEftir endurræsingu tölvunnar þinnar, keyrðu Uppsetningu aftur til að ljúka uppsetningu [name].
+PreviousInstallNotCompleted=Uppsetningu/fjarlægingu fyrra forrits var ekki lokið. Þú þarft að endurræsa tölvuna þína til að ljúka þeirri uppsetningu.%n%nEftir endurræsingu tölvunnar þinnar, keyrðu Uppsetningu aftur til að ljúka uppsetningu [name].
 CannotContinue=Uppsetning getur ekki haldið áfram. Vinsamlega smelltu á Hætta við til að hætta.
 ApplicationsFound=Eftirfarandi hugbúnaður er að nota skrár sem þurfa að vera uppfærðar af Uppsetningu. Það er ráðlagt að þú leyfir Uppsetningu sjálfvirkt að loka þessum hugbúnaði.
 ApplicationsFound2=Eftirfarandi hugbúnaður er að nota skrár sem þurfa að vera uppfærðar af Uppsetningu. Það er ráðlagt að þú leyfir Uppsetningu sjálfvirkt að loka þessum hugbúnaði. Eftir að uppsetningunni lýkur mun Uppsetning reyna að endurræsa hugbúnaðinn.
@@ -266,7 +266,7 @@ RetryCancelCancel=Hætta við
 StatusClosingApplications=Lokandi hugbúnaði…
 StatusCreateDirs=Skapandi skráasöfn…
 StatusExtractFiles=Dragandi út skrár…
-StatusDownloadFiles=Niðurhlaðandi skrám…
+StatusDownloadFiles=Hlaðandi niður skrám…
 StatusCreateIcons=Skapandi flýtileiðir…
 StatusCreateIniEntries=Skapandi INI-færslur…
 StatusCreateRegistryEntries=Skapandi stýriskrárfærslur…
@@ -322,7 +322,7 @@ ErrorChangingAttr=Villa kom upp meðan reynt var að breyta eigindum gildandi sk
 ErrorCreatingTemp=Villa kom upp meðan reynt var að skapa skrá í áfangaskráasafninu:
 ErrorReadingSource=Villa kom upp meðan reynt var að lesa upprunaskrána:
 ErrorCopying=Villa kom upp meðan reynt var að afrita skrá:
-ErrorDownloading=Villa kom upp meðan reynt var að niðurhlaða skrá:
+ErrorDownloading=Villa kom upp meðan reynt var að hlaða niður skrá:
 ErrorExtracting=Villa kom upp meðan reynt var að draga út safnskrá:
 ErrorReplacingExistingFile=Villa kom upp meðan reynt var að yfirrita gildandi skrána:
 ErrorRestartReplace=RestartReplace mistókst:

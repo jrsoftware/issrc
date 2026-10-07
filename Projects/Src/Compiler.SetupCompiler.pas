@@ -1149,9 +1149,10 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
         Result := BuiltinPreprocessScript;
       end;
 
-      { Check for (and remove) #preproc override directive on the first line }
+      { Check for (and remove) #preproc override directive on the first line.
+        Also see IDE.ScintStylerInnoSetup's BuiltinPreprocessorAcceptsDirective. }
       if Lines.Count > 0 then begin
-        S := Trim(Lines[0]);
+        S := Lines[0].Trim;
         if S = '#preproc builtin' then begin
           Lines[0] := '';
           Result := BuiltinPreprocessScript;

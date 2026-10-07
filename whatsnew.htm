@@ -76,12 +76,15 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <li>When archive extraction failed to open, read, or write a file, for example because another process had it open, it could report that the archive was corrupted or an unspecified error. It now reports the actual error.</li>
   <li><tt>[Files]</tt> section entries with the <tt>extractarchive</tt> and <tt>recursesubdirs</tt> flags failed with an internal error if the archive contained a path of 260 characters or longer. Support function <tt>ExtractArchive</tt> wasn't affected.</li>
   <li>Security improvement: During archive extraction, a crafted <tt>.cab</tt>, <tt>.vhd</tt>, <tt>.vhdx</tt>, or <tt>.vmdk</tt> archive could make Setup open a file outside the archive's directory as a volume for reading.</li>
+  <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
   <li>Pascal Scripting and ISPP support function <tt>ComparePackedVersion</tt> returned the wrong result if one of the two versions had a major version of 32768 or higher (broken since 6.6.0).</li>
   <li>ISPP support function <tt>ReadReg</tt> returned a negative number for <tt>REG_DWORD</tt> values of 0x80000000 or higher, for example -1 instead of 4294967295 for 0xFFFFFFFF (broken since 6.1.0).</li>
   <li>Pascal Scripting:
   <ul>
     <li>When a COM object or a variant array was passed as an argument to a method of a <a href="https://jrsoftware.org/ishelp/index.php?topic=scriptautomation">COM Automation object</a>, such as in <tt>ParentNode.appendChild(ChildNode)</tt>, or assigned to a property of one, it was released one time too many. This could cause access violations, for example when using MSXML after installing a September 2026 Windows update with a new MSXML version, such as KB5124007 or KB5124008.</li>
     <li>Support function <tt>FloatToStr</tt> used the decimal point from the user's regional settings, such as a comma, instead of always a dot as documented. Support function <tt>StrToFloat</tt> then raised an exception when given the result (broken since 7.0.0).</li>
+    <li>When a custom style was active, support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> didn't show the shield icon specified by the <tt>ShieldButton</tt> parameter if that button had no custom label (broken since custom styles were introduced in 6.6.0).</li>
+    <li>When debugging in the Compiler IDE, a runtime error could be reported on the line after the line which caused it.</li>
   </ul>
   </li>
   <li>Compiler IDE:

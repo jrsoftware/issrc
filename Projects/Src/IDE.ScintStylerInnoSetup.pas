@@ -769,31 +769,6 @@ const
   ISPPIdentFirstChars = AlphaUnderscoreChars;
   ISPPIdentChars = AlphaDigitUnderscoreChars;
 
-function SameRawText(const S1, S2: TScintRawString): Boolean;
-var
-  Len, I: Integer;
-  C1, C2: AnsiChar;
-begin
-  Len := Length(S1);
-  if Length(S2) <> Len then begin
-    Result := False;
-    Exit;
-  end;
-  for I := 1 to Len do begin
-    C1 := S1[I];
-    C2 := S2[I];
-    if C1 in ['A'..'Z'] then
-      Inc(C1, 32);
-    if C2 in ['A'..'Z'] then
-      Inc(C2, 32);
-    if C1 <> C2 then begin
-      Result := False;
-      Exit;
-    end;
-  end;
-  Result := True;
-end;
-
 { TFunctionDefinition }
 
 constructor TFunctionDefinition.Create(const ScriptFunc: AnsiString);
@@ -1404,14 +1379,14 @@ begin
     if CurChar in PascalIdentFirstChars then begin
       var S := ConsumeString(PascalIdentChars);
       for var Word in PascalReservedWords do
-        if SameRawText(S, Word) then begin
-          if SameRawText(S, 'function') or SameRawText(S, 'procedure') or SameRawText(S, 'type') then
+        if S.SameText(Word) then begin
+          if S.SameText('function') or S.SameText('procedure') or S.SameText('type') then
             CodeBlockHeader := True; { Global 'var' and 'const' blocks are currently not detected }
           CommitStyle(stPascalReservedWord);
           Break;
         end;
       for var EventFunction in BasicEventFunctions do
-        if SameRawText(S, EventFunction) then begin
+        if S.SameText(EventFunction) then begin
           CommitStyle(stEventFunction);
           Break;
         end;
@@ -1496,6 +1471,29 @@ end;
 
 procedure TInnoSetupStyler.HandleCompilerDirective(const InlineDirective: Boolean; const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
 
+  function BuiltinPreprocessorAcceptsDirective: Boolean;
+  begin
+    { Must match Compiler.SetupCompiler's SelectPreprocessor }
+    if FirstLine = 0 then begin
+      const S = Text.Trim;
+      if S = '#preproc builtin' then
+        Exit(True);
+    end;
+
+    { Must match Compiler.BuiltinPreproc's ProcessDirective }
+    var D := Copy(Text, CurIndex + 1, MaxInt);
+    if Copy(D, 1, Length('include')) = 'include' then begin
+      Delete(D, 1, Length('include'));
+      if (D = '') or (D[1] > ' ') then
+        Exit(False);
+      D := D.TrimLeft;
+      if (Length(D) < 3) or (D[1] <> '"') or (D[Length(D)] <> '"') then
+        Exit(False);
+      Result := True;
+    end else
+      Result := False;
+  end;
+
   function EndOfDirective: Boolean;
   begin
     Result := EndOfLine or (InlineDirective and (CurIndex > InlineDirectiveEndIndex));
@@ -1568,12 +1566,9 @@ const
      '.' {endif}];
 begin
   var StartIndex := CurIndex;
-  var NeedIspp: Boolean;
-  if InlineDirective then begin
+  const NeedIspp = InlineDirective or not BuiltinPreprocessorAcceptsDirective;
+  if InlineDirective then
     ConsumeChar('{');
-    NeedIspp := True;
-  end else
-    NeedIspp := False; { Might be updated later to True later }
   var ForDirectiveExpressionsNext := False;
   var DoIncludeFileNotationCheck := False;
   var ErrorDirective := False;
@@ -1585,7 +1580,6 @@ begin
   var C := CurChar;
   if ConsumeCharIn(ISPPDirectiveShorthands) then begin
     DoIncludeFileNotationCheck := C = '+'; { We need to check the include file notation  }
-    NeedIspp := True;
     if C = '?' then begin { if }
       Inc(OpenCount);
       FinishDirectiveNameOrShorthand(True);
@@ -1601,14 +1595,10 @@ begin
   end else begin
     var S := ConsumeString(ISPPIdentChars);
     for var ISPPDirective in ISPPDirectives do
-      if SameRawText(S, ISPPDirective.Name) then begin
-        if SameRawText(S, 'include') then
-          DoIncludeFileNotationCheck := True { See above }
-        else begin
-          NeedIspp := True; { Built-in preprocessor only supports '#include' }
-          ErrorDirective := SameRawText(S, 'error');
-        end;
-        ForDirectiveExpressionsNext := SameRawText(S, 'for'); { #for uses ';' as an expressions list separator so we need to remember that ';' doesn't start a comment until the list is done }
+      if S.SameText(ISPPDirective.Name) then begin
+        DoIncludeFileNotationCheck := S.SameText('include'); { See above }
+        ErrorDirective := S.SameText('error');
+        ForDirectiveExpressionsNext := S.SameText('for'); { #for uses ';' as an expressions list separator so we need to remember that ';' doesn't start a comment until the list is done }
         Inc(OpenCount, ISPPDirective.OpenCountChange);
         if OpenCount < 0 then begin
           CommitStyleSq(stCompilerDirective, True);
@@ -1638,17 +1628,14 @@ begin
     SkipWhitespace;
     while not EndOfDirective do begin
       if DoIncludeFileNotationCheck then begin
-        if CurChar <> '"' then begin
-          NeedIspp := True; { Built-in preprocessor requires a '"' quoted string after the '#include' and doesn't support anything else }
-          if CurChar = '<' then { Check for ISPP's special bracket notation for include files }
-            ConsumeISPPString('>', False); { Consume now instead of using regular consumption }
-        end;
+        if CurChar = '<' then { Check for ISPP's special bracket notation for include files }
+          ConsumeISPPString('>', False); { Consume now instead of using regular consumption }
         DoIncludeFileNotationCheck := False;
       end;
       if CurChar in ISPPIdentFirstChars then begin
         var S := ConsumeString(ISPPIdentChars);
         for var ISPPReservedWord in ISPPReservedWords do
-          if SameRawText(S, ISPPReservedWord) then begin
+          if S.SameText(ISPPReservedWord) then begin
             CommitStyle(stISPPReservedWord);
             Break;
           end;
@@ -1738,7 +1725,7 @@ begin
     ValidName := False;
     DuplicateName := False;
     for var I := Low(ValidParameters) to High(ValidParameters) do
-      if SameRawText(S, ValidParameters[I]) then begin
+      if S.SameText(ValidParameters[I]) then begin
         ValidName := True;
         DuplicateName := (I in ParamsSpecified);
         Include(ParamsSpecified, I);
@@ -2059,7 +2046,7 @@ procedure TInnoSetupStyler.StyleNeeded;
     else begin
       Result := scUnknown;
       for var Section in SectionMap do
-        if SameRawText(S, Section.Name) then begin
+        if S.SameText(Section.Name) then begin
           Result := Section.Section;
           Break;
         end;
