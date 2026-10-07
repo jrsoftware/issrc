@@ -72,7 +72,6 @@ var
   SetupLdrOriginalFilename: String;
   SetupLdrOffset0, SetupLdrOffset1: Int64;
   SetupLdrWnd: HWND;
-  SetupFirstProcessWnd: HWND;
   InitLang: String;
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
@@ -2666,13 +2665,9 @@ begin
   try
     Server := TSpawnServer.Create;
     try
-      var FirstWnd := SetupLdrWnd;
-      if not SetupLdrMode then
-        FirstWnd := Server.Wnd;
-      { The UInt32 casts prevent sign extension }
       RespawnProcess(AElevate, SetupLdrOriginalFilename,
-        Format('/SPAWNWND=$%x /FIRSTWND=$%x ', [UInt32(Server.Wnd), UInt32(FirstWnd)]) +
-        AParams, Server, RespawnResults.ExitCode);
+        Format('/SPAWNSM="%s" ', [Server.SharedMemoryID]) + AParams,
+        Server, RespawnResults.ExitCode);
     finally
       Server.Free;
     end;
@@ -3210,6 +3205,7 @@ begin
   EnableLogging := False;
   WantToSuppressMsgBoxes := False;
   DebugServerWnd := 0;
+  var SpawnServerSharedMemoryID: String;
   for var I := StartParam to NewParamCount do begin
     SplitNewParamStr(I, ParamName, ParamValue);
     ParamIsAutomaticInternal := False;
@@ -3278,13 +3274,10 @@ begin
       WantToSuppressMsgBoxes := True
     else if SameText(ParamName, '/DETACHEDMSG') then { for debugging }
       DetachedUninstMsgFile := True
-    else if SameText(ParamName, '/SPAWNWND=') then begin
+    else if SameText(ParamName, '/SPAWNSM=') then begin
       ParamIsAutomaticInternal := True; { sent by RespawnSetupProcess }
       IsRespawnedProcess := True;
-      InitializeSpawnClient(StrToWnd(ParamValue));
-    end else if SameText(ParamName, '/FIRSTWND=') then begin
-      ParamIsAutomaticInternal := True; { sent by RespawnSetupProcess }
-      SetupFirstProcessWnd := StrToWnd(ParamValue);
+      SpawnServerSharedMemoryID := ParamValue;
     end else if SameText(ParamName, '/DebugSpawnServer') then { for debugging }
       EnterSpawnServerDebugMode  { does not return }
     else if SameText(ParamName, '/DEBUGWND=') then begin
@@ -3664,6 +3657,10 @@ begin
     initializes the Setup.PathRedir unit. }
   InitMainNonGetShellFolderPathConstsAndPathRedir;
 
+  { Initialize spawn client }
+  if IsRespawnedProcess then
+    InitializeSpawnClient(SpawnServerSharedMemoryID);
+
   { Create temporary directory }
   CreateTempInstallDir;
 
@@ -3945,7 +3942,7 @@ procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
       { The "first process" is usually the non-elevated SetupLdr process, but
         if UseSetupLdr=no, it's the non-elevated Setup process. }
       var PID: DWORD;
-      if GetWindowThreadProcessId(SetupFirstProcessWnd, PID) = 0 then
+      if GetWindowThreadProcessId(GetSpawnServerFirstProcessWnd, PID) = 0 then
         LogWithLastError('Failed to get PID of first process.')
       else begin
         ProcessHandle := OpenProcess(SYNCHRONIZE, False, PID);

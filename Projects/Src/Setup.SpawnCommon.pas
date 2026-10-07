@@ -12,46 +12,58 @@ unit Setup.SpawnCommon;
 interface
 
 uses
-  Messages;
+  Windows, Messages, SHA256;
 
 const
   { Spawn client -> spawn server messages }
-  WM_SpawnServer_Query = WM_USER + $1550;
-  WM_SpawnServer_ExitNow = WM_USER + $1551;
+  WM_SpawnServer_ClientConnected = WM_USER + $155A;
+  WM_SpawnServer_ProcessRequest  = WM_USER + $155B;
+  WM_SpawnServer_ExitNow         = WM_USER + $155C;
 
-  { Spawn client -> spawn server WM_COPYDATA messages }
-  CD_SpawnServer_Exec      = $4A73E9C0;
-  CD_SpawnServer_ShellExec = $4A73E9C1;
+  { Possible codes returned by WM_SpawnServer_ProcessRequest handler }
+  SPAWN_MSGRESULT_BASE      = $6C8A5700;
+  SPAWN_MSGRESULT_OK        = SPAWN_MSGRESULT_BASE + 1;
+  SPAWN_MSGRESULT_NOT_READY = SPAWN_MSGRESULT_BASE + 2;
 
-  { Possible wParam values in a WM_SpawnServer_Query message } 
-  SPAWN_QUERY_STATUS        = 1;
-  SPAWN_QUERY_RESULTCODE_LO = 2;
-  SPAWN_QUERY_RESULTCODE_HI = 3;
-
-  { Bits set in high word of every response }
-  SPAWN_MSGRESULT_SUCCESS_BITS = $6C830000;
-  SPAWN_MSGRESULT_FAILURE_BITS = $6C840000;
-
-  { Possible error codes returned by WM_COPYDATA handler }
-  SPAWN_MSGRESULT_OUT_OF_MEMORY           = SPAWN_MSGRESULT_FAILURE_BITS or 1;
-  SPAWN_MSGRESULT_UNEXPECTED_EXCEPTION    = SPAWN_MSGRESULT_FAILURE_BITS or 2;
-  SPAWN_MSGRESULT_ALREADY_IN_CALL         = SPAWN_MSGRESULT_FAILURE_BITS or 3;
-  SPAWN_MSGRESULT_INVALID_DATA            = SPAWN_MSGRESULT_FAILURE_BITS or 4;
-  SPAWN_MSGRESULT_NOT_READY_TRY_AGAIN     = SPAWN_MSGRESULT_FAILURE_BITS or 7;
-
-  { Possible error codes returned by WM_SpawnServer_Query handler }
-  SPAWN_MSGRESULT_INVALID_SEQUENCE_NUMBER = SPAWN_MSGRESULT_FAILURE_BITS or 5;
-  SPAWN_MSGRESULT_INVALID_QUERY_OPERATION = SPAWN_MSGRESULT_FAILURE_BITS or 6;
-
-  { Low word of response to SPAWN_QUERY_STATUS query }
-  SPAWN_STATUS_EXCEPTION      = 1;
-  SPAWN_STATUS_RUNNING        = 2;
-  SPAWN_STATUS_RETURNED_TRUE  = 3;
-  SPAWN_STATUS_RETURNED_FALSE = 4;
-
-  { lParam value passed in WM_SpawnServer_ExitNow message }
-  SPAWN_EXITNOW_LPARAM_MAGIC = $5B1C6AF9;
+type
+  PSpawnServerSharedMemory = ^TSpawnServerSharedMemory;
+  TSpawnServerSharedMemory = record
+  public const
+    ExpectedVersionNumber = {$IFNDEF WIN64} - {$ENDIF} 100;
+    ObjectNamePrefix = 'Local\InnoSetupSpawnSharedMemory-';
+  public type
+    TLockState = (smsFree, smsClientPreparing, smsHandOffToServer,
+      smsServerProcessing, smsHandBackToClient, smsClientHandlingResult);
+    TRequestResult = (smrUnknown, smrInvalidData, smrExecReturned,
+      smrOutOfMemory, smrException);
+  public
+    StructSize: UInt32;
+    VersionNumber: Int32;
+    [volatile] ServerWnd, FirstProcessWnd: UInt32;  { HWND }
+    [volatile] ClientConnected: LongBool;
+    [volatile] ExitNowRequested: LongBool;
+    [volatile] ExitNowExitCode: DWORD;
+    [volatile] LockState: TLockState;
+    LockedFields: record
+      [volatile] RequestResult: TRequestResult;
+      [volatile] ExecResult: Boolean;
+      [volatile] ExecResultCode: DWORD;
+      [volatile] DataSize: UInt32;
+      [volatile] DataHash: TSHA256Digest;
+      [volatile] Data: array[0..$3FFFF] of Byte;
+    end;
+    function TryChangeLockState(const AFromState, AToState: TLockState): TLockState;
+  end;
 
 implementation
+
+{ TSpawnServerSharedMemory }
+
+function TSpawnServerSharedMemory.TryChangeLockState(const AFromState,
+  AToState: TLockState): TLockState;
+begin
+  Byte(Result) := AtomicCmpExchange(Byte(LockState), Byte(AToState),
+    Byte(AFromState));
+end;
 
 end.

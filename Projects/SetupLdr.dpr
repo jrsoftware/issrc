@@ -101,7 +101,7 @@ begin
   for var I := 1 to NewParamCount do begin
     var ParamName, ParamValue: String;
     SplitNewParamStr(I, ParamName, ParamValue);
-    if SameText(ParamName, '/SP-') or SameText(ParamName, '/SPAWNWND=') then
+    if SameText(ParamName, '/SP-') or SameText(ParamName, '/SPAWNSM=') then
       InitDisableStartupPrompt := True
     else if SameText(ParamName, '/Lang=') then
       InitLang := ParamValue

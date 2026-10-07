@@ -12,25 +12,22 @@ unit Setup.SpawnServer;
 interface
 
 uses
-  Windows, SysUtils, Messages;
+  Windows, SysUtils, Messages, Setup.SpawnCommon;
 
 type
   TSpawnServer = class
   private
     FReadyToServe: Boolean;
     FWnd: HWND;
-    FSequenceNumber: Word;
-    FCallStatus: Word;
-    FResultCode: DWORD;
-    FExitNowRequested: Boolean;
-    FExitNowExitCode: DWORD;
-    function HandleExec(const IsShellExec: Boolean; const ADataPtr: Pointer;
-      const ADataSize: Cardinal): LRESULT;
+    FSharedMemoryID: String;
+    FSharedMemoryMapping: THandle;
+    FSharedMemory: PSpawnServerSharedMemory;
+    function HandleExec: TSpawnServerSharedMemory.TRequestResult;
     procedure WndProc(var Message: TMessage);
   public
     constructor Create;
     destructor Destroy; override;
-    property Wnd: HWND read FWnd;
+    property SharedMemoryID: String read FSharedMemoryID;
   end;
 
 procedure EnterSpawnServerDebugMode;
@@ -47,14 +44,21 @@ implementation
 {x$DEFINE SPAWNSERVER_RESPAWN_ALWAYS}
 
 uses
-  Classes, Forms, ShellApi, PathFunc, Shared.CommonFunc,
-  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.SpawnCommon;
+  Classes, Forms, ShellApi, PathFunc, SHA256, Shared.CommonFunc,
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.MainFunc;
 
 type
   TPtrAndSize = record
     Ptr: ^Byte;
     Size: Cardinal;
   end;
+
+function AtomicReadBool(var ATarget: LongBool): LongBool;
+{ Reads the most up-to-date value of ATarget (not a stale cached value), with
+  full memory barrier }
+begin
+  Integer(Result) := AtomicCmpExchange(Integer(ATarget), -2, -2);
+end;
 
 procedure ProcessMessagesProc;
 begin
@@ -194,7 +198,7 @@ procedure RespawnProcess(const AElevate: Boolean;
 begin
   { Be extra careful not to accidentally turn into a fork bomb:
     Setup and Uninstall won't call RespawnProcess when they find a command
-    line parameter indicating they've already respawned (/SPAWNWND= and
+    line parameter indicating they've already respawned (/SPAWNSM= and
     /INITPROCWND= respectively). But just in case the command line parameter
     isn't passed, received, or parsed correctly for some reason, we employ a
     second defense: an environment variable that's passed on to the child
@@ -262,8 +266,9 @@ begin
     var WaitResult: DWORD;
     repeat
       ProcessMessagesProc;
-      if Assigned(ASpawnServer) and ASpawnServer.FExitNowRequested then begin
-        DWORD(AExitCode) := ASpawnServer.FExitNowExitCode;
+      if Assigned(ASpawnServer) and
+         AtomicReadBool(ASpawnServer.FSharedMemory.ExitNowRequested) then begin
+        DWORD(AExitCode) := ASpawnServer.FSharedMemory.ExitNowExitCode;
         Exit;
       end;
       WaitResult := MsgWaitForMultipleObjects(1, ProcessHandle, False,
@@ -310,39 +315,100 @@ end;
 { TSpawnServer }
 
 constructor TSpawnServer.Create;
+
+  procedure CreateSharedMemoryMapping;
+  const
+    FiveDigitsRange = 36 * 36 * 36 * 36 * 36;
+  begin
+    var FailureCount := 0;
+    while True do begin
+      FSharedMemoryID := '';
+      for var I := 0 to 2 do
+        FSharedMemoryID := FSharedMemoryID +
+          UIntToBase36Str(TStrongRandom.GenerateUInt32Range(FiveDigitsRange), 5);
+
+      const ObjectName = TSpawnServerSharedMemory.ObjectNamePrefix +
+        FSharedMemoryID;
+      { Safety: An extra 64KB ($10000) is reserved but not committed to ensure
+        any overrun of Data will always trigger an AV }
+      SetLastError(ERROR_SUCCESS);
+      const H = CreateFileMapping(INVALID_HANDLE_VALUE, nil,
+        SEC_RESERVE or PAGE_READWRITE, 0, SizeOf(FSharedMemory^) + $10000,
+        PChar(ObjectName));
+      const ErrorCode = GetLastError;
+      { ERROR_ALREADY_EXISTS means an existing object was opened; we treat
+        that the same as a failure and retry. ERROR_ACCESS_DENIED is also
+        possible if the object name exists but the DACL denies access. }
+      if H <> 0 then begin
+        if ErrorCode <> ERROR_ALREADY_EXISTS then begin
+          FSharedMemoryMapping := H;
+          Exit;
+        end;
+        CloseHandle(H);
+      end;
+      Inc(FailureCount);
+      if FailureCount >= 10 then
+        Win32ErrorMsgEx('CreateFileMapping', ErrorCode);
+    end;
+  end;
+
 begin
   inherited;
   FWnd := AllocateHWnd(WndProc);
   if FWnd = 0 then
     RaiseFunctionFailedError('AllocateHWnd');
+
+  CreateSharedMemoryMapping;
+  FSharedMemory := MapViewOfFile(FSharedMemoryMapping, FILE_MAP_WRITE, 0, 0,
+    SizeOf(FSharedMemory^));
+  if FSharedMemory = nil then
+    Win32ErrorMsg('MapViewOfFile');
+  if VirtualAlloc(FSharedMemory, SizeOf(FSharedMemory^), MEM_COMMIT,
+     PAGE_READWRITE) = nil then
+    Win32ErrorMsg('VirtualAlloc');
+  FSharedMemory.StructSize := SizeOf(FSharedMemory^);
+  FSharedMemory.VersionNumber := FSharedMemory.ExpectedVersionNumber;
+  FSharedMemory.ServerWnd := UInt32(FWnd);
+  if SetupLdrMode then
+    FSharedMemory.FirstProcessWnd := UInt32(SetupLdrWnd)
+  else
+    FSharedMemory.FirstProcessWnd := UInt32(FWnd);
+  MemoryBarrier;
 end;
 
 destructor TSpawnServer.Destroy;
 begin
+  if Assigned(FSharedMemory) then begin
+    FSharedMemory.ServerWnd := 0;
+    FSharedMemory.FirstProcessWnd := 0;
+    UnmapViewOfFile(FSharedMemory);
+  end;
+  CloseHandleAndZero(FSharedMemoryMapping);
   if FWnd <> 0 then
     DeallocateHWnd(FWnd);
   inherited;
 end;
 
-function TSpawnServer.HandleExec(const IsShellExec: Boolean;
-  const ADataPtr: Pointer; const ADataSize: Cardinal): LRESULT;
+function TSpawnServer.HandleExec: TSpawnServerSharedMemory.TRequestResult;
 var
   Data: TPtrAndSize;
   EDisableFsRedir: Integer;
   EVerb, EFilename, EParams, EWorkingDir: String;
   EWait, EShowCmd: Integer;
   ClientCurrentDir, SaveCurrentDir: String;
-  ExecResult: Boolean;
 begin
-  { Recursive calls aren't supported }
-  if FCallStatus = SPAWN_STATUS_RUNNING then begin
-    Result := SPAWN_MSGRESULT_ALREADY_IN_CALL;
+  Result := smrInvalidData;
+  Data.Ptr := @FSharedMemory.LockedFields.Data[0];
+  Data.Size := FSharedMemory.LockedFields.DataSize;
+  if Data.Size > SizeOf(FSharedMemory.LockedFields.Data) then
     Exit;
-  end;
 
-  Result := SPAWN_MSGRESULT_INVALID_DATA;
-  Data.Ptr := ADataPtr;
-  Data.Size := ADataSize;
+  const ActualDataHash = SHA256Buf(Data.Ptr^, Data.Size);
+  if not SHA256DigestsEqual(FSharedMemory.LockedFields.DataHash, ActualDataHash) then
+    Exit;
+
+  var IsShellExec: LongBool;
+  if not ExtractInteger(Data, Integer(IsShellExec)) then Exit;
   if IsShellExec then begin
     if not ExtractString(Data, EVerb) then Exit;
   end
@@ -357,47 +423,39 @@ begin
   if not ExtractString(Data, ClientCurrentDir) then Exit;
   if Data.Size <> 0 then Exit;
 
-  Inc(FSequenceNumber);
-  FResultCode := DWORD(-1);
-  FCallStatus := SPAWN_STATUS_RUNNING;
+  SaveCurrentDir := GetCurrentDir;
   try
-    SaveCurrentDir := GetCurrentDir;
-    try
-      SetCurrentDir(ClientCurrentDir);
+    SetCurrentDir(ClientCurrentDir);
 
-      Result := SPAWN_MSGRESULT_SUCCESS_BITS or FSequenceNumber;
-      { Send back the result code now to unblock the client }
-      ReplyMessage(Result);
-
-      if IsShellExec then begin
-        ExecResult := InstShellExec(EVerb, EFilename, EParams, EWorkingDir,
-          TExecWait(EWait), EShowCmd, ProcessMessagesProc, FResultCode);
-      end
-      else begin
-        ExecResult := InstExec(EDisableFsRedir <> 0, EFilename, EParams, EWorkingDir,
-          TExecWait(EWait), EShowCmd, ProcessMessagesProc, nil, FResultCode);
-      end;
-      if ExecResult then
-        FCallStatus := SPAWN_STATUS_RETURNED_TRUE
-      else
-        FCallStatus := SPAWN_STATUS_RETURNED_FALSE;
-    finally
-      SetCurrentDir(SaveCurrentDir);
+    if IsShellExec then begin
+      FSharedMemory.LockedFields.ExecResult := InstShellExec(EVerb,
+        EFilename, EParams, EWorkingDir, TExecWait(EWait), EShowCmd,
+        ProcessMessagesProc, FSharedMemory.LockedFields.ExecResultCode);
+    end
+    else begin
+      FSharedMemory.LockedFields.ExecResult := InstExec(EDisableFsRedir <> 0,
+        EFilename, EParams, EWorkingDir, TExecWait(EWait), EShowCmd,
+        ProcessMessagesProc, nil, FSharedMemory.LockedFields.ExecResultCode);
     end;
   finally
-    { If the status is still SPAWN_STATUS_RUNNING here, then an unexpected
-      exception must've occurred }
-    if FCallStatus = SPAWN_STATUS_RUNNING then
-      FCallStatus := SPAWN_STATUS_EXCEPTION;
+    SetCurrentDir(SaveCurrentDir);
   end;
+  Result := smrExecReturned;
 end;
 
 procedure TSpawnServer.WndProc(var Message: TMessage);
-var
-  Res: LRESULT;
 begin
   case Message.Msg of
-    WM_COPYDATA:
+    WM_SpawnServer_ClientConnected:
+      begin
+        { Once the client has finished mapping its view, we no longer need to
+          keep our handle to the file mapping object open. This should be the
+          last handle to the object, so closing it will remove the named entry
+          from Object Manager's BaseNamedObjects directory. }
+        if AtomicReadBool(FSharedMemory.ClientConnected) then
+          CloseHandleAndZero(FSharedMemoryMapping);
+      end;
+    WM_SpawnServer_ProcessRequest:
       begin
         { If FReadyToServe is False, that tells us RestartProcess's
           ShellExecuteEx call must not have returned yet and is processing
@@ -408,57 +466,29 @@ begin
           it isn't known whether the function continues to process some
           messages after starting the process. We're assuming that it could
           and defending against it.) }
-        if not FReadyToServe then begin
-          Message.Result := SPAWN_MSGRESULT_NOT_READY_TRY_AGAIN;
-          Exit;
-        end;
-        try
-          const CopyDataMsg = DWORD(TWMCopyData(Message).CopyDataStruct.dwData);
-          case CopyDataMsg of
-            CD_SpawnServer_Exec,
-            CD_SpawnServer_ShellExec:
-              begin
-                Message.Result := HandleExec(
-                  CopyDataMsg = CD_SpawnServer_ShellExec,
-                  TWMCopyData(Message).CopyDataStruct.lpData,
-                  TWMCopyData(Message).CopyDataStruct.cbData);
-              end;
-            else
-              Message.Result := SPAWN_MSGRESULT_INVALID_DATA
+        if not FReadyToServe then
+          Message.Result := SPAWN_MSGRESULT_NOT_READY
+        else begin
+          Message.Result := SPAWN_MSGRESULT_OK;
+          { Acquire lock. If this doesn't succeed (e.g., because the state is
+            already smsServerProcessing) then we intentionally still return
+            SPAWN_MSGRESULT_OK; see comments in CallSpawnServer. }
+          if FSharedMemory.TryChangeLockState(
+             smsHandOffToServer, smsServerProcessing) = smsHandOffToServer then begin
+            { After advancing the state, unblock the client }
+            ReplyMessage(Message.Result);
+            try
+              FSharedMemory.LockedFields.RequestResult := HandleExec;
+            except
+              if ExceptObject is EOutOfMemory then
+                FSharedMemory.LockedFields.RequestResult := smrOutOfMemory
+              else
+                { Shouldn't get here; we don't explicitly raise any exceptions }
+                FSharedMemory.LockedFields.RequestResult := smrException;
+            end;
+            { Release lock }
+            FSharedMemory.TryChangeLockState(smsServerProcessing, smsHandBackToClient);
           end;
-        except
-          if ExceptObject is EOutOfMemory then
-            Message.Result := SPAWN_MSGRESULT_OUT_OF_MEMORY
-          else
-            { Shouldn't get here; we don't explicitly raise any exceptions }
-            Message.Result := SPAWN_MSGRESULT_UNEXPECTED_EXCEPTION;
-        end;
-      end;
-    WM_SpawnServer_Query:
-      begin
-        Res := SPAWN_MSGRESULT_INVALID_SEQUENCE_NUMBER;
-        if Message.LParam = FSequenceNumber then begin
-          Res := SPAWN_MSGRESULT_INVALID_QUERY_OPERATION;
-          const Operation = Integer(Message.WParam);
-          case Operation of
-            SPAWN_QUERY_STATUS:
-              Res := SPAWN_MSGRESULT_SUCCESS_BITS or FCallStatus;
-            SPAWN_QUERY_RESULTCODE_LO:
-              Res := SPAWN_MSGRESULT_SUCCESS_BITS or LongRec(FResultCode).Lo;
-            SPAWN_QUERY_RESULTCODE_HI:
-              Res := SPAWN_MSGRESULT_SUCCESS_BITS or LongRec(FResultCode).Hi;
-          end;
-        end;
-        Message.Result := Res;
-      end;
-    WM_SpawnServer_ExitNow:
-      begin
-        { Because this message is posted (not sent), RespawnProcess's
-          message loop will have to break out of a wait state to process it.
-          After we return, the message loop checks FExitNowRequested. }
-        if Message.LParam = SPAWN_EXITNOW_LPARAM_MAGIC then begin
-          FExitNowExitCode := DWORD(Message.WParam);
-          FExitNowRequested := True;
         end;
       end;
   else

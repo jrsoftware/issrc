@@ -17,7 +17,8 @@ interface
 uses
   Windows, SysUtils, Messages, Setup.InstFunc, Shared.CommonFunc;
 
-procedure InitializeSpawnClient(const AServerWnd: HWND);
+function GetSpawnServerFirstProcessWnd: HWND;
+procedure InitializeSpawnClient(const AServerSharedMemoryID: String);
 function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
   const Wait: TExecWait; const ShowCmd: Integer;
@@ -33,11 +34,10 @@ function StopSpawnServerProcess(const AExitCode: DWORD): Boolean;
 implementation
 
 uses
-  Classes, Setup.SpawnCommon;
+  Classes, SHA256, Setup.SpawnCommon;
 
 var
-  SpawnServerPresent: Boolean;
-  SpawnServerWnd: HWND;
+  SpawnServerSharedMemory: PSpawnServerSharedMemory;
 
 procedure WriteLongintToStream(const M: TMemoryStream; const Value: Longint);
 begin
@@ -70,7 +70,7 @@ var
   PID: DWORD;
   AllowSetForegroundWindowFunc: function(dwProcessId: DWORD): BOOL; stdcall;
 begin
-  if GetWindowThreadProcessId(SpawnServerWnd, @PID) <> 0 then begin
+  if GetWindowThreadProcessId(SpawnServerSharedMemory.ServerWnd, @PID) <> 0 then begin
     AllowSetForegroundWindowFunc := GetProcAddress(GetModuleHandle(user32),
       'AllowSetForegroundWindow');
     if Assigned(AllowSetForegroundWindowFunc) then
@@ -78,72 +78,109 @@ begin
   end;
 end;
 
-function QuerySpawnServer(const SequenceNumber: Word;
-  const Operation: Integer): Word;
-var
-  MsgResult: LRESULT;
-begin
-  MsgResult := SendMessage(SpawnServerWnd, WM_SpawnServer_Query, Operation,
-    SequenceNumber);
-  if MsgResult and not $FFFF <> SPAWN_MSGRESULT_SUCCESS_BITS then
-    InternalErrorFmt('QuerySpawnServer: Unexpected response: $%x', [MsgResult]);
-  Result := Word(MsgResult);
-end;
-
-function CallSpawnServer(const CopyDataMsg: DWORD; var M: TMemoryStream;
+function CallSpawnServer(var M: TMemoryStream;
   const ProcessMessagesProc: TProcedure; var ResultCode: DWORD): Boolean;
-var
-  CopyDataStruct: TCopyDataStruct;
-  MsgResult: LRESULT;
-  SequenceNumber: Word;
-  Status: Word;
-  LastQueryTime, NowTime: DWORD;
+
+  procedure CheckIfServerWndValid;
+  begin
+    { ServerWnd can be 0 if the server shut down cleanly (though it shouldn't
+      do so while we're still running), and it can be nonzero but invalid if
+      the server process was killed or is shutting down right at this moment }
+    const Wnd = SpawnServerSharedMemory.ServerWnd;
+    if (Wnd = 0) or not IsWindow(Wnd) then begin
+      { Zero to stop an invalid handle from being accessed any further }
+      SpawnServerSharedMemory.ServerWnd := 0;
+      InternalErrorFmt('CallSpawnServer: Server window invalid ($%x)', [Wnd]);
+    end;
+  end;
+
 begin
+  CheckIfServerWndValid;
+
+  const SM = SpawnServerSharedMemory;
+  const DataSize = M.Size;
+  if (DataSize <= 0) or (DataSize > SizeOf(SM.LockedFields.Data)) then
+    InternalError('CallSpawnServer: Data size out of range');
+
+  { Acquire lock. This fails for reentrant invocations, or if a previous
+    call raised an exception outside of the smsClientHandlingResult state. We
+    don't bother trying to recover from such exceptions because the error
+    condition is likely permanent (e.g., an invalid ServerWnd won't become
+    valid again). }
+  if SM.TryChangeLockState(smsFree, smsClientPreparing) <> smsFree then
+    InternalError('CallSpawnServer: State not free');
+
+  SM.LockedFields.RequestResult := smrUnknown;
+  SM.LockedFields.ExecResult := False;
+  SM.LockedFields.ExecResultCode := DWORD(-1);
+  SM.LockedFields.DataSize := Cardinal(DataSize);
+  SM.LockedFields.DataHash := SHA256Buf(M.Memory^, Cardinal(DataSize));
+  Move(M.Memory^, SM.LockedFields.Data, NativeInt(DataSize));
+  FreeAndNil(M);  { It isn't needed anymore }
+
+  { Release lock; the server will acquire it next }
+  AllowSpawnServerToSetForegroundWindow;
+  SM.TryChangeLockState(smsClientPreparing, smsHandOffToServer);
+
+  { Tell the server to begin processing the request, retrying if the server
+    isn't yet ready to accept requests.
+    It's technically possible that the server already began processing the
+    request if another process mischievously sent a
+    WM_SpawnServer_ProcessRequest message to it. No harm is caused by that;
+    MsgResult will still be SPAWN_MSGRESULT_OK. }
   while True do begin
     ProcessMessagesProc;
-    CopyDataStruct.dwData := CopyDataMsg;
-    if M.Size > High(DWORD) then
-      InternalError('CallSpawnServer: Size limit exceeded');
-    CopyDataStruct.cbData := DWORD(M.Size);
-    CopyDataStruct.lpData := M.Memory;
     AllowSpawnServerToSetForegroundWindow;
-    MsgResult := SendMessage(SpawnServerWnd, WM_COPYDATA, 0, LPARAM(@CopyDataStruct));
-    if MsgResult <> SPAWN_MSGRESULT_NOT_READY_TRY_AGAIN then
+    const MsgResult = SendMessage(SM.ServerWnd, WM_SpawnServer_ProcessRequest,
+      0, 0);
+    if MsgResult = SPAWN_MSGRESULT_OK then
       Break;
+    if MsgResult <> SPAWN_MSGRESULT_NOT_READY then begin
+      { 0 likely means SendMessage failed; re-check if ServerWnd is valid }
+      if MsgResult = 0 then
+        CheckIfServerWndValid;
+      InternalErrorFmt('CallSpawnServer: Unexpected response ($%x)',
+        [MsgResult]);
+    end;
     Sleep(100);
   end;
-  FreeAndNil(M);  { it isn't needed anymore, might as well free now }
-  if MsgResult = SPAWN_MSGRESULT_OUT_OF_MEMORY then
-    OutOfMemoryError;
-  if MsgResult and not $FFFF <> SPAWN_MSGRESULT_SUCCESS_BITS then
-    InternalErrorFmt('CallSpawnServer: Unexpected response: $%x', [MsgResult]);
-  SequenceNumber := Word(MsgResult);
 
-  LastQueryTime := GetTickCount;
-  repeat
-    ProcessMessagesProc;
-    { Now that the queue is empty (we mustn't break without first processing
-      messages found by a previous MsgWaitForMultipleObjects call), see if
-      the status changed, but only if at least 10 ms has elapsed since the
-      last query }
-    NowTime := GetTickCount;
-    if Cardinal(NowTime - LastQueryTime) >= Cardinal(10) then begin
-      LastQueryTime := NowTime;
-      Status := QuerySpawnServer(SequenceNumber, SPAWN_QUERY_STATUS);
-      case Status of
-        SPAWN_STATUS_RUNNING: ;
-        SPAWN_STATUS_RETURNED_TRUE, SPAWN_STATUS_RETURNED_FALSE: Break;
-      else
-        InternalErrorFmt('CallSpawnServer: Unexpected status: %d', [Status]);
-      end;
+  { The server should have picked up the request and acquired the lock,
+    advancing the state to smsServerProcessing. After the server's call to
+    InstExec/InstShellExec returns, the server will release the lock,
+    advancing the state to smsHandBackToClient. Loop until we're able to
+    reacquire the lock. }
+  while True do begin
+    const PrevState = SM.TryChangeLockState(
+      smsHandBackToClient, smsClientHandlingResult);
+    case PrevState of
+      smsServerProcessing: ;
+      smsHandBackToClient: Break;
+    else
+      InternalErrorFmt('CallSpawnServer: Unexpected state (%d)',
+        [Ord(PrevState)]);
     end;
-    { Delay for 10 ms, or until a message arrives }
-    MsgWaitForMultipleObjects(0, THandle(nil^), False, 10, QS_ALLINPUT);
-  until False;
+    ProcessMessagesProc;
+    WaitMessageWithTimeout(10);
+    ProcessMessagesProc;
+    CheckIfServerWndValid;
+  end;
 
-  ResultCode := QuerySpawnServer(SequenceNumber, SPAWN_QUERY_RESULTCODE_LO) or
-    (QuerySpawnServer(SequenceNumber, SPAWN_QUERY_RESULTCODE_HI) shl 16);
-  Result := (Status = SPAWN_STATUS_RETURNED_TRUE);
+  { Lock was successfully reacquired }
+  try
+    case SM.LockedFields.RequestResult of
+      smrOutOfMemory: OutOfMemoryError;
+      smrExecReturned: ;
+    else
+      InternalErrorFmt('CallSpawnServer: Unexpected request result (%d)',
+        [Ord(SM.LockedFields.RequestResult)]);
+    end;
+    ResultCode := SM.LockedFields.ExecResultCode;
+    Result := SM.LockedFields.ExecResult;
+  finally
+    { Release lock }
+    SM.TryChangeLockState(smsClientHandlingResult, smsFree);
+  end;
 end;
 
 function InstExecEx(const RunAsOriginalUser: Boolean;
@@ -154,7 +191,7 @@ function InstExecEx(const RunAsOriginalUser: Boolean;
 var
   M: TMemoryStream;
 begin
-  if not RunAsOriginalUser or not SpawnServerPresent then begin
+  if not RunAsOriginalUser or not Assigned(SpawnServerSharedMemory) then begin
     Result := InstExec(DisableFsRedir, Filename, Params, WorkingDir,
       Wait, ShowCmd, ProcessMessagesProc, OutputReader, ResultCode);
     Exit;
@@ -162,6 +199,7 @@ begin
 
   M := TMemoryStream.Create;
   try
+    WriteLongintToStream(M, Ord(False));  { IsShellExec=False }
     WriteLongintToStream(M, Ord(DisableFsRedir));
     WriteStringToStream(M, Filename);
     WriteStringToStream(M, Params);
@@ -170,8 +208,7 @@ begin
     WriteLongintToStream(M, ShowCmd);
     WriteStringToStream(M, GetCurrentDir);
 
-    Result := CallSpawnServer(CD_SpawnServer_Exec, M, ProcessMessagesProc,
-      ResultCode);
+    Result := CallSpawnServer(M, ProcessMessagesProc, ResultCode);
   finally
     M.Free;
   end;
@@ -184,7 +221,7 @@ function InstShellExecEx(const RunAsOriginalUser: Boolean;
 var
   M: TMemoryStream;
 begin
-  if not RunAsOriginalUser or not SpawnServerPresent then begin
+  if not RunAsOriginalUser or not Assigned(SpawnServerSharedMemory) then begin
     Result := InstShellExec(Verb, Filename, Params, WorkingDir,
       Wait, ShowCmd, ProcessMessagesProc, ResultCode);
     Exit;
@@ -192,6 +229,7 @@ begin
 
   M := TMemoryStream.Create;
   try
+    WriteLongintToStream(M, Ord(True));  { IsShellExec=True }
     WriteStringToStream(M, Verb);
     WriteStringToStream(M, Filename);
     WriteStringToStream(M, Params);
@@ -200,28 +238,79 @@ begin
     WriteLongintToStream(M, ShowCmd);
     WriteStringToStream(M, GetCurrentDir);
 
-    Result := CallSpawnServer(CD_SpawnServer_ShellExec, M, ProcessMessagesProc,
-      ResultCode);
+    Result := CallSpawnServer(M, ProcessMessagesProc, ResultCode);
   finally
     M.Free;
   end;
 end;
 
-procedure InitializeSpawnClient(const AServerWnd: HWND);
+procedure InitializeSpawnClient(const AServerSharedMemoryID: String);
 begin
-  SpawnServerWnd := AServerWnd;
-  SpawnServerPresent := True;
+  if Length(AServerSharedMemoryID) <> 15 then
+    InternalError('InitializeSpawnClient: Wrong ID length');
+  for var C in AServerSharedMemoryID do
+    if not CharInSet(C, ['0'..'9', 'A'..'Z']) then
+      InternalError('InitializeSpawnClient: Invalid characters in ID');
+
+  const ObjectName = TSpawnServerSharedMemory.ObjectNamePrefix +
+    AServerSharedMemoryID;
+  const H = OpenFileMapping(FILE_MAP_WRITE, False, PChar(ObjectName));
+  if H = 0 then
+    Win32ErrorMsg('OpenFileMapping');
+  var SM: PSpawnServerSharedMemory;
+  try
+    SM := MapViewOfFile(H, FILE_MAP_WRITE, 0, 0, SizeOf(SM^));
+    if SM = nil then
+      Win32ErrorMsg('MapViewOfFile');
+  finally
+    { Keeping the handle open isn't necessary; the object stays alive as long
+      as there are mapped views }
+    CloseHandle(H);
+  end;
+  try
+    if (SM.StructSize <> SizeOf(SM^)) or
+       (SM.VersionNumber <> SM.ExpectedVersionNumber) then
+      InternalError('InitializeSpawnClient: Wrong size or version');
+    if AtomicCmpExchange(Integer(SM.ClientConnected), 1, 0) <> 0 then
+      InternalError('InitializeSpawnClient: Client already connected');
+  except
+    UnmapViewOfFile(SM);
+    raise;
+  end;
+  SpawnServerSharedMemory := SM;
+
+  const Wnd = SM.ServerWnd;
+  if Wnd <> 0 then
+    PostMessage(Wnd, WM_SpawnServer_ClientConnected, 0, 0);
 end;
 
 function IsSpawnServerPresent: Boolean;
 begin
-  Result := SpawnServerPresent;
+  Result := Assigned(SpawnServerSharedMemory);
+end;
+
+function GetSpawnServerFirstProcessWnd: HWND;
+begin
+  if Assigned(SpawnServerSharedMemory) then
+    Result := SpawnServerSharedMemory.FirstProcessWnd
+  else
+    Result := 0;
 end;
 
 function StopSpawnServerProcess(const AExitCode: DWORD): Boolean;
 begin
-  Result := PostMessage(SpawnServerWnd, WM_SpawnServer_ExitNow, AExitCode,
-    SPAWN_EXITNOW_LPARAM_MAGIC);
+  if not Assigned(SpawnServerSharedMemory) then
+    Exit(False);
+
+  SpawnServerSharedMemory.ExitNowExitCode := AExitCode;
+  AtomicExchange(Integer(SpawnServerSharedMemory.ExitNowRequested), Ord(True));
+
+  { Post a message to wake the server's RespawnProcess function from a
+    waiting-for-message state so that it re-checks ExitNowRequested.
+    (The server doesn't have any handling for this specific message; the point
+    is just to wake it up.) }
+  const Wnd = SpawnServerSharedMemory.ServerWnd;
+  Result := (Wnd <> 0) and PostMessage(Wnd, WM_SpawnServer_ExitNow, 0, 0);
 end;
 
 end.

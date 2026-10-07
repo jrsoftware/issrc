@@ -114,6 +114,7 @@ const
   clWindow = TColors.SysWindow;
   clNone = TColors.SysNone;
 
+procedure CloseHandleAndZero(var AHandle: THandle);
 function NewFileExists(const Name: String): Boolean;
 function DirExists(const Name: String): Boolean;
 function FileOrDirExists(const Name: String): Boolean;
@@ -219,6 +220,15 @@ uses
   UIConsts,
   PathFunc, UnsignedFunc,
   Shared.FileClass;
+
+procedure CloseHandleAndZero(var AHandle: THandle);
+{ Like FreeAndNil, but for kernel handles that are closed via CloseHandle }
+begin
+  const H = AHandle;
+  AHandle := 0;
+  if (H <> 0) and (H <> INVALID_HANDLE_VALUE) then
+    CloseHandle(H);
+end;
 
 function InternalGetFileAttr(const Name: String): DWORD;
 begin
