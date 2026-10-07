@@ -91,34 +91,6 @@ const
   inSquiggly = 0;
   inPendingSquiggly = 1;
 
-  WhitespaceChars = [#0..' '];
-  AlphaChars = ['A'..'Z', 'a'..'z'];
-  DigitChars = ['0'..'9'];
-  HexDigitChars = DigitChars + ['A'..'F', 'a'..'f'];
-  AlphaUnderscoreChars = AlphaChars + ['_'];
-  AlphaDigitChars = AlphaChars + DigitChars;
-  AlphaDigitUnderscoreChars = AlphaChars + DigitChars + ['_'];
-
-  PascalIdentFirstChars = AlphaUnderscoreChars;
-  PascalIdentChars = AlphaDigitUnderscoreChars;
-
-  ISPPIdentFirstChars = AlphaUnderscoreChars;
-  ISPPIdentChars = AlphaDigitUnderscoreChars;
-
-{ TFunctionDefinition }
-
-constructor TFunctionDefinition.Create(const ScriptFunc: AnsiString);
-begin
-  ScriptFuncWithoutHeader := RemoveScriptFuncHeader(ScriptFunc, HeaderKind);
-  HasParams := ScriptFuncHasParameters(ScriptFunc);
-end;
-
-constructor TFunctionDefinition.CreateISPP(const ISPPScriptFunc: AnsiString);
-begin
-  ScriptFuncWithoutHeader := RemoveISPPScriptFuncHeader(ISPPScriptFunc, HeaderKind);
-  HasParams := ScriptFuncHasParameters(ISPPScriptFunc);
-end;
-
 { TInnoSetupStyler }
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
