@@ -2007,7 +2007,9 @@ var
         FreeAndNil(F);
         raise;
       end;
-      if not KeepOpen then
+      if KeepOpen then
+        F.Position := 0
+      else
         FreeAndNil(F);
 
       Stack.SetClass(PStart, F);

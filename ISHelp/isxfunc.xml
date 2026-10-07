@@ -2245,7 +2245,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const VerifyFilename: Boolean; const KeepOpen: Boolean): TFileStream;</prototype>
         <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using <sn>[ISSigKeys]</sn> section parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>. An exception will be raised upon failure.</p>
 <p>If <tt>VerifyFilename</tt> is set to <tt>False</tt> the verification allows signatures for a different filename. It is recommended that you only set it to <tt>False</tt> if you don't know the name the file had when the signature was created. The size and hash of the file must always match.</p>
-<p>Returns a handle to the still open file if <tt>KeepOpen</tt> is set to <tt>True</tt>, <tt>nil</tt> otherwise. It is recommended that you always set it to <tt>True</tt> if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p></description>
+<p>Returns a stream for the still open file if <tt>KeepOpen</tt> is set to <tt>True</tt>, <tt>nil</tt> otherwise. The returned stream is at position 0. It is recommended that you always set it to <tt>True</tt> if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p></description>
         <example><pre><key>var</key>
   F: TFileStream;
 <key>begin</key>
