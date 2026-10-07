@@ -70,11 +70,12 @@ var
   var
     Dir, IncludeFilename: String;
   begin
+    { Also see IDE.ScintStylerInnoSetup's BuiltinPreprocessorAcceptsDirective }
     if Copy(D, 1, Length('include')) = 'include' then begin
       Delete(D, 1, Length('include'));
       if (D = '') or (D[1] > ' ') then
         RaiseError(LineFilename, LineNumber, SCompilerInvalidDirective);
-      D := TrimLeft(D);
+      D := D.TrimLeft;
       if (Length(D) < 3) or (D[1] <> '"') or (PathLastChar(D)^ <> '"') then
         RaiseError(LineFilename, LineNumber, SCompilerInvalidDirective);
       if LineFilename = '' then

@@ -526,6 +526,7 @@ type
   private
     FCaretIndex: Integer;
     FCurIndex: Integer;
+    FFirstLine: Integer;
     FLineState: TScintLineState;
     FStyleStartIndex: Integer;
     FStyleStr: AnsiString;
@@ -561,6 +562,7 @@ type
     property CurChar: AnsiChar read GetCurChar;
     property CurIndex: Integer read FCurIndex;
     property EndOfLine: Boolean read GetEndOfLine;
+    property FirstLine: Integer read FFirstLine;
     property LineState: TScintLineState read FLineState write FLineState;
     property StyleStartIndex: Integer read FStyleStartIndex;
     property Text: TScintRawString read FText;
@@ -2297,6 +2299,7 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
       insert and remove a ';' character before a [Setup] directive, i.e.
       toggle comment styling.) }
 
+    FStyler.FFirstLine := FirstLine;
     FStyler.FCaretIndex := CalcCaretIndex(FirstLine, LastLine);
     FStyler.FCurIndex := 1;
     FStyler.FStyleStartIndex := 1;

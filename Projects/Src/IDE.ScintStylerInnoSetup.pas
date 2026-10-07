@@ -1471,6 +1471,29 @@ end;
 
 procedure TInnoSetupStyler.HandleCompilerDirective(const InlineDirective: Boolean; const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
 
+  function BuiltinPreprocessorAcceptsDirective: Boolean;
+  begin
+    { Must match Compiler.SetupCompiler's SelectPreprocessor }
+    if FirstLine = 0 then begin
+      const S = Text.Trim;
+      if S = '#preproc builtin' then
+        Exit(True);
+    end;
+
+    { Must match Compiler.BuiltinPreproc's ProcessDirective }
+    var D := Copy(Text, CurIndex + 1, MaxInt);
+    if Copy(D, 1, Length('include')) = 'include' then begin
+      Delete(D, 1, Length('include'));
+      if (D = '') or (D[1] > ' ') then
+        Exit(False);
+      D := D.TrimLeft;
+      if (Length(D) < 3) or (D[1] <> '"') or (D[Length(D)] <> '"') then
+        Exit(False);
+      Result := True;
+    end else
+      Result := False;
+  end;
+
   function EndOfDirective: Boolean;
   begin
     Result := EndOfLine or (InlineDirective and (CurIndex > InlineDirectiveEndIndex));
@@ -1543,12 +1566,9 @@ const
      '.' {endif}];
 begin
   var StartIndex := CurIndex;
-  var NeedIspp: Boolean;
-  if InlineDirective then begin
+  const NeedIspp = InlineDirective or not BuiltinPreprocessorAcceptsDirective;
+  if InlineDirective then
     ConsumeChar('{');
-    NeedIspp := True;
-  end else
-    NeedIspp := False; { Might be updated later to True later }
   var ForDirectiveExpressionsNext := False;
   var DoIncludeFileNotationCheck := False;
   var ErrorDirective := False;
@@ -1560,7 +1580,6 @@ begin
   var C := CurChar;
   if ConsumeCharIn(ISPPDirectiveShorthands) then begin
     DoIncludeFileNotationCheck := C = '+'; { We need to check the include file notation  }
-    NeedIspp := True;
     if C = '?' then begin { if }
       Inc(OpenCount);
       FinishDirectiveNameOrShorthand(True);
@@ -1577,12 +1596,8 @@ begin
     var S := ConsumeString(ISPPIdentChars);
     for var ISPPDirective in ISPPDirectives do
       if S.SameText(ISPPDirective.Name) then begin
-        if S.SameText('include') then
-          DoIncludeFileNotationCheck := True { See above }
-        else begin
-          NeedIspp := True; { Built-in preprocessor only supports '#include' }
-          ErrorDirective := S.SameText('error');
-        end;
+        DoIncludeFileNotationCheck := S.SameText('include'); { See above }
+        ErrorDirective := S.SameText('error');
         ForDirectiveExpressionsNext := S.SameText('for'); { #for uses ';' as an expressions list separator so we need to remember that ';' doesn't start a comment until the list is done }
         Inc(OpenCount, ISPPDirective.OpenCountChange);
         if OpenCount < 0 then begin
@@ -1613,11 +1628,8 @@ begin
     SkipWhitespace;
     while not EndOfDirective do begin
       if DoIncludeFileNotationCheck then begin
-        if CurChar <> '"' then begin
-          NeedIspp := True; { Built-in preprocessor requires a '"' quoted string after the '#include' and doesn't support anything else }
-          if CurChar = '<' then { Check for ISPP's special bracket notation for include files }
-            ConsumeISPPString('>', False); { Consume now instead of using regular consumption }
-        end;
+        if CurChar = '<' then { Check for ISPP's special bracket notation for include files }
+          ConsumeISPPString('>', False); { Consume now instead of using regular consumption }
         DoIncludeFileNotationCheck := False;
       end;
       if CurChar in ISPPIdentFirstChars then begin
