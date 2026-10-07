@@ -225,7 +225,7 @@
       <function>
         <name>RmSessionStarted</name>
         <prototype>function RmSessionStarted: Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if a Restart Manager session was started, <tt>False</tt> otherwise.</p></description>
+        <description><p>Returns <tt>True</tt> if a Restart Manager session is active, <tt>False</tt> otherwise.</p></description>
         <seealso><p><sd>CloseApplications</sd></p></seealso>
       </function>
     </subcategory>

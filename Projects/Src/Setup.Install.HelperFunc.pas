@@ -561,6 +561,7 @@ begin
   { Close session on all errors except for ERROR_FAIL_SHUTDOWN, should still call RmRestart in that case. }
   if (Error <> ERROR_SUCCESS) and (Error <> ERROR_FAIL_SHUTDOWN) then begin
     RmEndSession(RmSessionHandle);
+    RmSessionStarted := False;
     LogFmt('RmShutdown returned an error: %d', [Error]);
     RmDoRestart := False;
   end;
