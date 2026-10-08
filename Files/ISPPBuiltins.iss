@@ -308,9 +308,7 @@
   S = Copy(S, 1, Index - 1) + Copy(S, Index + Count)
 
 #define Insert(str *S, int Index, str Substr) \
-  Index > Len(S) + 1 ? \
-    S : \
-    S = Copy(S, 1, Index - 1) + SubStr + Copy(S, Index)
+  S = Copy(S, 1, Index - 1) + SubStr + Copy(S, Index)
 
 #define YesNo(str S) \
   S == "yes" || S == "true" || S == "1"

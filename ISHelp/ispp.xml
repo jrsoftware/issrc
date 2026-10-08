@@ -2015,6 +2015,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Inserts the specified <tt>Substr</tt> into <tt>S</tt> at the position given by <tt>Index</tt>. <tt>S</tt> is passed by reference (and is therefore modified).</p>
+					<p>If <tt>Index</tt> is larger than the length of <tt>S</tt>, <tt>Insert</tt> appends <tt>Substr</tt> to <tt>S</tt>.</p>
 					<p>Unrelated to &insert;.</p>
           <p>Declared in &builtins;.</p>
 				</description>

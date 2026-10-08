@@ -1131,6 +1131,8 @@
 #define InsertTarget = 'hello'
 #call Insert(InsertTarget, 2, 'XX')
 #call CheckEqualsString('hXXello', InsertTarget)
+#call Insert(InsertTarget, 10, 'YY')
+#call CheckEqualsString('hXXelloYY', InsertTarget)
 #undef DeleteTarget
 #undef InsertTarget
 //
