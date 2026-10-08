@@ -190,13 +190,15 @@
 
 #define GetPackedVersion(str FileName, *Version) \
   Local[0] = GetVersionComponents(FileName, Local[1], Local[2], Local[3], Local[4]), \
-  Version = PackVersionComponents(Local[1], Local[2], Local[3], Local[4]), \
-  Local[0]
+  Local[0] == "" ? "" : ( \
+    Version = PackVersionComponents(Local[1], Local[2], Local[3], Local[4]), \
+  Local[0])
 
 #define GetVersionNumbers(str FileName, *VersionMS, *VersionLS) \
   Local[0] = GetPackedVersion(FileName, Local[1]), \
-  UnpackVersionNumbers(Local[1], VersionMS, VersionLS), \
-  Local[0]
+  Local[0] == "" ? "" : ( \
+    UnpackVersionNumbers(Local[1], VersionMS, VersionLS), \
+  Local[0])
 
 #define PackVersionNumbers(int VersionMS, int VersionLS) \
   VersionMS << 32 | (VersionLS & 0xFFFFFFFF)
@@ -306,9 +308,7 @@
   S = Copy(S, 1, Index - 1) + Copy(S, Index + Count)
 
 #define Insert(str *S, int Index, str Substr) \
-  Index > Len(S) + 1 ? \
-    S : \
-    S = Copy(S, 1, Index - 1) + SubStr + Copy(S, Index)
+  S = Copy(S, 1, Index - 1) + SubStr + Copy(S, Index)
 
 #define YesNo(str S) \
   S == "yes" || S == "true" || S == "1"

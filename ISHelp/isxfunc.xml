@@ -950,7 +950,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>Insert</name>
         <prototype>procedure Insert(Source: AnyString; var Dest: AnyString; Index: Integer);</prototype>
-        <description><p>Merges <tt>Source</tt> into <tt>Dest</tt> at the position <tt>Dest</tt>[<tt>Index</tt>].</p></description>
+        <description><p>Merges <tt>Source</tt> into <tt>Dest</tt> at the position <tt>Dest</tt>[<tt>Index</tt>].<br />If <tt>Index</tt> is larger than the length of <tt>Dest</tt>, <tt>Insert</tt> appends <tt>Source</tt> to <tt>Dest</tt>.</p></description>
       </function>
       <function>
         <name>StringChange</name>

@@ -651,12 +651,13 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
   function AskOverwrite(const DestFile, Instruction, Caption: string; const ButtonLabels: array of String;
     const VerificationText: String; const Typ: TMsgBoxType; const Default, Overwrite: Integer;
     var OverwriteAll: TOverwriteAll): Boolean;
-  var
-    VerificationFlagChecked: BOOL;
   begin
     if OverwriteAll = oaKeep then
       Result := False { The user already said to keep (=not overwrite) all }
     else begin
+      { VerificationFlagChecked is output only but must be initialized anyway,
+        so the value is valid when the message box is suppressed or fails }
+      var VerificationFlagChecked: BOOL := False;
       Result := LoggedTaskDialogMsgBox('', Instruction, DestFile + SNewLine2 + Caption, '',
         Typ, MB_YESNO, ButtonLabels, 0, True, Default, VerificationText, @VerificationFlagChecked) = Overwrite;
       if VerificationFlagChecked then begin
