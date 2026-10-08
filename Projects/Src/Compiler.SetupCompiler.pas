@@ -369,7 +369,7 @@ type
   TFileLocationTimeStamp = (tsNoSetting, tsTouch, tsNone);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
-    Flags: set of (floVersionInfoNotValid, floSolidBreak);
+    Flags: set of (floVersionInfoNotValid, floSolidBreak, floCompareTimeStamp);
     Sign: TFileLocationSign;
     TimeStamp: TFileLocationTimeStamp;
     Verification: TSetupFileVerification;
@@ -5321,6 +5321,13 @@ type
       TimeStamp := NewTimeStamp;
   end;
 
+  procedure CheckCompareTimeStamp(const TimeStamp: TFileLocationTimeStamp;
+    const CompareTimeStamp: Boolean; const ErrorMessage: String);
+  begin
+    if (TimeStamp = tsNone) and CompareTimeStamp then
+      AbortCompileFmt(ErrorMessage, [ParamCommonFlags, 'notimestamp', 'comparetimestamp']);
+  end;
+
   procedure ApplyNewVerificationType(var VerificationType: TSetupFileVerificationType;
     const NewVerificationType: TSetupFileVerificationType; const ErrorMessage: String);
   begin
@@ -5431,6 +5438,11 @@ type
         if TimeStamp <> tsNoSetting then
           ApplyNewTimeStamp(NewFileLocationEntryExtraInfo.TimeStamp, TimeStamp,
             SCompilerParamErrorBadCombo2SameSource);
+        if foCompareTimeStamp in NewFileEntry^.Options then
+          Include(NewFileLocationEntryExtraInfo^.Flags, floCompareTimeStamp);
+        CheckCompareTimeStamp(NewFileLocationEntryExtraInfo^.TimeStamp,
+          floCompareTimeStamp in NewFileLocationEntryExtraInfo^.Flags,
+          SCompilerParamErrorBadCombo2SameSource);
         if NewFileEntry^.Verification.Typ <> fvNone  then
           ApplyNewVerificationType(NewFileLocationEntryExtraInfo.Verification.Typ, NewFileEntry^.Verification.Typ,
             SCompilerFilesParamFlagConflictSameSource);
@@ -5901,8 +5913,7 @@ begin
           Excludes := AExcludes.DelimitedText;
         end;
 
-        if (TimeStamp = tsNone) and (foCompareTimeStamp in Options) then
-          AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'notimestamp', 'comparetimestamp']);
+        CheckCompareTimeStamp(TimeStamp, foCompareTimeStamp in Options, SCompilerParamErrorBadCombo2);
 
         if foDownload in Options then begin
           if not ExternalFile then
