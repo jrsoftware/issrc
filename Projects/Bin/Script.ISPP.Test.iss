@@ -1407,6 +1407,8 @@ AppContact={#% ISTESTTOOLPROJ_TEST_ENV}
 #call CheckFalse(DirExists('C:\nonexistent_dir_xyz_12345'))
 #call CheckTrue(FileSize(AddBackslash(CompilerPath) + 'ISCC.exe') > 0)
 #call CheckEqualsInt(-1, FileSize('nonexistent_file_xyz_12345.tmp'))
+#call CheckEqualsInt(-1, FileSize(RemoveBackslashUnlessRoot(CompilerPath)))
+#call CheckEqualsInt(-1, FileSize(AddBackslash(CompilerPath) + 'ISCC.ex?'))
 //
 // System functions
 //

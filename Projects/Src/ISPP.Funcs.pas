@@ -146,20 +146,15 @@ end;
 
 {FileSize(<filename>)}
 function FileSize(Ext: NativeInt; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-var
-  SearchRec: TSearchRec;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      if FindFirst(PrependPath(Ext, Get(0).AsStr), faAnyFile, SearchRec) = 0 then begin
-        try
-          MakeInt(ResPtr^, SearchRec.Size);
-        finally
-          FindClose(SearchRec);
-        end;
-      end else
+      var Size: Int64;
+      if GetSizeOfFile(PrependPath(Ext, Get(0).AsStr), Size) then
+        MakeInt(ResPtr^, Size)
+      else
         MakeInt(ResPtr^, -1);
     end
   except

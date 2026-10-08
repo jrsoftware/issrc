@@ -1369,33 +1369,17 @@ var
     begin
       Stack.SetInt(PStart, Integer(TStrongRandom.GenerateUInt32Range(UInt32(Stack.GetInt(PStart-1)))));
     end);
-    RegisterScriptFunc('FILESIZE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    RegisterScriptFunc(['FileSize', 'FileSize64'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      try
-        var F := TFile.Create(Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
-        try
-          Stack.SetInt(PStart-2, Integer(F.CappedSize)); { Even though CappedSize returns Cardinal, it's capped at High(Int32) }
-          Stack.SetBool(PStart, True);
-        finally
-          F.Free;
-        end;
-      except
-        Stack.SetBool(PStart, False);
+      var Size: Int64;
+      const Res = GetSizeOfFile(Stack.GetString(PStart-1), Size);
+      if Res then begin
+        if OrgName = 'FileSize64' then
+          Stack.SetInt64(PStart-2, Size)
+        else
+          Stack.SetInt(PStart-2, Integer(Min(Size, High(Int32))));
       end;
-    end);
-    RegisterScriptFunc('FILESIZE64', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      try
-        var F := TFile.Create(Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
-        try
-          Stack.SetInt64(PStart-2, F.Size);
-          Stack.SetBool(PStart, True);
-        finally
-          F.Free;
-        end;
-      except
-        Stack.SetBool(PStart, False);
-      end;
+      Stack.SetBool(PStart, Res);
     end);
     RegisterScriptFunc('SET8087CW', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin

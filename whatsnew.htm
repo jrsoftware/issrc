@@ -155,10 +155,12 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <li>The <tt>[Setup]</tt> section directives which take a color now accept all standard web color names defined by CSS, such as <tt>orange</tt> and <tt>cornflowerblue</tt>, as well as the short <tt>#<i>rgb</i></tt> form.</li>
   <li>Pascal Scripting:
   <ul>
+    <li>Support functions <tt>FileSize</tt> and <tt>FileSize64</tt> no longer need read access to the file. For example, they now also work for a file which another process has open exclusively.</li>
     <li>Support function <tt>StrToColor</tt> now accepts all values accepted by the <tt>[Setup]</tt> section directives which take a color, in addition to the <tt>#<i>rrggbb</i></tt> form it already accepted.</li>
     <li>Buttons of type <tt>TBitmapButton</tt> can now also be pressed with Enter, instead of only with Space, and take part in default button handling. They now descend from <tt>TButtonControl</tt> instead of <tt>TCustomControl</tt>, and new properties <tt>Cancel</tt> (which allows pressing them with Esc), <tt>Default</tt>, and <tt>ModalResult</tt> were added.</li>
   </ul>
   </li>
+  <li><i>Fix:</i> ISPP support function <tt>FileSize</tt> returned 0 for a directory and the size of the first matching file for a file name with wildcards, instead of -1 as documented, and 0 for a symbolic link, instead of the size of its target.</li>
   <li>Updated the 7-Zip, LZMA SDK, and Scintilla source code used by Inno Setup to the latest versions.</li>
   <li>Other minor improvements and fixes.</li>
 </ul>
