@@ -153,6 +153,7 @@ type
     SetupHeader: TSetupHeader;
 
     SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
+    SetupDirectiveLineFilenames: array[TSetupSectionDirective] of String;
     SetupArchitecture: TSetupArchitecture;
     SetupLdrArchitecture: TSetupLdrArchitecture;
     DiskSpanning, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
@@ -282,10 +283,12 @@ type
     procedure CodeCompilerOnUsedVariable(const Filename: String; const Line, Col, Param1, Param2, Param3: Integer; const Param4: AnsiString);
     procedure CodeCompilerOnError(const Msg: String; const ErrorFilename: String; const ErrorLine: Integer);
     procedure CodeCompilerOnWarning(const Msg: String; const Line: Integer);
+    procedure ClearLine;
     procedure CompileCode;
     function FilenameToFileIndex(const AFileName: String): Integer;
     procedure ReadTextFile(const Filename: String; const LangIndex: Integer; var Text: AnsiString);
     procedure SeparateDirective(const Line: PChar; var Key, Value: String);
+    procedure SetLineToSetupDirective(const Directive: TSetupSectionDirective);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
     procedure Sign(AExeFilename: String);
     procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Cardinal; const RunMinimized: Boolean);
@@ -746,6 +749,18 @@ end;
 function TSetupCompiler.GetLineNumber: Integer;
 begin
   Result := LineNumber;
+end;
+
+procedure TSetupCompiler.SetLineToSetupDirective(const Directive: TSetupSectionDirective);
+begin
+  LineFilename := SetupDirectiveLineFilenames[Directive];
+  LineNumber := SetupDirectiveLines[Directive];
+end;
+
+procedure TSetupCompiler.ClearLine;
+begin
+  LineFilename := '';
+  LineNumber := 0;
 end;
 
 {$IFDEF SUPPORTLZMAEXE}
@@ -2785,6 +2800,7 @@ begin
   if (Directive <> ssSignTool) and (SetupDirectiveLines[Directive] <> 0) then
     AbortCompileFmt(SCompilerEntryAlreadySpecified, ['Setup', KeyName]);
   SetupDirectiveLines[Directive] := LineNumber;
+  SetupDirectiveLineFilenames[Directive] := LineFilename;
   case Directive of
     ssAllowCancelDuringInstall: begin
         SetSetupHeaderOption(shAllowCancelDuringInstall);
@@ -7158,12 +7174,12 @@ end;
 procedure TSetupCompiler.OnUpdateIconsAndStyle(const Operation: TUpdateIconsAndStyleOperation);
 begin
   case Operation of
-    uisoIcoFileName: LineNumber := SetupDirectiveLines[ssSetupIconFile];
-    uisoWizardDarkStyle: LineNumber := SetupDirectiveLines[ssWizardStyle];
-    uisoStyleFileName: LineNumber := SetupDirectiveLines[ssWizardStyleFile];
-    uisoStyleFileNameDynamicDark: LineNumber := SetupDirectiveLines[ssWizardStyleFileDynamicDark];
+    uisoIcoFileName: SetLineToSetupDirective(ssSetupIconFile);
+    uisoWizardDarkStyle: SetLineToSetupDirective(ssWizardStyle);
+    uisoStyleFileName: SetLineToSetupDirective(ssWizardStyleFile);
+    uisoStyleFileNameDynamicDark: SetLineToSetupDirective(ssWizardStyleFileDynamicDark);
   else
-    LineNumber := 0;
+    ClearLine;
   end;
 end;
 
@@ -8112,7 +8128,7 @@ var
             PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
         end);
 
-      LineNumber := 0;
+      ClearLine;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [EBasename]));
       WithRetries(False, ConvertFilename,
         procedure
@@ -8423,7 +8439,7 @@ begin
         Same as MaxDictionarySize in Compression.LZMADecompressor.pas. }
       const MaxDictionarySize32 = 1024 shl 20;
       if CompressProps.DictionarySize > MaxDictionarySize32 then begin
-        LineNumber := SetupDirectiveLines[ssLZMADictionarySize];
+        SetLineToSetupDirective(ssLZMADictionarySize);
         AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'LZMADictionarySize']);
       end;
     end else begin
@@ -8436,60 +8452,60 @@ begin
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'AppName']);
     if (SetupHeader.AppVerName = '') and (SetupHeader.AppVersion = '') then
       AbortCompile(SCompilerAppVersionOrAppVerNameRequired);
-    LineNumber := SetupDirectiveLines[ssAppName];
+    SetLineToSetupDirective(ssAppName);
     AppNameHasConsts := CheckConst(SetupHeader.AppName, SetupHeader.MinVersion, []);
     if AppNameHasConsts then begin
       Include(SetupHeader.Options, shAppNameHasConsts);
       if not(shDisableStartupPrompt in SetupHeader.Options) then begin
         { AppName has constants so DisableStartupPrompt must be used }
-        LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
+        SetLineToSetupDirective(ssDisableStartupPrompt);
         AbortCompile(SCompilerMustUseDisableStartupPrompt);
       end;
     end;
     if SetupHeader.AppId = '' then
       SetupHeader.AppId := SetupHeader.AppName
     else
-      LineNumber := SetupDirectiveLines[ssAppId];
+      SetLineToSetupDirective(ssAppId);
     AppIdHasConsts := CheckConst(SetupHeader.AppId, SetupHeader.MinVersion, []);
     if AppIdHasConsts and (shUsePreviousLanguage in SetupHeader.Options) then begin
       { AppId has constants so UsePreviousLanguage must not be used }
-      LineNumber := SetupDirectiveLines[ssUsePreviousLanguage];
+      SetLineToSetupDirective(ssUsePreviousLanguage);
       AbortCompile(SCompilerMustNotUsePreviousLanguage);
     end;
     if AppIdHasConsts and (proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed) and (shUsePreviousPrivileges in SetupHeader.Options) then begin
       { AppId has constants so UsePreviousPrivileges must not be used }
-      LineNumber := SetupDirectiveLines[ssUsePreviousPrivileges];
+      SetLineToSetupDirective(ssUsePreviousPrivileges);
       AbortCompile(SCompilerMustNotUsePreviousPrivileges);
     end;
-    LineNumber := SetupDirectiveLines[ssAppVerName];
+    SetLineToSetupDirective(ssAppVerName);
     CheckConst(SetupHeader.AppVerName, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppComments];
+    SetLineToSetupDirective(ssAppComments);
     CheckConst(SetupHeader.AppComments, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppContact];
+    SetLineToSetupDirective(ssAppContact);
     CheckConst(SetupHeader.AppContact, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppCopyright];
+    SetLineToSetupDirective(ssAppCopyright);
     AppCopyrightHasConsts := CheckConst(SetupHeader.AppCopyright, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppModifyPath];
+    SetLineToSetupDirective(ssAppModifyPath);
     CheckConst(SetupHeader.AppModifyPath, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppPublisher];
+    SetLineToSetupDirective(ssAppPublisher);
     AppPublisherHasConsts := CheckConst(SetupHeader.AppPublisher, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppPublisherURL];
+    SetLineToSetupDirective(ssAppPublisherURL);
     CheckConst(SetupHeader.AppPublisherURL, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppReadmeFile];
+    SetLineToSetupDirective(ssAppReadmeFile);
     CheckConst(SetupHeader.AppReadmeFile, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppSupportPhone];
+    SetLineToSetupDirective(ssAppSupportPhone);
     CheckConst(SetupHeader.AppSupportPhone, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppSupportURL];
+    SetLineToSetupDirective(ssAppSupportURL);
     CheckConst(SetupHeader.AppSupportURL, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppUpdatesURL];
+    SetLineToSetupDirective(ssAppUpdatesURL);
     CheckConst(SetupHeader.AppUpdatesURL, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppVersion];
+    SetLineToSetupDirective(ssAppVersion);
     AppVersionHasConsts := CheckConst(SetupHeader.AppVersion, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppMutex];
+    SetLineToSetupDirective(ssAppMutex);
     CheckConst(SetupHeader.AppMutex, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssSetupMutex];
+    SetLineToSetupDirective(ssSetupMutex);
     CheckConst(SetupHeader.SetupMutex, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssDefaultDirName];
+    SetLineToSetupDirective(ssDefaultDirName);
     CheckConst(SetupHeader.DefaultDirName, SetupHeader.MinVersion, []);
     if SetupHeader.DefaultDirName = '' then begin
       if shCreateAppDir in SetupHeader.Options then
@@ -8497,21 +8513,21 @@ begin
       else
         SetupHeader.DefaultDirName := '?ERROR?';
     end;
-    LineNumber := SetupDirectiveLines[ssDefaultGroupName];
+    SetLineToSetupDirective(ssDefaultGroupName);
     CheckConst(SetupHeader.DefaultGroupName, SetupHeader.MinVersion, []);
     if SetupHeader.DefaultGroupName = '' then
       SetupHeader.DefaultGroupName := '(Default)';
-    LineNumber := SetupDirectiveLines[ssUninstallDisplayName];
+    SetLineToSetupDirective(ssUninstallDisplayName);
     CheckConst(SetupHeader.UninstallDisplayName, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssUninstallDisplayIcon];
+    SetLineToSetupDirective(ssUninstallDisplayIcon);
     CheckConst(SetupHeader.UninstallDisplayIcon, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssUninstallFilesDir];
+    SetLineToSetupDirective(ssUninstallFilesDir);
     CheckConst(SetupHeader.UninstallFilesDir, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssDefaultUserInfoName];
+    SetLineToSetupDirective(ssDefaultUserInfoName);
     CheckConst(SetupHeader.DefaultUserInfoName, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssDefaultUserInfoOrg];
+    SetLineToSetupDirective(ssDefaultUserInfoOrg);
     CheckConst(SetupHeader.DefaultUserInfoOrg, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssDefaultUserInfoSerial];
+    SetLineToSetupDirective(ssDefaultUserInfoSerial);
     CheckConst(SetupHeader.DefaultUserInfoSerial, SetupHeader.MinVersion, []);
     if not DiskSpanning then begin
       DiskSliceSize := 4200000000; { Windows cannot run .exe's of 4 GB or more }
@@ -8573,44 +8589,46 @@ begin
         VersionInfoProductTextVersion := VersionInfoProductVersionOriginalValue;
     end;
     if (SetupEncryptionHeader.EncryptionUse <> euNone) and (Password = '') then begin
-      LineNumber := SetupDirectiveLines[ssEncryption];
+      SetLineToSetupDirective(ssEncryption);
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'Password']);
     end;
     if (SetupDirectiveLines[ssSignedUninstaller] = 0) and (SignTools.Count > 0) then
       Include(SetupHeader.Options, shSignedUninstaller);
     if (SetupLdrArchitecture = slaNone) and
-       ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then
+       ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then begin
+      SetLineToSetupDirective(ssUseSetupLdr);
       AbortCompile(SCompilerNoSetupLdrSignError);
-    LineNumber := SetupDirectiveLines[ssCreateUninstallRegKey];
+    end;
+    SetLineToSetupDirective(ssCreateUninstallRegKey);
     CheckCodeParameter('CreateUninstallRegKey', SetupHeader.CreateUninstallRegKey, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUninstallable];
+    SetLineToSetupDirective(ssUninstallable);
     CheckCodeParameter('Uninstallable', SetupHeader.Uninstallable, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUsePreviousAppDir];
+    SetLineToSetupDirective(ssUsePreviousAppDir);
     CheckCodeParameter('UsePreviousAppDir', SetupHeader.UsePreviousAppDir, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUsePreviousGroup];
+    SetLineToSetupDirective(ssUsePreviousGroup);
     CheckCodeParameter('UsePreviousGroup', SetupHeader.UsePreviousGroup, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUsePreviousSetupType];
+    SetLineToSetupDirective(ssUsePreviousSetupType);
     CheckCodeParameter('UsePreviousSetupType', SetupHeader.UsePreviousSetupType, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUsePreviousTasks];
+    SetLineToSetupDirective(ssUsePreviousTasks);
     CheckCodeParameter('UsePreviousTasks', SetupHeader.UsePreviousTasks, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUsePreviousUserInfo];
+    SetLineToSetupDirective(ssUsePreviousUserInfo);
     CheckCodeParameter('UsePreviousUserInfo', SetupHeader.UsePreviousUserInfo, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssChangesEnvironment];
+    SetLineToSetupDirective(ssChangesEnvironment);
     CheckCodeParameter('ChangesEnvironment', SetupHeader.ChangesEnvironment, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssChangesAssociations];
+    SetLineToSetupDirective(ssChangesAssociations);
     CheckCodeParameter('ChangesAssociations', SetupHeader.ChangesAssociations, cpkDirectiveCheck);
     if Output and (OutputDir = '') then begin
-      LineNumber := SetupDirectiveLines[ssOutputDir];
+      SetLineToSetupDirective(ssOutputDir);
       AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
     end;
     if (Output and (OutputBaseFileName = '')) or (PathLastDelimiter(BadFileNameChars + '\', OutputBaseFileName) <> 0) then begin
-      LineNumber := SetupDirectiveLines[ssOutputBaseFileName];
+      SetLineToSetupDirective(ssOutputBaseFileName);
       AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputBaseFileName']);
     end else if OutputBaseFileName = 'setup' then { Warn even if Output is False }
       WarningsList.Add(SCompilerOutputBaseFileNameSetup);
     if (SetupDirectiveLines[ssOutputManifestFile] <> 0) and
        ((Output and (OutputManifestFile = '')) or (PathLastDelimiter(BadFilePathChars, OutputManifestFile) <> 0)) then begin
-      LineNumber := SetupDirectiveLines[ssOutputManifestFile];
+      SetLineToSetupDirective(ssOutputManifestFile);
       AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);
     end;
     if shAlwaysUsePersonalGroup in SetupHeader.Options then
@@ -8619,7 +8637,7 @@ begin
       if SetupDirectiveLines[ssWizardBackColor] = 0 then
         SetupHeader.WizardBackColor := clWindow
       else if SetupHeader.WizardBackColor = clNone then begin
-        LineNumber := SetupDirectiveLines[ssWizardBackColor];
+        SetLineToSetupDirective(ssWizardBackColor);
         AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'WizardBackColor']);
       end;
     end else if SetupHeader.WizardBackColor = clWindow then
@@ -8628,7 +8646,7 @@ begin
       if SetupDirectiveLines[ssWizardBackColorDynamicDark] = 0 then
         SetupHeader.WizardBackColorDynamicDark := clWindow
       else if SetupHeader.WizardBackColorDynamicDark = clNone then begin
-        LineNumber := SetupDirectiveLines[ssWizardBackColorDynamicDark];
+        SetLineToSetupDirective(ssWizardBackColorDynamicDark);
         AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'WizardBackColorDynamicDark']);
       end;
     end else if SetupHeader.WizardBackColorDynamicDark = clWindow then
@@ -8653,18 +8671,18 @@ begin
     if (SetupHeader.MinVersion.NTVersion shr 16 = $0601) and (SetupHeader.MinVersion.NTServicePack < $100) then
       WarningsList.Add(Format(SCompilerMinVersionRecommendation, ['6.1', '6.1sp1']));
 
-    LineNumber := 0;
+    ClearLine;
 
     SourceDir := AddBackslash(PathExpand(SourceDir));
     if not FixedOutputDir then
       OutputDir := PrependSourceDirName(OutputDir);
     OutputDir := RemoveBackslashUnlessRoot(PathExpand(OutputDir));
-    LineNumber := SetupDirectiveLines[ssOutputDir];
+    SetLineToSetupDirective(ssOutputDir);
     if not DirExists(OutputDir) then begin
       AddStatus(Format(SCompilerStatusCreatingOutputDir, [OutputDir]));
       MkDirs(OutputDir);
     end;
-    LineNumber := 0;
+    ClearLine;
     OutputDir := AddBackslash(OutputDir);
 
     if SignedUninstallerDir = '' then
@@ -8688,26 +8706,26 @@ begin
 
     { Read text files }
     if LicenseFile <> '' then begin
-      LineNumber := SetupDirectiveLines[ssLicenseFile];
+      SetLineToSetupDirective(ssLicenseFile);
       AddStatus(Format(SCompilerStatusReadingFile, ['LicenseFile']));
       ReadTextFile(PrependSourceDirName(LicenseFile), -1, LicenseText);
     end;
     if InfoBeforeFile <> '' then begin
-      LineNumber := SetupDirectiveLines[ssInfoBeforeFile];
+      SetLineToSetupDirective(ssInfoBeforeFile);
       AddStatus(Format(SCompilerStatusReadingFile, ['InfoBeforeFile']));
       ReadTextFile(PrependSourceDirName(InfoBeforeFile), -1, InfoBeforeText);
     end;
     if InfoAfterFile <> '' then begin
-      LineNumber := SetupDirectiveLines[ssInfoAfterFile];
+      SetLineToSetupDirective(ssInfoAfterFile);
       AddStatus(Format(SCompilerStatusReadingFile, ['InfoAfterFile']));
       ReadTextFile(PrependSourceDirName(InfoAfterFile), -1, InfoAfterText);
     end;
-    LineNumber := 0;
+    ClearLine;
     CallIdleProc;
 
     { Read main wizard images }
     const IsForcedDark = SetupHeader.WizardDarkStyle = wdsDark;
-    LineNumber := SetupDirectiveLines[ssWizardImageFile];
+    SetLineToSetupDirective(ssWizardImageFile);
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFile']));
     if WizardImageFile <> '' then begin
       if SameText(WizardImageFile, 'compiler:WizModernImage.bmp') then begin
@@ -8738,7 +8756,7 @@ begin
     if (SetupDirectiveLines[ssWizardImageBackColor] = 0) and (SetupDirectiveLines[ssWizardBackImageFile] <> 0) then
       SetupHeader.WizardImageBackColor := clNone;
 
-    LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
+    SetLineToSetupDirective(ssWizardSmallImageFile);
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
     if WizardSmallImageFile <> '' then begin
       if SameText(WizardSmallImageFile, 'compiler:WizModernSmallImage.bmp') then begin
@@ -8758,17 +8776,17 @@ begin
     if (SetupDirectiveLines[ssWizardSmallImageBackColor] = 0) and (SetupDirectiveLines[ssWizardBackImageFile] <> 0) then
       SetupHeader.WizardSmallImageBackColor := clNone;
 
-    LineNumber := SetupDirectiveLines[ssWizardBackImageFile];
+    SetLineToSetupDirective(ssWizardBackImageFile);
     if LineNumber <> 0 then begin
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardBackImageFile']));
       WizardBackImages := CreateWizardImagesFromFiles('WizardBackImageFile', WizardBackImageFile);
     end;
 
-    LineNumber := 0;
+    ClearLine;
 
     { Read dark dynamic wizard images }
     if SetupHeader.WizardDarkStyle = wdsDynamic then begin
-      LineNumber := SetupDirectiveLines[ssWizardImageFileDynamicDark];
+      SetLineToSetupDirective(ssWizardImageFileDynamicDark);
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFileDynamicDark']));
       if WizardImageFileDynamicDark <> '' then begin
         WizardImagesDynamicDark := CreateWizardImagesFromFiles('WizardImageFileDynamicDark', WizardImageFileDynamicDark);
@@ -8784,7 +8802,7 @@ begin
       if (SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0) and (SetupDirectiveLines[ssWizardBackImageFileDynamicDark] <> 0) then
         SetupHeader.WizardImageBackColorDynamicDark := clNone;
 
-      LineNumber := SetupDirectiveLines[ssWizardSmallImageFileDynamicDark];
+      SetLineToSetupDirective(ssWizardSmallImageFileDynamicDark);
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFileDynamicDark']));
       if WizardSmallImageFileDynamicDark <> '' then begin
         WizardSmallImagesDynamicDark := CreateWizardImagesFromFiles('WizardSmallImageFileDynamicDark', WizardSmallImageFileDynamicDark);
@@ -8800,12 +8818,12 @@ begin
       if (SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0) and (SetupDirectiveLines[ssWizardBackImageFileDynamicDark] <> 0) then
         SetupHeader.WizardSmallImageBackColorDynamicDark := clNone;
 
-      LineNumber := SetupDirectiveLines[ssWizardBackImageFileDynamicDark];
+      SetLineToSetupDirective(ssWizardBackImageFileDynamicDark);
       if LineNumber <> 0 then begin
         AddStatus(Format(SCompilerStatusReadingFile, ['WizardBackImageFileDynamicDark']));
         WizardBackImagesDynamicDark := CreateWizardImagesFromFiles('WizardBackImageFileDynamicDark', WizardBackImageFileDynamicDark);
       end;
-      LineNumber := 0;
+      ClearLine;
     end;
 
     { Prepare Setup executable & signed uninstaller data }
@@ -9120,7 +9138,7 @@ begin
               begin
                UpdateIconsAndStyle(ExeFilename, uisfSetupLdr, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle);
               end);
-            LineNumber := 0;
+            ClearLine;
           end;
 
           WithRetries(False, ExeFilename,
