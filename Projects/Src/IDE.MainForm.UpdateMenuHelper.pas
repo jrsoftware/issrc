@@ -416,7 +416,7 @@ end;
 
 procedure TMainFormUpdateMenuHelper.UpdateViewMenu(const Menu: TMenuItem);
 begin
-  VZoomIn.Enabled := (FActiveMemo.Zoom < 20);
+  VZoomIn.Enabled := (FActiveMemo.Zoom < 60);
   VZoomOut.Enabled := (FActiveMemo.Zoom > -10);
   VZoomReset.Enabled := (FActiveMemo.Zoom <> 0);
   VToolbar.Checked := ToolbarPanel.Visible;

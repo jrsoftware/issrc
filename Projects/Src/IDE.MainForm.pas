@@ -6080,6 +6080,7 @@ begin
         SetString(S, PChar(Message.CopyDataStruct.lpData),
           Message.CopyDataStruct.cbData div SizeOf(Char));
         DebugShowCallStack(S, FCallStackCount);
+        Message.Result := 1;
       end;
   end;
 end;
