@@ -366,11 +366,12 @@ type
   end;
 
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
+  TFileLocationTimeStamp = (tsNoSetting, tsTouch, tsNone);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
-    Flags: set of (floVersionInfoNotValid, floTouch,
-      floSolidBreak, floNoTimeStamp);
+    Flags: set of (floVersionInfoNotValid, floSolidBreak);
     Sign: TFileLocationSign;
+    TimeStamp: TFileLocationTimeStamp;
     Verification: TSetupFileVerification;
     ISSigKeyUsedID: String;
   end;
@@ -5127,6 +5128,8 @@ const
     'issigverify', 'download', 'extractarchive', 'notimestamp');
   SignFlags: array[TFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
+  TimeStampFlags: array[TFileLocationTimeStamp] of String = (
+    '', 'touch', 'notimestamp');
   AttribsFlags: array[0..3] of PChar = (
     'readonly', 'hidden', 'system', 'notcontentindexed');
   AccessMasks: array[0..2] of TNameAndAccessMask = (
@@ -5142,8 +5145,9 @@ var
   SourceWildcard, ADestDir, ADestName, AInstallFontName, AStrongAssemblyName: String;
   AExcludes: TStringList;
   ReadmeFile, ExternalFile, SourceIsWildcard, RecurseSubdirs,
-    AllowUnsafeFiles, Touch, NoTimeStamp, NoCompression, NoEncryption, SolidBreak: Boolean;
+    AllowUnsafeFiles, NoCompression, NoEncryption, SolidBreak: Boolean;
   Sign: TFileLocationSign;
+  TimeStamp: TFileLocationTimeStamp;
 type
   PFileListRec = ^TFileListRec;
   TFileListRec = record
@@ -5307,6 +5311,16 @@ type
       Sign := NewSign;
   end;
 
+  procedure ApplyNewTimeStamp(var TimeStamp: TFileLocationTimeStamp;
+    const NewTimeStamp: TFileLocationTimeStamp; const ErrorMessage: String);
+  begin
+    if not (TimeStamp in [tsNoSetting, NewTimeStamp]) then
+      AbortCompileFmt(ErrorMessage,
+        [ParamCommonFlags, TimeStampFlags[TimeStamp], TimeStampFlags[NewTimeStamp]])
+    else
+      TimeStamp := NewTimeStamp;
+  end;
+
   procedure ApplyNewVerificationType(var VerificationType: TSetupFileVerificationType;
     const NewVerificationType: TSetupFileVerificationType; const ErrorMessage: String);
   begin
@@ -5406,10 +5420,6 @@ type
             NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys := NewFileEntry^.Verification.ISSigAllowedKeys;
           end;
         end;
-        if Touch then
-          Include(NewFileLocationEntryExtraInfo^.Flags, floTouch);
-        if NoTimeStamp then
-          Include(NewFileLocationEntryExtraInfo^.Flags, floNoTimeStamp);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
@@ -5418,6 +5428,9 @@ type
           Exclude(NewFileLocationEntry^.Flags, floChunkEncrypted);
         if Sign <> fsNoSetting then
           ApplyNewSign(NewFileLocationEntryExtraInfo.Sign, Sign, SCompilerParamErrorBadCombo2SameSource);
+        if TimeStamp <> tsNoSetting then
+          ApplyNewTimeStamp(NewFileLocationEntryExtraInfo.TimeStamp, TimeStamp,
+            SCompilerParamErrorBadCombo2SameSource);
         if NewFileEntry^.Verification.Typ <> fvNone  then
           ApplyNewVerificationType(NewFileLocationEntryExtraInfo.Verification.Typ, NewFileEntry^.Verification.Typ,
             SCompilerFilesParamFlagConflictSameSource);
@@ -5628,8 +5641,6 @@ begin
         ExternalFile := False;
         RecurseSubdirs := False;
         AllowUnsafeFiles := False;
-        Touch := False;
-        NoTimeStamp := False;
         SortFilesByExtension := False;
         NoCompression := False;
         NoEncryption := False;
@@ -5637,6 +5648,7 @@ begin
         ExternalSize := 0;
         SortFilesByName := False;
         Sign := fsNoSetting;
+        TimeStamp := tsNoSetting;
 
         case Ext of
           0: begin
@@ -5669,7 +5681,7 @@ begin
                    21: Include(Options, foDontCopy);
                    22: Include(Options, foUninsRemoveReadOnly);
                    23: SortFilesByExtension := True;
-                   24: Touch := True;
+                   24: ApplyNewTimeStamp(TimeStamp, tsTouch, SCompilerParamErrorBadCombo2);
                    25: Include(Options, foReplaceSameVersionIfContentsDiffer);
                    26: NoEncryption := True;
                    27: NoCompression := True;
@@ -5689,7 +5701,7 @@ begin
                    41: ApplyNewVerificationType(Verification.Typ, fvISSig, SCompilerFilesParamFlagConflict);
                    42: Include(Options, foDownload);
                    43: Include(Options, foExtractArchive);
-                   44: NoTimeStamp := True;
+                   44: ApplyNewTimeStamp(TimeStamp, tsNone, SCompilerParamErrorBadCombo2);
                  end;
 
                { Source }
@@ -5889,12 +5901,8 @@ begin
           Excludes := AExcludes.DelimitedText;
         end;
 
-        if NoTimeStamp then begin
-          if Touch then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'notimestamp', 'touch']);
-          if foCompareTimeStamp in Options then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'notimestamp', 'comparetimestamp']);
-        end;
+        if (TimeStamp = tsNone) and (foCompareTimeStamp in Options) then
+          AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'notimestamp', 'comparetimestamp']);
 
         if foDownload in Options then begin
           if not ExternalFile then
@@ -7829,7 +7837,7 @@ var
             AbortCompileFmt(SCompilerFunctionFailedWithCode,
               ['CompressFiles: GetFileTime', ErrorCode, Win32ErrorString(ErrorCode)]);
           end;
-          if floNoTimeStamp in FLExtraInfo.Flags then
+          if FLExtraInfo.TimeStamp = tsNone then
             FL.TimeStamp.Clear
           else begin
             if TimeStampsInUTC then begin
@@ -7837,7 +7845,7 @@ var
               Include(FL.Flags, floTimeStampInUTC);
             end else
               FileTimeToLocalFileTime(FT, FL.TimeStamp);
-            if floTouch in FLExtraInfo.Flags then
+            if FLExtraInfo.TimeStamp = tsTouch then
               ApplyTouchDateTime(FL.TimeStamp);
             if TimeStampRounding > 0 then begin
               var TimeStamp := Int64(FL.TimeStamp);
