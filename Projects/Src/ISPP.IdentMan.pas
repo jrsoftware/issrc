@@ -44,7 +44,8 @@ type
   end;
 
   TExprPosition = record
-    FileIndex, Line, Column: Integer;
+    FileName: string;
+    Line, Column: Integer;
   end;
 
   PMacro = ^TMacro;
@@ -120,7 +121,7 @@ const
 implementation
 
 uses
-  Windows, Types, ISPP.Preprocessor, ISPP.CTokenizer, ISPP.Parser,
+  Windows, Types, ISPP.CTokenizer, ISPP.Parser,
   ISPP.VarUtils, ISPP.Consts, ISPP.Sessions;
 
 const
@@ -460,9 +461,9 @@ begin
       begin
         if E.Position > 0 then
         begin
-          if FMacro.DeclPos.FileIndex > 0 then
+          if FMacro.DeclPos.FileName <> '' then
             Msg := Format(SErrorExecutingMacroFile, [FMacro.Name,
-              PeekPreproc.IncludedFiles[FMacro.DeclPos.FileIndex],
+              FMacro.DeclPos.FileName,
               FMacro.DeclPos.Line, E.Position, E.Message])
           else
             Msg := Format(SErrorExecutingMacro, [FMacro.Name,
@@ -1038,6 +1039,7 @@ begin
         begin
           Finalize(Params[0], ParamCount);
           Finalize(Expression);
+          Finalize(DeclPos);
         end;
     end;
   end;

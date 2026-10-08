@@ -143,7 +143,6 @@ type
     procedure SaveToFile(const FileName: string);
     procedure CollectGarbage(Item: Pointer; Proc: TDropGarbageProc);
     procedure UncollectGarbage(Item: Pointer);
-    property IncludedFiles: TStringList read FIncludes;
     property IncludePath: string read FIncludePath write FIncludePath;
     property SourcePath: string read FSourcePath;
     property StringList: TStringList read FOutput;
@@ -666,7 +665,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         try
           while CharInSet(FExpr^, [#1..#32]) do Inc(FExpr);
           P := FExpr;
-          MacroExprPos.FileIndex := FCurrentFile;
+          MacroExprPos.FileName := FIncludes[FCurrentFile];
           MacroExprPos.Line := FCurrentLine;
           MacroExprPos.Column := Integer((FExpr - Start) + ParamsOffset);
           while P^ <> #0 do Inc(P);
