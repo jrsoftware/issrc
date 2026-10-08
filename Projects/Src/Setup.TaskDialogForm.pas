@@ -72,6 +72,7 @@ implementation
 
 uses
   CommCtrl, Clipbrd, Themes, ShellAPI,
+  UnsignedFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc, Shared.CommonFunc.Vcl,
   SetupLdrAndSetup.Messages, Setup.WizardForm, Setup.MainFunc;
 
@@ -89,7 +90,6 @@ begin
     Form.UpdateInstructionAndText(Instruction, Text);
     Form.UpdateIcon(Icon);
     Form.UpdateCommonButtons(CommonButtons, ShieldButton);
-    Form.UpdateVerificationText(VerificationText);
 
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
@@ -97,6 +97,7 @@ begin
       Form.InstructionText.AdjustHeight;
     if Form.TextText.Visible then
       Form.TextText.AdjustHeight;
+    Form.UpdateVerificationText(VerificationText);
     Form.UpdateMainButtonsAndBorderIcons(CommonButtons, ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateHeight;
 
@@ -156,6 +157,7 @@ begin
   BottomStackPanel.Spacing := PadX;
   BottomStackPanel.Padding.Right := PadX; { Also see Finish }
   VerificationCheck.Left := PadX;
+  VerificationCheck.Width := VerificationCheck.Width - 2*PadX;
 
   OkButton.Caption := SetupMessages[msgButtonOK];
   YesButton.Caption := SetupMessages[msgButtonYes];
@@ -334,10 +336,50 @@ begin
 end;
 
 procedure TTaskDialogForm.UpdateVerificationText(const VerificationText: String);
+
+  function CalculateWordWrapExtraHeight(const Control: TNewCheckBox): Integer;
+  begin
+    { Measures the text like TCheckBoxStyleHook.Paint }
+    const DC = GetDC(0);
+    try
+      const LStyle = StyleServices(Control);
+      const LPPI = Control.CurrentPPI;
+
+      const LRect = System.Classes.Rect(0, 0, 20, 20);
+      const ElementSize = esActual;
+      var BoxSize: TSize;
+      if not LStyle.GetElementSize(DC, LStyle.GetElementDetails(tbCheckBoxCheckedNormal),
+         LRect, ElementSize, BoxSize, LPPI) then begin
+        BoxSize.cx := 13;
+        BoxSize.cy := 13;
+      end;
+
+      SelectObject(DC, Control.Font.Handle);
+
+      var R := Rect(0, 0, Control.Width - BoxSize.cx - 10, Control.Height);
+      const LCaption = Control.Caption;
+      DrawText(DC, PChar(LCaption), Length(LCaption), R,
+        UDrawTextBiDiModeFlags(Control, DT_CALCRECT or DT_EXPANDTABS or DT_WORDBREAK));
+
+      var RSingleLine := Rect(0, 0, Control.Width - BoxSize.cx - 10, Control.Height);
+      DrawText(DC, PChar(LCaption), Length(LCaption), RSingleLine,
+        UDrawTextBiDiModeFlags(Control, DT_CALCRECT or DT_EXPANDTABS or DT_SINGLELINE));
+
+      Result := R.Height - RSingleLine.Height;
+    finally
+      ReleaseDC(0, DC);
+    end;
+  end;
+
 begin
-  if VerificationText <> '' then
-    VerificationCheck.Caption := VerificationText
-  else
+  if VerificationText <> '' then begin
+    VerificationCheck.Caption := VerificationText;
+    const ExtraHeight = CalculateWordWrapExtraHeight(VerificationCheck);
+    if ExtraHeight > 0 then begin
+      VerificationCheck.Height := VerificationCheck.Height + ExtraHeight;
+      BottomPanel2.Height := BottomPanel2.Height + ExtraHeight;
+    end;
+  end else
     BottomPanel2.Visible := False;
 end;
 
