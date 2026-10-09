@@ -17,6 +17,7 @@
 
 {$IFDEF STATICCOMPILER}
 {$R ..\Res\ISCmplr.images.res}
+{$R ..\Res\ISCmplr.images.dark.res}
 {$ENDIF}
 
 interface

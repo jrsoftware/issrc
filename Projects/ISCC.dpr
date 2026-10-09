@@ -44,6 +44,10 @@ uses
 
 {$R Res\ConsoleApp.manifest.res}
 {$R Res\ISCC.versionandicon.res}
+{$IFDEF STATICCOMPILER}
+{$R Res\ISCmplr.images.res}
+{$R Res\ISCmplr.images.dark.res}
+{$ENDIF}
 
 type
   PScriptLine = ^TScriptLine;
