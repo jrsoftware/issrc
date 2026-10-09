@@ -682,7 +682,8 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       else
       begin
         VarIndex := -1;
-        if PeekAtNextToken = tkOpenBracket then
+        const IndexSpecified = PeekAtNextToken = tkOpenBracket;
+        if IndexSpecified then
         begin
           NextToken;
           VarIndex := IntegerExpr(True);
@@ -692,11 +693,11 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
           opAssign: NextToken;
           tkEOF:
             begin
-              FIdentManager.DefineVariable(Name, VarIndex, NULL, Scope);
+              FIdentManager.DefineVariable(Name, VarIndex, NULL, Scope, IndexSpecified);
               Exit;
             end
         end;
-        FIdentManager.DefineVariable(Name, VarIndex, Evaluate, Scope);
+        FIdentManager.DefineVariable(Name, VarIndex, Evaluate, Scope, IndexSpecified);
       end;
     end;
   end;

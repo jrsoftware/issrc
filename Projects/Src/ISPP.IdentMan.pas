@@ -100,7 +100,7 @@ type
       const ParserOptions: TIsppParserOptions; Params: array of TIsppMacroParam;
       Scope: TDefineScope);
     procedure DefineVariable(const Name: string; Index: Integer;
-      const Value: TIsppVariant; Scope: TDefineScope);
+      const Value: TIsppVariant; Scope: TDefineScope; const IndexSpecified: Boolean = False);
     procedure Delete(const Name: string; Scope: TDefineScope);
     procedure DimVariable(const Name: string; Length: Integer; Scope: TDefineScope; var ReDim: Boolean);
     function GetIdent(const Name: string; out CallContext: ICallContext): TIdentType;
@@ -772,7 +772,7 @@ begin
 end;
 
 procedure TIdentManager.DefineVariable(const Name: string; Index: Integer;
-  const Value: TIsppVariant; Scope: TDefineScope);
+  const Value: TIsppVariant; Scope: TDefineScope; const IndexSpecified: Boolean);
 var
   V: PVariable;
   Ident: PIdent;
@@ -788,7 +788,7 @@ begin
   end
   else
   begin
-    if Index <> -1 then
+    if (Index <> -1) or IndexSpecified then
     begin
       if Ident <> nil then
         raise EIdentError.CreateFmt(SIdentifierIsNotAnArray, [Name])
