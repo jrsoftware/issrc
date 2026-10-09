@@ -466,7 +466,7 @@ begin
               FMacro.DeclPos.FileName,
               FMacro.DeclPos.Line, E.Position, E.Message])
           else
-            Msg := Format(SErrorExecutingMacro, [FMacro.Name,
+            Msg := Format(SErrorExecutingMacroMainScript, [FMacro.Name,
               FMacro.DeclPos.Line, E.Position, E.Message]);
           E.Message := Msg;
           E.Position := 0;
