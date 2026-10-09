@@ -259,7 +259,8 @@ begin
     Win32ErrorMsg('OpenFileMapping');
   var SM: PSpawnServerSharedMemory;
   try
-    SM := MapViewOfFile(H, FILE_MAP_WRITE, 0, 0, SizeOf(SM^));
+    SM := MapViewOfFile(H, FILE_MAP_WRITE, 0, 0,
+      SizeOf(SM^) + TSpawnServerSharedMemory.ExtraReservedSize);
     if SM = nil then
       Win32ErrorMsg('MapViewOfFile');
   finally
@@ -299,8 +300,10 @@ end;
 
 function StopSpawnServerProcess(const AExitCode: DWORD): Boolean;
 begin
-  if not Assigned(SpawnServerSharedMemory) then
+  if not Assigned(SpawnServerSharedMemory) then begin
+    SetLastError(ERROR_INVALID_WINDOW_HANDLE);  { For lack of a better error }
     Exit(False);
+  end;
 
   SpawnServerSharedMemory.ExitNowExitCode := AExitCode;
   AtomicExchange(Integer(SpawnServerSharedMemory.ExitNowRequested), Ord(True));
@@ -310,7 +313,12 @@ begin
     (The server doesn't have any handling for this specific message; the point
     is just to wake it up.) }
   const Wnd = SpawnServerSharedMemory.ServerWnd;
-  Result := (Wnd <> 0) and PostMessage(Wnd, WM_SpawnServer_ExitNow, 0, 0);
+  if Wnd <> 0 then
+    Result := PostMessage(Wnd, WM_SpawnServer_ExitNow, 0, 0)
+  else begin
+    SetLastError(ERROR_INVALID_WINDOW_HANDLE);
+    Result := False;
+  end;
 end;
 
 end.

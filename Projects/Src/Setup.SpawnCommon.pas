@@ -31,6 +31,7 @@ type
   public const
     ExpectedVersionNumber = {$IFNDEF WIN64} - {$ENDIF} 100;
     ObjectNamePrefix = 'Local\InnoSetupSpawnSharedMemory-';
+    ExtraReservedSize = $10000;
   public type
     TLockState = (smsFree, smsClientPreparing, smsHandOffToServer,
       smsServerProcessing, smsHandBackToClient, smsClientHandlingResult);

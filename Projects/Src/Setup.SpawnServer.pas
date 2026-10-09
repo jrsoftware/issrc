@@ -330,10 +330,11 @@ constructor TSpawnServer.Create;
       const ObjectName = TSpawnServerSharedMemory.ObjectNamePrefix +
         FSharedMemoryID;
       { Safety: An extra 64KB ($10000) is reserved but not committed to ensure
-        any overrun of Data will always trigger an AV }
+        an overrun of Data will AV rather than step outside the mapped view }
       SetLastError(ERROR_SUCCESS);
       const H = CreateFileMapping(INVALID_HANDLE_VALUE, nil,
-        SEC_RESERVE or PAGE_READWRITE, 0, SizeOf(FSharedMemory^) + $10000,
+        SEC_RESERVE or PAGE_READWRITE, 0,
+        SizeOf(FSharedMemory^) + TSpawnServerSharedMemory.ExtraReservedSize,
         PChar(ObjectName));
       const ErrorCode = GetLastError;
       { ERROR_ALREADY_EXISTS means an existing object was opened; we treat
@@ -359,13 +360,21 @@ begin
     RaiseFunctionFailedError('AllocateHWnd');
 
   CreateSharedMemoryMapping;
-  FSharedMemory := MapViewOfFile(FSharedMemoryMapping, FILE_MAP_WRITE, 0, 0,
-    SizeOf(FSharedMemory^));
-  if FSharedMemory = nil then
+  var SM: PSpawnServerSharedMemory;
+  SM := MapViewOfFile(FSharedMemoryMapping, FILE_MAP_WRITE, 0, 0,
+    SizeOf(SM^) + TSpawnServerSharedMemory.ExtraReservedSize);
+  if SM = nil then
     Win32ErrorMsg('MapViewOfFile');
-  if VirtualAlloc(FSharedMemory, SizeOf(FSharedMemory^), MEM_COMMIT,
-     PAGE_READWRITE) = nil then
-    Win32ErrorMsg('VirtualAlloc');
+  try
+    if VirtualAlloc(SM, SizeOf(SM^), MEM_COMMIT, PAGE_READWRITE) = nil then
+      Win32ErrorMsg('VirtualAlloc');
+  except
+    UnmapViewOfFile(SM);
+    raise;
+  end;
+  { Only assign FSharedMemory after pages are committed since Destroy writes
+    to it }
+  FSharedMemory := SM;
   FSharedMemory.StructSize := SizeOf(FSharedMemory^);
   FSharedMemory.VersionNumber := FSharedMemory.ExpectedVersionNumber;
   FSharedMemory.ServerWnd := UInt32(FWnd);
