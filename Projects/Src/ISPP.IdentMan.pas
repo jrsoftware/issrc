@@ -789,7 +789,12 @@ begin
   else
   begin
     if Index <> -1 then
-      raise EIdentError.CreateFmt(SUndeclaredIdentifier, [Name]);
+    begin
+      if Ident <> nil then
+        raise EIdentError.CreateFmt(SIdentifierIsNotAnArray, [Name])
+      else
+        raise EIdentError.CreateFmt(SUndeclaredIdentifier, [Name]);
+    end;
     Delete(Name, Scope);
     V := AllocMem(SizeOf(TVariable));
     try
