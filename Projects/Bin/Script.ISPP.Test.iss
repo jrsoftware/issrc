@@ -377,6 +377,12 @@
   12
 #call CheckEqualsInt(42, SpanResult)
 #undef SpanResult
+// A line with only a blank and the span symbol also spans
+#define SpanBlankResult = 10 + \
+ \
+  32
+#call CheckEqualsInt(42, SpanBlankResult)
+#undef SpanBlankResult
 #pragma spansymbol "_"
 #define SpanCustomResult = 100 + _
   200 + _

@@ -1894,12 +1894,9 @@ begin
 end;
 
 function TInnoSetupStyler.LineTextSpans(const S: TScintRawString): Boolean;
-var
-  I: Integer;
 begin
-  { Note: To match ISPP behavior, require length of at least 3 }
-  I := Length(S);
-  Result := (I > 2) and (S[I] = '\') and (S[I-1] in WhitespaceChars);
+  const I = Length(S);
+  Result := (I >= 2) and (S[I] = '\') and (S[I-1] in WhitespaceChars);
 end;
 
 procedure TInnoSetupStyler.PreStyleInlineISPPDirectives;
@@ -1929,10 +1926,9 @@ var
 begin
   { Style span symbols, then replace them with spaces to prevent any further
     processing }
-  for I := 3 to TextLength do begin
+  for I := 2 to TextLength do begin
     if ((I = TextLength) or (Text[I+1] in LineEndChars)) and
-       (Text[I] = '\') and (Text[I-1] in WhitespaceChars) and
-       not(Text[I-2] in LineEndChars) then begin
+       (Text[I] = '\') and (Text[I-1] in WhitespaceChars - LineEndChars) then begin
       ReplaceText(I, I, ' ');
       ApplyStyle(Ord(stSymbol), I, I);
       if not ISPPInstalled then

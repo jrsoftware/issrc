@@ -1058,7 +1058,7 @@ var
   L: Integer;
 begin
   L := Length(LineRead);
-  if (L > 2) and (LineRead[L] = FOptions.SpanSymbol) and (LineRead[L - 1] <= #32) then
+  if (L >= 2) and (LineRead[L] = FOptions.SpanSymbol) and (LineRead[L - 1] <= #32) then
   begin
     FQueuedLine := FQueuedLine + TrimLeft(Copy(LineRead, 1, L - 1));
     Inc(FQueuedLineCount);

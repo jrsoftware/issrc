@@ -2370,7 +2370,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
     <topic id="linespan">
       <title>Line Spanning</title>
       <description header="no">
-        <p>By ending lines with ISPP's line spanning symbol preceded with a space, you can split long lines. For example:</p>
+        <p>By ending lines with ISPP's line spanning symbol preceded by a space or a tab, you can split long lines. For example:</p>
         <pre>
           <line><ispp>#define</ispp> MyAppName \</line>
           <line>&dsp;<str>"My Program"</str></line>
