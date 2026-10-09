@@ -778,8 +778,9 @@ var
   Ident: PIdent;
 begin
   if Scope = dsAny then Scope := dsPublic;
+  const HasIndex = (Index <> -1) or IndexSpecified;
   Ident := Find(Name, Scope);
-  if (Ident <> nil) and (Ident.IdentType = itVariable) and (PVariable(Ident).Dim <> 0) then
+  if HasIndex and (Ident <> nil) and (Ident.IdentType = itVariable) and (PVariable(Ident).Dim <> 0) then
   begin
     V := PVariable(Ident);
     if (Index < 0) or (Index >= V.Dim) then
@@ -788,7 +789,7 @@ begin
   end
   else
   begin
-    if (Index <> -1) or IndexSpecified then
+    if HasIndex then
     begin
       if Ident <> nil then
         raise EIdentError.CreateFmt(SIdentifierIsNotAnArray, [Name])

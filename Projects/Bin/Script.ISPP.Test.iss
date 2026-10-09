@@ -949,6 +949,12 @@
 #call CheckEqualsInt(20, DimBasicArray[1])
 #undef DimBasicArray
 #undef DimInitArray
+// #define without an index replaces an existing array
+#dim DimReplacedArray[2]
+#define DimReplacedArray 5
+#call CheckEqualsInt(TYPE_INTEGER, TypeOf(DimReplacedArray))
+#call CheckEqualsInt(5, DimReplacedArray)
+#undef DimReplacedArray
 //
 // Scope
 //
