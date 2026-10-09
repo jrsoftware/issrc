@@ -605,6 +605,9 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       N := IntegerExpr(True);
       NValues := 0;
       NextTokenExpect([tkCloseBracket]);
+      { Other trailing text, such as an unsupported "//" comment, is ignored for backward compatibility only }
+      if PeekAtNextToken = opAssign then
+        NextTokenExpect([tkOpenBrace]);
       if PeekAtNextToken = tkOpenBrace then
         begin
           NextToken;

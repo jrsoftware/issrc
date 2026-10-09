@@ -94,6 +94,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   </li>
   <li>ISPP:
   <ul>
+    <li>Directives <tt>#dim</tt> and <tt>#redim</tt> silently ignored an equal sign after the array size, and everything after it. For example, <tt>#dim MyArray[2] = {1, 2}</tt> left all elements <tt>NULL</tt>. This is now an error. To initialize the array, remove the equal sign: <tt>#dim MyArray[2] {1, 2}</tt>.</li>
     <li>Support function <tt>ReadReg</tt> returned a negative number for <tt>REG_DWORD</tt> values of 0x80000000 or higher, for example -1 instead of 4294967295 for 0xFFFFFFFF (broken since 6.1.0).</li>
     <li>Support functions <tt>GetPackedVersion</tt> and <tt>GetVersionNumbers</tt> failed with an error for files without version info, instead of returning an empty string as documented.</li>
     <li>Support functions <tt>FindNext</tt>, <tt>FindGetFileName</tt>, and <tt>FindClose</tt> failed with an access violation instead of an invalid handle error when given 0, the result of <tt>FindFirst</tt> if no file is found.</li>
