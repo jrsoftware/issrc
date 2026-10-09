@@ -8468,7 +8468,7 @@ begin
     if CompressMethod = cmZstd then begin
       if (ZstdCompressProps.NumWorkers <> 0) and (CompressLevel > 20) then begin
         { Not allowed because aborting takes too long }
-        LineNumber := SetupDirectiveLines[ssZstdNumThreads];
+        SetLineToSetupDirective(ssZstdNumThreads);
         AbortCompile(SCompilerMustNotUseZstdNumThreads);
       end;
     end;
