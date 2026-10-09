@@ -1659,12 +1659,15 @@ procedure TPreprocessor.IncludeFile(FileName: string;
   end;
 
   function DoSearch(const SearchDirs: String): String;
-  var
-    FilePart: PChar;
   begin
     SetLength(Result, MAX_PATH);
-    SetLength(Result, SearchPath(PChar(SearchDirs), PChar(FileName), nil, MAX_PATH,
-      PChar(Result), FilePart));
+    var FilePart: PChar;
+    var Res: DWORD;
+    repeat
+      { SearchPath was tested to support extended-length paths }
+      Res := SearchPath(PChar(SearchDirs), PChar(FileName), nil, ULength(Result),
+        PChar(Result), FilePart);
+    until AdjustLength(Result, Res);
   end;
 
 var
