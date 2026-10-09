@@ -622,6 +622,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
           end;
           NextTokenExpect([tkCloseBrace]);
         end;
+      EndOfExpr;
       FIdentManager.DimVariable(Name, N, Scope, ReDim);
       if ReDim and (NValues <> 0) then
         Error('Initializers not allowed on #redim of existing array');
@@ -1001,7 +1002,11 @@ begin
           EndOfExpr;
         end;
       pcIfExist, pcIfNExist:
-        Result := FileExists(PrependDirName(StrExpr(False), FSourcePath)) xor (Command = pcIfNExist);
+        begin
+          const FileName = StrExpr(False);
+          EndOfExpr;
+          Result := FileExists(PrependDirName(FileName, FSourcePath)) xor (Command = pcIfNExist);
+        end;
       pcDefine: ParseDefine(Parser);
       pcDim: ParseDim(Parser, False);
       pcReDim: ParseDim(Parser, True);
@@ -1022,9 +1027,19 @@ begin
           Params := GetEnv(TokenString);
           EndOfExpr;
         end;
-      pcFile: Params := DoFile(StrExpr(False));
+      pcFile:
+        begin
+          const FileName = StrExpr(False);
+          EndOfExpr;
+          Params := DoFile(FileName);
+        end;
       pcExpr: Evaluate;
-      pcInsert: BeginInsert(IntegerExpr(False));
+      pcInsert:
+        begin
+          const LineNo = IntegerExpr(False);
+          EndOfExpr;
+          BeginInsert(LineNo);
+        end;
       pcAppend: EndInsert;
       pcFor: ParseFor(Parser);
       pcSub: BeginProcDecl(Parser);
