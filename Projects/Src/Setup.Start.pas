@@ -19,7 +19,7 @@ implementation
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{ SetupCustomStyle: The compiler may delete some of the resources included here }
+{ The compiler may delete some of the resources included here }
 {$R Res\Setup.icon.res}
 {$R Res\Setup.images.res}
 {$R Res\Setup.version.res}
