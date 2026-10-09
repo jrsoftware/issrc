@@ -874,6 +874,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
     if FileExists(FileName) then
     begin
       Result := GetTempFileName(PathExtractName(FileName));
+      QueueFileForDeletion(Result);
       StatusMsg(SProcessingExternalFile, [FileName]);
       NewOptions := FOptions;
       Preprocessor := TPreprocessor.Create(FCompilerParams, FIdentManager,
@@ -890,7 +891,6 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
           F.Free;
         end;
         Preprocessor.SaveToFile(Result);
-        QueueFileForDeletion(Result);
         VerboseMsg(1, STemporaryFileCreated, [Result]);
       finally
         Preprocessor.Free;
