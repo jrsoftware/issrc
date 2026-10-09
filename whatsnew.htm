@@ -70,40 +70,34 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 <span class="head2">Fixes</span>
 
 <ul>
-  <li>Buttons in Setup and the Compiler IDE with a long caption which shows its accelerator key in parentheses, such as the <i>Browse</i> button in Korean, could be too narrow, leaving little or no space around the caption (broken since 7.1.0).</li>
-  <li>The compiler didn't display an error message anymore when a <tt>[Files]</tt> section entry installed a DLL file from your own Windows System directory to <tt>{sys}</tt> (broken since 7.0.0). Doing so is unsafe, as explained in the <a href="https://jrsoftware.org/ishelp/index.php?topic=unsafefiles">Unsafe Files</a> help topic.</li>
-  <li>Inno Setup 7.0.0 introduced a maximum dictionary size of 3.8 GB instead of 1 GB for compression methods <tt>lzma</tt> and <tt>lzma2</tt> in 64-bit installers, but <tt>lzma2</tt> installers with a dictionary size above 3 GB failed to install, reporting that the source file was corrupted. They now support up to 3.8 GB as well.</li>
-  <li>When archive extraction failed to open, read, or write a file, for example because another process had it open, it could report that the archive was corrupted or an unspecified error. It now reports the actual error.</li>
-  <li><tt>[Files]</tt> section entries with the <tt>extractarchive</tt> and <tt>recursesubdirs</tt> flags failed with an internal error if the archive contained a path of 260 characters or longer. Support function <tt>ExtractArchive</tt> wasn't affected.</li>
-  <li>Security improvement: During archive extraction, a crafted <tt>.cab</tt>, <tt>.vhd</tt>, <tt>.vhdx</tt>, or <tt>.vmdk</tt> archive could make Setup open a file outside the archive's directory as a volume for reading.</li>
-  <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
-  <li>Pascal Scripting and ISPP support function <tt>ComparePackedVersion</tt> returned the wrong result if one of the two versions had a major version of 32768 or higher (broken since 6.6.0).</li>
-  <li>ISPP support function <tt>ReadReg</tt> returned a negative number for <tt>REG_DWORD</tt> values of 0x80000000 or higher, for example -1 instead of 4294967295 for 0xFFFFFFFF (broken since 6.1.0).</li>
-  <li>ISPP support functions <tt>GetPackedVersion</tt> and <tt>GetVersionNumbers</tt> failed with an error for files without version info, instead of returning an empty string as documented.</li>
-  <li>ISPP support functions <tt>FindNext</tt>, <tt>FindGetFileName</tt>, and <tt>FindClose</tt> failed with an access violation instead of an invalid handle error when given 0, the result of <tt>FindFirst</tt> if no file is found.</li>
-  <li>ISPP directive <tt>#dim</tt> silently ignored any unexpected text at its end. For example, <tt>#dim MyArray[2] = {1, 2}</tt> left all elements <tt>NULL</tt>. This is now an error. To properly initialize the array, remove the equal sign: <tt>#dim MyArray[2] {1, 2}</tt>.</li>
-  <li>Pascal Scripting:
-  <ul>
-    <li>When a COM object or a variant array was passed as an argument to a method of a <a href="https://jrsoftware.org/ishelp/index.php?topic=scriptautomation">COM Automation object</a>, such as in <tt>ParentNode.appendChild(ChildNode)</tt>, or assigned to a property of one, it was released one time too many. This could cause access violations, for example when using MSXML after installing a September 2026 Windows update with a new MSXML version, such as KB5124007 or KB5124008.</li>
-    <li>Support function <tt>FloatToStr</tt> used the decimal point from the user's regional settings, such as a comma, instead of always a dot as documented. Support function <tt>StrToFloat</tt> then raised an exception when given the result (broken since 7.0.0).</li>
-    <li>When a custom style was active, support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> didn't show the shield icon specified by the <tt>ShieldButton</tt> parameter if that button had no custom label (broken since custom styles were introduced in 6.6.0).</li>
-    <li>When debugging in the Compiler IDE, a runtime error could be reported on the line after the line which caused it.</li>
-  </ul>
-  </li>
+  <li>Buttons in the Compiler IDE and Setup with a long caption which shows its accelerator key in parentheses, such as the <i>Browse</i> button in Korean, could be too narrow, leaving little or no space around the caption (broken since 7.1.0).</li>
   <li>Compiler IDE:
   <ul>
-    <li>The editor font selected in the <i>Options</i> dialog wasn't applied when the name of the font contained non-ASCII characters.</li>
     <li>Clicking OK in the <i>Options</i> dialog or reopening a closed tab could silently discard unsaved changes to an <tt>#include</tt> file, if you had saved that file, or another program had changed it, since the script was last opened or compiled, or if an earlier <tt>#include</tt> file couldn't be opened (broken since tabs for <tt>#include</tt> files were introduced in 6.1.0).</li>
     <li>Unsaved changes to an <tt>#include</tt> file were lost without a save prompt when the main script was reloaded after another program changed it, or after <i>Automatically open #include files</i> was turned off in the <i>Options</i> dialog (broken since tabs for <tt>#include</tt> files were introduced in 6.1.0).</li>
+    <li>When an open <tt>#include</tt> file was changed during a compile and you switched back to the Compiler IDE before the compile ended, the file's editor kept the old contents (broken since 6.1.0).</li>
+    <li>When a compile error was in an <tt>#include</tt> file whose tab you had closed, and the list of <tt>#include</tt> files had changed since the previous compile, the reopened tab and other <tt>#include</tt> tabs could show the contents of a different file (broken since closing tabs was introduced in 6.3.0).</li>
     <li><i>Run</i> didn't compile the script first after an <tt>#include</tt> file was changed during a compile, and ran the previous installer instead (broken since 6.1.0).</li>
     <li>With <i>Automatically open #include files</i> enabled, which is the default, <i>Run</i> didn't compile the script first after another program changed an <tt>#include</tt> file, and ran the previous installer instead (broken since 6.3.0, or since 6.1.0 if the file wasn't reloaded).</li>
-    <li>When a compile error was in an <tt>#include</tt> file whose tab you had closed, and the list of <tt>#include</tt> files had changed since the previous compile, the reopened tab and other <tt>#include</tt> tabs could show the contents of a different file (broken since closing tabs was introduced in 6.3.0).</li>
+    <li>When the main script or an <tt>#include</tt> file was reloaded after another program changed it, a breakpoint marker could stay visible on a line without a breakpoint. For an <tt>#include</tt> file, the marker of a compile error could also stay visible on the wrong line. This only happened with <i>Allow Undo after reload</i> enabled, which is the default (broken since 6.5.2).</li>
     <li>The <i>Back</i> and <i>Forward</i> navigation history could show and go to the wrong <tt>#include</tt> file after a compile changed the list of <tt>#include</tt> files (broken since navigation was introduced in 6.3.0).</li>
     <li>Navigating back or forward, or opening the dropdown of the <i>Back</i> button, could show an error after a recompile produced shorter preprocessor output (broken since navigation was introduced in 6.3.0).</li>
     <li>While the Compiler IDE was active, the Calculator key and similar keys did nothing (broken since navigation was introduced in 6.3.0).</li>
-    <li>When an open <tt>#include</tt> file was changed during a compile and you switched back to the Compiler IDE before the compile ended, the file's editor kept the old contents (broken since 6.1.0).</li>
     <li>With multiple selections, Ctrl+Insert pasted instead of copied when the clipboard had one line per selection, and Shift+Insert didn't paste one line per selection like Ctrl+V does (broken since this was introduced for Ctrl+V in 6.4.0).</li>
-    <li>When the main script or an <tt>#include</tt> file was reloaded after another program changed it, a breakpoint marker could stay visible on a line without a breakpoint. For an <tt>#include</tt> file, the marker of a compile error could also stay visible on the wrong line. This only happened with <i>Allow Undo after reload</i> enabled, which is the default (broken since 6.5.2).</li>
+    <li>The editor font selected in the <i>Options</i> dialog wasn't applied when the name of the font contained non-ASCII characters.</li>
+  </ul>
+  </li>
+  <li>Compiler:
+  <ul>
+    <li>The compiler didn't display an error message anymore when a <tt>[Files]</tt> section entry installed a DLL file from your own Windows System directory to <tt>{sys}</tt> (broken since 7.0.0). Doing so is unsafe, as explained in the <a href="https://jrsoftware.org/ishelp/index.php?topic=unsafefiles">Unsafe Files</a> help topic.</li>
+  </ul>
+  </li>
+  <li>ISPP:
+  <ul>
+    <li>Directive <tt>#dim</tt> silently ignored any unexpected text at its end. For example, <tt>#dim MyArray[2] = {1, 2}</tt> left all elements <tt>NULL</tt>. This is now an error. To properly initialize the array, remove the equal sign: <tt>#dim MyArray[2] {1, 2}</tt>.</li>
+    <li>Support function <tt>ReadReg</tt> returned a negative number for <tt>REG_DWORD</tt> values of 0x80000000 or higher, for example -1 instead of 4294967295 for 0xFFFFFFFF (broken since 6.1.0).</li>
+    <li>Support functions <tt>GetPackedVersion</tt> and <tt>GetVersionNumbers</tt> failed with an error for files without version info, instead of returning an empty string as documented.</li>
+    <li>Support functions <tt>FindNext</tt>, <tt>FindGetFileName</tt>, and <tt>FindClose</tt> failed with an access violation instead of an invalid handle error when given 0, the result of <tt>FindFirst</tt> if no file is found.</li>
   </ul>
   </li>
   <li>Command-Line Compiler (ISCC):
@@ -112,6 +106,24 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>When <tt>--quiet</tt>, <tt>--quiet-progress</tt>, or <tt>--preprocess</tt> was used, ISCC still showed its banner before reporting a command-line error.</li>
   </ul>
   </li>
+  <li>Setup:
+  <ul>
+    <li>Security improvement: During archive extraction, a crafted <tt>.cab</tt>, <tt>.vhd</tt>, <tt>.vhdx</tt>, or <tt>.vmdk</tt> archive could make Setup open a file outside the archive's directory as a volume for reading.</li>
+    <li><tt>[Files]</tt> section entries with the <tt>extractarchive</tt> and <tt>recursesubdirs</tt> flags failed with an internal error if the archive contained a path of 260 characters or longer. Support function <tt>ExtractArchive</tt> wasn't affected.</li>
+    <li>When archive extraction failed to open, read, or write a file, for example because another process had it open, it could report that the archive was corrupted or an unspecified error. It now reports the actual error.</li>
+    <li>Inno Setup 7.0.0 introduced a maximum dictionary size of 3.8 GB instead of 1 GB for compression methods <tt>lzma</tt> and <tt>lzma2</tt> in 64-bit installers, but <tt>lzma2</tt> installers with a dictionary size above 3 GB failed to install, reporting that the source file was corrupted. They now support up to 3.8 GB as well.</li>
+    <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
+  </ul>
+  </li>
+  <li>Pascal Scripting:
+  <ul>
+    <li>When a COM object or a variant array was passed as an argument to a method of a <a href="https://jrsoftware.org/ishelp/index.php?topic=scriptautomation">COM Automation object</a>, such as in <tt>ParentNode.appendChild(ChildNode)</tt>, or assigned to a property of one, it was released one time too many. This could cause access violations, for example when using MSXML after installing a September 2026 Windows update with a new MSXML version, such as KB5124007 or KB5124008.</li>
+    <li>Support function <tt>FloatToStr</tt> used the decimal point from the user's regional settings, such as a comma, instead of always a dot as documented. Support function <tt>StrToFloat</tt> then raised an exception when given the result (broken since 7.0.0).</li>
+    <li>When debugging in the Compiler IDE, a runtime error could be reported on the line after the line which caused it.</li>
+    <li>When a custom style was active, support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> didn't show the shield icon specified by the <tt>ShieldButton</tt> parameter if that button had no custom label (broken since custom styles were introduced in 6.6.0).</li>
+  </ul>
+  </li>
+  <li>ISPP and Pascal Scripting support function <tt>ComparePackedVersion</tt> returned the wrong result if one of the two versions had a major version of 32768 or higher (broken since 6.6.0).</li>
   <li>Many other minor fixes.</li>
 </ul>
 
