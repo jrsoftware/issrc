@@ -134,8 +134,9 @@ ISIDE, it depends on ISCmplr.dll to do the actual compiling.
 
 **ISCmplr** - This is a DLL which is loaded by ISIDE and ISCC to compile
 scripts. The actual compiler code is in Compiler.SetupCompiler.pas. See
-Shared.CompInt.pas for the various structures and function declarations used
-to interface to the DLL.
+Shared.CompilerInt.Struct.pas for the various structures and
+Shared.CompilerInt.pas for the function declarations used to interface to the
+DLL.
 
 **ISPP** - This is a DLL implementing Inno Setup's preprocessor interface.
 
@@ -162,11 +163,11 @@ testing framework. Run **test.bat** to compile and run the tests manually.
 
 How do the projects link together?
 
-- ISIDE, ISCmplr, ISPP, Setup, SetupCustomStyle, and SetupLdr share the unit
-  Shared.Struct.pas. This unit contains various data structures and constants
-  shared by the projects. If Shared.Struct.pas is changed, you usually will need
-  to recompile all these projects and the required targets using the Release64 or
-  Debug64 build group so that everything is in synch.
+- ISIDE, ISCmplr, ISPP, Setup, SetupCustomStyle, SetupLdr, and ISTestTool share
+  the unit Shared.Struct.pas. This unit contains various data structures and
+  constants shared by the projects. If Shared.Struct.pas is changed, you usually
+  will need to recompile all these projects and the required targets using the
+  Release64 or Debug64 build group so that everything is in synch.
 
 - There are more units which are shared between projects. Search the .dpr
   files of the projects if you aren't sure if a project uses a particular
