@@ -167,7 +167,7 @@ function TParser.Factor(DoEval: Boolean): TIsppVariant;
             end;
           tkCloseParen, tkCloseBracket, tkCloseBrace:
             begin
-              NextToken;
+              NextTokenExpect([Brackets[CallContext.GroupingStyle, True]]);
               if ArgFound then CallContext.Add(ArgName, V);
               V := NULL;
               Break
