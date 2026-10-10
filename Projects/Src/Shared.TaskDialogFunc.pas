@@ -6,7 +6,7 @@ unit Shared.TaskDialogFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  TaskDialogMsgBox function integrating with CmnFunc's MsgBox functions
+  TaskDialogMsgBox function integrating with Shared.CommonFunc.Vcl's MsgBox functions
 }
 
 interface

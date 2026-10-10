@@ -1340,7 +1340,7 @@ begin
   FPageList.Insert(InsertIndex, APage);
 end;
 
-{ Also see GetPreviousData in Main.pas }
+{ Also see GetPreviousData in Setup.MainFunc }
 procedure TWizardForm.FindPreviousData;
 var
   H: HKEY;

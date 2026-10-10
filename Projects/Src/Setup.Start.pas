@@ -42,7 +42,8 @@ type
 
 class function TDummyClass.AntiShutdownHook(var Message: TMessage): Boolean;
 begin
-  { This causes Setup/Uninstall/RegSvr to all deny shutdown attempts.
+  { This causes Setup/Uninstall/RegSvr to all deny shutdown attempts, except
+    as noted below.
     - If we were to return 1, Windows will send us a WM_ENDSESSION message and
       TApplication.WndProc will call Halt in response. This is no good because
       it would cause an unclean shutdown of Setup, and it would also prevent
@@ -59,7 +60,8 @@ begin
   case Message.Msg of
     WM_QUERYENDSESSION: begin
         { Return zero, except if RestartInitiatedByThisProcess is set
-          (which means we called RestartComputer previously) }
+          (which means we called RestartComputer previously) or an
+          Uninstaller shutdown is allowed }
         if RestartInitiatedByThisProcess or (IsUninstaller and AllowUninstallerShutdown) then begin
           AcceptedQueryEndSessionInProgress := True;
           Message.Result := 1

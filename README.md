@@ -203,8 +203,8 @@ Source code tips
   ISIDE, instead of the SetupLdr.e32 or .e64 just compiled by Delphi.
 
 - To debug the uninstaller first run Setup.exe to completion with the
-  `/DETACHEDMSG` command-line parameter set. Afterwards copy uninst000.dat and
-  uninst000.msg as setup.dat and setup.msg to the [Projects\Bin] directory in your
+  `/DETACHEDMSG` command-line parameter set. Afterwards copy unins000.dat and
+  unins000.msg as setup.dat and setup.msg to the [Projects\Bin] directory in your
   issrc path. Then open the Setup project and set the command-line parameters to
   `/UNINSTMODE /KEEPEXEDATMSG "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"` and start
   debugging.
@@ -214,7 +214,7 @@ Source code tips
   named InitializeFont.
 
 - A note for those curious: ISIDE creates single exe Setups by first creating
-  the Setup.exe as usual, then concatenating the Setup.0 and Setup-1.bin to the
+  the Setup.exe as usual, then concatenating the Setup-0.bin and Setup-1.bin to the
   end of the Setup.exe, and finally modifying an internal data block in Setup.exe
   so it knows it's in "single exe" form.
 

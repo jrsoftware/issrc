@@ -455,8 +455,8 @@ begin
   { Now that CurrentPPI of the form is set you must make sure that any controls you later parent to
     the form already have the same CurrentPPI, otherwise VCL will scale the controls. Currently this
     is done in:
-    -Setup.ScriptClasses's TControlParentW and TNewNotebookPageNotebook_W
-    -Setup.WizardForm.CustomPages's SetCtlParent
+    -Setup.ScriptClasses's TNewNotebookPageNotebook_W
+    -TSetupForm.SetCtlParent
     -TWizardForm.AddPage
     To debug/detect scaling add a breakpoint in Vcl.Controls' TWinControl.ChangeScale and set project
     option Building->Delphi Compiler->Compiling->Debugging->Use debug .dcus. }
@@ -630,7 +630,7 @@ begin
 
   ParentHandlesNeeded(Self); { Also see ShowModal }
 
-  { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
+  { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.HelperFunc's
     InitializeScaleBaseUnits }
 
   SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 9);
@@ -777,9 +777,9 @@ end;
 
 procedure TSetupForm.WMQueryEndSession(var Message: TWMQueryEndSession);
 begin
-  { TDummyClass.AntiShutdownHook in Setup.dpr already denies shutdown attempts
+  { TDummyClass.AntiShutdownHook in Setup.Start already denies shutdown attempts
     but we also need to catch WM_QUERYENDSESSION here to suppress the VCL's
-    default handling which calls CloseQuery. We do not want to let TMainForm &
+    default handling which calls CloseQuery. We do not want to let
     TNewDiskForm display any 'Exit Setup?' message boxes since we're already
     denying shutdown attempts, and also we can't allow them to potentially be
     displayed on top of another dialog box that's already displayed. }
