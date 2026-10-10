@@ -13,7 +13,7 @@ unit ISPP.Parser;
 interface
 
 uses
-  ISPP.Intf, ISPP.Base, ISPP.IdentMan, ISPP.CTokenizer;
+  ISPP.Intf, ISPP.Base, ISPP.CTokenizer;
 
 type
 

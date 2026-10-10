@@ -14,7 +14,6 @@ unit IDE.MainForm.ScintHelper;
 interface
 
 uses
-  Menus,
   ScintEdit,
   IDE.MainForm, IDE.MainForm.AutoCompleteAndCallTipsHelper;
 

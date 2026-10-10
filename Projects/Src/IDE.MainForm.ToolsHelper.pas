@@ -14,7 +14,6 @@ unit IDE.MainForm.ToolsHelper;
 interface
 
 uses
-  Menus,
   ScintEdit,
   IDE.MainForm, IDE.MainForm.UpdateMenuHelper;
 

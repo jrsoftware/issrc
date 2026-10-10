@@ -18,7 +18,7 @@ procedure ISPPCTokenizerRunTests;
 implementation
 
 uses
-  {$IFDEF DEBUG} Winapi.Windows, {$ENDIF} System.SysUtils, ISPP.CTokenizer;
+  {$IFDEF DEBUG} Winapi.Windows, System.SysUtils, {$ENDIF} ISPP.CTokenizer;
 
 {$C+}
 

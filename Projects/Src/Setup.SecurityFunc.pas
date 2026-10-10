@@ -23,8 +23,7 @@ function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
 implementation
 
 uses
-  SetupLdrAndSetup.Messages,
-  Setup.InstFunc, Setup.LoggingFunc;
+  Setup.InstFunc;
 
 function InternalGrantPermission(const ObjectType: DWORD; const ObjectName: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer;

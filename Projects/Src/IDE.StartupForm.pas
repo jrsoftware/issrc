@@ -12,7 +12,7 @@ unit IDE.StartupForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   StdCtrls, ExtCtrls,
   BitmapButton, BitmapImage, NewGroupBox,
   IDE.IDEForm;
@@ -64,7 +64,7 @@ implementation
 
 uses
   ComCtrls,
-  Shared.LicenseFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  Shared.LicenseFunc, Shared.CommonFunc.Vcl,
   IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.MainForm, IDE.ImagesModule;
 
 {$R *.DFM}

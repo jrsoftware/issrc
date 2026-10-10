@@ -117,10 +117,10 @@ procedure ShellChangeNotifyPath(const EventId: Integer; const Path: String;
 implementation
 
 uses
-  Messages, ShellApi, ShlObj, Classes, RegStr, Math,
+  Messages, ShellApi, ShlObj, RegStr, Math,
   PathFunc, UnsignedFunc,
   Shared.SetupTypes, Shared.SetupMessageIDs,
-  SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
+  SetupLdrAndSetup.Messages, Setup.PathRedir,
   Setup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc;
 
 procedure InternalError(const Id: String);

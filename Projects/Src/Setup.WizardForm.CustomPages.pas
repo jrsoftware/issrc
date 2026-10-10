@@ -12,7 +12,7 @@ unit Setup.WizardForm.CustomPages;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs, Generics.Collections,
+  Windows, SysUtils, Classes, Controls, Forms, StdCtrls, Generics.Collections,
   Shared.Struct, Shared.CommonFunc.Vcl,
   Setup.WizardForm, Setup.DownloadFileFunc, Setup.ISSigVerifyFunc, Setup.InstFunc, Compression.SevenZipDecoder,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,

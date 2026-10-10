@@ -13,7 +13,7 @@ unit ISPP.Preprocessor;
 interface
 
 uses
-  Windows, SysUtils, Classes, Shared.PreprocInt, IniFiles, Registry, ISPP.Intf,
+  Windows, SysUtils, Classes, Shared.PreprocInt, ISPP.Intf,
   ISPP.Base, ISPP.Stack, ISPP.IdentMan, ISPP.Parser;
 
 type

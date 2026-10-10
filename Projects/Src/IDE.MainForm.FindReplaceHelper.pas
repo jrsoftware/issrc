@@ -43,7 +43,7 @@ implementation
 
 uses
   Windows, Messages,
-  Classes, SysUtils, StrUtils,  Menus,
+  SysUtils, StrUtils,
   ScintEdit,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup;

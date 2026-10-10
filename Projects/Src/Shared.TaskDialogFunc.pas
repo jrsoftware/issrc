@@ -25,11 +25,9 @@ implementation
 {$IFEND}
 
 uses
-  Classes, StrUtils, Math, Forms, SysUtils, Themes, Controls, CommCtrl,
-  PathFunc,
-  {$IFDEF USETASKDIALOGFORM} Setup.TaskDialogForm, {$ENDIF}
-  {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF}
-  Shared.CommonFunc;
+  Math, Forms, SysUtils, Themes, CommCtrl
+  {$IFDEF USETASKDIALOGFORM}, Setup.TaskDialogForm {$ENDIF}
+  {$IFDEF SETUPPROJ}, Setup.InstFunc {$ENDIF};
 
 var
   TaskDialogIndirectFunc: function(const pTaskConfig: TTaskDialogConfig;

@@ -179,11 +179,11 @@ function ReadUninstallLogFlags(const F: TFile; const Filename: String): TUninsta
 implementation
 
 uses
-  Messages, ShlObj, AnsiStrings, Character,
+  ShlObj, AnsiStrings, Character,
   UnsignedFunc, PathFunc,
   Shared.Struct, Shared.SetupTypes, Shared.SetupMessageIDs,
   SetupLdrAndSetup.Messages,
-  Setup.InstFunc, Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
+  Setup.InstFunc, Setup.InstFunc.Ole, Compression.Base,
   Setup.LoggingFunc, Setup.RegDLL, Setup.DotNetFunc, Setup.PathRedir;
 
 type

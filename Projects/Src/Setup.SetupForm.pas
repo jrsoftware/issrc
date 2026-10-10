@@ -27,7 +27,7 @@ unit Setup.SetupForm;
 interface
 
 uses
-  Windows, MultiMon, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, MultiMon, SysUtils, Messages, Classes, Graphics, Controls, Forms,
   UIStateForm,
   Setup.MainFunc;
 

@@ -29,9 +29,9 @@ uses
   SysUtils,
   Forms,
   RichEditViewer,
-  Shared.CommonFunc, Shared.SetupMessageIDs, Shared.FileClass, Shared.Struct,
-  SetupLdrAndSetup.Messages, SetupLdrAndSetup.InstFunc,
-  Setup.LoggingFunc, Setup.MainFunc, Setup.Uninstall, Setup.RegSvr, Setup.MainForm;
+  Shared.CommonFunc, Shared.FileClass, Shared.Struct,
+  SetupLdrAndSetup.InstFunc,
+  Setup.MainFunc, Setup.Uninstall, Setup.RegSvr, Setup.MainForm;
 
 type
   TDummyClass = class
