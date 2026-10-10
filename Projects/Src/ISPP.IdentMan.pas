@@ -963,7 +963,7 @@ begin
         itMacro: CallContext := TMacroCallContext.Create(MacroIdents, PMacro(P));
         itFunc: CallContext := TFuncCallContext.Create(FFuncSender, PFunc(P));
       else
-        Assert(False)
+        raise Exception.Create('Internal error: unexpected IdentType');
       end;
     end
     else
