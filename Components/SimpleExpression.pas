@@ -12,7 +12,7 @@ unit SimpleExpression;
   -expression = term ('or' term)*
   -term       = factor ('and' factor)*
   -factor     = '(' expression ')' | 'not' factor | identifier [ '(' parameters ')' ]
-  -identifier = letter | '_' (letter | number | '_' | '\')*
+  -identifier = (letter | '_') (letter | number | '_' | '\')*
   -parameters = [ (string | number | boolean) (',' (string | number | boolean))* ]
 
   As a special optional rule it can insert an 'or' if an identifier is encountered
