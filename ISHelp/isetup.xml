@@ -4148,7 +4148,7 @@ iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precod
 
 <heading>Encryption</heading>
 
-<p>Password-protected encryption is available, using strong XChaCha20 encryption and PBKDF2-HMAC-SHA256 key derivation. All salts and nonces are generated using a cryptographically secure random number generator (CSPRNG).</p>
+<p>Password-protected encryption is available, using strong XChaCha20 encryption and PBKDF2-HMAC-SHA256 key derivation. The key derivation salt and the base nonce are generated using a cryptographically secure random number generator (CSPRNG).</p>
 
 <p>See <sd>Encryption</sd> for more information.</p>
 
@@ -6850,7 +6850,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <tt><link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link></tt> command-line parameter.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <isxfunc>ExtractTemporaryFile</isxfunc> function from the <sn>[Code]</sn> section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the <sn>[Files]</sn> section entry for the file.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <sd>Password</sd> using the function specified by <sd>EncryptionKeyDerivation</sd>.</p>
-<p>The 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
+<p>The 192-bit XChaCha20 encryption nonces are derived from a single random base nonce. For each chunk of compressed data, the compiler combines the base nonce using XOR with the chunk's start offset and the index of its first disk slice. This gives each chunk a unique nonce. Other encrypted data uses a start offset of 0 and reserved negative slice indexes instead.</p>
 <p><b>See also:</b><br/>
 <sd>Password</sd><br/>
 <sd>EncryptionKeyDerivation</sd></p>
