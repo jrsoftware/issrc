@@ -162,6 +162,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   </li>
   <li><i>Fix:</i> ISPP support function <tt>FileSize</tt> returned 0 for a directory and the size of the first matching file for a file name with wildcards, instead of -1 as documented, and 0 for a symbolic link, instead of the size of its target.</li>
   <li>Updated the 7-Zip, LZMA SDK, and Scintilla source code used by Inno Setup to the latest versions.</li>
+  <li>Removed support for the undocumented <tt>PrivilegesRequired</tt> value <tt>poweruser</tt>, the undocumented <tt>Permissions</tt> identifier <tt>powerusers</tt>, and undocumented support function <tt>IsPowerUserLoggedOn</tt>.</li>
   <li>Other minor improvements and fixes.</li>
 </ul>
 
@@ -196,7 +197,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>When a compile error was in an <tt>#include</tt> file whose tab you had closed, and the list of <tt>#include</tt> files had changed since the previous compile, the reopened tab and other <tt>#include</tt> tabs could show the contents of a different file (broken since closing tabs was introduced in 6.3.0).</li>
     <li><i>Run</i> didn't compile the script first after an <tt>#include</tt> file was changed during a compile, and ran the previous installer instead (broken since 6.1.0).</li>
     <li>With <i>Automatically open #include files</i> enabled, which is the default, <i>Run</i> didn't compile the script first after another program changed an <tt>#include</tt> file, and ran the previous installer instead (broken since 6.3.0, or since 6.1.0 if the file wasn't reloaded).</li>
-    <li>When the main script or an <tt>#include</tt> file was reloaded after another program changed it, a breakpoint marker could stay visible on a line without a breakpoint. For an <tt>#include</tt> file, the marker of a compile error could also stay visible on the wrong line. This only happened with <i>Allow Undo after reload</i> enabled, which is the default (broken since 6.5.2).</li>
+    <li>When the main script or an <tt>#include</tt> file was reloaded after another program changed it, a breakpoint marker could stay visible on a line without a breakpoint. For an <tt>#include</tt> file, the marker of a compile error could also stay visible on the wrong line. If the file became shorter, an error could also be shown. This only happened with <i>Allow Undo after reload</i> enabled, which is the default (broken since 6.5.2).</li>
     <li>The <i>Back</i> and <i>Forward</i> navigation history could show and go to the wrong <tt>#include</tt> file after a compile changed the list of <tt>#include</tt> files (broken since navigation was introduced in 6.3.0).</li>
     <li>Navigating back or forward, or opening the dropdown of the <i>Back</i> button, could show an error after a recompile produced shorter preprocessor output (broken since navigation was introduced in 6.3.0).</li>
     <li>While the Compiler IDE was active, the Calculator key and similar keys did nothing (broken since navigation was introduced in 6.3.0).</li>
@@ -212,7 +213,6 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <li>ISPP:
   <ul>
     <li>Directives <tt>#dim</tt> and <tt>#redim</tt> silently ignored an equal sign after the array size, and everything after it. For example, <tt>#dim MyArray[2] = {1, 2}</tt> left all elements <tt>NULL</tt>. This is now an error. To initialize the array, remove the equal sign: <tt>#dim MyArray[2] {1, 2}</tt>.</li>
-    <li>Support function <tt>ReadReg</tt> returned a negative number for <tt>REG_DWORD</tt> values of 0x80000000 or higher, for example -1 instead of 4294967295 for 0xFFFFFFFF (broken since 6.1.0).</li>
     <li>Support functions <tt>GetPackedVersion</tt> and <tt>GetVersionNumbers</tt> failed with an error for files without version info, instead of returning an empty string as documented.</li>
     <li>Support functions <tt>FindNext</tt>, <tt>FindGetFileName</tt>, and <tt>FindClose</tt> failed with an access violation instead of an invalid handle error when given 0, the result of <tt>FindFirst</tt> if no file is found.</li>
   </ul>

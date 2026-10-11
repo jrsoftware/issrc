@@ -34,7 +34,7 @@ type
       FOnUsedVariable: TScriptCompilerOnUsedVariable;
       FOnError: TScriptCompilerOnError;
       FOnWarning: TScriptCompilerOnWarning;
-      function FindExport(const Name, Decl: String; const IgnoreIndex: NativeInt): NativeInt;
+      function FindExport(const Name, Decl: String): NativeInt;
       function GetExportCount: NativeInt;
       procedure PSPositionToLineCol(Position: Cardinal; var Line, Col: Integer);
       procedure TriggerWarning(const Position: Cardinal; const WarningType, WarningMessage: String);
@@ -120,7 +120,7 @@ begin
         SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
       Result := False;
     end else begin
-      if ScriptCompiler.FindExport(String(TPSInternalProcedure(aProc).Name), '', -1) <> -1 then begin
+      if ScriptCompiler.FindExport(String(TPSInternalProcedure(aProc).Name), '') <> -1 then begin
         { Don't allow attributes on functions already matching an export (by their name) so that we don't have to deal with this later. }
         with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute not allowed for function or procedure "%s"', [ScriptCompiler.FNamingAttribute, String(TPSInternalProcedure(aProc).Name)]))) do
           SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
@@ -132,7 +132,7 @@ begin
             SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
           Result := False;
         end else begin
-          var I := ScriptCompiler.FindExport(AttrValue, String(Sender.MakeDecl(TPSInternalProcedure(aProc).Decl)), -1);
+          var I := ScriptCompiler.FindExport(AttrValue, String(Sender.MakeDecl(TPSInternalProcedure(aProc).Decl)));
           if I <> -1 then begin
             { The name from the attribute and the function prototype are both ok. }
             ScriptExport := ScriptCompiler.FExports[I];
@@ -144,7 +144,7 @@ begin
               ScriptExport.Exported := True;
               Result := True;
             end;
-          end else if ScriptCompiler.FindExport(AttrValue, '', -1) <> -1 then begin
+          end else if ScriptCompiler.FindExport(AttrValue, '') <> -1 then begin
             { The name from the attribute is ok but the function prototype is not. }
             with Sender.MakeError('', ecCustomError, tbtstring(Format('Invalid function or procedure prototype for attribute value "%s"', [AttrValue]))) do
               SetCustomPos(TPSInternalProcedure(aProc).DeclarePos, TPSInternalProcedure(aProc).DeclareRow, TPSInternalProcedure(aProc).DeclareCol);
@@ -216,13 +216,13 @@ begin
   { Try and see if the function name matches an export and if so,
     see if one of the prototypes for that name matches. }
 
-  var I := ScriptCompiler.FindExport(String(Proc.Name), String(Procdecl), -1);
+  var I := ScriptCompiler.FindExport(String(Proc.Name), String(Procdecl));
   if I <> -1 then begin
     { The function name is a match and the function prototype is ok. }    
     ScriptExport := ScriptCompiler.FExports[I];
     ScriptExport.Exported := True;
     Result := True;
-  end else if ScriptCompiler.FindExport(String(Proc.Name), '', -1) <> -1 then begin
+  end else if ScriptCompiler.FindExport(String(Proc.Name), '') <> -1 then begin
     { The function name is a match but the function prototype is not. }
     with Sender.MakeError('', ecCustomError, tbtstring(Format('Invalid prototype for ''%s''', [Proc.OriginalName]))) do
       SetCustomPos(Proc.DeclarePos, Proc.DeclareRow, Proc.DeclareCol);
@@ -380,7 +380,7 @@ procedure TScriptCompiler.AddExport(const Name, Decl: String; const AllowNamingA
 var
   ScriptExport: TScriptExport;
 begin
-  var I := FindExport(Name, Decl, -1);
+  var I := FindExport(Name, Decl);
   if I <> -1 then begin
     ScriptExport := FExports[I];
     if Required and not ScriptExport.Required then begin
@@ -404,13 +404,12 @@ begin
   FExports.Add(ScriptExport);
 end;
 
-function TScriptCompiler.FindExport(const Name, Decl: String; const IgnoreIndex: NativeInt): NativeInt;
+function TScriptCompiler.FindExport(const Name, Decl: String): NativeInt;
 begin
   for var I := 0 to FExports.Count-1 do begin
     const ScriptExport: TScriptExport = FExports[I];
     if ((Name = '') or SameText(ScriptExport.Name, Name)) and
-       ((Decl = '') or SameText(ScriptExport.Decl, Decl)) and
-       ((IgnoreIndex = -1) or (I <> IgnoreIndex)) then
+       ((Decl = '') or SameText(ScriptExport.Decl, Decl)) then
       Exit(I);
   end;
   Result := -1;

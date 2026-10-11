@@ -26,7 +26,7 @@
 ; 시작하기 전에 이러한 반복되는 각 용어를 어떻게 번역할지 결정하세요:
 ; - Setup, Uninstall (프로그램), uninstall (동사), Cannot uninstall,
 ;   program, application, component, task,
-;   shortcut, Start Menu, folder, directory, drive,
+;   shortcut, Start menu, folder, directory, drive,
 ;   existing file, source file, registry, INI entries, README,
 ;   computer, Windows, version, administrator, all users, current user,
 ;   Downloading files, Extracting files, aborted, corrupted, close (applications), restart,

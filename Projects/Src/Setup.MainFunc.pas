@@ -138,7 +138,7 @@ var
   { Other }
   ShowLanguageDialog, MatchedLangParameter: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
-  HasIcons, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
+  HasIcons, Is64BitInstallMode, IsAdmin, IsAdminInstallMode,
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress,
     CustomWizardBackground: Boolean;
@@ -2525,8 +2525,6 @@ begin
 
   if IsAdmin then
     Log('User privileges: Administrative')
-  else if IsPowerUserOrAdmin then
-    Log('User privileges: Power User')
   else
     Log('User privileges: None');
 end;
@@ -2689,7 +2687,6 @@ procedure InitializeCommonVars;
 { Initializes variables shared between Setup and Uninstall }
 begin
   IsAdmin := IsAdminLoggedOn;
-  IsPowerUserOrAdmin := IsAdmin or IsPowerUserLoggedOn;
 end;
 
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
@@ -3647,8 +3644,6 @@ begin
 
   { Check if the user lacks the required privileges }
   case SetupHeader.PrivilegesRequired of
-    prPowerUser:
-      if not IsPowerUserOrAdmin then AbortInit(msgPowerUserPrivilegesRequired);
     prAdmin:
       if not IsAdmin then AbortInit(msgAdminPrivilegesRequired);
   end;

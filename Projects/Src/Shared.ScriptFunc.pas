@@ -210,10 +210,8 @@ type
     hkISPPVoid, hkISPPStr, hkISPPInt, hkISPPAny);
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
-function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString; overload;
-function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString; overload;
+function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
 function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
-function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 
 function RemoveISPPScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
 function ExtractISPPScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
@@ -230,12 +228,6 @@ begin
   const C: AnsiString = '(';
 
   Result := Pos(C, ScriptFunc) <> 0;
-end;
-
-function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
-begin
-  var Dummy: TScriptFuncHeaderKind;
-  Result := RemoveScriptFuncHeader(ScriptFunc, Dummy);
 end;
 
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
@@ -302,11 +294,6 @@ begin
     raise Exception.CreateFmt('Invalid ScriptFuncWithoutHeader: %s', [Result]);
 
   Delete(Result, P, Maxint);
-end;
-
-function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
-begin
-  Result := ExtractScriptFuncWithoutHeaderName(RemoveScriptFuncHeader(ScriptFunc));
 end;
 
 function ExtractISPPScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
@@ -450,7 +437,6 @@ initialization
     //
     'function IsAdmin: Boolean;',
     'function IsAdminLoggedOn: Boolean;', { old name of IsAdmin }
-    'function IsPowerUserLoggedOn: Boolean;',
     'function IsAdminInstallMode: Boolean;',
     'function FontExists(const FaceName: String): Boolean;',
     'function GetUILanguage: Integer;',

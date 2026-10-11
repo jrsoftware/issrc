@@ -845,10 +845,10 @@ begin
       if UninstallerMsgTail.ID <> UninstallerMsgTailID then begin
         { No valid UninstallerMsgTail record found at the end of the EXE;
           load messages from an external .msg file. }
-        LoadSetupMessages(UninstMsgFilename, 0, True);
+        LoadSetupMessages(UninstMsgFilename, 0);
       end
       else
-        LoadSetupMessages(UninstExeFilename, UninstallerMsgTail.Offset, True);
+        LoadSetupMessages(UninstExeFilename, UninstallerMsgTail.Offset);
     finally
       F.Free;
     end;

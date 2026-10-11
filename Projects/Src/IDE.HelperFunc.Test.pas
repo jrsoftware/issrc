@@ -64,8 +64,6 @@ procedure TestWindowsVersionHelpers;
 begin
   Assert(WindowsVersionAtLeast(6, 1)); { Windows 7 is the minimum supported }
   Assert(not WindowsVersionAtLeast(255, 255, 65535));
-  if IsWindows11 then
-    Assert(IsWindows10);
 end;
 
 procedure TestMiscHelpers;

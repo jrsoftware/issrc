@@ -30,7 +30,7 @@ type
   TFunctionDefinitions = array of TFunctionDefinition;
   TFunctionDefinitionsByName = TDictionary<String, TFunctionDefinitions>;
 
-  { Use when the name is known without having to call ExtractScriptFuncName }
+  { Use when the name is known without having to call ExtractScriptFuncWithoutHeaderName }
   TFunctionDefinitionWithName = record
     Name: String;
     Definition: TFunctionDefinition;

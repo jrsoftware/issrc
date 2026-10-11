@@ -48,11 +48,9 @@ begin
   FillChar(Error, SizeOf(TIsppFuncResult), 0);
   Result := False;
   if Params.GetCount < Minimum then begin
-    Error.ErrParam := Minimum;
     Error.Error := ISPPFUNC_INSUFARGS;
     Exit;
   end else if not AllowManyArgs and (Params.GetCount > High(Types) + 1) then begin
-    Error.ErrParam := Integer(High(Types)) + 1;
     Error.Error := ISPPFUNC_MANYARGS;
     Exit;
   end else
@@ -66,7 +64,6 @@ begin
             Error.Error := ISPPFUNC_STRWANTED
           else
             Error.Error := ISPPFUNC_INTWANTED;
-          Error.ErrParam := Integer(I);
           Exit;
         end;
       end;
@@ -260,7 +257,7 @@ begin
         if OpenKey(Get(1).AsStr, False) and ((Name = '') or ValueExists(Name)) then
           case GetDataType(Name) of
             rdString, rdExpandString: MakeStr(ResPtr^, ReadString(Name));
-            rdInteger: MakeInt(ResPtr^, UInt32(ReadInteger(Name))); { The UInt32 cast prevents sign extension }
+            rdInteger: MakeInt(ResPtr^, ReadInteger(Name));
             {$IF RtlVersion >= 36.0}
             rdInt64: MakeInt(ResPtr^, ReadInt64(Name));
             {$ENDIF}

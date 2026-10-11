@@ -41,7 +41,6 @@ function ISPPInstalled: Boolean;
 function IsISPPBuiltins(const Filename: String): Boolean;
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function IsWindows10: Boolean;
-function IsWindows11: Boolean;
 function GetDefaultThemeType: TThemeType;
 function GetDefaultLanguage: TIDELanguage;
 function TryStrToLanguage(const S: String; out Language: TIDELanguage): Boolean;
@@ -268,11 +267,6 @@ end;
 function IsWindows10: Boolean;
 begin
   Result := WindowsVersionAtLeast(10, 0);
-end;
-
-function IsWindows11: Boolean;
-begin
-  Result := WindowsVersionAtLeast(10, 0, 22000);
 end;
 
 function GetDefaultThemeType: TThemeType;
