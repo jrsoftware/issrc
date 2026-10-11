@@ -34,14 +34,9 @@ function RestartComputer: Boolean;
 procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
 
 {$IFDEF SETUPPROJ}
-{ The following are not called by other SetupLdr units: they are only called by the
-  code below and by other Setup units - so the implementations exist below but they
-  are not included here in the interface, for clarity }
-function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
-  var ErrorCode: DWORD; out Protected: Boolean): Boolean; overload;
-function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
-  var ErrorCode: DWORD): Boolean; overload;
-function UIntToBase36Str(AValue: UInt32; const ADigits: Integer): String;
+{ The following is not called by other SetupLdr units: it is only called by the
+  code below and by other Setup units - so the implementation exists below but it
+  is not included here in the interface, for clarity }
 function GenerateUniqueName(Path: String; const Extension: String): String;
 {$ENDIF}
 
@@ -56,7 +51,7 @@ function ConvertStringSecurityDescriptorToSecurityDescriptorW(
   dummy: Pointer): BOOL; stdcall; external advapi32;
 
 function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
-  var ErrorCode: DWORD; out Protected: Boolean): Boolean; overload;
+  var ErrorCode: DWORD; out Protected: Boolean): Boolean;
 { Creates a protected directory if
   -permissions are supported
   -it's a subdirectory of c:\WINDOWS\TEMP, or
@@ -131,13 +126,6 @@ begin
     if not Result then
       ErrorCode := GetLastError;
   end;
-end;
-
-function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: String;
-  var ErrorCode: DWORD): Boolean; overload;
-begin
-  var Protected: Boolean;
-  Result := CreateSafeDirectory(LimitCurrentUserSidAccess, Path, ErrorCode, Protected);
 end;
 
 function UIntToBase36Str(AValue: UInt32; const ADigits: Integer): String;

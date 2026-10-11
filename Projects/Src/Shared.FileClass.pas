@@ -83,7 +83,6 @@ type
   public
     constructor Create(const AFilename: String);
     constructor CreateFromMemory(const ASource; const ASize: Cardinal);
-    constructor CreateFromZero(const ASize: Cardinal);
     destructor Destroy; override;
     function Read(var Buffer; Count: Cardinal): Cardinal; override;
     procedure Seek(Offset: Int64); override;
@@ -99,13 +98,12 @@ type
     FBuffer: array[0..4095] of AnsiChar;
     FSawFirstLine: Boolean;
     FCodePage: Word;
-    function DoReadLine(const UTF8: Boolean): AnsiString;
+    function DoReadLine: AnsiString;
     function GetCanDetectUTF8WithoutBOM: Boolean;
     function GetEof: Boolean;
     procedure FillBuffer;
   public
     function ReadLine: String;
-    function ReadAnsiLine: AnsiString;
     property AllowInvalidChars: Boolean read FAllowInvalidChars write FAllowInvalidChars;
     property CanDetectUTF8WithoutBOM: Boolean read GetCanDetectUTF8WithoutBOM;
     property CodePage: Word read FCodePage write FCodePage;
@@ -327,13 +325,6 @@ begin
   UMove(ASource, FMemory^, FSize);
 end;
 
-constructor TMemoryFile.CreateFromZero(const ASize: Cardinal);
-begin
-  inherited Create;
-  AllocMemory(ASize);
-  UFillChar(FMemory^, FSize, 0);
-end;
-
 destructor TMemoryFile.Destroy;
 begin
   if Assigned(FMemory) then
@@ -430,7 +421,7 @@ end;
 
 function TTextFileReader.ReadLine: String;
 begin
-  const SrcStr = DoReadLine(True);
+  const SrcStr = DoReadLine;
   if SrcStr = '' then
     Exit('');
 
@@ -459,12 +450,7 @@ begin
   Result := DestStr;
 end;
 
-function TTextFileReader.ReadAnsiLine: AnsiString;
-begin
-  Result := DoReadLine(False);
-end;
-
-function TTextFileReader.DoReadLine(const UTF8: Boolean): AnsiString;
+function TTextFileReader.DoReadLine: AnsiString;
 var
   I, L: Cardinal;
   S: AnsiString;
@@ -508,25 +494,23 @@ begin
   end;
 
   if not FSawFirstLine then begin
-    if UTF8 then begin
-      { Handle UTF8 as requested: check for a BOM at the start and if not found then check entire file }
-      if (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
-        Delete(S, 1, 3);
-        FCodePage := CP_UTF8;
-      end else if CanSeek then begin
-        { Detect BOM-less UTF8, also see GetCanDetectUTF8WithoutBOM }
-        const OldPosition = GetPosition;
-        try
-          const CappedSize = GetCappedSize; //can't be 0
-          Seek(0);
-          var S2: AnsiString;
-          SetLength(S2, CappedSize);
-          SetLength(S2, Read(S2[1], CappedSize));
-          if DetectUTF8Encoding(S2) in [etUSASCII, etUTF8] then
-            FCodePage := CP_UTF8;
-        finally
-          Seek(OldPosition);
-        end;
+    { Check for a UTF8 BOM at the start and if not found then check entire file }
+    if (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
+      Delete(S, 1, 3);
+      FCodePage := CP_UTF8;
+    end else if CanSeek then begin
+      { Detect BOM-less UTF8, also see GetCanDetectUTF8WithoutBOM }
+      const OldPosition = GetPosition;
+      try
+        const CappedSize = GetCappedSize; //can't be 0
+        Seek(0);
+        var S2: AnsiString;
+        SetLength(S2, CappedSize);
+        SetLength(S2, Read(S2[1], CappedSize));
+        if DetectUTF8Encoding(S2) in [etUSASCII, etUTF8] then
+          FCodePage := CP_UTF8;
+      finally
+        Seek(OldPosition);
       end;
     end;
     FSawFirstLine := True;
