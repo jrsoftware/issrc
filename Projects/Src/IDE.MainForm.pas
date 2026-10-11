@@ -1863,7 +1863,7 @@ begin
   if (EFindRegEx.ShortCut = AltR) and
      (ShortCut(Message.CharCode, KeyDataToShiftState(Message.KeyData)) = AltR) and
      not FActiveMemo.Focused then begin
-    SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r'));
+    SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r')); { Just beeps if no menu uses R, which is ok }
     Exit(True);
   end;
 
