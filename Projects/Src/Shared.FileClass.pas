@@ -98,7 +98,6 @@ type
     FBuffer: array[0..4095] of AnsiChar;
     FSawFirstLine: Boolean;
     FCodePage: Word;
-    function DoReadLine: AnsiString;
     function GetCanDetectUTF8WithoutBOM: Boolean;
     function GetEof: Boolean;
     procedure FillBuffer;
@@ -420,6 +419,76 @@ begin
 end;
 
 function TTextFileReader.ReadLine: String;
+
+  function DoReadLine: AnsiString;
+  var
+    I, L: Cardinal;
+    S: AnsiString;
+  begin
+    while True do begin
+      FillBuffer;
+      if FEof then begin
+        { End of file reached }
+        if S = '' then begin
+          { If nothing was read (i.e. we were already at EOF), raise localized
+            "Reached end of file" error }
+          RaiseError(ERROR_HANDLE_EOF);
+        end;
+        Break;
+      end;
+
+      I := FBufferOffset;
+      while I < FBufferSize do begin
+        if FBuffer[I] in [#10, #13] then
+          Break;
+        Inc(I);
+      end;
+      L := ULength(S);
+      if Integer(L + (I - FBufferOffset)) < 0 then
+        OutOfMemoryError;
+      SetLength(S, L + (I - FBufferOffset));
+      UMove(FBuffer[FBufferOffset], S[L+1], I - FBufferOffset);
+      FBufferOffset := I;
+
+      if FBufferOffset < FBufferSize then begin
+        { End of line reached }
+        Inc(FBufferOffset);
+        if FBuffer[FBufferOffset-1] = #13 then begin
+          { Skip #10 if it follows #13 }
+          FillBuffer;
+          if (FBufferOffset < FBufferSize) and (FBuffer[FBufferOffset] = #10) then
+            Inc(FBufferOffset);
+        end;
+        Break;
+      end;
+    end;
+
+    if not FSawFirstLine then begin
+      { Check for a UTF8 BOM at the start and if not found then check entire file }
+      if (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
+        Delete(S, 1, 3);
+        FCodePage := CP_UTF8;
+      end else if CanSeek then begin
+        { Detect BOM-less UTF8, also see GetCanDetectUTF8WithoutBOM }
+        const OldPosition = GetPosition;
+        try
+          const CappedSize = GetCappedSize; //can't be 0
+          Seek(0);
+          var S2: AnsiString;
+          SetLength(S2, CappedSize);
+          SetLength(S2, Read(S2[1], CappedSize));
+          if DetectUTF8Encoding(S2) in [etUSASCII, etUTF8] then
+            FCodePage := CP_UTF8;
+        finally
+          Seek(OldPosition);
+        end;
+      end;
+      FSawFirstLine := True;
+    end;
+
+    Result := S;
+  end;
+
 begin
   const SrcStr = DoReadLine;
   if SrcStr = '' then
@@ -448,75 +517,6 @@ begin
     RaiseError(ERROR_NO_UNICODE_TRANSLATION);
 
   Result := DestStr;
-end;
-
-function TTextFileReader.DoReadLine: AnsiString;
-var
-  I, L: Cardinal;
-  S: AnsiString;
-begin
-  while True do begin
-    FillBuffer;
-    if FEof then begin
-      { End of file reached }
-      if S = '' then begin
-        { If nothing was read (i.e. we were already at EOF), raise localized
-          "Reached end of file" error }
-        RaiseError(ERROR_HANDLE_EOF);
-      end;
-      Break;
-    end;
-
-    I := FBufferOffset;
-    while I < FBufferSize do begin
-      if FBuffer[I] in [#10, #13] then
-        Break;
-      Inc(I);
-    end;
-    L := ULength(S);
-    if Integer(L + (I - FBufferOffset)) < 0 then
-      OutOfMemoryError;
-    SetLength(S, L + (I - FBufferOffset));
-    UMove(FBuffer[FBufferOffset], S[L+1], I - FBufferOffset);
-    FBufferOffset := I;
-
-    if FBufferOffset < FBufferSize then begin
-      { End of line reached }
-      Inc(FBufferOffset);
-      if FBuffer[FBufferOffset-1] = #13 then begin
-        { Skip #10 if it follows #13 }
-        FillBuffer;
-        if (FBufferOffset < FBufferSize) and (FBuffer[FBufferOffset] = #10) then
-          Inc(FBufferOffset);
-      end;
-      Break;
-    end;
-  end;
-
-  if not FSawFirstLine then begin
-    { Check for a UTF8 BOM at the start and if not found then check entire file }
-    if (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
-      Delete(S, 1, 3);
-      FCodePage := CP_UTF8;
-    end else if CanSeek then begin
-      { Detect BOM-less UTF8, also see GetCanDetectUTF8WithoutBOM }
-      const OldPosition = GetPosition;
-      try
-        const CappedSize = GetCappedSize; //can't be 0
-        Seek(0);
-        var S2: AnsiString;
-        SetLength(S2, CappedSize);
-        SetLength(S2, Read(S2[1], CappedSize));
-        if DetectUTF8Encoding(S2) in [etUSASCII, etUTF8] then
-          FCodePage := CP_UTF8;
-      finally
-        Seek(OldPosition);
-      end;
-    end;
-    FSawFirstLine := True;
-  end;
-
-  Result := S;
 end;
 
 { TTextFileWriter }
