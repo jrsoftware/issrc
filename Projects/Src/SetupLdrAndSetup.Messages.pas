@@ -30,8 +30,7 @@ function FmtMessage(S: PChar; const Args: array of String): String;
 function FmtSetupMessage(const ID: TSetupMessageID; const Args: array of String): String;
 function FmtSetupMessage1(const ID: TSetupMessageID; const Arg1: String): String;
 procedure AssignSetupMessages(const P; const Size: Cardinal);
-procedure LoadSetupMessages(const Filename: String; const Offset: Int64;
-  const LoadMessagesLangOptions: Boolean);
+procedure LoadSetupMessages(const Filename: String; const Offset: Int64);
 function IntToHexStr8(I: Integer): String;
 
 const
@@ -136,8 +135,7 @@ begin
   end;
 end;
 
-procedure LoadSetupMessages(const Filename: String; const Offset: Int64;
-  const LoadMessagesLangOptions: Boolean);
+procedure LoadSetupMessages(const Filename: String; const Offset: Int64);
 { Loads Setup messages from an uncompressed file }
 var
   F: TFile;
@@ -172,12 +170,10 @@ begin
       FreeMem(P);
     end;
 
-    if LoadMessagesLangOptions then begin
-      if F.Read(MessagesLangOptions, SizeOf(MessagesLangOptions)) <> SizeOf(MessagesLangOptions) then
-        Corrupted;
-      if MessagesLangOptions.ID <> MessagesLangOptionsID then
-        Corrupted;
-    end;
+    if F.Read(MessagesLangOptions, SizeOf(MessagesLangOptions)) <> SizeOf(MessagesLangOptions) then
+      Corrupted;
+    if MessagesLangOptions.ID <> MessagesLangOptionsID then
+      Corrupted;
   finally
     F.Free;
   end;

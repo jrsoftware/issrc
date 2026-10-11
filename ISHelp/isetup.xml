@@ -237,7 +237,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <ispp>#include</ispp> <str>"filename.txt"</str>
 </precode>
 
-<p>If the filename is not fully qualified, the compiler will look for it in the same directory as the file containing the <tt>#include</tt> directive. The filename may be prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
+<p>If the filename is not fully qualified, the compiler will look for it in the same directory as the file containing the <tt>#include</tt> directive. The filename may be prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory. The filename may also be prefixed by <tt>userdocs:</tt>, in which case it looks for the file in the My Documents folder of the currently logged-in user.</p>
 
 <p>A <tt><a name="preproc">#preproc</a></tt> directive is supported, which must be placed on the first line of the file and specifies whether to use the built-in preprocessor, which only supports the above <tt>#include</tt> directive, or to use Inno Setup Preprocessor (ISPP), which supports many more directives. The syntax is:</p>
 <precode>
@@ -1977,7 +1977,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag cannot be combined with <tt>ignoreversion</tt>.</p>
 </flag>
 <flag name="restartreplace">
-<p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling <tt>MoveFileEx</tt> or by creating an entry in <tt>wininit.ini</tt>). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
+<p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling <tt>MoveFileEx</tt>). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
 <p><b>NOTE:</b> This flag has no effect if the user does not have administrative privileges. Therefore, when using this flag, it is recommended that you leave the <sd>PrivilegesRequired</sd> <sn>[Setup]</sn> section directive at the default setting of <tt>admin</tt>.</p>
 </flag>
 <flag name="setntfscompression">
@@ -2543,7 +2543,7 @@ nl.<key>CreateDesktopIcon</key>=Maak een snelkoppeling op het &amp;bureaublad
 
 <p><b><a name="LanguageName">LanguageName</a></b> is the native name of the language (so not the English name). It is displayed in the list of available languages on the <i>Select Language</i> dialog in a multilingual installation.</p>
 
-<p><b><a name="LanguageID">LanguageID</a></b> is the numeric "language identifier" of the language. Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>. This, along with <tt>LanguageCodePage</tt>, is used for the purpose of auto-detecting the most appropriate language to use by default, so be sure it is set correctly. It should always begin with a "<tt>$</tt>" sign, since language identifiers are in hexadecimal. If no language identifier currently exists for the language, set this to zero.</p>
+<p><b><a name="LanguageID">LanguageID</a></b> is the numeric "language identifier" of the language. Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>. This is used for the purpose of auto-detecting the most appropriate language to use by default, so be sure it is set correctly. It should always begin with a "<tt>$</tt>" sign, since language identifiers are in hexadecimal. If no language identifier currently exists for the language, set this to zero.</p>
 
 <p><b><a name="LanguageCodePage">LanguageCodePage</a></b> specifies the "code page" (character set) used by the compiler to convert any non-Unicode text in the language's files to Unicode text. Note that any text in the <tt>.iss</tt> file such as a <sn>[CustomMessages]</sn> entry for the language is never converted and should be in Unicode already.<br/>
 If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to zero and only use Unicode text (UTF-8) in the languages's files.<br/>
@@ -2805,7 +2805,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 
 <p>Programs are executed in the order they appear in the script. By default, when processing a <tt>[Run]</tt>/<tt>[UninstallRun]</tt> entry, Setup/Uninstall will wait until the program has terminated before proceeding to the next one, unless the <tt>nowait</tt>, <tt>shellexec</tt>, or <tt>waituntilidle</tt> flags are used.</p>
 
-<p>Note that by default, if a program executed in the <tt>[Run]</tt> section queues files to be replaced on the next reboot (by calling <tt>MoveFileEx</tt> or by modifying <tt>wininit.ini</tt>), Setup will detect this and prompt the user to restart the computer at the end of installation. If you don't want this, set the <sd>RestartIfNeededByRun</sd> directive to <tt>no</tt>.</p>
+<p>Note that by default, if a program executed in the <tt>[Run]</tt> section queues files to be replaced on the next reboot (by calling <tt>MoveFileEx</tt>), Setup will detect this and prompt the user to restart the computer at the end of installation. If you don't want this, set the <sd>RestartIfNeededByRun</sd> directive to <tt>no</tt>.</p>
 
 <p>The following is an example of a <tt>[Run]</tt> section.</p>
 
@@ -3728,10 +3728,10 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Go to end of document (Shift extends selection)</td><td>Ctrl+End</td>
 </tr>
 <tr>
-  <td>Go to next paragraph (Shift extends selection)</td><td>Ctrl+]</td><td>-</td>
+  <td>Go to next paragraph</td><td>Ctrl+]</td><td>-</td>
 </tr>
 <tr>
-  <td>Go to previous paragraph (Shift extends selection)</td><td>Ctrl+[</td><td>-</td>
+  <td>Go to previous paragraph</td><td>Ctrl+[</td><td>-</td>
 </tr>
 <tr>
   <td>Go to end of line</td><td>End</td>
@@ -3791,10 +3791,10 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Copy line down</td><td>-</td><td>Shift+Alt+Down</td>
 </tr>
 <tr>
-  <td>Lowercase lines</td><td>Ctrl+U</td>
+  <td>Lowercase lines</td><td>Ctrl+U</td><td>-</td>
 </tr>
 <tr>
-  <td>Uppercase lines</td><td>Ctrl+Shift+U</td>
+  <td>Uppercase lines</td><td>Ctrl+Shift+U</td><td>-</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
@@ -4261,7 +4261,7 @@ iside --no-recently-opened <i>&lt;script name&gt;</i></precode>
 
 <heading>Encryption</heading>
 
-<p>Password-protected encryption is available, using strong XChaCha20 encryption and PBKDF2-HMAC-SHA256 key derivation. All salts and nonces are generated using a cryptographically secure random number generator (CSPRNG).</p>
+<p>Password-protected encryption is available, using strong XChaCha20 encryption and PBKDF2-HMAC-SHA256 key derivation. The key derivation salt and the base nonce are generated using a cryptographically secure random number generator (CSPRNG).</p>
 
 <p>See <sd>Encryption</sd> for more information.</p>
 
@@ -4393,7 +4393,7 @@ issigtool --key-file="MyKey.isprivatekey" sign "MyFile.txt"
 <li>
 <p>Compile the script again. This time, you should get an error like the following:</p>
 <precode>
-Signature is not valid for source file "MyFile.txt": file hash incorrect.
+Verification of source file "C:\My Project\MyFile.txt" failed: The hash of the file is incorrect
 </precode>
 </li>
 
@@ -4757,7 +4757,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="GROUP">/GROUP=</a>"<i>folder name</i>"</b></dt>
 <dd>
-<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "<tt>expand:</tt>" prefix, see <tt>/DIR=</tt>. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command-line parameter is ignored.</p>
+<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "<tt>expand:</tt>" prefix, see <tt>/DIR=</tt>. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> hides the <i>Select Start Menu Folder</i> wizard page, this command-line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="NOICONS">/NOICONS</a></b></dt>
@@ -4950,7 +4950,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="SUPPRESSMSGBOXES">/SUPPRESSMSGBOXES</a></b></dt>
 <dd>
-<p>Instructs the uninstaller to suppress message boxes. Only has an effect when combined with <tt>/SILENT</tt> and <tt>/VERYSILENT</tt>. See <tt>/SUPPRESSMSGBOXES</tt> under <link topic="setupcmdline" anchor="SUPPRESSMSGBOXES">Setup Command-Line Parameters</link> for more details.</p>
+<p>Instructs the uninstaller to suppress message boxes. Only has an effect when combined with <tt>/SILENT</tt> or <tt>/VERYSILENT</tt>. See <tt>/SUPPRESSMSGBOXES</tt> under <link topic="setupcmdline" anchor="SUPPRESSMSGBOXES">Setup Command-Line Parameters</link> for more details.</p>
 </dd>
 
 <dt><b><a name="LOG">/LOG</a></b></dt>
@@ -5526,10 +5526,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 </setuptopic>
 
 <setuptopic directive="DisableAppendDir">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
 <body>
-<p><i>Obsolete in 4.1.2.</i> Pre-4.1.2 versions of Inno Setup had a different directory selection interface, and the <tt>DisableAppendDir</tt> directive was used to control its behavior.</p>
+<p><i>Obsolete in 4.1.2.</i> This directive is no longer supported. Pre-4.1.2 versions of Inno Setup had a different directory selection interface, and the <tt>DisableAppendDir</tt> directive was used to control its behavior.</p>
 </body>
 </setuptopic>
 
@@ -5760,8 +5758,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>auto</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Destination Location</i> wizard page.</p>
-<p>If this is set to <tt>auto</tt>, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will not show the <i>Select Destination Location</i> wizard page.</p>
-<p>If the <i>Select Destination Location</i> wizard page is not shown, it will always use the default directory name.</p>
+<p>If this is set to <tt>auto</tt>, Setup will not show the <i>Select Destination Location</i> wizard page if it finds the directory of a previous installation. See <sd>UsePreviousAppDir</sd>.</p>
 <p>Also see <sd>AlwaysShowDirOnReadyPage</sd>.</p>
 </body>
 </setuptopic>
@@ -5780,8 +5777,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>auto</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Start Menu Folder</i> wizard page.</p>
-<p>If this is set to <tt>auto</tt>, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will not show the <i>Select Start Menu Folder</i> wizard page.</p>
-<p>If the <i>Select Start Menu Folder</i> wizard page is not shown, it will always use the default Start Menu folder name.</p>
+<p>If this is set to <tt>auto</tt>, Setup will not show the <i>Select Start Menu Folder</i> wizard page if it finds the Start Menu folder name of a previous installation. See <sd>UsePreviousGroup</sd>.</p>
 <p>Also see <sd>AlwaysShowGroupOnReadyPage</sd>.</p>
 </body>
 </setuptopic>
@@ -6119,7 +6115,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, and a program executed in the <sn>[Run]</sn> section queues files to be replaced on the next reboot (by calling <tt>MoveFileEx</tt> or by modifying <tt>wininit.ini</tt>), Setup will detect this and prompt the user to restart the computer at the end of installation.</p>
+<p>When set to <tt>yes</tt>, and a program executed in the <sn>[Run]</sn> section queues files to be replaced on the next reboot (by calling <tt>MoveFileEx</tt>), Setup will detect this and prompt the user to restart the computer at the end of installation.</p>
 </body>
 </setuptopic>
 
@@ -6994,7 +6990,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <tt><link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link></tt> command-line parameter.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <isxfunc>ExtractTemporaryFile</isxfunc> function from the <sn>[Code]</sn> section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the <sn>[Files]</sn> section entry for the file.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <sd>Password</sd> using the function specified by <sd>EncryptionKeyDerivation</sd>.</p>
-<p>The 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
+<p>The 192-bit XChaCha20 encryption nonces are derived from a single random base nonce. For each chunk of compressed data, the compiler combines the base nonce using XOR with the chunk's start offset and the index of its first disk slice. This gives each chunk a unique nonce. Other encrypted data uses a start offset of 0 and reserved negative slice indexes instead.</p>
 <p><b>See also:</b><br/>
 <sd>Password</sd><br/>
 <sd>EncryptionKeyDerivation</sd></p>

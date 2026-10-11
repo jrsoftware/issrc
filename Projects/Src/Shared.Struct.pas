@@ -114,13 +114,13 @@ type
   end;
 
 const
-  SetupHeaderStrings = 39;
+  SetupHeaderStrings = 38;
   SetupHeaderAnsiStrings = 4;
 type
   TSetupHeader = packed record
     AppName, AppVerName, AppId, AppCopyright, AppPublisher, AppPublisherURL,
       AppSupportPhone, AppSupportURL, AppUpdatesURL, AppVersion, DefaultDirName,
-      DefaultGroupName, BaseFilename, UninstallFilesDir, UninstallDisplayName,
+      DefaultGroupName, UninstallFilesDir, UninstallDisplayName,
       UninstallDisplayIcon, AppMutex, DefaultUserInfoName, DefaultUserInfoOrg,
       DefaultUserInfoSerial, AppReadmeFile, AppContact, AppComments,
       AppModifyPath, CreateUninstallRegKey, Uninstallable, CloseApplicationsFilter,
@@ -356,7 +356,7 @@ type
     Subkey, ValueName, ValueData: String;
     Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
-    RootKey: UInt32; { Not using HKEY because it equals NativeUInt. UInt32 fits all predefined keys and utReg* use Integer to store it. }
+    RootKey: UInt32; { Not using HKEY because it equals NativeUInt. UInt32 fits all predefined keys and utReg* use UInt32 to store it. }
     PermissionsEntry: Smallint;
     Typ: (rtNone, rtString, rtExpandString, rtDWord, rtBinary, rtMultiString, rtQWord);
     Bitness: TSetupEntryBitness;

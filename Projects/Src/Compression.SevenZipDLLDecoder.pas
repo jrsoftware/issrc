@@ -210,8 +210,6 @@ type
 
 { Helper functions }
 
-function GetHandler(const Filename, NotFoundErrorMsg: String): TGUID; forward;
-
 const
   varFileTime = 64; { Delphi lacks proper VT_FILETIME support }
 type

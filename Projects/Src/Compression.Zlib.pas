@@ -80,7 +80,7 @@ const
   SZlibDataError = 'zlib: Compressed data is corrupted';
   SZlibInternalError = 'zlib: Internal error. Code %d';
 
-  ZLIB_VERSION = '1.3.1';  { Do not change this! }
+  ZLIB_VERSION = '1.3.2';  { Do not change this! }
 
   Z_NO_FLUSH      = 0;
   Z_PARTIAL_FLUSH = 1;

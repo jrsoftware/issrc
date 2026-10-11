@@ -63,9 +63,6 @@ type
     Ext: NativeInt;
   end;
 
-  PActualParams = ^TActualParams;
-  TActualParams = array of TVariable;
-
   IInternalFuncParams = interface(IIsppFuncParams)
     function Get(Index: NativeInt): PIsppVariant;
     function ResPtr: PIsppVariant;
@@ -418,7 +415,6 @@ begin
     if not FList[I].Defined then
       if not (pfHasDefault in FMacro.Params[I].ParamFlags) then
         ErrorNotSpecified(FMacro.Params[I].Name)
-        //raise EMacroError.CreateFmt(SNoReqParam, [FMacro.Params[I].Name])
       else
       begin
         FList[I].Value.Name := FMacro.Params[I].Name;
@@ -572,9 +568,6 @@ type
     function Get(Index: NativeInt): PIsppVariant;
     function ResPtr: PIsppVariant;
     { IIsppFuncResult }
-    procedure SetAsInt(Value: Int64); stdcall;
-    procedure SetAsString(Value: PChar); stdcall;
-    procedure SetAsNull; stdcall;
     procedure RaiseError(Message: PChar); stdcall;
     { ICallContext }
     procedure Add(const Name: string; const Value: TIsppVariant);
@@ -651,21 +644,6 @@ end;
 function TFuncCallContext.ResPtr: PIsppVariant;
 begin
   Result := @FResult;
-end;
-
-procedure TFuncCallContext.SetAsInt(Value: Int64);
-begin
-  MakeInt(FResult, Value);
-end;
-
-procedure TFuncCallContext.SetAsNull;
-begin
-  FResult := NULL;
-end;
-
-procedure TFuncCallContext.SetAsString(Value: PChar);
-begin
-  MakeStr(FResult, Value);
 end;
 
 { TIdentManager }

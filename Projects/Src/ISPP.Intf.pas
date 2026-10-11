@@ -35,9 +35,6 @@ type
   TIsppVarType = (evSpecial, evNull, evInt, evStr, evLValue, evCallContext);
 
   IIsppFuncResult = interface
-    procedure SetAsInt(Value: Int64); stdcall;
-    procedure SetAsString(Value: PChar); stdcall;
-    procedure SetAsNull; stdcall;
     procedure RaiseError(Message: PChar); stdcall;
   end;
 
@@ -46,7 +43,6 @@ type
   end;
 
   TIsppFuncResult = record
-    ErrParam: Integer;
     Error: Integer;
   end;
 
@@ -61,13 +57,13 @@ const
   ISPPFUNC_SUCCESS    = 0;
   // Unexpected failure
   ISPPFUNC_FAIL       = 1;
-  // Too many arguments passed, ErrParam contains maximal number of arguments needed
+  // Too many arguments passed
   ISPPFUNC_MANYARGS   = 2;
-  // Insufficient required arguments, ErrParam contains minimal number of arguments
+  // Insufficient required arguments
   ISPPFUNC_INSUFARGS  = 3;
-  // Wrong type of argument passed, ErrParam is the index of the argument
+  // Wrong type of argument passed
   ISPPFUNC_INTWANTED  = 4;
-  // Wrong type of argument passed, ErrParam is the index of the argument
+  // Wrong type of argument passed
   ISPPFUNC_STRWANTED  = 5;
 
 const
@@ -76,7 +72,6 @@ const
 
   optSCBE             = TOptionID(Ord('B') - Ord('A'));
   optSCME             = TOptionID(Ord('M') - Ord('A'));
-  optPassNulls        = TOptionID(Ord('N') - Ord('A'));
   optPascalStrings    = TOptionID(Ord('P') - Ord('A'));
   optAllowUndeclared  = TOptionID(Ord('U') - Ord('A'));
 

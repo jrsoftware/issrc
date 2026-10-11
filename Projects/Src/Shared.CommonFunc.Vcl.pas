@@ -37,10 +37,6 @@ type
     procedure SetCurrentPPI(const CurrentPPI: Integer);
   end;
 
-{ Useful constant }
-const
-  EnableColor: array[Boolean] of TColor = (clBtnFace, clWindow);
-
 function AppCreateForm(const AClass: TCustomFormClass): TCustomForm;
 procedure UpdateHorizontalExtent(const ListBox: TCustomListBox);
 function MinimizePathName(const Filename: String; const Font: TFont;
@@ -48,8 +44,6 @@ function MinimizePathName(const Filename: String; const Font: TFont;
 function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer; overload;
 function MsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal): Integer; overload;
-function MsgBoxFmt(const Text: String; const Args: array of const;
-  const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal): Integer;
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: NativeInt);
@@ -436,12 +430,6 @@ begin
   if NewCaption = '' then
     NewCaption := Application.Title;
   Result := MsgBox(PChar(Text), PChar(NewCaption), Buttons or IconFlags[Typ]);
-end;
-
-function MsgBoxFmt(const Text: String; const Args: array of const;
-  const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal): Integer;
-begin
-  Result := MsgBox(Format(Text, Args), Caption, Typ, Buttons);
 end;
 
 { TWindowDisabler }

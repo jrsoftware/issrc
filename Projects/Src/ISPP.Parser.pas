@@ -45,7 +45,6 @@ type
 
 function Parse(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): TIsppVariant;
 function ParseStr(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): string;
-function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): Int64;
 
 implementation
 
@@ -67,17 +66,6 @@ begin
   with TParser.Create(VarMan, AExpr, Offset, Options) do
   try
     Result := StrExpr(True);
-    EndOfExpr;
-  finally
-    Free
-  end;
-end;
-
-function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): Int64;
-begin
-  with TParser.Create(VarMan, AExpr, Offset, Options) do
-  try
-    Result := IntExpr(True);
     EndOfExpr;
   finally
     Free

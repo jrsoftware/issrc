@@ -28,7 +28,7 @@ type
   end;
 
   TConditionalBlockInfo = record
-    BlockState, Fired, HadElse, Reserved: Boolean;
+    BlockState, Fired, HadElse: Boolean;
   end;
 
   TConditionalVerboseMsg = (cvmIf, cvmElif, cvmElse, cvmEndif);
@@ -101,10 +101,8 @@ type
   protected
     function GetDefaultScope: TDefineScope;
     procedure SetDefaultScope(Scope: TDefineScope);
-    procedure InternalAddLine(const LineRead: string; FileIndex, LineNo: Integer;
-      NonISS: Boolean);
-    function InternalQueueLine(const LineRead: string; FileIndex, LineNo: Integer;
-      NonISS: Boolean): Integer;
+    procedure InternalAddLine(const LineRead: string; FileIndex, LineNo: Integer);
+    function InternalQueueLine(const LineRead: string; FileIndex, LineNo: Integer): Integer;
     procedure InternalFlushQueuedLine(FileIndex, LineNo: Integer);
     function ParseFormalParams(Parser: TParser; var ParamList: PParamList): Integer;
     { IUnknown }
@@ -314,8 +312,7 @@ begin
   FLinePointer := 0;
 end;
 
-procedure TPreprocessor.InternalAddLine(const LineRead: string; FileIndex, LineNo: Integer;
-  NonISS: Boolean);
+procedure TPreprocessor.InternalAddLine(const LineRead: string; FileIndex, LineNo: Integer);
 var
   IncludeLine: Boolean;
   P, P1: PChar;
@@ -1041,7 +1038,7 @@ begin
 end;
 
 function TPreprocessor.InternalQueueLine(const LineRead: string;
-  FileIndex, LineNo: Integer; NonISS: Boolean): Integer; //how many just been added
+  FileIndex, LineNo: Integer): Integer; //how many just been added
 var
   L: Integer;
 begin
@@ -1060,18 +1057,18 @@ begin
       Result := FQueuedLineCount + 1;
       FQueuedLine := '';
       FQueuedLineCount := 0;
-      InternalAddLine(QueuedLine, FileIndex, LineNo, NonISS);
+      InternalAddLine(QueuedLine, FileIndex, LineNo);
     end
     else
     begin
-      InternalAddLine(LineRead, FileIndex, LineNo, NonISS);
+      InternalAddLine(LineRead, FileIndex, LineNo);
       Result := 1;
     end;
 end;
 
 procedure TPreprocessor.QueueLine(const LineRead: string);
 begin
-  Inc(FMainCounter, InternalQueueLine(LineRead, 0, FMainCounter, False));
+  Inc(FMainCounter, InternalQueueLine(LineRead, 0, FMainCounter));
 end;
 
 procedure TPreprocessor.InternalFlushQueuedLine(FileIndex, LineNo: Integer);
@@ -1081,7 +1078,7 @@ begin
     const QueuedLine = FQueuedLine; { See above }
     FQueuedLine := '';
     FQueuedLineCount := 0;
-    InternalAddLine(QueuedLine, FileIndex, LineNo, False);
+    InternalAddLine(QueuedLine, FileIndex, LineNo);
   end;
 end;
 
@@ -1198,7 +1195,7 @@ begin
   for I := 0 to Body.Count - 1 do begin
     const PackedLocation = NativeUInt(Body.Objects[I]);
     InternalAddLine(Body[I], Integer(PackedLocation and $FFFF),
-      Integer(PackedLocation shr 16) - 1, False);
+      Integer(PackedLocation shr 16) - 1);
   end;
 end;
 
@@ -1726,7 +1723,7 @@ begin
           if LineText = nil then
             Break;
           LineTextStr := LineText;
-          Inc(J, InternalQueueLine(LineTextStr, FileIndex, J, False));
+          Inc(J, InternalQueueLine(LineTextStr, FileIndex, J));
           Inc(I);
         end;
         InternalFlushQueuedLine(FileIndex, J);

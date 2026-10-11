@@ -19,7 +19,7 @@
 ; Before you start, decide how you will translate each of these recurring terms:
 ; - Setup, Uninstall (the program), uninstall (the verb), Cannot uninstall,
 ;   program, application, component, task,
-;   shortcut, Start Menu, folder, directory, drive,
+;   shortcut, Start menu, folder, directory, drive,
 ;   existing file, source file, registry, INI entries, README,
 ;   computer, Windows, version, administrator, all users, current user,
 ;   Downloading files, Extracting files, aborted, corrupted, close (applications), restart,
