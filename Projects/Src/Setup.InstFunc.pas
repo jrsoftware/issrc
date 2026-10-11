@@ -153,8 +153,9 @@ end;
 function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
 { Returns RootKey casted to UInt32 if it appears to be a predefined HKEY_*
   value: $800000xx or $FFFFFFFF800000xx. Otherwise, returns 0.
-  HKEY_* constants are supposed to be zero-extended, but in Delphi (12.1) they
-  are erroneously sign-extended. Windows accepts both, so we do as well.
+  HKEY_* constants are sign-extended, but root keys converted from UInt32,
+  such as those of registry entries or read back by CrackRegExtraData, are
+  zero-extended. Windows accepts both, so we do as well.
   But we do not allow anything other than 0 or $FFFFFFFF in the upper 32 bits,
   regardless of whether Windows allows it. }
 begin

@@ -60,7 +60,7 @@ function CreateSafeDirectory(const LimitCurrentUserSidAccess: Boolean; Path: Str
 { Creates a protected directory if
   -permissions are supported
   -it's a subdirectory of c:\WINDOWS\TEMP, or
-  -it's on a local drive and LimitCurrentUserSidAccess is True (latter is true atm if elevated and not debugging)
+  -it's on a local drive and LimitCurrentUserSidAccess is True
   otherwise creates a normal directory. }
 const
   SDDL_REVISION_1 = 1;

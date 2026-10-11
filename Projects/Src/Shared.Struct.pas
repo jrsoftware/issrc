@@ -352,7 +352,7 @@ type
     Subkey, ValueName, ValueData: String;
     Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
-    RootKey: UInt32; { Not using HKEY because it equals NativeUInt. UInt32 fits all predefined keys and utReg* use Integer to store it. }
+    RootKey: UInt32; { Not using HKEY because it equals NativeUInt. UInt32 fits all predefined keys and utReg* use UInt32 to store it. }
     PermissionsEntry: Smallint;
     Typ: (rtNone, rtString, rtExpandString, rtDWord, rtBinary, rtMultiString, rtQWord);
     Bitness: TSetupEntryBitness;
