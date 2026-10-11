@@ -851,7 +851,7 @@ end;
 
 function MakePendingFileRenameOperationsChecksum: TSHA256Digest;
 { Calculates a checksum of the current PendingFileRenameOperations registry
-  value The caller can use this checksum to determine if
+  value. The caller can use this checksum to determine if
   PendingFileRenameOperations was changed (perhaps by another program). }
 var
   Context: TSHA256Context;
