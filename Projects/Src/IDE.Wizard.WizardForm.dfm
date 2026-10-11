@@ -577,7 +577,6 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Other:'
-            FocusControl = AppDirNameEdit
             TabOrder = 6
             WordWrap = True
           end
