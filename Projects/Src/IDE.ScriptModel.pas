@@ -369,7 +369,7 @@ begin
     TPreprocessor.InternalQueueLine. Like the styler, this assumes the default
     span symbol '\', which ISPP lets scripts change }
   const L = Length(S);
-  Result := (L > 2) and (S[L] = '\') and (S[L-1] <= ' ');
+  Result := (L >= 2) and (S[L] = '\') and (S[L-1] <= ' ');
 end;
 
 { True if a line ending in S would be read back as an ISPP line span by
