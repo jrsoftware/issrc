@@ -15,7 +15,7 @@ unit Setup.SpawnClient;
 interface
 
 uses
-  Windows, SysUtils, Messages, Setup.InstFunc, Shared.CommonFunc;
+  Windows, SysUtils, Setup.InstFunc, Shared.CommonFunc;
 
 function GetSpawnServerFirstProcessWnd: HWND;
 procedure InitializeSpawnClient(const AServerSharedMemoryID: String);
