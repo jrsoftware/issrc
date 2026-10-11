@@ -261,12 +261,11 @@ begin
         for var I := 0 to SelectionCount-1 do begin
           var StartPos := AMemo.SelectionStartPosition[I]; { Can't use AMemo.GetSelections because each paste can update other selections }
           var EndPos := AMemo.SelectionEndPosition[I];
-          AMemo.ReplaceTextRange(StartPos, EndPos, PasteLines[I], srmMinimal);
+          const NewRange = AMemo.ReplaceTextRange(StartPos, EndPos, PasteLines[I], srmMinimal);
           { Update the selection to an empty selection at the end of the inserted
             text, just like ReplaceMainSelText }
-          var Pos := AMemo.Target.EndPos; { ReplaceTextRange updates the target }
-          AMemo.SelectionCaretPosition[I] := Pos;
-          AMemo.SelectionAnchorPosition[I] := Pos;
+          AMemo.SelectionCaretPosition[I] := NewRange.EndPos;
+          AMemo.SelectionAnchorPosition[I] := NewRange.EndPos;
         end;
         { Be like SCI_PASTE }
         AMemo.ChooseCaretX;
