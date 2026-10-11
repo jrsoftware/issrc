@@ -2015,6 +2015,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Inserts the specified <tt>Substr</tt> into <tt>S</tt> at the position given by <tt>Index</tt>. <tt>S</tt> is passed by reference (and is therefore modified).</p>
+					<p>If <tt>Index</tt> is larger than the length of <tt>S</tt>, <tt>Insert</tt> appends <tt>Substr</tt> to <tt>S</tt>.</p>
 					<p>Unrelated to &insert;.</p>
           <p>Declared in &builtins;.</p>
 				</description>
@@ -2369,7 +2370,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
     <topic id="linespan">
       <title>Line Spanning</title>
       <description header="no">
-        <p>By ending lines with ISPP's line spanning symbol preceded with a space, you can split long lines. For example:</p>
+        <p>By ending lines with ISPP's line spanning symbol preceded by a space or a tab, you can split long lines. For example:</p>
         <pre>
           <line><ispp>#define</ispp> MyAppName \</line>
           <line>&dsp;<str>"My Program"</str></line>

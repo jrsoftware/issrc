@@ -32,6 +32,8 @@
 ;   and the button captions OK, Cancel, Yes, No, Next, Back, Install, Browse, Finish.
 ; - When in doubt, use Microsoft Terminology Search from:
 ;   https://msit.powerbi.com/view?r=eyJrIjoiODJmYjU4Y2YtM2M0ZC00YzYxLWE1YTktNzFjYmYxNTAxNjQ0IiwidCI6IjcyZjk4OGJmLTg2ZjEtNDFhZi05MWFiLTJkN2NkMDExZGI0NyIsImMiOjV9
+; - Also use Microsoft's Localization Style Guide for your language, from:
+;   https://learn.microsoft.com/en-us/globalization/reference/microsoft-style-guides
 ; Removing this section from your translation is allowed, but do not disregard it.
 
 [LangOptions]

@@ -131,7 +131,6 @@
         <DCCReference Include="..\Components\ChaCha20.Test.pas"/>
         <DCCReference Include="Src\Compiler.StringLists.pas"/>
         <DCCReference Include="Src\Compiler.StringLists.Test.pas"/>
-        <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.Extra.pas"/>
@@ -168,6 +167,7 @@
         <DCCReference Include="..\Components\StringScanner.Test.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.Test.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

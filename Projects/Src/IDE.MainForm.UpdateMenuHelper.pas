@@ -377,7 +377,7 @@ begin
   ECut.Enabled := MemoHasFocus and not MemoIsReadOnly and not FActiveMemo.SelEmpty;
   ECopy.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
   EPaste.Enabled := MemoHasFocus and FActiveMemo.CanPaste;
-  EDelete.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty;
+  EDelete.Enabled := MemoHasFocus and not FActiveMemo.SelEmpty; { Also when read-only: deselects, like the Delete key }
   ESelectAll.Enabled := MemoHasFocus;
   ESelectNextOccurrence.Enabled := MemoHasFocus;
   ESelectAllOccurrences.Enabled := MemoHasFocus;
@@ -416,7 +416,7 @@ end;
 
 procedure TMainFormUpdateMenuHelper.UpdateViewMenu(const Menu: TMenuItem);
 begin
-  VZoomIn.Enabled := (FActiveMemo.Zoom < 20);
+  VZoomIn.Enabled := (FActiveMemo.Zoom < 60);
   VZoomOut.Enabled := (FActiveMemo.Zoom > -10);
   VZoomReset.Enabled := (FActiveMemo.Zoom <> 0);
   VToolbar.Checked := ToolbarPanel.Visible;

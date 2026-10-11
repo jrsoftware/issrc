@@ -12,7 +12,7 @@ unit Setup.FileExtractor;
 interface
 
 uses
-  Windows, SysUtils, Shared.FileClass, Compression.Base,
+  SysUtils, Shared.FileClass, Compression.Base,
   Shared.Struct, ChaCha20;
 
 type

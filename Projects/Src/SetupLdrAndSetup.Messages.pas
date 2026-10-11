@@ -54,7 +54,7 @@ const
 implementation
 
 uses
-  Windows, SysUtils, Compression.Base, Shared.CommonFunc, Shared.FileClass;
+  SysUtils, Compression.Base, Shared.CommonFunc, Shared.FileClass;
 
 function FmtMessage(S: PChar; const Args: array of String): String;
 begin

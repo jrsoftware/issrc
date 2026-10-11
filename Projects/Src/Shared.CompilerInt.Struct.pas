@@ -78,10 +78,17 @@ type
 
       iscbNotifyPreproc: (
         PreprocessedScript: PChar; { [in] Preprocessed script (new in 6.1.0) }
-        IncludedFilenames: PChar); { [in] Names of #included files. Each name is
+        IncludedFilenames: PChar;  { [in] Names of #included files. Each name is
                                           a null-terminated string, and the final
                                           name is followed by an additional null
                                           character (new in 6.1.0) }
+        IncludedFilesLastWriteTimes: PFileTime); { [in] Array of the last write
+                                                        times of the #included
+                                                        files when they were read,
+                                                        in the same order as
+                                                        IncludedFilenames. A time
+                                                        of zero means the time is
+                                                        not known (new in 7.1.1) }
 
       iscbNotifySuccess: (
         OutputExeFilename: PChar;  { [in] The name of the resulting setup.exe,
@@ -107,7 +114,7 @@ type
   TCompileScriptParamsEx = record
     Size: Cardinal;       { [in] Set to SizeOf(TCompileScriptParamsEx). }
     CompilerPath: PChar;  { [in] The "compiler:" directory. This is the
-                            directory which contains the *.e32 files. If this
+                            directory which contains the *.e32/64 files. If this
                             is set to NULL, the compiler will use the directory
                             containing the compiler DLL/EXE. }
     SourcePath: PChar;    { [in] The default source directory, and directory to

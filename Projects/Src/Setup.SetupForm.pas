@@ -27,7 +27,7 @@ unit Setup.SetupForm;
 interface
 
 uses
-  Windows, MultiMon, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, MultiMon, SysUtils, Messages, Classes, Graphics, Controls, Forms,
   UIStateForm,
   Setup.MainFunc;
 
@@ -57,16 +57,14 @@ type
     procedure CreateWnd; override;
     function GetExtraClientWidth: Integer;
     function GetExtraClientHeight: Integer;
-    procedure FlipControlsIfNeeded;
-    procedure CenterIfNeeded(const ACenterInsideControl: Boolean;
-      const CenterInsideControlCtl: TWinControl;
-      const CenterInsideControlInsideClientArea: Boolean);
     procedure VisibleChanging; override;
     procedure WndProc(var Message: TMessage); override;
   public
     constructor Create(AOwner: TComponent); override;
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
+    function CalculateButtonWidthWithExtraWidths(const ButtonCaptions: array of String;
+      const ExtraWidths: array of Integer): Integer;
     procedure InitializeFont(const KeepSizeX: Boolean = False; const KeepSizeY: Boolean = False);
     class function ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer; overload; static;
     class function ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer; overload; static;
@@ -240,14 +238,22 @@ end;
 
 function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
 begin
-  { Same code as TIDEForm.CalculateButtonWidth }
+  Result := CalculateButtonWidthWithExtraWidths(ButtonCaptions, []);
+end;
+
+function TSetupForm.CalculateButtonWidthWithExtraWidths(const ButtonCaptions: array of String;
+  const ExtraWidths: array of Integer): Integer;
+begin
+  { Also see TIDEForm.CalculateButtonWidth }
   Result := ScalePixelsX(75);
   { Increase the button size if there are unusually long button captions }
   const DC = GetDC(0);
   try
     SelectObject(DC, Font.Handle);
     for var I := Low(ButtonCaptions) to High(ButtonCaptions) do begin
-      const W = GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
+      var W := GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
+      if I <= High(ExtraWidths) then
+        Inc(W, ExtraWidths[I]);
       if Result < W then
         Result := W;
     end;
@@ -449,32 +455,11 @@ begin
   { Now that CurrentPPI of the form is set you must make sure that any controls you later parent to
     the form already have the same CurrentPPI, otherwise VCL will scale the controls. Currently this
     is done in:
-    -Setup.ScriptClasses's TControlParentW and TNewNotebookPageNotebook_W
-    -Setup.WizardForm.CustomPages's SetCtlParent
+    -Setup.ScriptClasses's TNewNotebookPageNotebook_W
+    -TSetupForm.SetCtlParent
     -TWizardForm.AddPage
     To debug/detect scaling add a breakpoint in Vcl.Controls' TWinControl.ChangeScale and set project
     option Building->Delphi Compiler->Compiling->Debugging->Use debug .dcus. }
-end;
-
-procedure TSetupForm.FlipControlsIfNeeded;
-begin
-  if FFlipControlsOnShow then begin
-    FFlipControlsOnShow := False;
-    FControlsFlipped := not FControlsFlipped;
-    FlipControls(Self);
-  end;
-end;
-
-procedure TSetupForm.CenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
-begin
-  if FCenterOnShow then begin
-    FCenterOnShow := False;
-    { Center }
-    if ACenterInsideControl and (CenterInsideControlCtl <> nil) then
-      CenterInsideControl(CenterInsideControlCtl, CenterInsideControlInsideClientArea)
-    else
-      Center;
-  end;
 end;
 
 function TSetupForm.ShouldSizeX: Boolean;
@@ -489,9 +474,31 @@ end;
 
 procedure TSetupForm.FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean;
   const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
+
+  procedure FlipControlsIfNeeded;
+  begin
+    if FFlipControlsOnShow then begin
+      FFlipControlsOnShow := False;
+      FControlsFlipped := not FControlsFlipped;
+      FlipControls(Self);
+    end;
+  end;
+
+  procedure CenterIfNeeded;
+  begin
+    if FCenterOnShow then begin
+      FCenterOnShow := False;
+      { Center }
+      if ACenterInsideControl and (CenterInsideControlCtl <> nil) then
+        CenterInsideControl(CenterInsideControlCtl, CenterInsideControlInsideClientArea)
+      else
+        Center;
+    end;
+  end;
+
 begin
   FlipControlsIfNeeded;
-  CenterIfNeeded(ACenterInsideControl, CenterInsideControlCtl, CenterInsideControlInsideClientArea);
+  CenterIfNeeded;
 end;
 
 type
@@ -623,7 +630,7 @@ begin
 
   ParentHandlesNeeded(Self); { Also see ShowModal }
 
-  { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.pas's
+  { Set font. Note: Must keep the following lines in synch with Setup.ScriptFunc.HelperFunc's
     InitializeScaleBaseUnits }
 
   SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 9);
@@ -770,9 +777,9 @@ end;
 
 procedure TSetupForm.WMQueryEndSession(var Message: TWMQueryEndSession);
 begin
-  { TDummyClass.AntiShutdownHook in Setup.dpr already denies shutdown attempts
+  { TDummyClass.AntiShutdownHook in Setup.Start already denies shutdown attempts
     but we also need to catch WM_QUERYENDSESSION here to suppress the VCL's
-    default handling which calls CloseQuery. We do not want to let TMainForm &
+    default handling which calls CloseQuery. We do not want to let
     TNewDiskForm display any 'Exit Setup?' message boxes since we're already
     denying shutdown attempts, and also we can't allow them to potentially be
     displayed on top of another dialog box that's already displayed. }

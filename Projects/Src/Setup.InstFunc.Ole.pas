@@ -26,9 +26,8 @@ uses
   Windows, ActiveX, ComObj, PropSys, ShlObj,
   SysUtils,
   PathFunc,
-  Shared.CommonFunc, Shared.SetupMessageIDs,
-  SetupLdrAndSetup.Messages,
-  Setup.InstFunc, Setup.MainFunc, Setup.PathRedir;
+  Shared.CommonFunc,
+  Setup.InstFunc, Setup.MainFunc;
 
 procedure AssignWorkingDir(const SL: IShellLink; const WorkingDir: String);
 { Assigns the specified working directory to SL. If WorkingDir is empty then

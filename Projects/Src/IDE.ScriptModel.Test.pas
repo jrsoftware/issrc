@@ -40,10 +40,11 @@ end;
 
 procedure TestLineHelpers;
 begin
-  { ScriptLineSpans: length of at least 3, ending in '\' preceded by whitespace }
+  { ScriptLineSpans: length of at least 2, ending in '\' preceded by whitespace }
   Assert(ScriptLineSpans('a \'));
   Assert(ScriptLineSpans('ab '#9'\'));
-  Assert(not ScriptLineSpans(' \'));  { Too short }
+  Assert(ScriptLineSpans(' \'));
+  Assert(not ScriptLineSpans('\'));   { Too short }
   Assert(not ScriptLineSpans('ab\')); { No whitespace before the backslash }
   Assert(not ScriptLineSpans('abc'));
   Assert(not ScriptLineSpans(''));

@@ -72,7 +72,7 @@ begin
     if FuncCC[1] = '"' then
     begin
       Delete(FuncCC, 1, 1);
-      FuncName := RemoveQuotes(copy(FuncCC, 1, pos(tbtchar('"'), FuncCC)-1))+#0+FuncName;
+      FuncName := copy(FuncCC, 1, pos(tbtchar('"'), FuncCC)-1)+#0+FuncName;
       Delete(FuncCC,1, pos(tbtchar('"'), FuncCC));
       if (FuncCC <> '') and( FuncCC[1] = ' ') then delete(FuncCC,1,1);
     end else
@@ -84,7 +84,6 @@ begin
     begin
       s := Copy(FuncCC, pos(tbtchar(' '), Funccc)+1, MaxInt);
       FuncCC := FastUpperCase(Copy(FuncCC, 1, pos(tbtchar(' '), FuncCC)-1));
-      Delete(FuncCC, pos(tbtchar(' '), Funccc), MaxInt);
       repeat
         if pos(tbtchar(' '), s) > 0 then begin
           s2 := Copy(s, 1, pos(tbtchar(' '), s)-1);
@@ -114,6 +113,7 @@ begin
     if FuncCC = 'CDECL' then cc := ClCdecl else
     if FuncCC = 'REGISTER' then cc := clRegister else
     if FuncCC = 'PASCAL' then cc := clPascal else
+    if FuncCC = '' then cc := DefaultCC else
     begin
       Sender.MakeError('', ecCustomError, tbtstring(RPS_InvalidCallingConvention));
       Result := nil;

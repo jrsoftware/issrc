@@ -14,7 +14,7 @@ unit Setup.TaskDialogForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics,
+  Windows, Messages, SysUtils, Classes, Graphics,
   Controls, Forms, Dialogs, WinXPanels, ExtCtrls, StdCtrls,
   NewCtrls, BitmapImage, NewStaticText,
   Setup.SetupForm;
@@ -51,7 +51,7 @@ type
     FMainButtons: array of TNewButton;
     FCopyFormat: TCopyFormat;
     procedure Finish(const DefCommonButton: Integer);
-    procedure UpdateCommonButtons(const CommonButtons: Cardinal);
+    procedure UpdateCommonButtons(const CommonButtons: Cardinal; const ShieldButton: Integer);
     procedure UpdateIcon(const Icon: PChar);
     procedure UpdateInstructionAndText(const Instruction, Text: String);
     procedure UpdateHeight;
@@ -72,8 +72,9 @@ implementation
 
 uses
   CommCtrl, Clipbrd, Themes, ShellAPI,
+  UnsignedFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc, Shared.CommonFunc.Vcl,
-  SetupLdrAndSetup.Messages, Setup.WizardForm, Setup.MainFunc;
+  SetupLdrAndSetup.Messages, Setup.MainFunc;
 
 {$R *.dfm}
 
@@ -88,8 +89,7 @@ begin
     Form.Caption := Caption;
     Form.UpdateInstructionAndText(Instruction, Text);
     Form.UpdateIcon(Icon);
-    Form.UpdateCommonButtons(CommonButtons);
-    Form.UpdateVerificationText(VerificationText);
+    Form.UpdateCommonButtons(CommonButtons, ShieldButton);
 
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
@@ -97,6 +97,7 @@ begin
       Form.InstructionText.AdjustHeight;
     if Form.TextText.Visible then
       Form.TextText.AdjustHeight;
+    Form.UpdateVerificationText(VerificationText);
     Form.UpdateMainButtonsAndBorderIcons(CommonButtons, ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateHeight;
 
@@ -156,6 +157,7 @@ begin
   BottomStackPanel.Spacing := PadX;
   BottomStackPanel.Padding.Right := PadX; { Also see Finish }
   VerificationCheck.Left := PadX;
+  VerificationCheck.Width := VerificationCheck.Width - 2*PadX;
 
   OkButton.Caption := SetupMessages[msgButtonOK];
   YesButton.Caption := SetupMessages[msgButtonYes];
@@ -167,7 +169,7 @@ end;
 procedure TTaskDialogForm.Finish(const DefCommonButton: Integer);
 begin
   if RightToLeft then begin
-    { FlipSizeAndCenterIfNeeded does not update Align or Padding }
+    { FlipAndCenterIfNeeded does not update Align or Padding }
     if LeftPanel.Visible then
       LeftPanel.Align := alRight;
     MainStackPanel.Padding.Right := MainStackPanel.Padding.Left;
@@ -193,9 +195,10 @@ begin
   end;
 end;
 
-procedure TTaskDialogForm.UpdateCommonButtons(const CommonButtons: Cardinal);
+procedure TTaskDialogForm.UpdateCommonButtons(const CommonButtons: Cardinal; const ShieldButton: Integer);
 var
   VisibleCaptions: array of String;
+  VisibleExtraWidths: array of Integer;
 begin
   var NVisibleCaptions := 0;
   for var I := 0 to Length(FCommonButtons)-1 do begin
@@ -203,15 +206,23 @@ begin
     const CommonButtonFlag = FCommonButtonFlags[I];
     CommonButton.Visible := CommonButtons and CommonButtonFlag <> 0;
     if CommonButton.Visible then begin
+      CommonButton.ElevationRequired := CommonButton.ModalResult = ShieldButton;
       Inc(NVisibleCaptions);
       SetLength(VisibleCaptions, NVisibleCaptions);
+      SetLength(VisibleExtraWidths, NVisibleCaptions);
       VisibleCaptions[NVisibleCaptions-1] := CommonButton.Caption;
+      { Room for the shield, assumed to be 16 pixels wide at 96 DPI, and for the unscaled
+        2 pixel gap after it, as in TButtonStyleHook.DrawButton }
+      if CommonButton.ElevationRequired then
+        VisibleExtraWidths[NVisibleCaptions-1] := MulDiv(16, CurrentPPI, Screen.DefaultPixelsPerInch) + 2
+      else
+        VisibleExtraWidths[NVisibleCaptions-1] := 0;
     end;
   end;
 
   BottomPanel.Visible := NVisibleCaptions > 0;
   if BottomPanel.Visible then begin
-    const W = CalculateButtonWidth(VisibleCaptions);
+    const W = CalculateButtonWidthWithExtraWidths(VisibleCaptions, VisibleExtraWidths);
     for var CommonButton in FCommonButtons do
       if CommonButton.Visible then
         CommonButton.Width := W;
@@ -325,10 +336,50 @@ begin
 end;
 
 procedure TTaskDialogForm.UpdateVerificationText(const VerificationText: String);
+
+  function CalculateWordWrapExtraHeight(const Control: TNewCheckBox): Integer;
+  begin
+    { Measures the text like TCheckBoxStyleHook.Paint }
+    const DC = GetDC(0);
+    try
+      const LStyle = StyleServices(Control);
+      const LPPI = Control.CurrentPPI;
+
+      const LRect = System.Classes.Rect(0, 0, 20, 20);
+      const ElementSize = esActual;
+      var BoxSize: TSize;
+      if not LStyle.GetElementSize(DC, LStyle.GetElementDetails(tbCheckBoxCheckedNormal),
+         LRect, ElementSize, BoxSize, LPPI) then begin
+        BoxSize.cx := 13;
+        BoxSize.cy := 13;
+      end;
+
+      SelectObject(DC, Control.Font.Handle);
+
+      var R := Rect(0, 0, Control.Width - BoxSize.cx - 10, Control.Height);
+      const LCaption = Control.Caption;
+      DrawText(DC, PChar(LCaption), Length(LCaption), R,
+        UDrawTextBiDiModeFlags(Control, DT_CALCRECT or DT_EXPANDTABS or DT_WORDBREAK));
+
+      var RSingleLine := Rect(0, 0, Control.Width - BoxSize.cx - 10, Control.Height);
+      DrawText(DC, PChar(LCaption), Length(LCaption), RSingleLine,
+        UDrawTextBiDiModeFlags(Control, DT_CALCRECT or DT_EXPANDTABS or DT_SINGLELINE));
+
+      Result := R.Height - RSingleLine.Height;
+    finally
+      ReleaseDC(0, DC);
+    end;
+  end;
+
 begin
-  if VerificationText <> '' then
-    VerificationCheck.Caption := VerificationText
-  else
+  if VerificationText <> '' then begin
+    VerificationCheck.Caption := VerificationText;
+    const ExtraHeight = CalculateWordWrapExtraHeight(VerificationCheck);
+    if ExtraHeight > 0 then begin
+      VerificationCheck.Height := VerificationCheck.Height + ExtraHeight;
+      BottomPanel2.Height := BottomPanel2.Height + ExtraHeight;
+    end;
+  end else
     BottomPanel2.Visible := False;
 end;
 

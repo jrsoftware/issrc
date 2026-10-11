@@ -12,7 +12,7 @@ unit Setup.SelectFolderForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  SysUtils, Classes, Graphics, Controls, Forms,
   Setup.SetupForm, StdCtrls, FolderTreeView, NewStaticText, NewCtrls;
 
 type

@@ -44,7 +44,8 @@ type
   end;
 
   TExprPosition = record
-    FileIndex, Line, Column: Integer;
+    FileName: string;
+    Line, Column: Integer;
   end;
 
   PMacro = ^TMacro;
@@ -99,7 +100,7 @@ type
       const ParserOptions: TIsppParserOptions; Params: array of TIsppMacroParam;
       Scope: TDefineScope);
     procedure DefineVariable(const Name: string; Index: Integer;
-      const Value: TIsppVariant; Scope: TDefineScope);
+      const Value: TIsppVariant; Scope: TDefineScope; const IndexSpecified: Boolean = False);
     procedure Delete(const Name: string; Scope: TDefineScope);
     procedure DimVariable(const Name: string; Length: Integer; Scope: TDefineScope; var ReDim: Boolean);
     function GetIdent(const Name: string; out CallContext: ICallContext): TIdentType;
@@ -120,7 +121,7 @@ const
 implementation
 
 uses
-  Windows, Types, ISPP.Preprocessor, ISPP.CTokenizer, ISPP.Parser,
+  Windows, Types, ISPP.CTokenizer, ISPP.Parser,
   ISPP.VarUtils, ISPP.Consts, ISPP.Sessions;
 
 const
@@ -433,12 +434,12 @@ begin
     begin
       if E.Position > 0 then
       begin
-        if FMacro.DeclPos.FileIndex > 0 then
+        if FMacro.DeclPos.FileName <> '' then
           Msg := Format(SErrorExecutingMacroFile, [FMacro.Name,
-            PeekPreproc.IncludedFiles[FMacro.DeclPos.FileIndex],
+            FMacro.DeclPos.FileName,
             FMacro.DeclPos.Line, E.Position, E.Message])
         else
-          Msg := Format(SErrorExecutingMacro, [FMacro.Name,
+          Msg := Format(SErrorExecutingMacroMainScript, [FMacro.Name,
             FMacro.DeclPos.Line, E.Position, E.Message]);
         E.Message := Msg;
         E.Position := 0;
@@ -741,14 +742,15 @@ begin
 end;
 
 procedure TIdentManager.DefineVariable(const Name: string; Index: Integer;
-  const Value: TIsppVariant; Scope: TDefineScope);
+  const Value: TIsppVariant; Scope: TDefineScope; const IndexSpecified: Boolean);
 var
   V: PVariable;
   Ident: PIdent;
 begin
   if Scope = dsAny then Scope := dsPublic;
+  const HasIndex = (Index <> -1) or IndexSpecified;
   Ident := Find(Name, Scope);
-  if (Ident <> nil) and (Ident.IdentType = itVariable) and (PVariable(Ident).Dim <> 0) then
+  if HasIndex and (Ident <> nil) and (Ident.IdentType = itVariable) and (PVariable(Ident).Dim <> 0) then
   begin
     V := PVariable(Ident);
     if (Index < 0) or (Index >= V.Dim) then
@@ -757,8 +759,13 @@ begin
   end
   else
   begin
-    if Index <> -1 then
-      raise EIdentError.CreateFmt(SUndeclaredIdentifier, [Name]);
+    if HasIndex then
+    begin
+      if Ident <> nil then
+        raise EIdentError.CreateFmt(SIdentifierIsNotAnArray, [Name])
+      else
+        raise EIdentError.CreateFmt(SUndeclaredIdentifier, [Name]);
+    end;
     Delete(Name, Scope);
     V := AllocMem(SizeOf(TVariable));
     try
@@ -926,7 +933,7 @@ begin
         itMacro: CallContext := TMacroCallContext.Create(MacroIdents, PMacro(P));
         itFunc: CallContext := TFuncCallContext.Create(FFuncSender, PFunc(P));
       else
-        Assert(False)
+        raise Exception.Create('Internal error: unexpected IdentType');
       end;
     end
     else
@@ -1008,6 +1015,7 @@ begin
         begin
           Finalize(Params[0], ParamCount);
           Finalize(Expression);
+          Finalize(DeclPos);
         end;
     end;
   end;

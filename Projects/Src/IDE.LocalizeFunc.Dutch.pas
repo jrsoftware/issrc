@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..1015] of TTranslationPair = (
+  DutchIDETranslations: array [0..1012] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -234,6 +234,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: 'Er is een fout opgetreden bij het openen van het bestand. Uit de lijst verwijderen?'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: 'De tekst in het bestand %1 is gewijzigd.%n%nWilt u de wijzigingen opslaan?'),
     (English: 'Please stop the compile process before performing this command.'; Localized: 'Stop het compilatieproces voordat u deze opdracht uitvoert.'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: 'Het bestand %1 is buiten de broneditor gewijzigd, maar kan niet opnieuw worden geladen terwijl het compilatieproces actief is.'),
     (English: 'A compile is already in progress.'; Localized: 'Er is al een compilatie bezig.'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: 'De tekst in het bestand %1 is gewijzigd en moet worden opgeslagen vóór het compileren.%n%nDe wijzigingen opslaan en doorgaan?'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: 'Wilt u het script opslaan vóór het compileren?%n%nAls u Nee antwoordt, wordt de gecompileerde installatie standaard in uw map Mijn documenten geplaatst.'),
@@ -249,6 +250,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: 'Het bestand %1 is buiten de broneditor gewijzigd. Misschien wilt u het opnieuw laden.'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: 'Het bestand %1 is buiten de broneditor gewijzigd.%n%nWilt u het bestand opnieuw laden?'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: 'Het bestand %1 is buiten de broneditor gewijzigd. Er zijn ook wijzigingen aangebracht in de broneditor.%n%nWilt u het bestand opnieuw laden en de in de broneditor aangebrachte wijzigingen verliezen?'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: 'Het bestand %1 is buiten de broneditor gewijzigd en staat op het punt opnieuw te worden geladen, samen met de bijbehorende %3-bestanden.%n%nDe tekst in het %3-bestand %2 is gewijzigd.%n%nWilt u de wijzigingen opslaan?'),
     (English: 'File not opened.'; Localized: 'Bestand niet geopend.'),
     (English: 'Go to Line'; Localized: 'Ga naar regel'),
     (English: 'Line number:'; Localized: 'Regelnummer:'),
@@ -273,7 +275,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: 'Kan afsluitcode van %1 niet ophalen (%2 mislukt)'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1 wordt nog uitgevoerd; kan afsluitcode niet ophalen'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: 'Stop het actieve %1-proces voordat u deze opdracht uitvoert.'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: 'Het bestand %2 is buiten de broneditor gewijzigd, maar kan niet opnieuw worden geladen terwijl het %1-proces actief is.'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: 'Met deze opdracht wordt de debugger losgekoppeld van het actieve %1-proces. Doorgaan?'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: 'Het bestand %2 is buiten de broneditor gewijzigd en staat op het punt opnieuw te worden geladen.%n%nHierdoor wordt de debugger losgekoppeld van het actieve %1-proces. Doorgaan?'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: 'De wijzigingen die u hebt aangebracht, worden pas van kracht nadat u opnieuw compileert.%n%nToch doorgaan met uitvoeren?'),
     (English: 'A pause is already pending.'; Localized: 'Er is al een pauze in behandeling.'),
     (English: 'No code was generated for the current line.'; Localized: 'Er is geen code gegenereerd voor de huidige regel.'),
@@ -715,7 +719,6 @@ const
     (English: 'Identifier expected'; Localized: 'Identifier verwacht'),
     (English: 'Invalid binary value'; Localized: 'Ongeldige binaire waarde'),
     (English: 'Invalid stream format'; Localized: 'Ongeldige streamindeling'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '''%s'' is een ongeldig masker op (%d)'),
     (English: '''''%s'''' is not a valid component name'; Localized: '''''%s'''' is geen geldige componentnaam'),
     (English: 'Invalid property value'; Localized: 'Ongeldige eigenschapswaarde'),
     (English: 'Invalid property path'; Localized: 'Ongeldig eigenschapspad'),
@@ -756,12 +759,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: 'Parameter %s mag niet nil zijn'),
     (English: 'Parameter %s cannot be a negative value'; Localized: 'Parameter %s mag geen negatieve waarde zijn'),
     (English: 'Invalid characters in path'; Localized: 'Ongeldige tekens in pad'),
-    (English: 'Invalid characters in search pattern'; Localized: 'Ongeldige tekens in zoekpatroon'),
-    (English: 'Path is empty'; Localized: 'Pad is leeg'),
-    (English: 'Search pattern is empty'; Localized: 'Zoekpatroon is leeg'),
-    (English: 'The specified path is too long'; Localized: 'Het opgegeven pad is te lang'),
-    (English: 'The specified path was not found'; Localized: 'Het opgegeven pad is niet gevonden'),
-    (English: 'The path format is not supported'; Localized: 'De padindeling wordt niet ondersteund'),
     (English: 'No help viewer that supports filters'; Localized: 'Geen Help-viewer die filters ondersteunt'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: 'Stringindex buiten bereik (%d).  Moet >= %d en <= %d zijn'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: 'Ongeldige UTF32-tekenwaarde.  Moet >= 0 en <= $10FFFF zijn, met uitzondering van surrogaatpaarbereiken'),

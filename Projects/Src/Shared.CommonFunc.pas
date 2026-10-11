@@ -119,6 +119,9 @@ function NewFileExists(const Name: String): Boolean;
 function DirExists(const Name: String): Boolean;
 function FileOrDirExists(const Name: String): Boolean;
 function IsDirectoryAndNotReparsePoint(const Name: String): Boolean;
+function GetLastWriteTimeOfFile(const Filename: String;
+  LastWriteTime: PFileTime): Boolean;
+function GetSizeOfFile(const Filename: String; out Size: Int64): Boolean;
 function GetIniString(const Section, Key: String; Default: String; const Filename: String): String;
 function GetIniInt(const Section, Key: String; const Default, Min, Max: Longint; const Filename: String): Longint;
 function GetIniBool(const Section, Key: String; const Default: Boolean; const Filename: String): Boolean;
@@ -194,7 +197,7 @@ function ClientAreaAnimationsActive: Boolean;
 function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function DarkModeActive: Boolean;
 function DeleteFileOrDirByHandle(const H: THandle): Boolean;
-function CompareInt64(const N1, N2: Int64): Integer;
+function CompareUInt64(const N1, N2: UInt64): Integer;
 function HighLowToInt64(const High, Low: UInt32): Int64;
 function HighLowToUInt64(const High, Low: UInt32): UInt64;
 function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
@@ -275,6 +278,37 @@ begin
   Result := (Attr <> INVALID_FILE_ATTRIBUTES) and
     (Attr and FILE_ATTRIBUTE_DIRECTORY <> 0) and
     (Attr and FILE_ATTRIBUTE_REPARSE_POINT = 0);
+end;
+
+function GetLastWriteTimeOfFile(const Filename: String;
+  LastWriteTime: PFileTime): Boolean;
+{ Returns True if the specified file exists and sets LastWriteTime^ to its last
+  write time. Follows symbolic links. Like NewFileExists, does not allow
+  wildcards. Does not require read access. }
+var
+  H: THandle;
+begin
+  H := CreateFile(PChar(Filename), 0, FILE_SHARE_READ or FILE_SHARE_WRITE,
+    nil, OPEN_EXISTING, 0, 0);
+  if H <> INVALID_HANDLE_VALUE then begin
+    Result := GetFileTime(H, nil, nil, LastWriteTime);
+    CloseHandle(H);
+  end
+  else
+    Result := False;
+end;
+
+function GetSizeOfFile(const Filename: String; out Size: Int64): Boolean;
+{ Returns True if the specified file exists and sets Size to its size. Otherwise
+  like GetLastWriteTimeOfFile above. }
+begin
+  const H = CreateFile(PChar(Filename), 0, FILE_SHARE_READ or FILE_SHARE_WRITE,
+    nil, OPEN_EXISTING, 0, 0);
+  if H <> INVALID_HANDLE_VALUE then begin
+    Result := GetFileSizeEx(H, Size);
+    CloseHandle(H);
+  end else
+    Result := False;
 end;
 
 function GetIniString(const Section, Key: String; Default: String;
@@ -1736,7 +1770,7 @@ begin
     SizeOf(Info));
 end;
 
-function CompareInt64(const N1, N2: Int64): Integer;
+function CompareUInt64(const N1, N2: UInt64): Integer;
 begin
   if N1 = N2 then
     Result := 0

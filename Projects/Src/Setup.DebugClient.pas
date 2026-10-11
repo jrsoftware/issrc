@@ -109,6 +109,7 @@ begin
     Exit;
 
   DebugContinue := False;
+  DebugContinueStepOver := False;
 
   if SendMessage(DebugServerWnd, DebuggerMsg, Ord(Kind), Index) = 0 then begin
     { Don't pause }

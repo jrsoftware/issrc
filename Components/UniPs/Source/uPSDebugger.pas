@@ -326,7 +326,7 @@ begin
         end;
       #2:
         begin
-          if cp + 4 > Length(data) then exit;
+          if cp + 4 - 1 > Length(data) then exit;
           CurrProcNo := Cardinal((@Data[cp])^);
           if CurrProcNo = Cardinal(-1) then Exit;
           if CurrProcNo <> LastProcNo then
@@ -353,7 +353,7 @@ begin
         end;
       #3:
         begin
-          if cp + 4 > Length(data) then exit;
+          if cp + 4 - 1 > Length(data) then exit;
           CurrProcNo := Cardinal((@Data[cp])^);
           if CurrProcNo = Cardinal(-1) then Exit;
           if CurrProcNo <> LastProcNo then
@@ -393,7 +393,12 @@ begin
             inc(I);
             if I > length(data) then exit;
           end;
-          if cp + 4 > Length(data) then exit;
+          if Data[i] <> #1 then
+          begin
+            ClearDebug;
+            Exit;
+          end;
+          if cp + 4 - 1 > Length(data) then exit;
           CurrProcNo := Cardinal((@Data[cp])^);
           if CurrProcNo = Cardinal(-1) then Exit;
           if CurrProcNo <> LastProcNo then
@@ -403,7 +408,7 @@ begin
             if LastProc = nil then exit;
           end;
           inc(cp, 4);
-          if cp + 16 > Length(data) then exit;
+          if cp + 16 - 1 > Length(data) then exit;
           new(NewLoc);
           NewLoc^.Position := Cardinal((@Data[Cp])^);
           NewLoc^.FileName := s;

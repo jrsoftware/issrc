@@ -309,6 +309,7 @@ const
   SCompilerOpenFileErrorRemoveFromMRU = 'There was an error opening the file. Remove it from the list?';
   SCompilerFileChangedSavePrompt = 'The text in the %1 file has changed.%n%nDo you want to save the changes?';
   SCompilerStopCompileBeforeCommand = 'Please stop the compile process before performing this command.';
+  SCompilerStopCompileBeforeReload = 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.';
   SCompilerCompileAlreadyInProgress = 'A compile is already in progress.';
   SCompilerIncludedFileChangedSavePrompt = 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?';
   SCompilerSaveScriptBeforeCompile = 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.';
@@ -324,6 +325,7 @@ const
   SCompilerFileModifiedOutside = 'The %1 file has been modified outside of the source editor. You might want to reload it.';
   SCompilerFileModifiedReload = 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?';
   SCompilerFileModifiedReloadChanged = 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?';
+  SCompilerFileChangedSavePromptBeforeReload = 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?';
   SCompilerFileNotOpened = 'File not opened.';
   SGotoLineTitle = 'Go to Line';
   SGotoLinePrompt = 'Line number:';
@@ -356,7 +358,9 @@ const
   SDebugExitCodeStillRunning = '%1 is still running; can''t get exit code';
   SDebugExitCodeWaitFailed = 'Unable to get %1 exit code (%2 failed)';
   SCompilerStopDebugTargetBeforeCommand = 'Please stop the running %1 process before performing this command.';
+  SCompilerStopDebugTargetBeforeReload = 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.';
   SCompilerDetachDebuggerConfirm = 'This command will detach the debugger from the running %1 process. Continue?';
+  SCompilerDetachDebuggerConfirmBeforeReload = 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?';
   SCompilerModifiedWhileRunningWarning = 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?';
   SCompilerPauseAlreadyPending = 'A pause is already pending.';
   SCompilerNoCodeGeneratedForLine = 'No code was generated for the current line.';

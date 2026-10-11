@@ -12,8 +12,8 @@ unit IDE.Wizard.WizardFileForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls,
+  Windows, SysUtils, Classes, Graphics, Controls, Forms,
+  StdCtrls,
   NewGroupBox, NewStaticText,
   IDE.IDEForm;
 
@@ -70,7 +70,7 @@ implementation
 
 uses
   Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScriptModel.Metadata.Extra;
+  IDE.Messages, IDE.LocalizeFunc, IDE.ScriptModel.Metadata.Extra;
 
 {$R *.DFM}
 

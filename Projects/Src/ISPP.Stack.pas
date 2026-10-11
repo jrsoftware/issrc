@@ -13,7 +13,7 @@ unit ISPP.Stack;
 interface
 
 uses
-  Classes, Generics.Collections;
+  Generics.Collections;
 
 type
 
@@ -49,9 +49,6 @@ type
 
 
 implementation
-
-uses
-  ISPP.Consts;
 
 { TOrderedList }
 

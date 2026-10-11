@@ -14,17 +14,17 @@ interface
 
 uses
   Windows, Classes,
-  ISPP.VarUtils, ISPP.Intf, ISPP.Preprocessor, ISPP.Parser;
+  ISPP.VarUtils, ISPP.Intf, ISPP.Preprocessor;
 
 procedure RegisterFunctions(Preproc: TPreprocessor);
 
 implementation
 
 uses
-  SysUtils, IniFiles, Registry, Math, DateUtils,
+  SysUtils, IniFiles, Registry, Math,
   MD5, SHA1, SHA256, PathFunc, UnsignedFunc,
   Shared.FileClass, Shared.CommonFunc,
-  ISPP.Sessions, ISPP.Consts, ISPP.Base, ISPP.IdentMan;
+  ISPP.Sessions, ISPP.Base, ISPP.IdentMan;
 
 {$IFDEF WIN64}
 const
@@ -146,20 +146,15 @@ end;
 
 {FileSize(<filename>)}
 function FileSize(Ext: NativeInt; const Params: IIsppFuncParams; const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-var
-  SearchRec: TSearchRec;
 begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
-      if FindFirst(PrependPath(Ext, Get(0).AsStr), faAnyFile, SearchRec) = 0 then begin
-        try
-          MakeInt(ResPtr^, SearchRec.Size);
-        finally
-          FindClose(SearchRec);
-        end;
-      end else
+      var Size: Int64;
+      if GetSizeOfFile(PrependPath(Ext, Get(0).AsStr), Size) then
+        MakeInt(ResPtr^, Size)
+      else
         MakeInt(ResPtr^, -1);
     end
   except
@@ -265,7 +260,7 @@ begin
         if OpenKey(Get(1).AsStr, False) and ((Name = '') or ValueExists(Name)) then
           case GetDataType(Name) of
             rdString, rdExpandString: MakeStr(ResPtr^, ReadString(Name));
-            rdInteger: MakeInt(ResPtr^, ReadInteger(Name));
+            rdInteger: MakeInt(ResPtr^, UInt32(ReadInteger(Name))); { The UInt32 cast prevents sign extension }
             {$IF RtlVersion >= 36.0}
             rdInt64: MakeInt(ResPtr^, ReadInt64(Name));
             {$ENDIF}
@@ -871,7 +866,8 @@ begin
         GetMem(Buf, Size);
         try
           if GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf) and
-             VerQueryValue(Buf, '\', Pointer(FI), S) then
+             VerQueryValue(Buf, '\', Pointer(FI), S) and
+             (S >= SizeOf(TVSFixedFileInfo)) then
           begin
             MakeStr(ResPtr^,
               IntToStr((FI.dwFileVersionMS and $FFFF0000) shr 16) + '.' +
@@ -897,7 +893,7 @@ begin
   if CheckParams(Params, [evInt, evInt], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-      MakeInt(ResPtr^, CompareInt64(Get(0).AsInt64, Get(1).AsInt64));
+      MakeInt(ResPtr^, CompareUInt64(UInt64(Get(0).AsInt64), UInt64(Get(1).AsInt64)));
   except
     on E: Exception do
       FuncResult.RaiseError(PChar(E.Message));
@@ -1074,6 +1070,13 @@ begin
   end;
 end;
 
+function FindGetHandle(const Params: IInternalFuncParams; const Index: Integer): PSearchRec;
+begin
+  Result := PSearchRec(Params.Get(Index).AsInt64);
+  if Result = nil then
+    raise Exception.Create('Invalid find handle');
+end;
+
 function FindNextFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
@@ -1082,7 +1085,7 @@ begin
     with IInternalFuncParams(Params) do
     begin
       ResPtr.Typ := evInt;
-      if FindNext(PSearchRec(Get(0).AsInt64)^) = 0 then
+      if FindNext(FindGetHandle(IInternalFuncParams(Params), 0)^) = 0 then
         ResPtr^.AsInt64 := 1
       else
         ResPtr^.AsInt64 := 0;
@@ -1100,7 +1103,7 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      MakeStr(ResPtr^, PSearchRec(Get(0).AsInt64)^.Name);
+      MakeStr(ResPtr^, FindGetHandle(IInternalFuncParams(Params), 0)^.Name);
     end;
   except
     on E: Exception do
@@ -1115,9 +1118,10 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      FindClose(PSearchRec(Get(0).AsInt64)^);
-      Dispose(PSearchRec(Get(0).AsInt64));
-      TPreprocessor(Ext).UncollectGarbage(Pointer(Get(0).AsInt64));
+      const SearchRec = FindGetHandle(IInternalFuncParams(Params), 0);
+      FindClose(SearchRec^);
+      Dispose(SearchRec);
+      TPreprocessor(Ext).UncollectGarbage(SearchRec);
       ResPtr^ := NULL;
     end;
   except
@@ -1258,7 +1262,7 @@ begin
     {$I+}
     P.ResPtr^ := NULL;
     Dispose(F);
-    TPreprocessor(Ext).UncollectGarbage(Pointer(F));
+    TPreprocessor(Ext).UncollectGarbage(F);
   except
     on E: Exception do
       FuncResult.RaiseError(PChar(E.Message));

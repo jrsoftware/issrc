@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ChineseTraditionalIDETranslations: array [0..1015] of TTranslationPair = (
+  ChineseTraditionalIDETranslations: array [0..1012] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '命令列用法：'),
     (English: 'Examples:'; Localized: '範例：'),
     (English: 'script file'; Localized: '指令碼檔案'),
@@ -234,6 +234,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: '開啟檔案時發生錯誤。要將它從清單中移除嗎？'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: '%1 檔案中的文字已變更。%n%n您要儲存變更嗎？'),
     (English: 'Please stop the compile process before performing this command.'; Localized: '請先停止編譯，再執行此命令。'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: '%1 檔案已在來源編輯器外部被修改，但在編譯進行期間無法重新載入。'),
     (English: 'A compile is already in progress.'; Localized: '編譯已在進行中。'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: '%1 檔案中的文字已變更，必須在編譯前儲存。%n%n要儲存變更並繼續嗎？'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: '您要在編譯前儲存指令碼嗎？%n%n如果您回答「否」，編譯後的安裝程式預設將放在您的「文件」資料夾中。'),
@@ -249,6 +250,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: '%1 檔案已在來源編輯器外部被修改。您可能需要重新載入它。'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: '%1 檔案已在來源編輯器外部被修改。%n%n您要重新載入檔案嗎？'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: '%1 檔案已在來源編輯器外部被修改，來源編輯器中也已進行變更。%n%n您要重新載入檔案並放棄在來源編輯器中所做的變更嗎？'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: '%1 檔案已在來源編輯器外部被修改，即將與其 %3 檔案一起重新載入。%n%n%3 檔案 %2 中的文字已變更。%n%n您要儲存變更嗎？'),
     (English: 'File not opened.'; Localized: '檔案未開啟。'),
     (English: 'Go to Line'; Localized: '移至行'),
     (English: 'Line number:'; Localized: '行號：'),
@@ -273,7 +275,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: '無法取得%1的結束代碼 (%2 失敗)'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1仍在執行；無法取得結束代碼'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: '請先停止正在執行的%1處理序，再執行此命令。'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: '%2 檔案已在來源編輯器外部被修改，但在%1處理序執行期間無法重新載入。'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: '此命令會將偵錯工具與正在執行的%1處理序中斷連結。要繼續嗎？'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: '%2 檔案已在來源編輯器外部被修改，即將重新載入。%n%n這會將偵錯工具與正在執行的%1處理序中斷連結。要繼續嗎？'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: '您所做的變更在重新編譯之前不會生效。%n%n仍要繼續執行嗎？'),
     (English: 'A pause is already pending.'; Localized: '已有暫停要求擱置中。'),
     (English: 'No code was generated for the current line.'; Localized: '未為目前這一行產生任何程式碼。'),
@@ -716,7 +720,6 @@ const
     (English: 'Identifier expected'; Localized: '應為識別項'),
     (English: 'Invalid binary value'; Localized: '無效的二進位值'),
     (English: 'Invalid stream format'; Localized: '無效的資料流格式'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '「%s」是無效的遮罩，位於 (%d)'),
     (English: '''''%s'''' is not a valid component name'; Localized: '「%s」不是有效的元件名稱'),
     (English: 'Invalid property value'; Localized: '屬性值無效'),
     (English: 'Invalid property path'; Localized: '無效的屬性路徑'),
@@ -757,12 +760,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: '參數 %s 不可為 nil'),
     (English: 'Parameter %s cannot be a negative value'; Localized: '參數 %s 不可為負值'),
     (English: 'Invalid characters in path'; Localized: '路徑中有無效的字元'),
-    (English: 'Invalid characters in search pattern'; Localized: '搜尋模式中有無效的字元'),
-    (English: 'Path is empty'; Localized: '路徑為空白'),
-    (English: 'Search pattern is empty'; Localized: '搜尋模式為空白'),
-    (English: 'The specified path is too long'; Localized: '指定的路徑太長'),
-    (English: 'The specified path was not found'; Localized: '找不到指定的路徑'),
-    (English: 'The path format is not supported'; Localized: '不支援此路徑格式'),
     (English: 'No help viewer that supports filters'; Localized: '沒有支援篩選的說明檢視器'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: '字串索引超出範圍 (%d)。必須 >= %d 且 <= %d'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: '無效的 UTF32 字元值。必須 >= 0 且 <= $10FFFF，代理字組範圍除外'),

@@ -89,7 +89,7 @@ type
 implementation
 
 uses
-  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.FileAssocFunc, IDE.Messages, IDE.LocalizeFunc;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.FileAssocFunc, IDE.Messages, IDE.LocalizeFunc;
 
 {$R *.DFM}
 

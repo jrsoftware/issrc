@@ -13,7 +13,7 @@ unit ISPP.Preprocessor;
 interface
 
 uses
-  Windows, SysUtils, Classes, Shared.PreprocInt, IniFiles, Registry, ISPP.Intf,
+  Windows, SysUtils, Classes, Shared.PreprocInt, ISPP.Intf,
   ISPP.Base, ISPP.Stack, ISPP.IdentMan, ISPP.Parser;
 
 type
@@ -143,7 +143,6 @@ type
     procedure SaveToFile(const FileName: string);
     procedure CollectGarbage(Item: Pointer; Proc: TDropGarbageProc);
     procedure UncollectGarbage(Item: Pointer);
-    property IncludedFiles: TStringList read FIncludes;
     property IncludePath: string read FIncludePath write FIncludePath;
     property SourcePath: string read FSourcePath;
     property StringList: TStringList read FOutput;
@@ -606,6 +605,9 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       N := IntegerExpr(True);
       NValues := 0;
       NextTokenExpect([tkCloseBracket]);
+      { Other trailing text, such as an unsupported "//" comment, is ignored for backward compatibility only }
+      if PeekAtNextToken = opAssign then
+        NextTokenExpect([tkOpenBrace]);
       if PeekAtNextToken = tkOpenBrace then
         begin
           NextToken;
@@ -664,13 +666,14 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         NextToken;
         const AParamCount = ParseFormalParams(Parser, ParamList);
         try
+          while CharInSet(FExpr^, [#1..#32]) do Inc(FExpr);
           P := FExpr;
-          MacroExprPos.FileIndex := FCurrentFile;
+          MacroExprPos.FileName := FIncludes[FCurrentFile];
           MacroExprPos.Line := FCurrentLine;
           MacroExprPos.Column := Integer((FExpr - Start) + ParamsOffset);
           while P^ <> #0 do Inc(P);
           SetString(AExpr, FExpr, P - FExpr);
-          AExpr := Trim(AExpr);
+          AExpr := TrimRight(AExpr);
           if AExpr = '' then RaiseError(SMacroExpressionExpected);
           FIdentManager.DefineMacro(Name, AExpr, MacroExprPos, FOptions.ParserOptions,
             Slice(ParamList^, AParamCount), Scope);
@@ -682,7 +685,8 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
       else
       begin
         VarIndex := -1;
-        if PeekAtNextToken = tkOpenBracket then
+        const IndexSpecified = PeekAtNextToken = tkOpenBracket;
+        if IndexSpecified then
         begin
           NextToken;
           VarIndex := IntegerExpr(True);
@@ -692,11 +696,11 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
           opAssign: NextToken;
           tkEOF:
             begin
-              FIdentManager.DefineVariable(Name, VarIndex, NULL, Scope);
+              FIdentManager.DefineVariable(Name, VarIndex, NULL, Scope, IndexSpecified);
               Exit;
             end
         end;
-        FIdentManager.DefineVariable(Name, VarIndex, Evaluate, Scope);
+        FIdentManager.DefineVariable(Name, VarIndex, Evaluate, Scope, IndexSpecified);
       end;
     end;
   end;
@@ -873,6 +877,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
     if FileExists(FileName) then
     begin
       Result := GetTempFileName(PathExtractName(FileName));
+      QueueFileForDeletion(Result);
       StatusMsg(SProcessingExternalFile, [FileName]);
       NewOptions := FOptions;
       Preprocessor := TPreprocessor.Create(FCompilerParams, FIdentManager,
@@ -889,7 +894,6 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
           F.Free;
         end;
         Preprocessor.SaveToFile(Result);
-        QueueFileForDeletion(Result);
         VerboseMsg(1, STemporaryFileCreated, [Result]);
       finally
         Preprocessor.Free;
@@ -1042,7 +1046,7 @@ var
   L: Integer;
 begin
   L := Length(LineRead);
-  if (L > 2) and (LineRead[L] = FOptions.SpanSymbol) and (LineRead[L - 1] <= #32) then
+  if (L >= 2) and (LineRead[L] = FOptions.SpanSymbol) and (LineRead[L - 1] <= #32) then
   begin
     FQueuedLine := FQueuedLine + TrimLeft(Copy(LineRead, 1, L - 1));
     Inc(FQueuedLineCount);
@@ -1643,12 +1647,15 @@ procedure TPreprocessor.IncludeFile(FileName: string;
   end;
 
   function DoSearch(const SearchDirs: String): String;
-  var
-    FilePart: PChar;
   begin
     SetLength(Result, MAX_PATH);
-    SetLength(Result, SearchPath(PChar(SearchDirs), PChar(FileName), nil, MAX_PATH,
-      PChar(Result), FilePart));
+    var FilePart: PChar;
+    var Res: DWORD;
+    repeat
+      { SearchPath was tested to support extended-length paths }
+      Res := SearchPath(PChar(SearchDirs), PChar(FileName), nil, ULength(Result),
+        PChar(Result), FilePart);
+    until AdjustLength(Result, Res);
   end;
 
 var

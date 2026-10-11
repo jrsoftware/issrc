@@ -118,6 +118,7 @@ type
     UsedUserAreas: TStringList;
 
     PreprocIncludedFilenames: TStringList;
+    PreprocIncludedFilesLastWriteTimes: TList<TFileTime>;
     PreprocOutput: String;
 
     DefaultLangData: TLangData;
@@ -153,6 +154,7 @@ type
     SetupHeader: TSetupHeader;
 
     SetupDirectiveLines: array[TSetupSectionDirective] of Integer;
+    SetupDirectiveLineFilenames: array[TSetupSectionDirective] of String;
     SetupArchitecture: TSetupArchitecture;
     SetupLdrArchitecture: TSetupLdrArchitecture;
     DiskSpanning, TerminalServicesAware, DEPCompatible, ASLRCompatible: Boolean;
@@ -285,10 +287,12 @@ type
     procedure CodeCompilerOnUsedVariable(const Filename: String; const Line, Col, Param1, Param2, Param3: Integer; const Param4: AnsiString);
     procedure CodeCompilerOnError(const Msg: String; const ErrorFilename: String; const ErrorLine: Integer);
     procedure CodeCompilerOnWarning(const Msg: String; const Line: Integer);
+    procedure ClearLine;
     procedure CompileCode;
     function FilenameToFileIndex(const AFileName: String): Integer;
     procedure ReadTextFile(const Filename: String; const LangIndex: Integer; var Text: AnsiString);
     procedure SeparateDirective(const Line: PChar; var KeyName, Value: String);
+    procedure SetLineToSetupDirective(const Directive: TSetupSectionDirective);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
     procedure Sign(AExeFilename: String);
     procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Cardinal; const RunMinimized: Boolean);
@@ -323,6 +327,7 @@ type
     function GetOutputBaseFileName: String;
     function GetOutputDir: String;
     function GetPreprocIncludedFilenames: TStringList;
+    function GetPreprocIncludedFilesLastWriteTimes: TList<TFileTime>;
     function GetPreprocOutput: String;
     function GetSlicesPerDisk: Longint;
     procedure SetBytesCompressedSoFar(const Value: Int64);
@@ -368,11 +373,12 @@ type
   end;
 
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
+  TFileLocationTimeStamp = (tsNoSetting, tsTouch, tsNone);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
-    Flags: set of (floVersionInfoNotValid, floTouch,
-      floSolidBreak, floNoTimeStamp);
+    Flags: set of (floVersionInfoNotValid, floSolidBreak, floCompareTimeStamp);
     Sign: TFileLocationSign;
+    TimeStamp: TFileLocationTimeStamp;
     Verification: TSetupFileVerification;
     ISSigKeyUsedID: String;
   end;
@@ -440,6 +446,7 @@ begin
   UsedUserAreas.Sorted := True;
   UsedUserAreas.Duplicates := dupIgnore;
   PreprocIncludedFilenames := TStringList.Create;
+  PreprocIncludedFilesLastWriteTimes := TList<TFileTime>.Create;
   DefaultLangData := TLangData.Create;
   PreLangDataList := TList.Create;
   LangDataList := TList.Create;
@@ -474,6 +481,7 @@ begin
   LangDataList.Free;
   PreLangDataList.Free;
   DefaultLangData.Free;
+  PreprocIncludedFilesLastWriteTimes.Free;
   PreprocIncludedFilenames.Free;
   UsedUserAreas.Free;
   ExpectedCustomMessageNames.Free;
@@ -736,6 +744,18 @@ begin
   Result := LineNumber;
 end;
 
+procedure TSetupCompiler.SetLineToSetupDirective(const Directive: TSetupSectionDirective);
+begin
+  LineFilename := SetupDirectiveLineFilenames[Directive];
+  LineNumber := SetupDirectiveLines[Directive];
+end;
+
+procedure TSetupCompiler.ClearLine;
+begin
+  LineFilename := '';
+  LineNumber := 0;
+end;
+
 {$IFDEF SUPPORTLZMAEXE}
 
 function TSetupCompiler.GetLZMAExeFilename(const Allow64Bit: Boolean): String;
@@ -775,6 +795,11 @@ end;
 function TSetupCompiler.GetPreprocIncludedFilenames: TStringList;
 begin
   Result := PreprocIncludedFilenames;
+end;
+
+function TSetupCompiler.GetPreprocIncludedFilesLastWriteTimes: TList<TFileTime>;
+begin
+  Result := PreprocIncludedFilesLastWriteTimes;
 end;
 
 function TSetupCompiler.GetPreprocOutput: String;
@@ -963,8 +988,13 @@ begin
   try
     if FromPreProcessor then begin
       Data.Compiler.AddStatus(Format(SCompilerStatusReadingInFile, [Filename]));
-      if Data.MainScript then
+      if Data.MainScript then begin
         Data.Compiler.PreprocIncludedFilenames.Add(Filename);
+        var LastWriteTime: TFileTime;
+        if not GetLastWriteTimeOfFile(Filename, @LastWriteTime) then
+          LastWriteTime := Default(TFileTime);
+        Data.Compiler.PreprocIncludedFilesLastWriteTimes.Add(LastWriteTime);
+      end;
     end;
     F := TTextFileReader.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
@@ -1128,9 +1158,10 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
         Result := BuiltinPreprocessScript;
       end;
 
-      { Check for (and remove) #preproc override directive on the first line }
+      { Check for (and remove) #preproc override directive on the first line.
+        Also see IDE.ScintStylerInnoSetup's BuiltinPreprocessorAcceptsDirective. }
       if Lines.Count > 0 then begin
-        S := Trim(Lines[0]);
+        S := Lines[0].Trim;
         if S = '#preproc builtin' then begin
           Lines[0] := '';
           Result := BuiltinPreprocessScript;
@@ -1570,7 +1601,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
 { Returns True if S contains constants. Aborts compile if they are invalid. }
 
   function CheckEnvConst(C: String): Boolean;
-  { based on ExpandEnvConst in Setup.MainFunc.pas }
+  { based on ExpandEnvConst in Setup.MainFunc }
   var
     I: Integer;
     VarName, Default: String;
@@ -1592,7 +1623,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
   function CheckRegConst(C: String): Boolean;
-  { based on ExpandRegConst in Setup.MainFunc.pas }
+  { based on ExpandRegConst in Setup.MainFunc }
   type
     TKeyNameConst = packed record
       KeyName: String;
@@ -1657,7 +1688,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
   function CheckIniConst(C: String): Boolean;
-  { based on ExpandIniConst in Setup.MainFunc.pas }
+  { based on ExpandIniConst in Setup.MainFunc }
   var
     Z, Filename, Section, Key, Default: String;
     I: Integer;
@@ -2781,6 +2812,7 @@ begin
   if (Directive <> ssSignTool) and (SetupDirectiveLines[Directive] <> 0) then
     AbortCompileFmt(SCompilerEntryAlreadySpecified, ['Setup', KeyName]);
   SetupDirectiveLines[Directive] := LineNumber;
+  SetupDirectiveLineFilenames[Directive] := LineFilename;
   case Directive of
     ssAllowCancelDuringInstall: begin
         SetSetupHeaderOption(shAllowCancelDuringInstall);
@@ -5142,6 +5174,8 @@ const
     'issigverify', 'download', 'extractarchive', 'notimestamp');
   SignFlags: array[TFileLocationSign] of String = (
     '', 'sign', 'signonce', 'signcheck');
+  TimeStampFlags: array[TFileLocationTimeStamp] of String = (
+    '', 'touch', 'notimestamp');
   AttribsFlags: array[0..3] of PChar = (
     'readonly', 'hidden', 'system', 'notcontentindexed');
   AccessMasks: array[0..2] of TNameAndAccessMask = (
@@ -5157,8 +5191,9 @@ var
   SourceWildcard, ADestDir, ADestName, AInstallFontName, AStrongAssemblyName: String;
   AExcludes: TStringList;
   ReadmeFile, ExternalFile, SourceIsWildcard, RecurseSubdirs,
-    AllowUnsafeFiles, Touch, NoTimeStamp, NoCompression, NoEncryption, SolidBreak: Boolean;
+    AllowUnsafeFiles, NoCompression, NoEncryption, SolidBreak: Boolean;
   Sign: TFileLocationSign;
+  TimeStamp: TFileLocationTimeStamp;
 type
   PFileListRec = ^TFileListRec;
   TFileListRec = record
@@ -5322,6 +5357,23 @@ type
       Sign := NewSign;
   end;
 
+  procedure ApplyNewTimeStamp(var TimeStamp: TFileLocationTimeStamp;
+    const NewTimeStamp: TFileLocationTimeStamp; const ErrorMessage: String);
+  begin
+    if not (TimeStamp in [tsNoSetting, NewTimeStamp]) then
+      AbortCompileFmt(ErrorMessage,
+        [ParamCommonFlags, TimeStampFlags[TimeStamp], TimeStampFlags[NewTimeStamp]])
+    else
+      TimeStamp := NewTimeStamp;
+  end;
+
+  procedure CheckCompareTimeStamp(const TimeStamp: TFileLocationTimeStamp;
+    const CompareTimeStamp: Boolean; const ErrorMessage: String);
+  begin
+    if (TimeStamp = tsNone) and CompareTimeStamp then
+      AbortCompileFmt(ErrorMessage, [ParamCommonFlags, 'notimestamp', 'comparetimestamp']);
+  end;
+
   procedure ApplyNewVerificationType(var VerificationType: TSetupFileVerificationType;
     const NewVerificationType: TSetupFileVerificationType; const ErrorMessage: String);
   begin
@@ -5421,10 +5473,6 @@ type
             NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys := NewFileEntry^.Verification.ISSigAllowedKeys;
           end;
         end;
-        if Touch then
-          Include(NewFileLocationEntryExtraInfo^.Flags, floTouch);
-        if NoTimeStamp then
-          Include(NewFileLocationEntryExtraInfo^.Flags, floNoTimeStamp);
         { Note: "nocompression"/"noencryption" on one file makes all merged
           copies uncompressed/unencrypted too }
         if NoCompression then
@@ -5433,6 +5481,14 @@ type
           Exclude(NewFileLocationEntry^.Flags, floChunkEncrypted);
         if Sign <> fsNoSetting then
           ApplyNewSign(NewFileLocationEntryExtraInfo.Sign, Sign, SCompilerParamErrorBadCombo2SameSource);
+        if TimeStamp <> tsNoSetting then
+          ApplyNewTimeStamp(NewFileLocationEntryExtraInfo.TimeStamp, TimeStamp,
+            SCompilerParamErrorBadCombo2SameSource);
+        if foCompareTimeStamp in NewFileEntry^.Options then
+          Include(NewFileLocationEntryExtraInfo^.Flags, floCompareTimeStamp);
+        CheckCompareTimeStamp(NewFileLocationEntryExtraInfo^.TimeStamp,
+          floCompareTimeStamp in NewFileLocationEntryExtraInfo^.Flags,
+          SCompilerParamErrorBadCombo2SameSource);
         if NewFileEntry^.Verification.Typ <> fvNone  then
           ApplyNewVerificationType(NewFileLocationEntryExtraInfo.Verification.Typ, NewFileEntry^.Verification.Typ,
             SCompilerFilesParamFlagConflictSameSource);
@@ -5643,8 +5699,6 @@ begin
         ExternalFile := False;
         RecurseSubdirs := False;
         AllowUnsafeFiles := False;
-        Touch := False;
-        NoTimeStamp := False;
         SortFilesByExtension := False;
         NoCompression := False;
         NoEncryption := False;
@@ -5652,6 +5706,7 @@ begin
         ExternalSize := 0;
         SortFilesByName := False;
         Sign := fsNoSetting;
+        TimeStamp := tsNoSetting;
 
         case Ext of
           0: begin
@@ -5684,7 +5739,7 @@ begin
                    21: Include(Options, foDontCopy);
                    22: Include(Options, foUninsRemoveReadOnly);
                    23: SortFilesByExtension := True;
-                   24: Touch := True;
+                   24: ApplyNewTimeStamp(TimeStamp, tsTouch, SCompilerParamErrorBadCombo2);
                    25: Include(Options, foReplaceSameVersionIfContentsDiffer);
                    26: NoEncryption := True;
                    27: NoCompression := True;
@@ -5704,7 +5759,7 @@ begin
                    41: ApplyNewVerificationType(Verification.Typ, fvISSig, SCompilerFilesParamFlagConflict);
                    42: Include(Options, foDownload);
                    43: Include(Options, foExtractArchive);
-                   44: NoTimeStamp := True;
+                   44: ApplyNewTimeStamp(TimeStamp, tsNone, SCompilerParamErrorBadCombo2);
                  end;
 
                { Source }
@@ -5904,12 +5959,7 @@ begin
           Excludes := AExcludes.DelimitedText;
         end;
 
-        if NoTimeStamp then begin
-          if Touch then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'notimestamp', 'touch']);
-          if foCompareTimeStamp in Options then
-            AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'notimestamp', 'comparetimestamp']);
-        end;
+        CheckCompareTimeStamp(TimeStamp, foCompareTimeStamp in Options, SCompilerParamErrorBadCombo2);
 
         if foDownload in Options then begin
           if not ExternalFile then
@@ -7146,7 +7196,7 @@ const
      SCompilerVerificationFileNameIncorrect, SCompilerVerificationFileSizeIncorrect,
      SCompilerVerificationFileHashIncorrect);
 begin
-  { Also see Setup.Install for a similar function }
+  { Also see Setup.ISSigVerifyFunc's VerificationError for a similar function }
   AbortCompileFmt(SCompilerSourceFileVerificationFailed,
     [AFilename, Format(Messages[AError], [PathExtractName(ASigFilename)])]); { Not all messages actually have a %s parameter but that's OK }
 end;
@@ -7154,12 +7204,12 @@ end;
 procedure TSetupCompiler.OnUpdateIconsAndStyle(const Operation: TUpdateIconsAndStyleOperation);
 begin
   case Operation of
-    uisoIcoFileName: LineNumber := SetupDirectiveLines[ssSetupIconFile];
-    uisoWizardDarkStyle: LineNumber := SetupDirectiveLines[ssWizardStyle];
-    uisoStyleFileName: LineNumber := SetupDirectiveLines[ssWizardStyleFile];
-    uisoStyleFileNameDynamicDark: LineNumber := SetupDirectiveLines[ssWizardStyleFileDynamicDark];
+    uisoIcoFileName: SetLineToSetupDirective(ssSetupIconFile);
+    uisoWizardDarkStyle: SetLineToSetupDirective(ssWizardStyle);
+    uisoStyleFileName: SetLineToSetupDirective(ssWizardStyleFile);
+    uisoStyleFileNameDynamicDark: SetLineToSetupDirective(ssWizardStyleFileDynamicDark);
   else
-    LineNumber := 0;
+    ClearLine;
   end;
 end;
 
@@ -7787,7 +7837,7 @@ var
           if FLExtraInfo.Verification.Typ = fvHash then
             ExpectedFileHash := FLExtraInfo.Verification.Hash
           else if FLExtraInfo.Verification.Typ = fvISSig then begin
-            { See Setup.Install's CopySourceFileToDestFile for similar code }
+            { See Setup.ISSigVerifyFunc's DoISSigVerify for similar code }
             if Length(ISSigAvailableKeys) = 0 then { shouldn't fail: flag stripped already }
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigAvailableKeys) = 0']);
             var ExpectedFileName: String;
@@ -7852,7 +7902,7 @@ var
             AbortCompileFmt(SCompilerFunctionFailedWithCode,
               ['CompressFiles: GetFileTime', ErrorCode, Win32ErrorString(ErrorCode)]);
           end;
-          if floNoTimeStamp in FLExtraInfo.Flags then
+          if FLExtraInfo.TimeStamp = tsNone then
             FL.TimeStamp.Clear
           else begin
             if TimeStampsInUTC then begin
@@ -7860,7 +7910,7 @@ var
               Include(FL.Flags, floTimeStampInUTC);
             end else
               FileTimeToLocalFileTime(FT, FL.TimeStamp);
-            if floTouch in FLExtraInfo.Flags then
+            if FLExtraInfo.TimeStamp = tsTouch then
               ApplyTouchDateTime(FL.TimeStamp);
             if TimeStampRounding > 0 then begin
               var TimeStamp := Int64(FL.TimeStamp);
@@ -8116,7 +8166,7 @@ var
             PrependSourceDirName(WizardStyleFile), PrependSourceDirName(WizardStyleFileDynamicDark), OnUpdateIconsAndStyle);
         end);
 
-      LineNumber := 0;
+      ClearLine;
       AddStatus(Format(SCompilerStatusUpdatingVersionInfo, [EBasename]));
       WithRetries(False, ConvertFilename,
         procedure
@@ -8318,6 +8368,7 @@ begin
     FillChar(SetupHeader, SizeOf(SetupHeader), 0);
     InitDebugInfo;
     PreprocIncludedFilenames.Clear;
+    PreprocIncludedFilesLastWriteTimes.Clear;
 
     { Initialize defaults }
     OriginalSourceDir := AddBackslash(PathExpand(SourceDir));
@@ -8417,7 +8468,7 @@ begin
     if CompressMethod = cmZstd then begin
       if (ZstdCompressProps.NumWorkers <> 0) and (CompressLevel > 20) then begin
         { Not allowed because aborting takes too long }
-        LineNumber := SetupDirectiveLines[ssZstdNumThreads];
+        SetLineToSetupDirective(ssZstdNumThreads);
         AbortCompile(SCompilerMustNotUseZstdNumThreads);
       end;
     end;
@@ -8434,7 +8485,7 @@ begin
         Same as MaxDictionarySize in Compression.LZMADecompressor.pas. }
       const MaxDictionarySize32 = 1024 shl 20;
       if CompressProps.DictionarySize > MaxDictionarySize32 then begin
-        LineNumber := SetupDirectiveLines[ssLZMADictionarySize];
+        SetLineToSetupDirective(ssLZMADictionarySize);
         AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'LZMADictionarySize']);
       end;
     end else begin
@@ -8447,60 +8498,60 @@ begin
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'AppName']);
     if (SetupHeader.AppVerName = '') and (SetupHeader.AppVersion = '') then
       AbortCompile(SCompilerAppVersionOrAppVerNameRequired);
-    LineNumber := SetupDirectiveLines[ssAppName];
+    SetLineToSetupDirective(ssAppName);
     AppNameHasConsts := CheckConst(SetupHeader.AppName, SetupHeader.MinVersion, []);
     if AppNameHasConsts then begin
       Include(SetupHeader.Options, shAppNameHasConsts);
       if not(shDisableStartupPrompt in SetupHeader.Options) then begin
         { AppName has constants so DisableStartupPrompt must be used }
-        LineNumber := SetupDirectiveLines[ssDisableStartupPrompt];
+        SetLineToSetupDirective(ssDisableStartupPrompt);
         AbortCompile(SCompilerMustUseDisableStartupPrompt);
       end;
     end;
     if SetupHeader.AppId = '' then
       SetupHeader.AppId := SetupHeader.AppName
     else
-      LineNumber := SetupDirectiveLines[ssAppId];
+      SetLineToSetupDirective(ssAppId);
     AppIdHasConsts := CheckConst(SetupHeader.AppId, SetupHeader.MinVersion, []);
     if AppIdHasConsts and (shUsePreviousLanguage in SetupHeader.Options) then begin
       { AppId has constants so UsePreviousLanguage must not be used }
-      LineNumber := SetupDirectiveLines[ssUsePreviousLanguage];
+      SetLineToSetupDirective(ssUsePreviousLanguage);
       AbortCompile(SCompilerMustNotUsePreviousLanguage);
     end;
     if AppIdHasConsts and (proDialog in SetupHeader.PrivilegesRequiredOverridesAllowed) and (shUsePreviousPrivileges in SetupHeader.Options) then begin
       { AppId has constants so UsePreviousPrivileges must not be used }
-      LineNumber := SetupDirectiveLines[ssUsePreviousPrivileges];
+      SetLineToSetupDirective(ssUsePreviousPrivileges);
       AbortCompile(SCompilerMustNotUsePreviousPrivileges);
     end;
-    LineNumber := SetupDirectiveLines[ssAppVerName];
+    SetLineToSetupDirective(ssAppVerName);
     CheckConst(SetupHeader.AppVerName, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppComments];
+    SetLineToSetupDirective(ssAppComments);
     CheckConst(SetupHeader.AppComments, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppContact];
+    SetLineToSetupDirective(ssAppContact);
     CheckConst(SetupHeader.AppContact, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppCopyright];
+    SetLineToSetupDirective(ssAppCopyright);
     AppCopyrightHasConsts := CheckConst(SetupHeader.AppCopyright, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppModifyPath];
+    SetLineToSetupDirective(ssAppModifyPath);
     CheckConst(SetupHeader.AppModifyPath, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppPublisher];
+    SetLineToSetupDirective(ssAppPublisher);
     AppPublisherHasConsts := CheckConst(SetupHeader.AppPublisher, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppPublisherURL];
+    SetLineToSetupDirective(ssAppPublisherURL);
     CheckConst(SetupHeader.AppPublisherURL, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppReadmeFile];
+    SetLineToSetupDirective(ssAppReadmeFile);
     CheckConst(SetupHeader.AppReadmeFile, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppSupportPhone];
+    SetLineToSetupDirective(ssAppSupportPhone);
     CheckConst(SetupHeader.AppSupportPhone, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppSupportURL];
+    SetLineToSetupDirective(ssAppSupportURL);
     CheckConst(SetupHeader.AppSupportURL, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppUpdatesURL];
+    SetLineToSetupDirective(ssAppUpdatesURL);
     CheckConst(SetupHeader.AppUpdatesURL, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppVersion];
+    SetLineToSetupDirective(ssAppVersion);
     AppVersionHasConsts := CheckConst(SetupHeader.AppVersion, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssAppMutex];
+    SetLineToSetupDirective(ssAppMutex);
     CheckConst(SetupHeader.AppMutex, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssSetupMutex];
+    SetLineToSetupDirective(ssSetupMutex);
     CheckConst(SetupHeader.SetupMutex, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssDefaultDirName];
+    SetLineToSetupDirective(ssDefaultDirName);
     CheckConst(SetupHeader.DefaultDirName, SetupHeader.MinVersion, []);
     if SetupHeader.DefaultDirName = '' then begin
       if shCreateAppDir in SetupHeader.Options then
@@ -8508,21 +8559,21 @@ begin
       else
         SetupHeader.DefaultDirName := '?ERROR?';
     end;
-    LineNumber := SetupDirectiveLines[ssDefaultGroupName];
+    SetLineToSetupDirective(ssDefaultGroupName);
     CheckConst(SetupHeader.DefaultGroupName, SetupHeader.MinVersion, []);
     if SetupHeader.DefaultGroupName = '' then
       SetupHeader.DefaultGroupName := '(Default)';
-    LineNumber := SetupDirectiveLines[ssUninstallDisplayName];
+    SetLineToSetupDirective(ssUninstallDisplayName);
     CheckConst(SetupHeader.UninstallDisplayName, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssUninstallDisplayIcon];
+    SetLineToSetupDirective(ssUninstallDisplayIcon);
     CheckConst(SetupHeader.UninstallDisplayIcon, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssUninstallFilesDir];
+    SetLineToSetupDirective(ssUninstallFilesDir);
     CheckConst(SetupHeader.UninstallFilesDir, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssDefaultUserInfoName];
+    SetLineToSetupDirective(ssDefaultUserInfoName);
     CheckConst(SetupHeader.DefaultUserInfoName, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssDefaultUserInfoOrg];
+    SetLineToSetupDirective(ssDefaultUserInfoOrg);
     CheckConst(SetupHeader.DefaultUserInfoOrg, SetupHeader.MinVersion, []);
-    LineNumber := SetupDirectiveLines[ssDefaultUserInfoSerial];
+    SetLineToSetupDirective(ssDefaultUserInfoSerial);
     CheckConst(SetupHeader.DefaultUserInfoSerial, SetupHeader.MinVersion, []);
     if not DiskSpanning then begin
       DiskSliceSize := 4200000000; { Windows cannot run .exe's of 4 GB or more }
@@ -8584,44 +8635,46 @@ begin
         VersionInfoProductTextVersion := VersionInfoProductVersionOriginalValue;
     end;
     if (SetupEncryptionHeader.EncryptionUse <> euNone) and (Password = '') then begin
-      LineNumber := SetupDirectiveLines[ssEncryption];
+      SetLineToSetupDirective(ssEncryption);
       AbortCompileFmt(SCompilerEntryMissing2, ['Setup', 'Password']);
     end;
     if (SetupDirectiveLines[ssSignedUninstaller] = 0) and (SignTools.Count > 0) then
       Include(SetupHeader.Options, shSignedUninstaller);
     if (SetupLdrArchitecture = slaNone) and
-       ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then
+       ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then begin
+      SetLineToSetupDirective(ssUseSetupLdr);
       AbortCompile(SCompilerNoSetupLdrSignError);
-    LineNumber := SetupDirectiveLines[ssCreateUninstallRegKey];
+    end;
+    SetLineToSetupDirective(ssCreateUninstallRegKey);
     CheckCodeParameter('CreateUninstallRegKey', SetupHeader.CreateUninstallRegKey, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUninstallable];
+    SetLineToSetupDirective(ssUninstallable);
     CheckCodeParameter('Uninstallable', SetupHeader.Uninstallable, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUsePreviousAppDir];
+    SetLineToSetupDirective(ssUsePreviousAppDir);
     CheckCodeParameter('UsePreviousAppDir', SetupHeader.UsePreviousAppDir, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUsePreviousGroup];
+    SetLineToSetupDirective(ssUsePreviousGroup);
     CheckCodeParameter('UsePreviousGroup', SetupHeader.UsePreviousGroup, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUsePreviousSetupType];
+    SetLineToSetupDirective(ssUsePreviousSetupType);
     CheckCodeParameter('UsePreviousSetupType', SetupHeader.UsePreviousSetupType, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUsePreviousTasks];
+    SetLineToSetupDirective(ssUsePreviousTasks);
     CheckCodeParameter('UsePreviousTasks', SetupHeader.UsePreviousTasks, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssUsePreviousUserInfo];
+    SetLineToSetupDirective(ssUsePreviousUserInfo);
     CheckCodeParameter('UsePreviousUserInfo', SetupHeader.UsePreviousUserInfo, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssChangesEnvironment];
+    SetLineToSetupDirective(ssChangesEnvironment);
     CheckCodeParameter('ChangesEnvironment', SetupHeader.ChangesEnvironment, cpkDirectiveCheck);
-    LineNumber := SetupDirectiveLines[ssChangesAssociations];
+    SetLineToSetupDirective(ssChangesAssociations);
     CheckCodeParameter('ChangesAssociations', SetupHeader.ChangesAssociations, cpkDirectiveCheck);
     if Output and (OutputDir = '') then begin
-      LineNumber := SetupDirectiveLines[ssOutputDir];
+      SetLineToSetupDirective(ssOutputDir);
       AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
     end;
     if (Output and (OutputBaseFileName = '')) or (PathLastDelimiter(BadFileNameChars + '\', OutputBaseFileName) <> 0) then begin
-      LineNumber := SetupDirectiveLines[ssOutputBaseFileName];
+      SetLineToSetupDirective(ssOutputBaseFileName);
       AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputBaseFileName']);
     end else if OutputBaseFileName = 'setup' then { Warn even if Output is False }
       WarningsList.Add(SCompilerOutputBaseFileNameSetup);
     if (SetupDirectiveLines[ssOutputManifestFile] <> 0) and
        ((Output and (OutputManifestFile = '')) or (PathLastDelimiter(BadFilePathChars, OutputManifestFile) <> 0)) then begin
-      LineNumber := SetupDirectiveLines[ssOutputManifestFile];
+      SetLineToSetupDirective(ssOutputManifestFile);
       AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputManifestFile']);
     end;
     if shAlwaysUsePersonalGroup in SetupHeader.Options then
@@ -8630,7 +8683,7 @@ begin
       if SetupDirectiveLines[ssWizardBackColor] = 0 then
         SetupHeader.WizardBackColor := clWindow
       else if SetupHeader.WizardBackColor = clNone then begin
-        LineNumber := SetupDirectiveLines[ssWizardBackColor];
+        SetLineToSetupDirective(ssWizardBackColor);
         AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'WizardBackColor']);
       end;
     end else if SetupHeader.WizardBackColor = clWindow then
@@ -8639,7 +8692,7 @@ begin
       if SetupDirectiveLines[ssWizardBackColorDynamicDark] = 0 then
         SetupHeader.WizardBackColorDynamicDark := clWindow
       else if SetupHeader.WizardBackColorDynamicDark = clNone then begin
-        LineNumber := SetupDirectiveLines[ssWizardBackColorDynamicDark];
+        SetLineToSetupDirective(ssWizardBackColorDynamicDark);
         AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'WizardBackColorDynamicDark']);
       end;
     end else if SetupHeader.WizardBackColorDynamicDark = clWindow then
@@ -8664,18 +8717,18 @@ begin
     if (SetupHeader.MinVersion.NTVersion shr 16 = $0601) and (SetupHeader.MinVersion.NTServicePack < $100) then
       WarningsList.Add(Format(SCompilerMinVersionRecommendation, ['6.1', '6.1sp1']));
 
-    LineNumber := 0;
+    ClearLine;
 
     SourceDir := AddBackslash(PathExpand(SourceDir));
     if not FixedOutputDir then
       OutputDir := PrependSourceDirName(OutputDir);
     OutputDir := RemoveBackslashUnlessRoot(PathExpand(OutputDir));
-    LineNumber := SetupDirectiveLines[ssOutputDir];
+    SetLineToSetupDirective(ssOutputDir);
     if not DirExists(OutputDir) then begin
       AddStatus(Format(SCompilerStatusCreatingOutputDir, [OutputDir]));
       MkDirs(OutputDir);
     end;
-    LineNumber := 0;
+    ClearLine;
     OutputDir := AddBackslash(OutputDir);
 
     if SignedUninstallerDir = '' then
@@ -8699,26 +8752,26 @@ begin
 
     { Read text files }
     if LicenseFile <> '' then begin
-      LineNumber := SetupDirectiveLines[ssLicenseFile];
+      SetLineToSetupDirective(ssLicenseFile);
       AddStatus(Format(SCompilerStatusReadingFile, ['LicenseFile']));
       ReadTextFile(PrependSourceDirName(LicenseFile), -1, LicenseText);
     end;
     if InfoBeforeFile <> '' then begin
-      LineNumber := SetupDirectiveLines[ssInfoBeforeFile];
+      SetLineToSetupDirective(ssInfoBeforeFile);
       AddStatus(Format(SCompilerStatusReadingFile, ['InfoBeforeFile']));
       ReadTextFile(PrependSourceDirName(InfoBeforeFile), -1, InfoBeforeText);
     end;
     if InfoAfterFile <> '' then begin
-      LineNumber := SetupDirectiveLines[ssInfoAfterFile];
+      SetLineToSetupDirective(ssInfoAfterFile);
       AddStatus(Format(SCompilerStatusReadingFile, ['InfoAfterFile']));
       ReadTextFile(PrependSourceDirName(InfoAfterFile), -1, InfoAfterText);
     end;
-    LineNumber := 0;
+    ClearLine;
     CallIdleProc;
 
     { Read main wizard images }
     const IsForcedDark = SetupHeader.WizardDarkStyle = wdsDark;
-    LineNumber := SetupDirectiveLines[ssWizardImageFile];
+    SetLineToSetupDirective(ssWizardImageFile);
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFile']));
     if WizardImageFile <> '' then begin
       if SameText(WizardImageFile, 'compiler:WizModernImage.bmp') then begin
@@ -8749,7 +8802,7 @@ begin
     if (SetupDirectiveLines[ssWizardImageBackColor] = 0) and (SetupDirectiveLines[ssWizardBackImageFile] <> 0) then
       SetupHeader.WizardImageBackColor := clNone;
 
-    LineNumber := SetupDirectiveLines[ssWizardSmallImageFile];
+    SetLineToSetupDirective(ssWizardSmallImageFile);
     AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFile']));
     if WizardSmallImageFile <> '' then begin
       if SameText(WizardSmallImageFile, 'compiler:WizModernSmallImage.bmp') then begin
@@ -8769,17 +8822,17 @@ begin
     if (SetupDirectiveLines[ssWizardSmallImageBackColor] = 0) and (SetupDirectiveLines[ssWizardBackImageFile] <> 0) then
       SetupHeader.WizardSmallImageBackColor := clNone;
 
-    LineNumber := SetupDirectiveLines[ssWizardBackImageFile];
+    SetLineToSetupDirective(ssWizardBackImageFile);
     if LineNumber <> 0 then begin
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardBackImageFile']));
       WizardBackImages := CreateWizardImagesFromFiles('WizardBackImageFile', WizardBackImageFile);
     end;
 
-    LineNumber := 0;
+    ClearLine;
 
     { Read dark dynamic wizard images }
     if SetupHeader.WizardDarkStyle = wdsDynamic then begin
-      LineNumber := SetupDirectiveLines[ssWizardImageFileDynamicDark];
+      SetLineToSetupDirective(ssWizardImageFileDynamicDark);
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardImageFileDynamicDark']));
       if WizardImageFileDynamicDark <> '' then begin
         WizardImagesDynamicDark := CreateWizardImagesFromFiles('WizardImageFileDynamicDark', WizardImageFileDynamicDark);
@@ -8795,7 +8848,7 @@ begin
       if (SetupDirectiveLines[ssWizardImageBackColorDynamicDark] = 0) and (SetupDirectiveLines[ssWizardBackImageFileDynamicDark] <> 0) then
         SetupHeader.WizardImageBackColorDynamicDark := clNone;
 
-      LineNumber := SetupDirectiveLines[ssWizardSmallImageFileDynamicDark];
+      SetLineToSetupDirective(ssWizardSmallImageFileDynamicDark);
       AddStatus(Format(SCompilerStatusReadingFile, ['WizardSmallImageFileDynamicDark']));
       if WizardSmallImageFileDynamicDark <> '' then begin
         WizardSmallImagesDynamicDark := CreateWizardImagesFromFiles('WizardSmallImageFileDynamicDark', WizardSmallImageFileDynamicDark);
@@ -8811,12 +8864,12 @@ begin
       if (SetupDirectiveLines[ssWizardSmallImageBackColorDynamicDark] = 0) and (SetupDirectiveLines[ssWizardBackImageFileDynamicDark] <> 0) then
         SetupHeader.WizardSmallImageBackColorDynamicDark := clNone;
 
-      LineNumber := SetupDirectiveLines[ssWizardBackImageFileDynamicDark];
+      SetLineToSetupDirective(ssWizardBackImageFileDynamicDark);
       if LineNumber <> 0 then begin
         AddStatus(Format(SCompilerStatusReadingFile, ['WizardBackImageFileDynamicDark']));
         WizardBackImagesDynamicDark := CreateWizardImagesFromFiles('WizardBackImageFileDynamicDark', WizardBackImageFileDynamicDark);
       end;
-      LineNumber := 0;
+      ClearLine;
     end;
 
     { Prepare Setup executable & signed uninstaller data }
@@ -8839,7 +8892,7 @@ begin
 
       This means the Unicode compiler has to do an extra phase: following the logic above
       it first determines the final language code page for each language, storing these
-      into an extra list called PreDataList, and then it continues as normal while using
+      into an extra list called PreLangDataList, and then it continues as normal while using
       the final language code page for any conversions needed.
 
       Note: it must avoid caching the .isl files while determining the code pages, since
@@ -8850,16 +8903,16 @@ begin
       ReadDefaultMessages calls EnumMessages for Default.isl's [Messages], with Ext set to -2.
       These messages are stored in DefaultLangData to be used as defaults for missing messages
       later on. EnumLangOptions isn't called, the defaults will (at run-time) be displayed
-      using the code page of the language with the missing messages. EnumMessages for
+      using the code page of the language with the missing messages. EnumCustomMessages for
       Default.isl's [CustomMessages] also isn't called at this point, missing custom messages
       are handled differently.
 
       2. Read [Languages] section and the .isl files the entries reference:
 
       EnumLanguages is called for the script. For each [Languages] entry its parameters
-      are read and for the MessagesFiles parameter ReadMessagesFromFiles is called. For
+      are read and for the MessagesFile parameter ReadMessagesFromFiles is called. For
       each file ReadMessagesFromFiles first calls EnumLangOptions, then EnumMessages for
-      [Messages], and finally another EnumMessages for [CustomMessages], all with Ext set
+      [Messages], and finally EnumCustomMessages for [CustomMessages], all with Ext set
       to the index of the language.
 
       All the [LangOptions] and [Messages] data is stored in single structures per language,
@@ -8881,7 +8934,7 @@ begin
       Note this is just like the script creator creating an entry for Default.isl.
 
       ReadMessagesFromScript then first calls EnumLangOptions, then EnumMessages for
-      [Messages], and finally another EnumMessages for [CustomMessages] for the script.
+      [Messages], and finally EnumCustomMessages for [CustomMessages] for the script.
       Note this is just like ReadMessagesFromFiles does for files, except that Ext is set
       to -1. This causes it to accept language identifiers ('en.LanguageCodePage=...'):
       if the identifier is set the read data is stored only for that language in the
@@ -9137,7 +9190,7 @@ begin
               begin
                UpdateIconsAndStyle(ExeFilename, uisfSetupLdr, PrependSourceDirName(SetupIconFilename), SetupHeader.WizardDarkStyle, '', '', OnUpdateIconsAndStyle);
               end);
-            LineNumber := 0;
+            ClearLine;
           end;
 
           WithRetries(False, ExeFilename,

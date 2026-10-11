@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ChineseSimplifiedIDETranslations: array [0..1015] of TTranslationPair = (
+  ChineseSimplifiedIDETranslations: array [0..1012] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '命令行用法：'),
     (English: 'Examples:'; Localized: '示例：'),
     (English: 'script file'; Localized: '脚本文件'),
@@ -234,6 +234,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: '打开文件时出错。是否将其从列表中移除？'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: '%1 文件中的文本已更改。%n%n您想要保存更改吗？'),
     (English: 'Please stop the compile process before performing this command.'; Localized: '请先停止编译，然后再执行此命令。'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: '%1 文件已在源代码编辑器外部被修改，但在编译进行期间无法重新加载。'),
     (English: 'A compile is already in progress.'; Localized: '编译已在进行中。'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: '%1 文件中的文本已更改，必须在编译前保存。%n%n是否保存更改并继续？'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: '您想要在编译前保存脚本吗？%n%n如果您选择“否”，编译好的安装程序默认将放置在您的“我的文档”文件夹中。'),
@@ -249,6 +250,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: '%1 文件已在源代码编辑器外部被修改。您可能需要重新加载它。'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: '%1 文件已在源代码编辑器外部被修改。%n%n您想要重新加载该文件吗？'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: '%1 文件已在源代码编辑器外部被修改，同时在源代码编辑器中也进行了更改。%n%n您想要重新加载该文件并丢失在源代码编辑器中所做的更改吗？'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: '%1 文件已在源代码编辑器外部被修改，即将与其 %3 文件一起重新加载。%n%n%3 文件 %2 中的文本已更改。%n%n您想要保存更改吗？'),
     (English: 'File not opened.'; Localized: '文件未打开。'),
     (English: 'Go to Line'; Localized: '转到行'),
     (English: 'Line number:'; Localized: '行号：'),
@@ -273,7 +275,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: '无法获取%1的退出代码（%2 失败）'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1仍在运行；无法获取退出代码'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: '请先停止正在运行的%1进程，然后再执行此命令。'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: '%2 文件已在源代码编辑器外部被修改，但在%1进程运行期间无法重新加载。'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: '此命令将使调试器与正在运行的%1进程分离。是否继续？'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: '%2 文件已在源代码编辑器外部被修改，即将重新加载。%n%n这将使调试器与正在运行的%1进程分离。是否继续？'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: '您所做的更改在重新编译之前不会生效。%n%n仍要继续运行吗？'),
     (English: 'A pause is already pending.'; Localized: '已有一个暂停请求待处理。'),
     (English: 'No code was generated for the current line.'; Localized: '未为当前行生成任何代码。'),
@@ -716,7 +720,6 @@ const
     (English: 'Identifier expected'; Localized: '应为标识符'),
     (English: 'Invalid binary value'; Localized: '无效的二进制值'),
     (English: 'Invalid stream format'; Localized: '无效的流格式'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '“%s”是无效的掩码，位置 (%d)'),
     (English: '''''%s'''' is not a valid component name'; Localized: '“%s”不是有效的组件名称'),
     (English: 'Invalid property value'; Localized: '属性值无效'),
     (English: 'Invalid property path'; Localized: '无效的属性路径'),
@@ -757,12 +760,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: '参数 %s 不能为 nil'),
     (English: 'Parameter %s cannot be a negative value'; Localized: '参数 %s 不能为负值'),
     (English: 'Invalid characters in path'; Localized: '路径中包含无效字符'),
-    (English: 'Invalid characters in search pattern'; Localized: '搜索模式中包含无效字符'),
-    (English: 'Path is empty'; Localized: '路径为空'),
-    (English: 'Search pattern is empty'; Localized: '搜索模式为空'),
-    (English: 'The specified path is too long'; Localized: '指定的路径太长'),
-    (English: 'The specified path was not found'; Localized: '未找到指定的路径'),
-    (English: 'The path format is not supported'; Localized: '不支持该路径格式'),
     (English: 'No help viewer that supports filters'; Localized: '没有支持筛选器的帮助查看器'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: '字符串索引超出范围 (%d)。必须 >= %d 且 <= %d'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: '无效的 UTF32 字符值。必须 >= 0 且 <= $10FFFF，不包括代理项对范围'),

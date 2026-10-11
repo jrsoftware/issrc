@@ -20,9 +20,9 @@ const
 var
   ISCmplrLibrary: HMODULE;
 
-{ The ISDllCompileScript function begins compilation of a script. See the above
-  description of the TCompileScriptParams record. Return value is one of the
-  isce* constants. }
+{ The ISDllCompileScript function begins compilation of a script. See the
+  description of the TCompileScriptParamsEx record in Shared.CompilerInt.Struct.
+  Return value is one of the isce* constants. }
   ISDllCompileScript: function(const Params: TCompileScriptParamsEx): Integer; stdcall;
 
 { The ISDllGetVersion returns a pointer to a TCompilerVersionInfo record which

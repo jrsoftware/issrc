@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..1015] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..1012] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -234,6 +234,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: 'ファイルを開くときにエラーが発生しました。リストから削除しますか？'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: '%1 ファイルのテキストが変更されています。%n%n変更を保存しますか？'),
     (English: 'Please stop the compile process before performing this command.'; Localized: 'このコマンドを実行する前に、コンパイルプロセスを停止してください。'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: '%1 ファイルがソースエディター外で変更されましたが、コンパイルプロセスの実行中は再読み込みできません。'),
     (English: 'A compile is already in progress.'; Localized: 'コンパイルは既に実行中です。'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: '%1 ファイルのテキストが変更されているため、コンパイル前に保存する必要があります。%n%n変更を保存して続行しますか？'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: 'コンパイル前にスクリプトを保存しますか？%n%n「いいえ」を選択すると、コンパイルされたインストーラーは既定でマイ ドキュメントフォルダーの下に配置されます。'),
@@ -249,6 +250,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: '%1 ファイルがソースエディター外で変更されました。再読み込みすることをお勧めします。'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: '%1 ファイルがソースエディター外で変更されました。%n%nファイルを再読み込みしますか？'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: '%1 ファイルがソースエディター外で変更されました。ソースエディター内でも変更が行われています。%n%nファイルを再読み込みして、ソースエディターで行った変更を破棄しますか？'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: '%1 ファイルがソースエディター外で変更されており、まもなくその %3 ファイルと共に再読み込みされます。%n%n%3 ファイル %2 のテキストが変更されています。%n%n変更を保存しますか？'),
     (English: 'File not opened.'; Localized: 'ファイルが開かれていません。'),
     (English: 'Go to Line'; Localized: '行へ移動'),
     (English: 'Line number:'; Localized: '行番号:'),
@@ -273,7 +275,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: '%1 の終了コードを取得できません (%2 が失敗しました)'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1 はまだ実行中のため、終了コードを取得できません'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: 'このコマンドを実行する前に、実行中の %1 プロセスを停止してください。'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: '%2 ファイルがソースエディター外で変更されましたが、%1 プロセスの実行中は再読み込みできません。'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: 'このコマンドは、実行中の %1 プロセスからデバッガーを切り離します。続行しますか？'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: '%2 ファイルがソースエディター外で変更されており、まもなく再読み込みされます。%n%nこれにより、実行中の %1 プロセスからデバッガーが切り離されます。続行しますか？'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: '行った変更は、再コンパイルするまで反映されません。%n%nこのまま実行を続行しますか？'),
     (English: 'A pause is already pending.'; Localized: '一時停止は既に保留中です。'),
     (English: 'No code was generated for the current line.'; Localized: '現在の行に対して生成されたコードはありません。'),
@@ -716,7 +720,6 @@ const
     (English: 'Identifier expected'; Localized: '識別子が必要です'),
     (English: 'Invalid binary value'; Localized: '無効なバイナリ値'),
     (English: 'Invalid stream format'; Localized: '無効なストリーム形式'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '''%s'' は (%d) で無効なマスクです'),
     (English: '''''%s'''' is not a valid component name'; Localized: '''''%s'''' は有効なコンポーネント名ではありません'),
     (English: 'Invalid property value'; Localized: '無効なプロパティ値'),
     (English: 'Invalid property path'; Localized: '無効なプロパティ パス'),
@@ -757,12 +760,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: 'パラメーター %s を nil にすることはできません'),
     (English: 'Parameter %s cannot be a negative value'; Localized: 'パラメーター %s を負の値にすることはできません'),
     (English: 'Invalid characters in path'; Localized: 'パスに無効な文字が含まれています'),
-    (English: 'Invalid characters in search pattern'; Localized: '検索パターンに無効な文字が含まれています'),
-    (English: 'Path is empty'; Localized: 'パスが空です'),
-    (English: 'Search pattern is empty'; Localized: '検索パターンが空です'),
-    (English: 'The specified path is too long'; Localized: '指定されたパスが長すぎます'),
-    (English: 'The specified path was not found'; Localized: '指定されたパスが見つかりませんでした'),
-    (English: 'The path format is not supported'; Localized: 'パスの形式はサポートされていません'),
     (English: 'No help viewer that supports filters'; Localized: 'フィルターをサポートするヘルプ ビューアーがありません'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: '文字列インデックスが範囲外です (%d)。  %d 以上 %d 以下である必要があります'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: '無効な UTF32 文字値です。  0 以上 $10FFFF 以下である必要があります (サロゲート ペアの範囲を除く)'),

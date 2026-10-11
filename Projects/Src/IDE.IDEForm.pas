@@ -166,7 +166,7 @@ end;
 
 function TIDEForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
 begin
-  { Same code as TSetupForm.CalculateButtonWidth }
+  { Also see TSetupForm.CalculateButtonWidthWithExtraWidths }
   Result := ToCurrentPPI(75);
   { Increase the button size if there are unusually long button captions }
   const DC = GetDC(0);

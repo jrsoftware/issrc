@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ItalianIDETranslations: array [0..1015] of TTranslationPair = (
+  ItalianIDETranslations: array [0..1012] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Uso della riga di comando:'),
     (English: 'Examples:'; Localized: 'Esempi:'),
     (English: 'script file'; Localized: 'file di script'),
@@ -235,6 +235,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: 'Si è verificato un errore durante l''apertura del file. Vuoi rimuoverlo dall''elenco?'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: 'Il testo nel file %1 è stato modificato.%n%nVuoi salvare le modifiche?'),
     (English: 'Please stop the compile process before performing this command.'; Localized: 'Interrompi il processo di compilazione prima di eseguire questo comando.'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: 'Il file %1 è stato modificato all''esterno dell''editor, ma non può essere ricaricato mentre il processo di compilazione è in esecuzione.'),
     (English: 'A compile is already in progress.'; Localized: 'Una compilazione è già in corso.'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: 'Il testo nel file %1 è stato modificato e deve essere salvato prima della compilazione.%n%nVuoi salvare le modifiche e continuare?'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: 'Vuoi salvare lo script prima della compilazione?%n%nSe rispondi No, l''installazione compilata sarà creata per impostazione predefinita nella cartella Documenti.'),
@@ -250,6 +251,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: 'Il file %1 è stato modificato all''esterno dell''editor. Potresti volerlo ricaricare.'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: 'Il file %1 è stato modificato all''esterno dell''editor.%n%nVuoi ricaricare il file?'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: 'Il file %1 è stato modificato all''esterno dell''editor. Sono state fatte modifiche anche nell''editor.%n%nVuoi ricaricare il file e perdere le modifiche fatte nell''editor?'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: 'Il file %1 è stato modificato all''esterno dell''editor e sta per essere ricaricato, insieme ai relativi file %3.%n%nIl testo nel file %3 %2 è stato modificato.%n%nVuoi salvare le modifiche?'),
     (English: 'File not opened.'; Localized: 'File non aperto.'),
     (English: 'Go to Line'; Localized: 'Vai alla riga'),
     (English: 'Line number:'; Localized: 'Numero di riga:'),
@@ -274,7 +276,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: 'Impossibile ottenere il codice di uscita di %1 (la funzione %2 non è riuscita)'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1 è ancora in esecuzione; impossibile ottenere il codice di uscita'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: 'Interrompi il processo %1 in esecuzione prima di eseguire questo comando.'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: 'Il file %2 è stato modificato all''esterno dell''editor, ma non può essere ricaricato mentre il processo %1 è in esecuzione.'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: 'Questo comando scollegherà il debugger dal processo %1 in esecuzione. Vuoi continuare?'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: 'Il file %2 è stato modificato all''esterno dell''editor e sta per essere ricaricato.%n%nIn questo modo il debugger verrà scollegato dal processo %1 in esecuzione. Vuoi continuare?'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: 'Le modifiche fatte non avranno effetto fino alla prossima compilazione.%n%nVuoi continuare l''esecuzione comunque?'),
     (English: 'A pause is already pending.'; Localized: 'Una pausa è già in attesa.'),
     (English: 'No code was generated for the current line.'; Localized: 'Nessun codice è stato generato per la riga attuale.'),
@@ -717,7 +721,6 @@ const
     (English: 'Identifier expected'; Localized: 'È previsto un identificatore'),
     (English: 'Invalid binary value'; Localized: 'Valore binario non valido'),
     (English: 'Invalid stream format'; Localized: 'Formato del flusso non valido'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '''%s'' è una maschera non valida alla posizione (%d)'),
     (English: '''''%s'''' is not a valid component name'; Localized: '''''%s'''' non è un nome di componente valido'),
     (English: 'Invalid property value'; Localized: 'Valore della proprietà non valido'),
     (English: 'Invalid property path'; Localized: 'Percorso della proprietà non valido'),
@@ -758,12 +761,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: 'Il parametro %s non può essere nil'),
     (English: 'Parameter %s cannot be a negative value'; Localized: 'Il parametro %s non può essere un valore negativo'),
     (English: 'Invalid characters in path'; Localized: 'Caratteri non validi nel percorso'),
-    (English: 'Invalid characters in search pattern'; Localized: 'Caratteri non validi nel criterio di ricerca'),
-    (English: 'Path is empty'; Localized: 'Il percorso è vuoto'),
-    (English: 'Search pattern is empty'; Localized: 'Il criterio di ricerca è vuoto'),
-    (English: 'The specified path is too long'; Localized: 'Il percorso specificato è troppo lungo'),
-    (English: 'The specified path was not found'; Localized: 'Impossibile trovare il percorso specificato'),
-    (English: 'The path format is not supported'; Localized: 'Il formato del percorso non è supportato'),
     (English: 'No help viewer that supports filters'; Localized: 'Nessun visualizzatore della Guida che supporti i filtri'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: 'Indice della stringa fuori dall''intervallo (%d).  Deve essere >= %d e <= %d'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: 'Valore di carattere UTF32 non valido.  Deve essere >= 0 e <= $10FFFF, esclusi gli intervalli delle coppie di surrogati'),

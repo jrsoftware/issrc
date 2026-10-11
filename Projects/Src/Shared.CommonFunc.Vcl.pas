@@ -14,7 +14,7 @@ unit Shared.CommonFunc.Vcl;
 interface
 
 uses
-  Windows, Messages, SysUtils, Forms, Graphics, Controls, StdCtrls, Classes;
+  Windows, Messages, SysUtils, Forms, Graphics, Controls, StdCtrls;
 
 type
   TWindowDisabler = class
@@ -65,9 +65,8 @@ implementation
 {$IFEND}
 
 uses
-  DwmApi, Consts, PathFunc, Themes,
-  {$IFDEF USETASKDIALOGFORM} CommCtrl, Setup.TaskDialogForm, {$ENDIF}
-  {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF}
+  DwmApi, PathFunc, Themes,
+  {$IFDEF USETASKDIALOGFORM} CommCtrl, Setup.TaskDialogForm, Setup.InstFunc, {$ENDIF}
   Shared.CommonFunc;
 
 var

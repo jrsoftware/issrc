@@ -13,7 +13,6 @@
    -Add support for overwriting read-only files by removing the read-only attribute instead of always deleting the file
    -Add option to disable terminal checking
    -Add option to disable path normalization to allow custom implementation by host
-   -Fix mainW to close the output file when writing to it fails
    Otherwise unchanged */
 
 #include "Precomp.h"
@@ -1225,8 +1224,6 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
               PrintError_WRes("cannot write output file", wres);
               resWRes = wres;
               res = SZ_ERROR_FAIL;
-              File_Close(&outFile);
-              break;
             }
           }
 
@@ -1239,6 +1236,8 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
             FILETIME *ctimePtr = NULL;
             #endif
 
+            if (res == SZ_OK)
+            {
             if (SzBitWithVals_Check(&db.MTime, i))
             {
               const CNtfsFileTime *t = &db.MTime.Vals[i];
@@ -1259,6 +1258,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
             if (mtimePtr || ctimePtr)
               SetFileTime(outFile.handle, ctimePtr, NULL, mtimePtr);
             #endif
+            }
           
             {
               const WRes wres = File_Close(&outFile);
@@ -1267,9 +1267,10 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
                 PrintError_WRes("cannot close output file", wres);
                 resWRes = wres;
                 res = SZ_ERROR_FAIL;
-                break;
               }
             }
+            if (res != SZ_OK)
+              break;
 
             #ifndef USE_WINDOWS_FILE
             #ifdef _WIN32

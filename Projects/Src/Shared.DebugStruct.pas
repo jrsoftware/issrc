@@ -2,7 +2,7 @@ unit Shared.DebugStruct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit Shared.DebugStruct;
 interface
 
 uses
-  Windows, Messages, SysUtils;
+  Windows, Messages;
 
 const
   { Debug client -> debugger messages }

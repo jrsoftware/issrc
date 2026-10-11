@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  KoreanIDETranslations: array [0..1015] of TTranslationPair = (
+  KoreanIDETranslations: array [0..1012] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '명령줄 사용법:'),
     (English: 'Examples:'; Localized: '사용 예:'),
     (English: 'script file'; Localized: '스크립트 파일'),
@@ -234,6 +234,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: '파일을 여는 동안 오류가 발생했습니다. 목록에서 제거하시겠습니까?'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: '%1 파일의 텍스트가 변경되었습니다.%n%n변경 내용을 저장하시겠습니까?'),
     (English: 'Please stop the compile process before performing this command.'; Localized: '이 명령을 수행하기 전에 컴파일 프로세스를 중지하세요.'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: '%1 파일이 소스 편집기 외부에서 수정되었지만, 컴파일 프로세스가 실행 중일 때는 다시 로드할 수 없습니다.'),
     (English: 'A compile is already in progress.'; Localized: '컴파일이 이미 진행 중입니다.'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: '%1 파일의 텍스트가 변경되었으며 컴파일하기 전에 저장해야 합니다.%n%n변경 내용을 저장하고 계속하시겠습니까?'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: '컴파일하기 전에 스크립트를 저장하시겠습니까?%n%n아니요를 선택하면 컴파일된 설치 프로그램이 기본적으로 내 문서 폴더 아래에 저장됩니다.'),
@@ -249,6 +250,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: '%1 파일이 소스 편집기 외부에서 수정되었습니다. 다시 로드하는 것이 좋습니다.'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: '%1 파일이 소스 편집기 외부에서 수정되었습니다.%n%n파일을 다시 로드하시겠습니까?'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: '%1 파일이 소스 편집기 외부에서 수정되었습니다. 소스 편집기에서도 변경한 내용이 있습니다.%n%n파일을 다시 로드하고 소스 편집기에서 변경한 내용을 버리시겠습니까?'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: '%1 파일이 소스 편집기 외부에서 수정되었으며 곧 해당 %3 파일과 함께 다시 로드됩니다.%n%n%3 파일 %2의 텍스트가 변경되었습니다.%n%n변경 내용을 저장하시겠습니까?'),
     (English: 'File not opened.'; Localized: '파일이 열리지 않았습니다.'),
     (English: 'Go to Line'; Localized: '줄로 이동'),
     (English: 'Line number:'; Localized: '줄 번호:'),
@@ -273,7 +275,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: '%1 종료 코드를 가져올 수 없습니다 (%2 실패)'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1이 아직 실행 중입니다. 종료 코드를 가져올 수 없습니다'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: '이 명령을 수행하기 전에 실행 중인 %1 프로세스를 중지하세요.'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: '%2 파일이 소스 편집기 외부에서 수정되었지만, %1 프로세스가 실행 중일 때는 다시 로드할 수 없습니다.'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: '이 명령은 실행 중인 %1 프로세스에서 디버거를 분리합니다. 계속하시겠습니까?'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: '%2 파일이 소스 편집기 외부에서 수정되었으며 곧 다시 로드됩니다.%n%n이렇게 하면 실행 중인 %1 프로세스에서 디버거가 분리됩니다. 계속하시겠습니까?'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: '변경한 내용은 다시 컴파일할 때까지 적용되지 않습니다.%n%n그래도 계속 실행하시겠습니까?'),
     (English: 'A pause is already pending.'; Localized: '일시 중지가 이미 보류 중입니다.'),
     (English: 'No code was generated for the current line.'; Localized: '현재 줄에 대해 생성된 코드가 없습니다.'),
@@ -716,7 +720,6 @@ const
     (English: 'Identifier expected'; Localized: '식별자가 필요합니다'),
     (English: 'Invalid binary value'; Localized: '잘못된 이진 값'),
     (English: 'Invalid stream format'; Localized: '잘못된 스트림 형식'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '''%s''은(는) (%d)에서 잘못된 마스크입니다'),
     (English: '''''%s'''' is not a valid component name'; Localized: '''''%s''''은(는) 올바른 구성 요소 이름이 아닙니다'),
     (English: 'Invalid property value'; Localized: '잘못된 속성 값'),
     (English: 'Invalid property path'; Localized: '잘못된 속성 경로'),
@@ -757,12 +760,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: '매개 변수 %s은(는) nil일 수 없습니다'),
     (English: 'Parameter %s cannot be a negative value'; Localized: '매개 변수 %s은(는) 음수 값일 수 없습니다'),
     (English: 'Invalid characters in path'; Localized: '경로에 잘못된 문자가 있습니다'),
-    (English: 'Invalid characters in search pattern'; Localized: '검색 패턴에 잘못된 문자가 있습니다'),
-    (English: 'Path is empty'; Localized: '경로가 비어 있습니다'),
-    (English: 'Search pattern is empty'; Localized: '검색 패턴이 비어 있습니다'),
-    (English: 'The specified path is too long'; Localized: '지정한 경로가 너무 깁니다'),
-    (English: 'The specified path was not found'; Localized: '지정한 경로를 찾을 수 없습니다'),
-    (English: 'The path format is not supported'; Localized: '경로 형식이 지원되지 않습니다'),
     (English: 'No help viewer that supports filters'; Localized: '필터를 지원하는 도움말 뷰어가 없습니다'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: '문자열 인덱스가 범위를 벗어났습니다 (%d).  >= %d 및 <= %d이어야 합니다'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: '잘못된 UTF32 문자 값입니다.  서로게이트 쌍 범위를 제외하고 >= 0 및 <= $10FFFF이어야 합니다'),

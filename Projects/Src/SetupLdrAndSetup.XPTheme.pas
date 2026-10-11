@@ -2,14 +2,15 @@ unit SetupLdrAndSetup.XPTheme;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Enables themes. Used only by the Setup and SetupLdr projects.
+  Enables themes. Used only by the Setup, SetupCustomStyle and SetupLdr
+  projects.
 
-  Note: XPTheme must be included as the first unit in the program's "uses"
-  clause so that its code runs before any VCL initialization code.
+  Note: XPTheme must be included directly after SafeDLLPath in the program's
+  "uses" clause so that its code runs before any VCL initialization code.
 }
 
 interface

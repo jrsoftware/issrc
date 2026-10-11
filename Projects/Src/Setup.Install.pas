@@ -147,7 +147,7 @@ var
     Result := I = 0;
   end;
 
-  { Also see Setup.MainFunc.pas }
+  { Also see Setup.MainFunc }
   function ExistingInstallationAt(const RegView: TRegView; const RootKey: HKEY): Boolean;
   var
     K: HKEY;
@@ -358,7 +358,7 @@ begin
       SetDWordValue(H2, 'EstimatedSize', DWORD(EstimatedSize));
     end;
 
-    { Also see SetCodePreviousData in Setup.ScriptFunc.HelperFunc.pas }
+    { Also see SetCodePreviousData in Setup.ScriptFunc.HelperFunc }
     if CodeRunner <> nil then begin
       try
         CodeRunner.RunProcedures('RegisterPreviousData', [Integer(H2)], False);
@@ -651,12 +651,13 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
   function AskOverwrite(const DestFile, Instruction, Caption: string; const ButtonLabels: array of String;
     const VerificationText: String; const Typ: TMsgBoxType; const Default, Overwrite: Integer;
     var OverwriteAll: TOverwriteAll): Boolean;
-  var
-    VerificationFlagChecked: BOOL;
   begin
     if OverwriteAll = oaKeep then
       Result := False { The user already said to keep (=not overwrite) all }
     else begin
+      { VerificationFlagChecked is output only but must be initialized anyway,
+        so the value is valid when the message box is suppressed or fails }
+      var VerificationFlagChecked: BOOL := False;
       Result := LoggedTaskDialogMsgBox('', Instruction, DestFile + SNewLine2 + Caption, '',
         Typ, MB_YESNO, ButtonLabels, 0, True, Default, VerificationText, @VerificationFlagChecked) = Overwrite;
       if VerificationFlagChecked then begin
@@ -1546,7 +1547,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
         end;
       until (Failed = '') or
             AbortRetryIgnoreTaskDialogMsgBox(
-              ArchiveFilename + SNewLine2 + SetupMessages[msgErrorExtracting] + SNewLine + Failed,
+              PathConvertSuperToNormal(ArchiveFilename) + SNewLine2 + SetupMessages[msgErrorExtracting] + SNewLine + Failed,
               [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
       if H <> INVALID_HANDLE_VALUE then begin
         try
@@ -1670,7 +1671,7 @@ begin
           until FoundFiles or
                 (foSkipIfSourceDoesntExist in CurFile^.Options) or
                 AbortRetryIgnoreTaskDialogMsgBox(
-                  SetupMessages[msgErrorReadingSource] + SNewLine + AddPeriod(FmtSetupMessage(msgSourceDoesntExist, [SourceWildcard])),
+                  SetupMessages[msgErrorReadingSource] + SNewLine + AddPeriod(FmtSetupMessage(msgSourceDoesntExist, [PathConvertSuperToNormal(SourceWildcard)])),
                   [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreSkipNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]);
           { In case we didn't end up copying all the expected bytes, bump
             the progress bar up to the expected amount }
@@ -2422,7 +2423,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
         Log('Registration failed:' + SNewLine + GetExceptMessage);
         if not NoErrorMessages then
           if not AbortRetryIgnoreTaskDialogMsgBox(
-                   Filename + SNewLine2 + FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage),
+                   PathConvertSuperToNormal(Filename) + SNewLine2 + FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage),
                    [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreIgnoreNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then
             NeedToRetry := True;
       end;
@@ -2457,7 +2458,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
         Log('Registration failed:' + SNewLine + GetExceptMessage);
         if not NoErrorMessages then
           if not AbortRetryIgnoreTaskDialogMsgBox(
-                   Filename + SNewLine2 + FmtSetupMessage1(msgErrorRegisterTypeLib, GetExceptMessage),
+                   PathConvertSuperToNormal(Filename) + SNewLine2 + FmtSetupMessage1(msgErrorRegisterTypeLib, GetExceptMessage),
                    [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgFileAbortRetryIgnoreIgnoreNotRecommended], SetupMessages[msgAbortRetryIgnoreCancel]]) then
             NeedToRetry := True;
       end;
@@ -2726,9 +2727,6 @@ begin
   Succeeded := False;
   Log('Starting the installation process.');
   SetCurrentDir(WinSystemDir);
-  var InstallFilesSize, AfterInstallFilesSize: Int64;
-  CalcFilesSize(InstallFilesSize, AfterInstallFilesSize);
-  InitProgressGauge(InstallFilesSize);
   var RegisterFilesList: TList := nil;
   const UninstLog = TSetupUninstallLog.Create;
   try
@@ -2738,15 +2736,19 @@ begin
     var UninstLogCleared := False;
     var UninstallTempExeFilename, UninstallDataFilename, UninstallMsgFilename: String; { There's also UninstallExeFilename but it's a global }
     try
-      { Get AppId, UninstallRegKeyBaseName, and Uninstallable now so the user
-        can't change them while we're installing }
+      const Uninstallable = EvalDirectiveCheck(SetupHeader.Uninstallable);
+      var InstallFilesSize, AfterInstallFilesSize: Int64;
+      CalcFilesSize(Uninstallable, InstallFilesSize, AfterInstallFilesSize);
+      InitProgressGauge(InstallFilesSize);
+
+      { Get AppId and UninstallRegKeyBaseName now so the user can't change them
+        while we're installing }
       const ExpandedAppId = ExpandConst(SetupHeader.AppId);
       if ExpandedAppId = '' then
         InternalError('Failed to get a non empty installation "AppId"');
       if TUninstallLog.WriteSafeHeaderString(nil, ExpandedAppId, 0) > 128 then
         InternalError('"AppId" cannot exceed 128 bytes (encoded)');
       const UninstallRegKeyBaseName = GetUninstallRegKeyBaseName(ExpandedAppId);
-      const Uninstallable = EvalDirectiveCheck(SetupHeader.Uninstallable);
 
       { Init }
       UninstLog.InstallMode64Bit := Is64BitInstallMode;

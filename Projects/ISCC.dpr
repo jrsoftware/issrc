@@ -14,7 +14,8 @@ program ISCC;
 { For debugging purposes, remove the 'x' to have it link the compiler code
   into this program and not depend on ISCmplr.dll. You will also need to add the
   ..\Components and Src folders to the Delphi Compiler Search path in the project
-  options. Also see IDE.MainForm's STATICCOMPILER and Compiler.Compile's STATICPREPROC. }
+  options. Also see IDE.MainForm's STATICCOMPILER and Compiler.SetupCompiler's
+  STATICPREPROC. }
 
 uses
   SafeDLLPath in '..\Components\SafeDLLPath.pas',
@@ -45,6 +46,10 @@ uses
 
 {$R Res\ConsoleApp.manifest.res}
 {$R Res\ISCC.versionandicon.res}
+{$IFDEF STATICCOMPILER}
+{$R Res\ISCmplr.images.res}
+{$R Res\ISCmplr.images.dark.res}
+{$ENDIF}
 
 type
   PScriptLine = ^TScriptLine;
@@ -153,10 +158,10 @@ begin
   end;
 end;
 
-procedure WriteError(const S: String);
+procedure WriteError(const S: String; const Filename: String = '');
 begin
   if Options.MessagesJsonl then
-    WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', S, True, False)
+    WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, Filename, S, True, False)
   else
     WriteStdErr(S, True);
 end;
@@ -739,16 +744,21 @@ begin
   ProgressPoint.X := -1;
   ExitCode := 0;
   try
-    if Options.ScriptFilename <> '<stdin>' then
-      F := TTextFileReader.Create(Options.ScriptFilename, fdOpenExisting, faRead, fsRead)
-    else
-      F := TTextFileReader.CreateWithExistingHandle(GetStdHandle(STD_INPUT_HANDLE));
-    if not F.CanDetectUTF8WithoutBOM then
-      F.CodePage := CP_UTF8; { Assume UTF-8 }
     try
-      ReadScriptLines(F);
-    finally
-      F.Free;
+      if Options.ScriptFilename <> '<stdin>' then
+        F := TTextFileReader.Create(Options.ScriptFilename, fdOpenExisting, faRead, fsRead)
+      else
+        F := TTextFileReader.CreateWithExistingHandle(GetStdHandle(STD_INPUT_HANDLE));
+      if not F.CanDetectUTF8WithoutBOM then
+        F.CodePage := CP_UTF8; { Assume UTF-8 }
+      try
+        ReadScriptLines(F);
+      finally
+        F.Free;
+      end;
+    except
+      WriteError(GetExceptMessage, Options.ScriptFilename);
+      Halt(2);
     end;
 
     if not Options.Quiet then begin

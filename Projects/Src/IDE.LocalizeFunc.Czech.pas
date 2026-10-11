@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..1015] of TTranslationPair = (
+  CzechIDETranslations: array [0..1012] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -234,6 +234,7 @@ const
     (English: 'There was an error opening the file. Remove it from the list?'; Localized: 'Při otevírání souboru došlo k chybě. Odebrat jej ze seznamu?'),
     (English: 'The text in the %1 file has changed.%n%nDo you want to save the changes?'; Localized: 'Text v souboru %1 byl změněn.%n%nChcete změny uložit?'),
     (English: 'Please stop the compile process before performing this command.'; Localized: 'Před provedením tohoto příkazu zastavte proces kompilace.'),
+    (English: 'The %1 file has been modified outside of the source editor, but cannot be reloaded while the compile process is running.'; Localized: 'Soubor %1 byl změněn mimo editor zdrojového kódu, ale nelze jej znovu načíst, dokud běží proces kompilace.'),
     (English: 'A compile is already in progress.'; Localized: 'Kompilace již probíhá.'),
     (English: 'The text in the %1 file has changed and must be saved before compiling.%n%nSave the changes and continue?'; Localized: 'Text v souboru %1 byl změněn a před kompilací musí být uložen.%n%nUložit změny a pokračovat?'),
     (English: 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.'; Localized: 'Chcete skript před kompilací uložit?%n%nPokud odpovíte Ne, zkompilovaná instalace bude ve výchozím nastavení umístěna do složky Dokumenty.'),
@@ -249,6 +250,7 @@ const
     (English: 'The %1 file has been modified outside of the source editor. You might want to reload it.'; Localized: 'Soubor %1 byl změněn mimo editor zdrojového kódu. Možná jej budete chtít znovu načíst.'),
     (English: 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?'; Localized: 'Soubor %1 byl změněn mimo editor zdrojového kódu.%n%nChcete soubor znovu načíst?'),
     (English: 'The %1 file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?'; Localized: 'Soubor %1 byl změněn mimo editor zdrojového kódu. Změny byly provedeny také v editoru zdrojového kódu.%n%nChcete soubor znovu načíst a přijít o změny provedené v editoru zdrojového kódu?'),
+    (English: 'The %1 file has been modified outside of the source editor and is about to be reloaded, together with its %3 files.%n%nThe text in the %3 file %2 has changed.%n%nDo you want to save the changes?'; Localized: 'Soubor %1 byl změněn mimo editor zdrojového kódu a bude nyní znovu načten spolu se svými soubory %3.%n%nText v souboru %3 %2 byl změněn.%n%nChcete změny uložit?'),
     (English: 'File not opened.'; Localized: 'Soubor nebyl otevřen.'),
     (English: 'Go to Line'; Localized: 'Přejít na řádek'),
     (English: 'Line number:'; Localized: 'Číslo řádku:'),
@@ -273,7 +275,9 @@ const
     (English: 'Unable to get %1 exit code (%2 failed)'; Localized: 'Nelze získat návratový kód %1 (%2 selhalo)'),
     (English: '%1 is still running; can''t get exit code'; Localized: '%1 stále běží; nelze získat návratový kód'),
     (English: 'Please stop the running %1 process before performing this command.'; Localized: 'Před provedením tohoto příkazu zastavte běžící proces %1.'),
+    (English: 'The %2 file has been modified outside of the source editor, but cannot be reloaded while the %1 process is running.'; Localized: 'Soubor %2 byl změněn mimo editor zdrojového kódu, ale nelze jej znovu načíst, dokud běží proces %1.'),
     (English: 'This command will detach the debugger from the running %1 process. Continue?'; Localized: 'Tento příkaz odpojí ladicí program od běžícího procesu %1. Pokračovat?'),
+    (English: 'The %2 file has been modified outside of the source editor and is about to be reloaded.%n%nThis will detach the debugger from the running %1 process. Continue?'; Localized: 'Soubor %2 byl změněn mimo editor zdrojového kódu a bude nyní znovu načten.%n%nTím se ladicí program odpojí od běžícího procesu %1. Pokračovat?'),
     (English: 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?'; Localized: 'Provedené změny se projeví až po opětovné kompilaci.%n%nPřesto pokračovat ve spuštění?'),
     (English: 'A pause is already pending.'; Localized: 'Pozastavení již čeká na provedení.'),
     (English: 'No code was generated for the current line.'; Localized: 'Pro aktuální řádek nebyl vygenerován žádný kód.'),
@@ -715,7 +719,6 @@ const
     (English: 'Identifier expected'; Localized: 'Očekáván identifikátor'),
     (English: 'Invalid binary value'; Localized: 'Neplatná binární hodnota'),
     (English: 'Invalid stream format'; Localized: 'Neplatný formát datového proudu'),
-    (English: '''%s'' is an invalid mask at (%d)'; Localized: '''%s'' je neplatná maska na (%d)'),
     (English: '''''%s'''' is not a valid component name'; Localized: '''''%s'''' není platný název komponenty'),
     (English: 'Invalid property value'; Localized: 'Neplatná hodnota vlastnosti'),
     (English: 'Invalid property path'; Localized: 'Neplatná cesta vlastnosti'),
@@ -756,12 +759,6 @@ const
     (English: 'Parameter %s cannot be nil'; Localized: 'Parametr %s nesmí být nil'),
     (English: 'Parameter %s cannot be a negative value'; Localized: 'Parametr %s nesmí být záporná hodnota'),
     (English: 'Invalid characters in path'; Localized: 'Neplatné znaky v cestě'),
-    (English: 'Invalid characters in search pattern'; Localized: 'Neplatné znaky ve vyhledávacím vzoru'),
-    (English: 'Path is empty'; Localized: 'Cesta je prázdná'),
-    (English: 'Search pattern is empty'; Localized: 'Vyhledávací vzor je prázdný'),
-    (English: 'The specified path is too long'; Localized: 'Zadaná cesta je příliš dlouhá'),
-    (English: 'The specified path was not found'; Localized: 'Zadaná cesta nebyla nalezena'),
-    (English: 'The path format is not supported'; Localized: 'Formát cesty není podporován'),
     (English: 'No help viewer that supports filters'; Localized: 'Žádný prohlížeč nápovědy nepodporuje filtry'),
     (English: 'String index out of range (%d).  Must be >= %d and <= %d'; Localized: 'Index řetězce mimo rozsah (%d).  Musí být >= %d a <= %d'),
     (English: 'Invalid UTF32 character value.  Must be >= 0 and <= $10FFFF, excluding surrogate pair ranges'; Localized: 'Neplatná hodnota znaku UTF32.  Musí být >= 0 a <= $10FFFF, s výjimkou rozsahů náhradních párů'),

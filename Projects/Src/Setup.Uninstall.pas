@@ -18,7 +18,7 @@ implementation
 
 uses
   Windows, SysUtils, Messages, Forms, Themes, Graphics,
-  PathFunc, NewCtrls, UnsignedFunc, FormBackgroundStyleHook,
+  PathFunc, UnsignedFunc, FormBackgroundStyleHook,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Setup.UninstallLog, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, SetupLdrAndSetup.InstFunc, Setup.InstFunc, Shared.Struct,
   Shared.SetupEntFunc, Setup.UninstallProgressForm, Setup.UninstallSharedFileForm,
@@ -272,7 +272,7 @@ begin
 
   { NewParamsForCode will hold all params except automatic internal ones like /SECONDPHASE= and /DEBUGWND=
     Actually currently only needed in the second phase, but setting always anyway
-    Also see Main.InitializeSetup }
+    Also see Setup.MainFunc's InitializeSetup }
   NewParamsForCode.Add(NewParamStr(0));
 
   for I := 1 to NewParamCount do begin
@@ -383,10 +383,10 @@ end;
 
 procedure RunFirstPhase;
 begin
-  { Copy self to a subdirectory of the TEMP directory with a name like
-    _iu14D2N.tmp. The actual uninstallation process must be done from
-    somewhere outside the application directory since EXE's can't delete
-    themselves while they are running. }
+  { Copy self to _unins.tmp in a new subdirectory of the TEMP directory with
+    a name like is-*-uninstall.tmp. The actual uninstallation process must
+    be done from somewhere outside the application directory since EXE's
+    can't delete themselves while they are running. }
   var Wnd: HWND := 0;
   var ProcessHandle: THandle := 0;
   var ShouldDeleteTempDir := True;

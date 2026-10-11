@@ -20,13 +20,13 @@ procedure ScriptClassesLibraryUpdateVars(ScriptInterpreter: TIFPSExec);
 implementation
 
 uses
-  Windows, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage, ExtCtrls, Classes,
+  Windows, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage, Classes,
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
   UIStateForm, PasswordEdit, FolderTreeView, BitmapButton, BitmapImage, NewNotebook, NewCtrls,
   Shared.SetupTypes, Shared.CommonFunc.Vcl,
-  Setup.SetupForm, Setup.MainForm, Setup.WizardForm, Setup.WizardForm.CustomPages, Setup.UninstallProgressForm;
+  Setup.SetupForm, Setup.WizardForm, Setup.WizardForm.CustomPages, Setup.UninstallProgressForm;
 
 procedure TControlParentR(Self: TControl; var T: TWinControl); begin T := Self.Parent; end;
 

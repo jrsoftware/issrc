@@ -1008,7 +1008,7 @@ begin
     Exit(FSectionHeaders[ASectionIndex].Line);
   Result := FirstLine;
   for var L := FirstLine to LastLine do
-    if Trim(FMemo.Lines[L]) <> '' then
+    if FMemo.Lines.RawLines[L].Trim <> '' then
       Exit(L);
 end;
 
