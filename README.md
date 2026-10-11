@@ -134,8 +134,9 @@ ISIDE, it depends on ISCmplr.dll to do the actual compiling.
 
 **ISCmplr** - This is a DLL which is loaded by ISIDE and ISCC to compile
 scripts. The actual compiler code is in Compiler.SetupCompiler.pas. See
-Shared.CompInt.pas for the various structures and function declarations used
-to interface to the DLL.
+Shared.CompilerInt.Struct.pas for the various structures and
+Shared.CompilerInt.pas for the function declarations used to interface to the
+DLL.
 
 **ISPP** - This is a DLL implementing Inno Setup's preprocessor interface.
 
@@ -162,11 +163,11 @@ testing framework. Run **test.bat** to compile and run the tests manually.
 
 How do the projects link together?
 
-- ISIDE, ISCmplr, ISPP, Setup, SetupCustomStyle, and SetupLdr share the unit
-  Shared.Struct.pas. This unit contains various data structures and constants
-  shared by the projects. If Shared.Struct.pas is changed, you usually will need
-  to recompile all these projects and the required targets using the Release64 or
-  Debug64 build group so that everything is in synch.
+- ISIDE, ISCmplr, ISPP, Setup, SetupCustomStyle, SetupLdr, and ISTestTool share
+  the unit Shared.Struct.pas. This unit contains various data structures and
+  constants shared by the projects. If Shared.Struct.pas is changed, you usually
+  will need to recompile all these projects and the required targets using the
+  Release64 or Debug64 build group so that everything is in synch.
 
 - There are more units which are shared between projects. Search the .dpr
   files of the projects if you aren't sure if a project uses a particular
@@ -202,8 +203,8 @@ Source code tips
   ISIDE, instead of the SetupLdr.e32 or .e64 just compiled by Delphi.
 
 - To debug the uninstaller first run Setup.exe to completion with the
-  `/DETACHEDMSG` command-line parameter set. Afterwards copy uninst000.dat and
-  uninst000.msg as setup.dat and setup.msg to the [Projects\Bin] directory in your
+  `/DETACHEDMSG` command-line parameter set. Afterwards copy unins000.dat and
+  unins000.msg as setup.dat and setup.msg to the [Projects\Bin] directory in your
   issrc path. Then open the Setup project and set the command-line parameters to
   `/UNINSTMODE /KEEPEXEDATMSG "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"` and start
   debugging.
@@ -213,7 +214,7 @@ Source code tips
   named InitializeFont.
 
 - A note for those curious: ISIDE creates single exe Setups by first creating
-  the Setup.exe as usual, then concatenating the Setup.0 and Setup-1.bin to the
+  the Setup.exe as usual, then concatenating the Setup-0.bin and Setup-1.bin to the
   end of the Setup.exe, and finally modifying an internal data block in Setup.exe
   so it knows it's in "single exe" form.
 

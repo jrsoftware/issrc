@@ -14,7 +14,7 @@ unit Setup.TaskDialogForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics,
+  Windows, Messages, SysUtils, Classes, Graphics,
   Controls, Forms, Dialogs, WinXPanels, ExtCtrls, StdCtrls,
   NewCtrls, BitmapImage, NewStaticText,
   Setup.SetupForm;
@@ -74,7 +74,7 @@ uses
   CommCtrl, Clipbrd, Themes, ShellAPI,
   UnsignedFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc, Shared.CommonFunc.Vcl,
-  SetupLdrAndSetup.Messages, Setup.WizardForm, Setup.MainFunc;
+  SetupLdrAndSetup.Messages, Setup.MainFunc;
 
 {$R *.dfm}
 

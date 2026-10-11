@@ -2,20 +2,15 @@
 ;
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
-;
-; Note: When translating this text, do not add periods (.) to the end of
-; messages that didn't have them already, because on those messages Inno
-; Setup adds the periods automatically (appending a period would result in
-; two periods being displayed).
 
 ; Created and maintained by Patriccollu di Santa Maria è Sichè, 2011-2026
-; Schedariu di traduzzione in lingua corsa creatu è mantenutu da Patriccollu
+; Schedariu di traduzzione in lingua corsa creatu è mantenutu da Patriccollu di Santa Maria è Sichè, 2011-2026
 ;
 ; Latest update of Corsican translation file is available here:
 ;	https://github.com/jrsoftware/issrc/blob/main/Files/Languages/Corsican.isl
 ;
 ; History of Corsican translation for InnoSetup:
-;	- Updated in 2026 by Patriccollu di Santa Maria è Sichè: June 23rd (7.0.1), June 29th (7.0.1)
+;	- Updated in 2026 by Patriccollu di Santa Maria è Sichè: June 23rd (7.0.1), June 29th (7.0.1), October 10th (7.1.0)
 ;	- Updated in 2025 by Patriccollu di Santa Maria è Sichè: June 6th (6.4.4), June 8th (6.5.0), June 19th (6.5.0)
 ;	- Updated in 2024 by Patriccollu di Santa Maria è Sichè: February 11th (6.3.0), November 18th (6.4.0)
 ;	- Updated in 2020 by Patriccollu di Santa Maria è Sichè: July 1st (6.0.5+), July 25th (6.1.0), November 14th (6.1.2)
@@ -24,6 +19,39 @@
 ;	- Updated on January 3rd, 2013 by Patriccollu di Santa Maria è Sichè for version 5.5.3
 ;	- Updated on August 29th, 2012 by Patriccollu di Santa Maria è Sichè for version 5.5.2
 ;	- Created on September 17th, 2011 by Patriccollu di Santa Maria è Sichè for version 5.1.11
+;
+; Note: When translating this text:
+; - All translations should back-translate to the same meaning.
+; - Do not add to or change the meaning of messages to suit your personal taste.
+; - Do not add or remove sentences, or add or omit information within sentences.
+; - Do not remove these words: all, only, automatically, now, later, may, must, and not.
+; - Do not add periods (.) or colons (:) or ellipses (...) to the end of messages that didn't have them already.
+;   Exception: for languages with their own period character, such as Japanese and Chinese, it was added
+;   to the end of messages as needed.
+; - Do not remove periods or colons or ellipses or question marks from the end of messages.
+;   Exception: Thai and Lao remove trailing periods and question marks.
+; - Do not replace periods with colons. Replacing '...' with '…' is allowed.
+; - Do not add or remove number placeholders (%1, %2, etc.). Changing the order is allowed.
+; - Do not add or remove named placeholders ([name], [name/ver], etc.). Do not replace one with another.
+; - Do not add or remove line breaks (%n).
+; - Do not add accelerators (&) or create collisions. Remove an accelerator only if it cannot be moved to another letter.
+; - Do not add new custom messages to the [CustomMessages] section.
+; - Do not translate comments like these.
+; - Keep AboutSetupNote empty.
+; Before you start, decide how you will translate each of these recurring terms:
+; - Setup, Uninstall (the program), uninstall (the verb), Cannot uninstall,
+;   program, application, component, task,
+;   shortcut, Start Menu, folder, directory, path, location, drive,
+;   existing file, source file, registry, INI entries, README,
+;   computer, Windows, version, administrator, all users, current user,
+;   Downloading files, Extracting files, aborted, corrupted, close (applications), restart,
+;   Select action, try again, anyway, at least,
+;   and the button captions OK, Cancel, Yes, No, Next, Back, Install, Browse, Finish.
+; - When in doubt, use Microsoft Terminology Search from:
+;   https://msit.powerbi.com/view?r=eyJrIjoiODJmYjU4Y2YtM2M0ZC00YzYxLWE1YTktNzFjYmYxNTAxNjQ0IiwidCI6IjcyZjk4OGJmLTg2ZjEtNDFhZi05MWFiLTJkN2NkMDExZGI0NyIsImMiOjV9
+; - Also use Microsoft's Localization Style Guide for your language, from:
+;   https://learn.microsoft.com/en-us/globalization/reference/microsoft-style-guides
+; Removing this section from your translation is allowed, but do not disregard it.
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and

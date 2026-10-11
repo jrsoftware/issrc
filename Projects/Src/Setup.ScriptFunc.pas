@@ -21,7 +21,7 @@ implementation
 uses
   Windows,
   Forms, SysUtils, Classes, Graphics, ActiveX, Generics.Collections, Math,
-  uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapButton, BitmapImage,
+  uPSUtils, PathFunc, ISSigFunc, BrowseFunc, MD5, SHA1, SHA256, BitmapButton, BitmapImage,
   PSStackHelper, UnsignedFunc,
   Shared.Struct, Setup.WizardForm.CustomPages, Setup.MainFunc, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.InstFunc,

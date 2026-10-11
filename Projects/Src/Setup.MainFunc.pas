@@ -106,7 +106,7 @@ var
   UninstallExpandedGroupName, UninstallExpandedLanguage: String;
   UninstallSilent: Boolean;
 
-  { Variables read in from the Setup.0 file }
+  { Variables read in from setup-0.bin, or from EXE }
   SetupEncryptionHeader: TSetupEncryptionHeader;
   SetupHeader: TSetupHeader;
   OrigSetupHeaderWizardBackColor: Integer;
@@ -257,7 +257,7 @@ uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
   ChaCha20, ECDSA, ISSigFunc, NewCtrls, PathFunc, UnsignedFunc, FormBackgroundStyleHook, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
-  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir, {$IFNDEF WIN64} Setup.RedirFunc, {$ENDIF}
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor, Compression.Zstd,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
@@ -368,7 +368,7 @@ begin
   Result := Format('%s\%s_is1', [REGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName]);
 end;
 
-{ Based on FindPreviousData in Setup.WizardForm.pas }
+{ Based on FindPreviousData in Setup.WizardForm }
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
 var
   H: HKEY;
@@ -3046,7 +3046,7 @@ var
     end;
   end;
   
-  { Also see Setup.Install.pas }
+  { Also see Setup.Install }
   function ExistingInstallationAt(const RootKey: HKEY; const SubkeyName: String): Boolean;
   var
     K: HKEY;
@@ -3149,7 +3149,7 @@ begin
   InitializeCommonVars;
 
   { NewParamsForCode will hold all params except automatic internal ones like /SL5= and /DEBUGWND=
-    Also see Uninstall.ProcessCommandLine }
+    Also see Setup.Uninstall's ProcessCommandLine }
   NewParamsForCode.Add(NewParamStr(0));
 
   { Based on SetupLdr or not?

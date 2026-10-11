@@ -2,7 +2,7 @@ unit Setup.UninstallSharedFileForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit Setup.UninstallSharedFileForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, Classes, Graphics, Controls, Forms,
   Setup.SetupForm, StdCtrls, NewStaticText, NewCtrls;
 
 type
@@ -38,7 +38,7 @@ function ExecuteRemoveSharedFileDlg(const Filename: String;
 implementation
 
 uses
-  PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.MainForm;
+  PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs;
 
 {$R *.DFM}
 

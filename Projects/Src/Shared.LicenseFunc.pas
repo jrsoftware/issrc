@@ -47,11 +47,11 @@ function GetLicenseDescription(const Prefix, Separator: String): String;
 implementation
 
 uses
- Windows,
- SysUtils, Classes, DateUtils, NetEncoding, RegularExpressions,
- ECDSA, SHA256, UnsignedFunc,
- {$IFDEF ISIDEPROJ} IDE.Messages, IDE.LocalizeFunc, {$ENDIF}
- Shared.ConfigIniFile, Shared.CommonFunc;
+  Windows,
+  SysUtils, DateUtils, NetEncoding, RegularExpressions,
+  ECDSA, SHA256, UnsignedFunc,
+  {$IFDEF ISIDEPROJ} Classes, Shared.CommonFunc, IDE.Messages, IDE.LocalizeFunc, {$ENDIF}
+  Shared.ConfigIniFile;
 
 var
   License: TLicense;

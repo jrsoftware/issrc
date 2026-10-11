@@ -171,7 +171,7 @@ begin
   end;
 end;
 
-{ IsDotNetDetected }
+{ IsDotNetInstalled }
 
 function IsDotNetInstalled(const RegView: TRegView; const MinVersion: TDotNetVersion; const MinServicePack: DWORD): Boolean;
 
@@ -196,7 +196,7 @@ function IsDotNetInstalled(const RegView: TRegView; const MinVersion: TDotNetVer
       net48: Result := 'v4.8';
       net481: Result := 'v4.8.1';
       else
-        InternalError('IsDotNetDetected: Invalid Version');
+        InternalError('IsDotNetInstalled: Invalid Version');
     end;
   end;
 
@@ -253,7 +253,7 @@ begin
       else if VersionString = 'v4.8.1' then
         RequiredRelease := 533320 // 533325 before Win11 2022 Update
       else
-        InternalError('IsDotNetDetected: Invalid VersionString');
+        InternalError('IsDotNetInstalled: Invalid VersionString');
     end else
       VersionKey := VersionString;
   end;

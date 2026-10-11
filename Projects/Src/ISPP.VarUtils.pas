@@ -13,7 +13,7 @@ unit ISPP.VarUtils;
 interface
 
 uses
-  ISPP.Intf, ISPP.Base, ISPP.Preprocessor;
+  ISPP.Intf, ISPP.Base;
 
 function SimplifyLValue(var Src: TIsppVariant): Boolean;
 procedure MakeRValue(var Src: TIsppVariant);
@@ -84,7 +84,7 @@ begin
     if (Op.AsStr = '') or TryStrToInt64(Op.AsStr, I) then
       MakeInt(Result, I)
     else
-      raise EConvertError.CreateFmt('Cannot convert "%s" to integer', [Op.AsStr])
+      raise EConvertError.CreateFmt(SCannotConvertToInteger, [Op.AsStr])
   else
     if Op.Typ = evNull then
       MakeInt(Result, 0)

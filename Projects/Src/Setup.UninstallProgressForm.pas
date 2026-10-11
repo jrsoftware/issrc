@@ -2,7 +2,7 @@ unit Setup.UninstallProgressForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit Setup.UninstallProgressForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, Classes, Graphics, Controls, Forms,
   Setup.SetupForm, StdCtrls, ExtCtrls, BitmapImage, NewProgressBar, NewStaticText,
   NewNotebook, NewCtrls;
 
@@ -66,7 +66,7 @@ uses
   TaskbarProgressFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, Shared.Struct,
   SetupLdrAndSetup.Messages,
-  Setup.MainForm, Setup.MainFunc, Setup.InstFunc;
+  Setup.MainFunc, Setup.InstFunc;
 
 {$R *.DFM}
 

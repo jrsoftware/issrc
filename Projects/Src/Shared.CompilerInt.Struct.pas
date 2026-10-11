@@ -114,7 +114,7 @@ type
   TCompileScriptParamsEx = record
     Size: Cardinal;       { [in] Set to SizeOf(TCompileScriptParamsEx). }
     CompilerPath: PChar;  { [in] The "compiler:" directory. This is the
-                            directory which contains the *.e32 files. If this
+                            directory which contains the *.e32/64 files. If this
                             is set to NULL, the compiler will use the directory
                             containing the compiler DLL/EXE. }
     SourcePath: PChar;    { [in] The default source directory, and directory to

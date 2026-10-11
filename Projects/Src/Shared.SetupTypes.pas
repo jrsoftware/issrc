@@ -72,9 +72,7 @@ uses
 
 function QuoteStringIfNeeded(const S: String): String;
 { Used internally by StringsToCommaString. Adds quotes around the string if
-  needed, and doubles any embedded quote characters.
-  Note: No lead byte checking is done since spaces/commas/quotes aren't used
-  as trail bytes in any of the Far East code pages (CJK). }
+  needed, and doubles any embedded quote characters. }
 var
   Len, QuoteCount, I: Integer;
   HasSpecialChars: Boolean;
@@ -132,11 +130,7 @@ begin
 end;
 
 procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
-{ Replaces Strings with strings from the comma- or space-delimited Value.
-  Note: No lead byte checking is done since spaces/commas/quotes aren't used
-  as trail bytes in any of the Far East code pages (CJK).
-  Also, this isn't bugged like Delphi 3+'s TStringList.CommaText property --
-  SetStringsFromCommaString(..., 'a,') will add two items, not one. }
+{ Replaces Strings with strings from the comma- or space-delimited Value. }
 var
   P, PStart, PDest: PChar;
   CharCount: Integer;

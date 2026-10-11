@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  SysUtils, Shared.EncryptionFunc, Compiler.Messages, Compiler.HelperFunc;
+  SysUtils, Shared.EncryptionFunc, Compiler.Messages;
 
 constructor TCompressionHandler.Create(ACompiler: TSetupCompiler;
   const InitialSliceFilename: String);

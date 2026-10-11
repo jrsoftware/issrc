@@ -6,8 +6,8 @@ unit Shared.Struct;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Various records and other types that are shared by the ISCmplr, Setup,
-  SetupLdr, and Uninst projects
+  Various records and other types that are shared by the ISCmplr, ISIDE,
+  ISPP, ISTestTool, Setup, SetupCustomStyle, and SetupLdr projects
 }
 
 interface
@@ -28,8 +28,8 @@ type
   TCompID = array[1..4] of AnsiChar;
   TDiskSliceID = array[1..8] of AnsiChar;
 const
-  { SetupID is used by the Setup program to check if the Setup.0 file is
-    compatible with it. If you make any modifications to the records in
+  { SetupID is used by Setup and SetupLdr to check if the setup-0.bin data is
+    compatible with them. If you make any modifications to the records in
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
@@ -73,9 +73,9 @@ type
       more than 32 flags is 8 bytes. Once the amount of actual flags reaches
       57, the padding can be removed, as the set will then be naturally
       compatible again between 32-bit and 64-bit builds. Note that this is not
-      necessary for sets with fewer than 32 flags, which is why only
-      TSetupHeaderOption and TSetupFileEntry include this padding. Also see
-      https://stackoverflow.com/questions/30336620/enumeration-set-size-in-x64 }
+      necessary for sets with up to 32 flags, which is why only
+      TSetupHeaderOption and TSetupFileEntryOption include this padding. Also
+      see https://stackoverflow.com/questions/30336620/enumeration-set-size-in-x64 }
   TSetupHeaderOptions = packed set of TSetupHeaderOption;
   { ^ Adding more flags adds 1 byte for every 8 flags, in both 32-bit and
       64-bit builds, even without specifying packed. But to be sure we specify
@@ -413,7 +413,9 @@ type
     TotalSize: Int64;
   end;
 
-  { A TMessageHeader record follows MessagesHdrID in a Setup.msg file }
+  { A TMessagesHeader record follows MessagesHdrID in messages data, which is
+    stored in setup-0.bin language entries, in unins???.msg and RegSvr .msg
+    files, and at the end of unins???.exe }
   TMessagesHeader = packed record
     NumMessages: Cardinal;
     TotalSize: Cardinal;
@@ -443,7 +445,8 @@ type
     by any previously installed version. As a result, it is neither backward
     nor forward compatible, unlike TUninstallLogHeader. Be sure to update
     MessagesLangOptionsID whenever you make changes to this record. It is
-    named TMessagesLangOptions because it is stored in the Setup.msg file,
+    named TMessagesLangOptions because it is stored after the messages data
+    in unins???.msg and RegSvr .msg files, and at the end of unins???.exe,
     not because all options must be language-specific. }
   TMessagesLangOptionsFlag = (lfRightToLeft, lfWizardModern, lfWizardDarkStyleDark,
     lfWizardDarkStyleDynamic, lfWizardBorderStyled, lfWizardKeepAspectRatio,

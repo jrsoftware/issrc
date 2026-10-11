@@ -39,7 +39,7 @@ implementation
 
 uses
   Windows, Messages,
-  Classes, SysUtils,  Menus,
+  SysUtils,
   ScintEdit,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc;

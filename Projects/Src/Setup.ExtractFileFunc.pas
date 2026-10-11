@@ -63,7 +63,7 @@ end;
 procedure ExtractTemporaryFile(const BaseName: String);
 
   function EscapeBraces(const S: String): String;
-  { Changes all '{' to '{{'. Uses ConstLeadBytes^ for the lead byte table. }
+  { Changes all '{' to '{{' }
   var
     I: Integer;
   begin

@@ -6,7 +6,7 @@ unit Shared.TaskDialogFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  TaskDialogMsgBox function integrating with CmnFunc's MsgBox functions
+  TaskDialogMsgBox function integrating with Shared.CommonFunc.Vcl's MsgBox functions
 }
 
 interface
@@ -25,11 +25,9 @@ implementation
 {$IFEND}
 
 uses
-  Classes, StrUtils, Math, Forms, SysUtils, Themes, Controls, CommCtrl,
-  PathFunc,
-  {$IFDEF USETASKDIALOGFORM} Setup.TaskDialogForm, {$ENDIF}
-  {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF}
-  Shared.CommonFunc;
+  Math, Forms, SysUtils, Themes, CommCtrl
+  {$IFDEF USETASKDIALOGFORM}, Setup.TaskDialogForm {$ENDIF}
+  {$IFDEF SETUPPROJ}, Setup.InstFunc {$ENDIF};
 
 var
   TaskDialogIndirectFunc: function(const pTaskConfig: TTaskDialogConfig;

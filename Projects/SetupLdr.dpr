@@ -26,7 +26,6 @@ uses
   SetupLdrAndSetup.InstFunc in 'Src\SetupLdrAndSetup.InstFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   SHA256 in '..\Components\SHA256.pas',
-  Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
   ChaCha20 in '..\Components\ChaCha20.pas',
   PBKDF2 in '..\Components\PBKDF2.pas',
@@ -143,7 +142,7 @@ end;
 
 procedure ActivateDefaultLanguage;
 { Auto-detects the most appropriate language and activates it.
-  Note: A like-named version of this function is also present in Setup.MainFunc.pas. }
+  Note: A like-named version of this function is also present in Setup.MainFunc. }
 var
   I: Integer;
 begin

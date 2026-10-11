@@ -14,8 +14,8 @@ unit IDE.MsgBoxDesignerForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, ExtCtrls, ComCtrls, pngimage,
+  Windows, SysUtils, Classes, Graphics, Controls, Forms,
+  StdCtrls, ExtCtrls, ComCtrls,
   NewGroupBox, NewStaticText, BitmapImage,
   IDE.IDEForm;
 
@@ -112,7 +112,7 @@ implementation
 
 uses
   ShellAPI,
-  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, Shared.TaskDialogFunc, IDE.Messages, IDE.LocalizeFunc;
+  Shared.CommonFunc.Vcl, Shared.TaskDialogFunc, IDE.Messages, IDE.LocalizeFunc;
 
 {$R *.DFM}
 

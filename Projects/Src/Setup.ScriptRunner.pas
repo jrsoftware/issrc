@@ -72,8 +72,7 @@ type
 implementation
 
 uses
-  Windows,
-  Forms, SysUtils,
+  SysUtils,
   uPSR_dll,
   Setup.ScriptClasses, Setup.ScriptFunc;
 

@@ -171,7 +171,7 @@ var
     'function Succ(X: Ordinal): Ordinal;', // Implemented by TPSPascalCompiler.ProcessSub
     'function Pred(X: Ordinal): Ordinal;', //
     'function Assigned(var X): Boolean;',  //
-    { Special: keywords instead of functions in ROPS but are presented and documented as functions by us }
+    { Special: keywords instead of functions in ROPS but are presented as functions by us, and all except Exit are documented as such }
     'function Chr(X: Word): Char;',
     'function Ord(X: Ordinal): UInt64;',
     'procedure Exit;'
@@ -475,7 +475,7 @@ initialization
     'function PathEndsWith(const S, AEndsWith: String; const IgnoreCase: Boolean): Boolean;',
     'function PathConvertNormalToSuper(const Filename: String): String;',
     'function PathConvertSuperToNormal(const Filename: String): String;',
-    { All in PathFunc but with a different name }
+    { All except CharLength in PathFunc but with a different name }
     'function CharLength(const S: String; const Index: Integer): Integer;',
     'function ExpandFileName(const FileName: String): String;',
     'function ExtractFileDir(const FileName: String): String;',

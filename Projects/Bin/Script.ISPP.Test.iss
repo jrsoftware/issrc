@@ -377,6 +377,12 @@
   12
 #call CheckEqualsInt(42, SpanResult)
 #undef SpanResult
+// A line with only a blank and the span symbol also spans
+#define SpanBlankResult = 10 + \
+ \
+  32
+#call CheckEqualsInt(42, SpanBlankResult)
+#undef SpanBlankResult
 #pragma spansymbol "_"
 #define SpanCustomResult = 100 + _
   200 + _
@@ -949,6 +955,12 @@
 #call CheckEqualsInt(20, DimBasicArray[1])
 #undef DimBasicArray
 #undef DimInitArray
+// #define without an index replaces an existing array
+#dim DimReplacedArray[2]
+#define DimReplacedArray 5
+#call CheckEqualsInt(TYPE_INTEGER, TypeOf(DimReplacedArray))
+#call CheckEqualsInt(5, DimReplacedArray)
+#undef DimReplacedArray
 //
 // Scope
 //
@@ -1223,6 +1235,28 @@
 #emit '; INSERT_MARKER_AFTER'
 #call CheckEqualsInt(0, Find(0, 'INSERT_MARKER_AT_ZERO', FIND_CONTAINS))
 #call CheckEqualsInt(Find(0, 'INSERT_MARKER_BEFORE', FIND_CONTAINS) + 1, Find(0, 'INSERT_MARKER_AFTER', FIND_CONTAINS))
+//
+// Trailing text, such as an unsupported "//" comment, is ignored for backward compatibility only
+// "//" is an error after directives that take an expression, so those use plain text
+//
+#dim TrailingTextArray[2] // comment
+#redim TrailingTextArray[3] // comment
+#undef TrailingTextArray
+#if 0
+#else // comment
+#endif // comment
+#ifexist __PATHFILENAME__ comment
+#endif
+#ifnexist __PATHFILENAME__ comment
+#endif
+#sub TrailingTextSub
+#endsub // comment
+#insert 0 comment
+#append // comment
+{#emit '; '}{#file "Script.ISPP.Include.Test.iss" comment}
+#undef IncludeSeesMainProtected
+#undef IncludeSeesMainPrivate
+#undef IncludePathFilename
 //
 // Preprocessor output functions
 //

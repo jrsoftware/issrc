@@ -14,7 +14,7 @@ unit IDE.RegistryDesignerForm;
 interface
 
 uses
-  SysUtils, Classes,
+  Classes,
   Forms, Controls, StdCtrls, ExtCtrls,
   NewStaticText, BitmapButton,
   IDE.Wizard.WizardFormRegistryHelper, IDE.IDEForm;
@@ -53,7 +53,7 @@ implementation
 {$R *.dfm}
 
 uses
-  Shared.CommonFunc, IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
+  Shared.CommonFunc, IDE.Messages, IDE.LocalizeFunc;
 
 procedure TRegistryDesignerForm.SetPrivilegesRequired(
   const Value: TPrivilegesRequired);

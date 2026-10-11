@@ -1601,7 +1601,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
 { Returns True if S contains constants. Aborts compile if they are invalid. }
 
   function CheckEnvConst(C: String): Boolean;
-  { based on ExpandEnvConst in Setup.MainFunc.pas }
+  { based on ExpandEnvConst in Setup.MainFunc }
   var
     I: Integer;
     VarName, Default: String;
@@ -1623,7 +1623,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
   function CheckRegConst(C: String): Boolean;
-  { based on ExpandRegConst in Setup.MainFunc.pas }
+  { based on ExpandRegConst in Setup.MainFunc }
   type
     TKeyNameConst = packed record
       KeyName: String;
@@ -1688,7 +1688,7 @@ function TSetupCompiler.CheckConst(const S: String; const MinVersion: TSetupVers
   end;
 
   function CheckIniConst(C: String): Boolean;
-  { based on ExpandIniConst in Setup.MainFunc.pas }
+  { based on ExpandIniConst in Setup.MainFunc }
   var
     Z, Filename, Section, Key, Default: String;
     I: Integer;
@@ -7196,7 +7196,7 @@ const
      SCompilerVerificationFileNameIncorrect, SCompilerVerificationFileSizeIncorrect,
      SCompilerVerificationFileHashIncorrect);
 begin
-  { Also see Setup.Install for a similar function }
+  { Also see Setup.ISSigVerifyFunc's VerificationError for a similar function }
   AbortCompileFmt(SCompilerSourceFileVerificationFailed,
     [AFilename, Format(Messages[AError], [PathExtractName(ASigFilename)])]); { Not all messages actually have a %s parameter but that's OK }
 end;
@@ -7837,7 +7837,7 @@ var
           if FLExtraInfo.Verification.Typ = fvHash then
             ExpectedFileHash := FLExtraInfo.Verification.Hash
           else if FLExtraInfo.Verification.Typ = fvISSig then begin
-            { See Setup.Install's CopySourceFileToDestFile for similar code }
+            { See Setup.ISSigVerifyFunc's DoISSigVerify for similar code }
             if Length(ISSigAvailableKeys) = 0 then { shouldn't fail: flag stripped already }
               AbortCompileFmt(SCompilerCompressInternalError, ['Length(ISSigAvailableKeys) = 0']);
             var ExpectedFileName: String;
@@ -8892,7 +8892,7 @@ begin
 
       This means the Unicode compiler has to do an extra phase: following the logic above
       it first determines the final language code page for each language, storing these
-      into an extra list called PreDataList, and then it continues as normal while using
+      into an extra list called PreLangDataList, and then it continues as normal while using
       the final language code page for any conversions needed.
 
       Note: it must avoid caching the .isl files while determining the code pages, since
@@ -8903,16 +8903,16 @@ begin
       ReadDefaultMessages calls EnumMessages for Default.isl's [Messages], with Ext set to -2.
       These messages are stored in DefaultLangData to be used as defaults for missing messages
       later on. EnumLangOptions isn't called, the defaults will (at run-time) be displayed
-      using the code page of the language with the missing messages. EnumMessages for
+      using the code page of the language with the missing messages. EnumCustomMessages for
       Default.isl's [CustomMessages] also isn't called at this point, missing custom messages
       are handled differently.
 
       2. Read [Languages] section and the .isl files the entries reference:
 
       EnumLanguages is called for the script. For each [Languages] entry its parameters
-      are read and for the MessagesFiles parameter ReadMessagesFromFiles is called. For
+      are read and for the MessagesFile parameter ReadMessagesFromFiles is called. For
       each file ReadMessagesFromFiles first calls EnumLangOptions, then EnumMessages for
-      [Messages], and finally another EnumMessages for [CustomMessages], all with Ext set
+      [Messages], and finally EnumCustomMessages for [CustomMessages], all with Ext set
       to the index of the language.
 
       All the [LangOptions] and [Messages] data is stored in single structures per language,
@@ -8934,7 +8934,7 @@ begin
       Note this is just like the script creator creating an entry for Default.isl.
 
       ReadMessagesFromScript then first calls EnumLangOptions, then EnumMessages for
-      [Messages], and finally another EnumMessages for [CustomMessages] for the script.
+      [Messages], and finally EnumCustomMessages for [CustomMessages] for the script.
       Note this is just like ReadMessagesFromFiles does for files, except that Ext is set
       to -1. This causes it to accept language identifiers ('en.LanguageCodePage=...'):
       if the identifier is set the read data is stored only for that language in the

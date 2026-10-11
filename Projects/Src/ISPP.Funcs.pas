@@ -14,17 +14,17 @@ interface
 
 uses
   Windows, Classes,
-  ISPP.VarUtils, ISPP.Intf, ISPP.Preprocessor, ISPP.Parser;
+  ISPP.VarUtils, ISPP.Intf, ISPP.Preprocessor;
 
 procedure RegisterFunctions(Preproc: TPreprocessor);
 
 implementation
 
 uses
-  SysUtils, IniFiles, Registry, Math, DateUtils,
+  SysUtils, IniFiles, Registry, Math,
   MD5, SHA1, SHA256, PathFunc, UnsignedFunc,
   Shared.FileClass, Shared.CommonFunc,
-  ISPP.Sessions, ISPP.Consts, ISPP.Base, ISPP.IdentMan;
+  ISPP.Sessions, ISPP.Base, ISPP.IdentMan;
 
 {$IFDEF WIN64}
 const

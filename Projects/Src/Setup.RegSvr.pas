@@ -16,7 +16,7 @@ procedure RunRegSvr;
 implementation
 
 uses
-  Windows, SysUtils, Classes, Forms, PathFunc, Shared.CommonFunc, Setup.InstFunc, Setup.InstFunc.Ole,
+  Windows, SysUtils, Forms, PathFunc, Shared.CommonFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   Shared.FileClass, Shared.CommonFunc.Vcl, Shared.Struct, Setup.MainFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.RegDLL;
 
