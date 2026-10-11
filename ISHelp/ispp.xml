@@ -592,7 +592,7 @@
 				<description>
 					<p>&sub; and &endsub; directives are used to declare a user defined procedure, which is a portion of script that may be included later, once or several times. A user defined procedure works much like an external file, and calling one works much like including that file, except that procedures may also be called from within expressions. Avoid calling procedures that emit several lines to the &translation; from within compound expressions or directives.</p>
 					<p>A procedure is called by specifying its identifier, with which it was declared.</p>
-					<p>A procedure isn't processed until it's called, so errors in its body are reported only when the procedure is called.</p>
+					<p>A procedure isn't processed until it's called, so errors in its body are reported only when the procedure is called. The exceptions are an unknown directive and a nested &sub; directive, which are reported when the procedure is declared.</p>
 				</description>
 				<section title="Examples">
 					<pre>

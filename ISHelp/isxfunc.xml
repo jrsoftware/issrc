@@ -2059,7 +2059,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>function ExtractTemporaryFiles(const Pattern: String): Integer;</prototype>
         <description><p>Extracts the files matching the wildcard specified by <tt>Pattern</tt> from the <sn>[Files]</sn> section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
 <p>The extracted files are automatically deleted when Setup exits.</p>
-<p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their <tt>MinVersion</tt> and/or <tt>OnlyBelowVersion</tt> parameters.</p></description>
+<p>An exception will be raised if any matched file cannot be extracted, no files were found, or if files were found but none could be processed because of their <tt>MinVersion</tt> and/or <tt>OnlyBelowVersion</tt> parameters.</p></description>
         <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the <sn>[Files]</sn> section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the <sn>[Files]</sn> section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the <sn>[Files]</sn> section.</p></remarks>
         <seealso><p><isxfunc>ExtractTemporaryFile</isxfunc></p></seealso>
@@ -2281,7 +2281,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>DelayDeleteFile</name>
         <prototype>procedure DelayDeleteFile(const Filename: String; const Tries: Integer);</prototype>
-        <description><p>Attempts to delete <tt>Filename</tt>, retrying up to <tt>Tries</tt> times if the file is in use. It delays 250 msec between tries.</p></description>
+        <description><p>Attempts to delete <tt>Filename</tt> up to <tt>Tries</tt> times, retrying if the file is in use. It delays 250 msec between tries.</p></description>
       </function>
       <function>
         <name>SetNTFSCompression</name>
@@ -3096,7 +3096,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <remarks><p>You should call this function instead of creating <tt><link topic="scriptclasses" anchor="TForm">TForm</link></tt> or <tt><link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></tt> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
 <p>The <sn>[LangOptions]</sn> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p>
 <p>You should use <isxfunc>ScaleX</isxfunc> and <isxfunc>ScaleY</isxfunc> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
-<p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for <sn>[Setup]</sn> section directive <sd>WizardSizePercent</sd>.</p>
+<p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form keeps its width and height, respectively, instead of growing as specified by <sn>[Setup]</sn> section directive <sd>WizardSizePercent</sd>.</p>
 <p>The signature of the <tt>CreateCustomForm</tt> function has changed as of version 6.6.0. The width and height must now be specified upfront (they are now read-only properties once the form is constructed). Previously, your code might have looked like this:</p>
 <example><pre>
   Form := CreateCustomForm;
@@ -3288,7 +3288,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
 <tt>Buttons</tt> specifies which buttons to include in the task dialog.<br />
 <tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note. If <tt>Buttons</tt> is set to <tt>MB_OKCANCEL</tt>, <tt>MB_YESNOCANCEL</tt>, or <tt>MB_RETRYCANCEL</tt>, specifying a label for the Cancel button as the last element in the array is optional.<br />
 <tt>ShieldButton</tt> specifies which button to display a shield icon on. If set to 0, no shield icon will be displayed.</p>
-<p>Returns an <tt>ID*</tt> constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
+<p>Returns an <tt>ID*</tt> constant indicating the button the user clicked. If the function fails, it returns 0 or raises an exception (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
         <remarks><p><tt>TMsgBoxType</tt> is defined as:</p>
 <p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p>
 <p>Supported values for <tt>Buttons</tt> are:</p>

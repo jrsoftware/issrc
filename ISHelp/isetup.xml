@@ -2542,7 +2542,7 @@ nl.<key>CreateDesktopIcon</key>=Maak een snelkoppeling op het &amp;bureaublad
 
 <p><b><a name="LanguageName">LanguageName</a></b> is the native name of the language (so not the English name). It is displayed in the list of available languages on the <i>Select Language</i> dialog in a multilingual installation.</p>
 
-<p><b><a name="LanguageID">LanguageID</a></b> is the numeric "language identifier" of the language. Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>. This, along with <tt>LanguageCodePage</tt>, is used for the purpose of auto-detecting the most appropriate language to use by default, so be sure it is set correctly. It should always begin with a "<tt>$</tt>" sign, since language identifiers are in hexadecimal. If no language identifier currently exists for the language, set this to zero.</p>
+<p><b><a name="LanguageID">LanguageID</a></b> is the numeric "language identifier" of the language. Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>. This is used for the purpose of auto-detecting the most appropriate language to use by default, so be sure it is set correctly. It should always begin with a "<tt>$</tt>" sign, since language identifiers are in hexadecimal. If no language identifier currently exists for the language, set this to zero.</p>
 
 <p><b><a name="LanguageCodePage">LanguageCodePage</a></b> specifies the "code page" (character set) used by the compiler to convert any non-Unicode text in the language's files to Unicode text. Note that any text in the <tt>.iss</tt> file such as a <sn>[CustomMessages]</sn> entry for the language is never converted and should be in Unicode already.<br/>
 If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to zero and only use Unicode text (UTF-8) in the languages's files.<br/>
@@ -3725,10 +3725,10 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Go to end of document (Shift extends selection)</td><td>Ctrl+End</td>
 </tr>
 <tr>
-  <td>Go to next paragraph (Shift extends selection)</td><td>Ctrl+]</td><td>-</td>
+  <td>Go to next paragraph</td><td>Ctrl+]</td><td>-</td>
 </tr>
 <tr>
-  <td>Go to previous paragraph (Shift extends selection)</td><td>Ctrl+[</td><td>-</td>
+  <td>Go to previous paragraph</td><td>Ctrl+[</td><td>-</td>
 </tr>
 <tr>
   <td>Go to end of line</td><td>End</td>
@@ -3788,10 +3788,10 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Copy line down</td><td>-</td><td>Shift+Alt+Down</td>
 </tr>
 <tr>
-  <td>Lowercase lines</td><td>Ctrl+U</td>
+  <td>Lowercase lines</td><td>Ctrl+U</td><td>-</td>
 </tr>
 <tr>
-  <td>Uppercase lines</td><td>Ctrl+Shift+U</td>
+  <td>Uppercase lines</td><td>Ctrl+Shift+U</td><td>-</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
@@ -4280,7 +4280,7 @@ issigtool --key-file="MyKey.isprivatekey" sign "MyFile.txt"
 <li>
 <p>Compile the script again. This time, you should get an error like the following:</p>
 <precode>
-Signature is not valid for source file "MyFile.txt": file hash incorrect.
+Verification of source file "C:\My Project\MyFile.txt" failed: The hash of the file is incorrect
 </precode>
 </li>
 
@@ -4644,7 +4644,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="GROUP">/GROUP=</a>"<i>folder name</i>"</b></dt>
 <dd>
-<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "<tt>expand:</tt>" prefix, see <tt>/DIR=</tt>. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command-line parameter is ignored.</p>
+<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "<tt>expand:</tt>" prefix, see <tt>/DIR=</tt>. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> hides the <i>Select Start Menu Folder</i> wizard page, this command-line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="NOICONS">/NOICONS</a></b></dt>
@@ -4837,7 +4837,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="SUPPRESSMSGBOXES">/SUPPRESSMSGBOXES</a></b></dt>
 <dd>
-<p>Instructs the uninstaller to suppress message boxes. Only has an effect when combined with <tt>/SILENT</tt> and <tt>/VERYSILENT</tt>. See <tt>/SUPPRESSMSGBOXES</tt> under <link topic="setupcmdline" anchor="SUPPRESSMSGBOXES">Setup Command-Line Parameters</link> for more details.</p>
+<p>Instructs the uninstaller to suppress message boxes. Only has an effect when combined with <tt>/SILENT</tt> or <tt>/VERYSILENT</tt>. See <tt>/SUPPRESSMSGBOXES</tt> under <link topic="setupcmdline" anchor="SUPPRESSMSGBOXES">Setup Command-Line Parameters</link> for more details.</p>
 </dd>
 
 <dt><b><a name="LOG">/LOG</a></b></dt>
@@ -5407,10 +5407,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 </setuptopic>
 
 <setuptopic directive="DisableAppendDir">
-<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
 <body>
-<p><i>Obsolete in 4.1.2.</i> Pre-4.1.2 versions of Inno Setup had a different directory selection interface, and the <tt>DisableAppendDir</tt> directive was used to control its behavior.</p>
+<p><i>Obsolete in 4.1.2.</i> This directive is no longer supported. Pre-4.1.2 versions of Inno Setup had a different directory selection interface, and the <tt>DisableAppendDir</tt> directive was used to control its behavior.</p>
 </body>
 </setuptopic>
 
@@ -5616,8 +5614,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>auto</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Destination Location</i> wizard page.</p>
-<p>If this is set to <tt>auto</tt>, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will not show the <i>Select Destination Location</i> wizard page.</p>
-<p>If the <i>Select Destination Location</i> wizard page is not shown, it will always use the default directory name.</p>
+<p>If this is set to <tt>auto</tt>, Setup will not show the <i>Select Destination Location</i> wizard page if it finds the directory of a previous installation. See <sd>UsePreviousAppDir</sd>.</p>
 <p>Also see <sd>AlwaysShowDirOnReadyPage</sd>.</p>
 </body>
 </setuptopic>
@@ -5636,8 +5633,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>auto</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Start Menu Folder</i> wizard page.</p>
-<p>If this is set to <tt>auto</tt>, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will not show the <i>Select Start Menu Folder</i> wizard page.</p>
-<p>If the <i>Select Start Menu Folder</i> wizard page is not shown, it will always use the default Start Menu folder name.</p>
+<p>If this is set to <tt>auto</tt>, Setup will not show the <i>Select Start Menu Folder</i> wizard page if it finds the Start Menu folder name of a previous installation. See <sd>UsePreviousGroup</sd>.</p>
 <p>Also see <sd>AlwaysShowGroupOnReadyPage</sd>.</p>
 </body>
 </setuptopic>
