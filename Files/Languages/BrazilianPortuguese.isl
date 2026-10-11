@@ -62,7 +62,7 @@ SetupAppRunningError=O instalador detectou que o %1 está atualmente em execuç�
 UninstallAppRunningError=O desinstalador detectou que o %1 está atualmente em execução.%n%nPor favor, feche todas as instâncias dele agora, então clique em OK para continuar ou em Cancelar para sair.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Selecione o Modo de Instalação do Instalador
+PrivilegesRequiredOverrideTitle=Selecionar o Modo de Instalação do Instalador
 PrivilegesRequiredOverrideInstruction=Selecione o modo de instalação
 PrivilegesRequiredOverrideText1=O %1 pode ser instalado para todos os usuários (requer privilégios administrativos) ou só para você.
 PrivilegesRequiredOverrideText2=O %1 pode ser instalado só para você ou para todos os usuários (requer privilégios administrativos).
@@ -80,7 +80,7 @@ ExitSetupTitle=Sair do Instalador
 ExitSetupMessage=A instalação não está completa. Se você sair agora, o programa não será instalado.%n%nVocê pode executar o instalador novamente outra hora para completar a instalação.%n%nSair do instalador?
 AboutSetupMenuItem=&Sobre o Instalador...
 AboutSetupTitle=Sobre o Instalador
-AboutSetupMessage=Página inicial de %1 %2%n%3%n%n:%n%4
+AboutSetupMessage=%1 %2%n%3%n%nPágina inicial de %1:%n%4
 AboutSetupNote=
 TranslatorNote=
 
@@ -100,7 +100,7 @@ ButtonWizardBrowse=P&rocurar...
 ButtonNewFolder=&Criar Nova Pasta
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Selecione o Idioma do Instalador
+SelectLanguageTitle=Selecionar o Idioma do Instalador
 SelectLanguageLabel=Selecione o idioma para usar durante a instalação.
 
 ; *** Common wizard text
