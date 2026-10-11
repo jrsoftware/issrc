@@ -977,8 +977,16 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Reads the value of the specified registry key. The first parameter is the root key, such as <tt>HKEY_LOCAL_MACHINE</tt>, <tt>HKEY_LOCAL_MACHINE_32</tt>, or <tt>HKEY_LOCAL_MACHINE_64</tt>. Constants for use with this parameter are declared in &builtins; accompanying ISPP. The second parameter specifies a subkey. The third parameter specifies the name of the value to read; if it is omitted or empty, the key's default (unnamed) value is read. The last optional parameter specifies the value to return on failure.</p>
 					<p>Note that this function can return a value of any type depending on the type of actual value in the registry.</p>
+					<p><tt>REG_DWORD</tt> values are treated as signed, so values of <tt>0x80000000</tt> or higher are returned as negative numbers. For example, <tt>0xFFFFFFFF</tt> is returned as <tt>-1</tt>. To get the unsigned value, apply <tt>&amp; 0xFFFFFFFF</tt> to the result. Because <tt>&amp;</tt> has lower precedence than <tt>==</tt>, use parentheses when comparing the unsigned value, as in the example below.</p>
 					<p>A compiler error will be raised if an invalid root key is specified or if 64-bit registry keys are requested on 32-bit Windows.</p>
 				</description>
+				<section title="Example">
+					<pre>
+						<line><ispp>#if</ispp> (ReadReg(HKEY_CURRENT_USER, <str>"Software\My Company\My Program"</str>, <str>"MyValue"</str>) &amp; <num>0xFFFFFFFF</num>) == <num>0xFFFFFFFF</num></line>
+						<line>&dsp;<ispp>#pragma</ispp> <ispp>message</ispp> <str>"MyValue is 0xFFFFFFFF"</str></line>
+						<line><ispp>#endif</ispp></line>
+					</pre>
+				</section>
 			</topic>
 			<topic id="Exec">
 				<title>Exec</title>
