@@ -879,8 +879,8 @@ end;
 procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesProc;
   Param: Pointer);
 { Enumerates all the filenames in the current PendingFileRenameOperations
-  registry value or WININIT.INI file. The function does not distinguish between
-  source and destination filenames; it enumerates both. }
+  registry value. The function does not distinguish between source and
+  destination filenames; it enumerates both. }
 
   procedure DoValue(const K: HKEY; const ValueName: PChar);
   var
