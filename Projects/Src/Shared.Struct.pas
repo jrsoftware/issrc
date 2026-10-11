@@ -6,8 +6,8 @@ unit Shared.Struct;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Various records and other types that are shared by the ISCmplr, ISIDE,
-  ISPP, ISTestTool, Setup, SetupCustomStyle, and SetupLdr projects
+  Various records and other types that are shared by all projects except
+  ISHelpGen
 }
 
 interface

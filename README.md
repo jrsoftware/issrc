@@ -163,11 +163,11 @@ testing framework. Run **test.bat** to compile and run the tests manually.
 
 How do the projects link together?
 
-- ISIDE, ISCmplr, ISPP, Setup, SetupCustomStyle, SetupLdr, and ISTestTool share
-  the unit Shared.Struct.pas. This unit contains various data structures and
-  constants shared by the projects. If Shared.Struct.pas is changed, you usually
-  will need to recompile all these projects and the required targets using the
-  Release64 or Debug64 build group so that everything is in synch.
+- All projects except ISHelpGen share the unit Shared.Struct.pas. This unit
+  contains various data structures and constants shared by the projects. If
+  Shared.Struct.pas is changed, you usually will need to recompile all these
+  projects and the required targets using the Release64 or Debug64 build group
+  so that everything is in synch.
 
 - There are more units which are shared between projects. Search the .dpr
   files of the projects if you aren't sure if a project uses a particular
