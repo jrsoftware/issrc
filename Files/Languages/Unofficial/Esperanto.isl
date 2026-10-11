@@ -52,8 +52,8 @@ HelpTextNote=
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nEraro %2: %3
 SetupFileMissing=La dosiero %1 estas preterpasita el instala dosierujo. Bonvolu korekti problemon aŭ ricevu novan kopion de programo.
-SetupFileCorrupt=Instalaj dosieroj estas kriplitaj. Bonvolu ricevi novan kopion de programo.
-SetupFileCorruptOrWrongVer=Instalaj dosieroj estas kriplitaj, aŭ ne komparablaj kun tia versio del Majstro. Bonvolu korekti problemon aŭ ricevu novan kopion de programo.
+SetupFileCorrupt=Instalaj dosieroj estas difektitaj. Bonvolu ricevi novan kopion de programo.
+SetupFileCorruptOrWrongVer=Instalaj dosieroj estas difektitaj, aŭ ne komparablaj kun tia versio del Majstro. Bonvolu korekti problemon aŭ ricevu novan kopion de programo.
 InvalidParameter=Malĝusta parametro estis en komandlinio:%n%n%1
 SetupAlreadyRunning=La Majstro jam funkcias.
 WindowsVersionNotSupported=Ĉi tia programo ne povas subteni la version de Vindoso en via komputilo.
@@ -69,8 +69,8 @@ AdminPrivilegesRequired=Vi devas eniri kiel administranto kiam instalas ĉi tian
 PowerUserPrivilegesRequired=Vi devas eniri kiel administranto aŭ kiel membro de grupo de Posedaj Uzantoj kiam instalas ĉi tia programo.
 
 ; 'instance' may also be translated as 'copy'
-SetupAppRunningError=La Majstro difinis ke %1 nun funkcias.%n%nBonvolu fermi ĉiujn okazojn de ĝi nun, kaj poste kliku Jes por daŭrigi, aŭ Haltigi por eliri.
-UninstallAppRunningError=Forigado difinis ke %1 nun funkcias.%n%nBonvolu fermi ĉiujn okazojn de ĝi nun, kaj poste kliku Jes por daŭrigi, aŭ Haltigi por eliri.
+SetupAppRunningError=La Majstro difinis ke %1 nun funkcias.%n%nBonvolu fermi ĉiujn kopiojn de ĝi nun, kaj poste kliku Jes por daŭrigi, aŭ Haltigi por eliri.
+UninstallAppRunningError=Forigado difinis ke %1 nun funkcias.%n%nBonvolu fermi ĉiujn kopiojn de ĝi nun, kaj poste kliku Jes por daŭrigi, aŭ Haltigi por eliri.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Elektu reĝimon por instalo
@@ -91,7 +91,7 @@ ExitSetupTitle=Eliri de Majstro
 ExitSetupMessage=La instalado ne estas plena. Se vi eliros nun, la programo ne estos instalita.%n%nPor vi bezonas ŝalti Majstron denove en alia tempo por plenumi instaladon.%n%nĈu fini la Majstron?
 AboutSetupMenuItem=Pr&i instalo...
 AboutSetupTitle=Pri instalo
-AboutSetupMessage=%1 versio %2%n%3%n%n%1 hejma paĝo:%n%4
+AboutSetupMessage=%1 %2%n%3%n%n%1 hejma paĝo:%n%4
 AboutSetupNote=
 TranslatorNote=
 
@@ -115,7 +115,7 @@ SelectLanguageTitle=Elektu la lingvon
 SelectLanguageLabel=Elektu la lingvon por uzo dum instalado.
 
 ; *** Common wizard text
-ClickNext=Kliku Antaŭen por daŭrigi, aŭ Halti por eliri Instaladon.
+ClickNext=Kliku Antaŭen por daŭrigi, aŭ Haltigi por eliri Instaladon.
 BeveledLabel=
 BrowseDialogTitle=Elekto de dosierujo
 BrowseDialogLabel=Elektu la dosierujon en listo malalte, kaj kliku Jes.
@@ -123,7 +123,7 @@ NewFolderName=Nova dosierujo
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Bonvenon al Majstro de instalado de [name]
-WelcomeLabel2=Nun komencos instalado de [name/ver] en via komputilo.%n%nEstas rekomendite ke vi haltigu ĉiajn viajn programojn antaŭ daŭrigo.
+WelcomeLabel2=Nun komencos instalado de [name/ver] en via komputilo.%n%nEstas rekomendite ke vi fermu ĉiajn aliajn aplikaĵojn antaŭ daŭrigo.
 
 ; *** "Password" wizard page
 WizardPassword=Pasvorto
@@ -144,7 +144,7 @@ WizardInfoBefore=Informacio
 InfoBeforeLabel=Bonvolu legi sekvan gravan informacion antaŭ daŭrigo.
 InfoBeforeClickLabel=Kiam vi estas preta por daŭrigi per instalo, kliku Antaŭen.
 WizardInfoAfter=Informacio
-InfoAfterLabel=Bonvolu legi sekvan gravan informacion antaŭ komenci.
+InfoAfterLabel=Bonvolu legi sekvan gravan informacion antaŭ daŭrigo.
 InfoAfterClickLabel=Kiam vi estas preta por daŭrigi per instalo, kliku Antaŭen.
 
 ; *** "User Information" wizard page
@@ -162,9 +162,9 @@ SelectDirLabel3=La Majstro instalos [name] en sekvan dosierujon.
 SelectDirBrowseLabel=Por daŭrigi, kliku Antaŭen. Se vi volas elekti diversan dosierujon, kliku Elekto.
 DiskSpaceGBLabel=Almenaŭ [gb] GB de neta diska spaco bezonas.
 DiskSpaceMBLabel=Almenaŭ [mb] MB de neta diska spaco bezonas.
-CannotInstallToNetworkDrive=Majstro ne povas instali retan diskon.
+CannotInstallToNetworkDrive=Majstro ne povas instali en retan diskon.
 CannotInstallToUNCPath=Majstro ne povas instali laŭ UNC vojo.
-InvalidPath=Vi devas skribi plenan vojon de diska litero; por ekzemplo:%n%nC:\APP%n%naŭ UNC vojo laŭ formo:%n%n\\servilo\interŝanĝo
+InvalidPath=Vi devas skribi plenan vojon de diska litero; por ekzemplo:%n%nC:\APP%n%naŭ UNC vojo laŭ formo:%n%n\\servilo\kunhavo
 InvalidDrive=Disko aŭ UNC vojo kian vi elektis ne ekzistas aŭ ne estas difinita. Bonvolu elekti denove.
 DiskSpaceWarningTitle=Mankas Diskan Spacon
 DiskSpaceWarning=Por instalo bezonas almenaŭ %1 KB de neta spaco por instalado, sed elektita disko havas nur %2 KB.%n%nĈu vi volas daŭrigi ĉiokaze?
@@ -179,7 +179,7 @@ DirDoesntExist=La dosierujo:%n%n%1%n%nne ekzistas. Ĉu vi volas por ke tia dosie
 ; *** "Select Components" wizard page
 WizardSelectComponents=Elektu komponentoj
 SelectComponentsDesc=Kiaj komponentoj devas esti instalitaj?
-SelectComponentsLabel2=Elektu komponentojn kiujn vi volas instali; forigu la komponentojn kiujn vi ne volas instali. Kliku Antaŭen kiam vi estas preta por daŭrigi.
+SelectComponentsLabel2=Elektu komponentojn kiujn vi volas instali; malaktivigu la komponentojn kiujn vi ne volas instali. Kliku Antaŭen kiam vi estas preta por daŭrigi.
 
 ; don't translate 'Full' as 'Normal' or 'Default'
 FullInstallation=Tuta instalado
@@ -188,7 +188,7 @@ FullInstallation=Tuta instalado
 CompactInstallation=Kompakta instalado
 CustomInstallation=Kutima instalado
 NoUninstallWarningTitle=Komponentoj ekzistas
-NoUninstallWarning=La Majstro difinis ke sekvaj komponentoj jam estas instalitaj en via komputilo:%n%n%1%n%nDeselekto de tiuj komponentoj ne forigos ĝin.%n%nĈu vi volas daŭrigi ĉiokaze?
+NoUninstallWarning=La Majstro difinis ke sekvaj komponentoj jam estas instalitaj en via komputilo:%n%n%1%n%nDeselekto de tiuj komponentoj ne forigos ilin.%n%nĈu vi volas daŭrigi ĉiokaze?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=Nuna elekto bezonas almenaŭ [gb] GB de diska spaco.
@@ -241,17 +241,17 @@ ErrorExtractionFailed=Eltiro malsukcesis: %1
 
 ; *** Archive extraction failure details
 ArchiveIncorrectPassword=Pasvorto estas malĝusta
-ArchiveIsCorrupted=Arkivo estas kriplita
+ArchiveIsCorrupted=Arkivo estas difektita
 ArchiveUnsupportedFormat=Arkiva formato ne estas subtenata
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparado por Instalo
 PreparingDesc=Majstro estas preparata por instalo [name] en via komputilo.
 PreviousInstallNotCompleted=Instalado/Forigo de antaŭa programo ne estas plena. Por vi bezonas relanĉi vian komputilon por plenigi tian instaladon.%n%nPost relanĉo de via komputilo, ŝaltu Majstron denove por finigi instaladon de [name].
-CannotContinue=La Majstro ne povas daŭrigi. Bonvolu kliki Fino por eliri.
+CannotContinue=La Majstro ne povas daŭrigi. Bonvolu kliki Haltigi por eliri.
 ApplicationsFound=Sekvaj aplikaĵoj uzas dosierojn kiajn bezonas renovigi per Instalado. Estas rekomendite ke vi permesu al Majstro aŭtomate fermi tiajn aplikaĵojn.
 ApplicationsFound2=Sekvaj aplikaĵoj uzas dosierojn kiajn bezonas renovigi per Instalado. Estas rekomendite ke vi permesu al Majstro aŭtomate fermi tiajn aplikaĵojn. Poste de instalado Majstro provos relanĉi aplikaĵojn.
-CloseApplications=&Aŭtomate fermi aplikaĵojn
+CloseApplications=A&ŭtomate fermi aplikaĵojn
 DontCloseApplications=&Ne fermu aplikaĵojn
 ErrorCloseApplications=Majstro estis nepovebla aŭtomate fermi ĉiajn aplikaĵojn. Estas rekomendite ke vi fermu ĉiajn aplikaĵojn, uzantaj dosierojn, kiuj estas bezonataj por renovigo per la Majstro antaŭ daŭrigo.
 PrepareToInstallNeedsRestart=Majstro devas relanĉi vian komputilon. Post relanĉo, ŝaltu Majstron denove por plenumi instaladon de [name].%n%nĈu vi volas relanĉi nun?
@@ -286,11 +286,11 @@ SelectDirectoryLabel=Bonvolu difini lokon de alia disko.
 
 ; *** Installation phase messages
 SetupAborted=Instalado ne estis plena.%n%nBonvolu korekti problemon kaj lanĉu Majstron denove.
-AbortRetryIgnoreSelectAction=Elektu agon
+AbortRetryIgnoreSelectAction=Elekti agon
 AbortRetryIgnoreRetry=P&rovi denove
 AbortRetryIgnoreIgnore=&Ignori eraron kaj daŭrigi
 AbortRetryIgnoreCancel=Haltigi instaladon
-RetryCancelSelectAction=Elektu agon
+RetryCancelSelectAction=Elekti agon
 RetryCancelRetry=P&rovi denove
 RetryCancelCancel=Haltigi
 
@@ -300,7 +300,7 @@ StatusCreateDirs=Kreado de dosierujoj...
 StatusExtractFiles=Eltiro de dosieroj...
 StatusDownloadFiles=Elŝuto de dosieroj...
 StatusCreateIcons=Kreado de tujklavoj...
-StatusCreateIniEntries=Kreado de INI dosieroj...
+StatusCreateIniEntries=Kreado de INI pointoj...
 StatusCreateRegistryEntries=Kreado de registraj pointoj...
 StatusRegisterFiles=Registrado de dosieroj...
 StatusSavingUninstall=Konservas informacio por forigo...
@@ -311,8 +311,8 @@ StatusRollback=Malfari ŝanĝojn...
 ; *** Misc. errors
 ErrorInternal2=Interna eraro: %1
 ErrorFunctionFailedNoCode=%1 malsukcesis
-ErrorFunctionFailed=%1 malsukcesis; kodnomo %2
-ErrorFunctionFailedWithMessage=%1 malsukcesis; kodnomo %2.%n%3
+ErrorFunctionFailed=%1 malsukcesis; erarokodo %2
+ErrorFunctionFailedWithMessage=%1 malsukcesis; erarokodo %2.%n%3
 ErrorExecutingProgram=Estas nepoveble plenumi dosieron:%n%1
 
 ; *** Registry errors
@@ -326,7 +326,7 @@ ErrorIniEntry=Eraro dum kreado de INI pointo en dosiero "%1".
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&Preterpasi ĉi tiun dosieron (ne estas rekomendite)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignori eraron kaj daŭrigi (ne estas rekomendite)
-SourceIsCorrupted=La fonta dosiero estas kripligita
+SourceIsCorrupted=La fonta dosiero estas difektita
 SourceDoesntExist=La fonta dosiero "%1" ne ekzistas
 SourceVerificationFailed=Konfirmo de fonta dosiero malsukcesis: %1
 VerificationSignatureDoesntExist=Subskribodosiero "%1" ne ekzistas
@@ -390,9 +390,9 @@ UninstallOnlyOnWin64=Ĉi tian instaladon povos forigi nur en 64-bita Vindoso.
 OnlyAdminCanUninstall=Ĉi tian instaladon povos forigi nur uzanto kun administrantaj rajtoj.
 UninstallStatusLabel=Bonvolu atendi dum %1 foriĝos de via komputilo.
 UninstalledAll=%1 estis sukcese forigita de via komputilo.
-UninstalledMost=Forigo de %1 estas plena.%n%nKelkaj elementoj ne estis forigitaj. Ĝin poveble estas forigi permane.
+UninstalledMost=Forigo de %1 estas plena.%n%nKelkaj elementoj ne estis forigitaj. Ilin poveble estas forigi permane.
 UninstalledAndNeedsRestart=Por plenumi forigadon de %1, via komputilo devas esti relanĉita.%n%nĈu vi volas relanĉi nun?
-UninstallDataCorrupted="%1" dosiero estas kriplita. Estas nepoveble forigi
+UninstallDataCorrupted="%1" dosiero estas difektita. Estas nepoveble forigi
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Forigi komune uzatan dosieron?
@@ -413,13 +413,13 @@ ShutdownBlockReasonUninstallingApp=Forigado %1.
 
 NameAndVersion=%1 versio %2
 AdditionalIcons=Aldonaj tujklavoj:
-CreateDesktopIcon=Krei &Labortablan ikonon
-CreateQuickLaunchIcon=Krei &Rapida lanĉo ikonon
+CreateDesktopIcon=Krei &Labortablan tujklavon
+CreateQuickLaunchIcon=Krei &Rapida lanĉo tujklavon
 ProgramOnTheWeb=%1 en Reto
 UninstallProgram=Forigado %1
 LaunchProgram=Lanĉo %1
 AssocFileExtension=&Asociigi %1 kun %2 dosieraj finaĵoj
 AssocingFileExtension=Asociiĝas %1 kun %2 dosiera finaĵo...
 AutoStartProgramGroupDescription=Lanĉo:
-AutoStartProgram=Automate ŝalti %1
+AutoStartProgram=A&ŭtomate ŝalti %1
 AddonHostProgramNotFound=%1 nepoveble estas loki en dosierujo kian vi elektis.%n%nĈu vi volas daŭrigi ĉiokaze?
