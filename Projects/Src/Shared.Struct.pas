@@ -92,7 +92,7 @@ type
   TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm32, paArm64);
   TSetupProcessorArchitectures = set of TSetupProcessorArchitecture;
   TSetupDisablePage = (dpAuto, dpNo, dpYes);
-  TSetupPrivilegesRequired = (prNone, prPowerUser, prAdmin, prLowest);
+  TSetupPrivilegesRequired = (prNone, prAdmin, prLowest);
   TSetupPrivilegesRequiredOverride = (proCommandLine, proDialog);
   TSetupPrivilegesRequiredOverrides = set of TSetupPrivilegesRequiredOverride;
   TSetupWizardDarkStyle = (wdsLight, wdsDark, wdsDynamic);

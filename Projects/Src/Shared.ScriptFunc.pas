@@ -450,7 +450,6 @@ initialization
     //
     'function IsAdmin: Boolean;',
     'function IsAdminLoggedOn: Boolean;', { old name of IsAdmin }
-    'function IsPowerUserLoggedOn: Boolean;',
     'function IsAdminInstallMode: Boolean;',
     'function FontExists(const FaceName: String): Boolean;',
     'function GetUILanguage: Integer;',

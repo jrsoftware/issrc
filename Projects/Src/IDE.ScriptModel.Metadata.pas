@@ -362,7 +362,7 @@ procedure InitializeSectionMetadata;
       ssLZMAAlgorithm: Result := ['0', '1'];
       ssLZMAMatchFinder: Result := ['BT', 'HC'];
       ssLZMAUseSeparateProcess: Result := ['x86', SYes, SNo];
-      ssPrivilegesRequired: Result := ['admin', 'lowest']; { We don't list none/poweruser }
+      ssPrivilegesRequired: Result := ['admin', 'lowest']; { We don't list 'none' }
       ssSetupArchitecture: Result := ['x86', 'x64'];
       ssUninstallLogMode: Result := ['append', 'new', 'overwrite'];
       ssUseSetupLdr: Result := ['x86', 'x64', SYes, SNo];
