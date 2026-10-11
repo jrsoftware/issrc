@@ -241,9 +241,9 @@
 				</syntax>
 				<description>
 					<p>Includes the &translation; of the specified file. If a Unicode file is used, it must be UTF-8 (with or without a BOM) encoded.</p>
-					<p>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where the current file resides, then in the directory where the file that included the current file resides, and so on. If the file is not found, ISPP searches for it on the current include path, set via &pragma;, then on the path specified by the <tt>INCLUDE</tt> environment variable.</p>
-					<p>If the filename is an expression or specified in angle brackets, ISPP searches for it on the current include path only.</p>
-          <p>The filename may be prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
+					<p>If the filename is enclosed in angle brackets, ISPP searches for it on the current include path, set via &pragma;, then on the path specified by the <tt>INCLUDE</tt> environment variable. By default, the include path is the compiler directory.</p>
+					<p>If the filename is an expression, such as a filename enclosed in quotes, ISPP first searches for it in the directory where the current file resides, then in the directory where the file that included the current file resides, and so on, then in the directory specified by <tt><link href="predefinedvars">SourcePath</link></tt>. If the file isn't found, ISPP searches the same two paths as for angle brackets, and finally the compiler directory.</p>
+					<p>If the filename starts with <tt>.\</tt> or <tt>..\</tt>, it's relative to the directory where the current file resides. If it starts with <tt>compiler:</tt>, it's relative to the compiler directory. If it starts with <tt>userdocs:</tt>, it's relative to the My Documents folder of the currently logged-in user. In these cases, ISPP doesn't search other directories.</p>
 					<p>This directive can't be used inline.</p>
 				</description>
 				<section title="Examples">
@@ -2438,8 +2438,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<tr><td nowrap=""><tt>--define=<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</tt>, <tt>-d<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</tt></td><td>Emulates <tt><link href="define">#define</link> public <i>&lt;name&gt; &lt;value&gt;</i></tt> (variable-definition).</td></tr>
 					<tr><td nowrap=""><tt>-$<i>&lt;letter&gt;</i>(+|-)</tt></td><td>Emulates <tt><link href="pragma">#pragma</link> option -<i>&lt;letter&gt;</i>(+|-)</tt>.</td></tr>
 					<tr><td nowrap=""><tt>-p<i>&lt;letter&gt;</i>(+|-)</tt></td><td>Emulates <tt><link href="pragma">#pragma</link> parseroption -<i>&lt;letter&gt;</i>(+|-)</tt>.</td></tr>
-					<tr><td nowrap=""><tt>--include-dirs=<i>&lt;paths&gt;</i></tt>, <tt>-i<i>&lt;paths&gt;</i></tt></td><td>Emulates <tt><link href="pragma">#pragma</link> include <i>&lt;paths&gt;</i></tt> (multiple paths can be delimited with semicolons).</td></tr>
-					<tr><td nowrap=""><tt>--include=<i>&lt;filename&gt;</i></tt>, <tt>-j<i>&lt;filename&gt;</i></tt></td><td>Emulates <tt><link href="include">#include</link>&sp;<i>&lt;filename&gt;</i></tt>.</td></tr>
+					<tr><td nowrap=""><tt>--include-dirs=<i>&lt;paths&gt;</i></tt>, <tt>-i<i>&lt;paths&gt;</i></tt></td><td>Emulates <tt><link href="pragma">#pragma</link> include <link href="predefinedvars">__INCLUDE__</link> + ";<i>&lt;paths&gt;</i>"</tt> (multiple paths can be delimited with semicolons).</td></tr>
+					<tr><td nowrap=""><tt>--include=<i>&lt;filename&gt;</i></tt>, <tt>-j<i>&lt;filename&gt;</i></tt></td><td>Emulates <tt><link href="include">#include</link>&sp;"<i>&lt;filename&gt;</i>"</tt>.</td></tr>
 					<tr><td nowrap=""><tt>--inline-start=<i>&lt;string&gt;</i></tt>, <tt>-{#<i>&lt;string&gt;</i></tt></td><td>Emulates <tt><link href="pragma">#pragma</link> inlinestart <i>&lt;string&gt;</i></tt>.</td></tr>
 					<tr><td nowrap=""><tt>--inline-end=<i>&lt;string&gt;</i></tt>, <tt>-}<i>&lt;string&gt;</i></tt></td><td>Emulates <tt><link href="pragma">#pragma</link> inlineend <i>&lt;string&gt;</i></tt>.</td></tr>
 					<tr><td nowrap=""><tt>--verbose=<i>&lt;number&gt;</i></tt>, <tt>-v<i>&lt;number&gt;</i></tt></td><td>Emulates <tt><link href="pragma">#pragma</link> verboselevel <i>&lt;number&gt;</i></tt>.</td></tr>
