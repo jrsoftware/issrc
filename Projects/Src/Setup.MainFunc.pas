@@ -3303,6 +3303,7 @@ begin
   end
   else
     SetupFilename := SetupLdrOriginalFilename;
+  var CryptKey: TSetupEncryptionKey;
   SetupFile := TFile.Create(SetupFilename, fdOpenExisting, faRead, fsRead);
   try
     SetupFile.Seek(SetupLdrOffset0);
@@ -3318,15 +3319,16 @@ begin
     if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
       AbortInit(msgSetupFileCorrupt);
 
-    var CryptKey: TSetupEncryptionKey;
     if SetupEncryptionHeader.EncryptionUse = euFull then begin
       if InitPassword = '' then
         AbortInit(SMissingPassword);
       GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
       if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
         AbortInit(SIncorrectPassword);
-      { FileExtractor (a function!) requires SetupHeader.CompressMethod to be set, so delaying setting
-        FileExtractor.CryptKey until SetupHeader is read below }
+      { The first FileExtractor (a function!) call creates the decompressor for
+        SetupHeader.CompressMethod, and the zip and bzip decompressors call into the decompressor DLL
+        when created, so delaying setting FileExtractor.CryptKey until SetupHeader is read and
+        LoadDecompressorDLL is called below }
     end;
 
     try
@@ -3338,9 +3340,6 @@ begin
         { Header }
         SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
           SetupHeaderStrings, SetupHeaderAnsiStrings);
-
-        if SetupEncryptionHeader.EncryptionUse = euFull then
-          FileExtractor.CryptKey := CryptKey; { See above }
 
         { SetupHeader.WizardBackColor may be overwritten below, and we need to keep the original
           value for Uninstall }
@@ -3648,6 +3647,9 @@ begin
   { Save DecompressorDLL stream as "_isdecmp.dll" in TempInstallDir, and load it }
   if SetupHeader.CompressMethod in [cmZip, cmBzip] then
     LoadDecompressorDLL;
+
+  if SetupEncryptionHeader.EncryptionUse = euFull then
+    FileExtractor.CryptKey := CryptKey; { See above }
 
   { Save SevenZipDll stream as "_is7z.dll" in TempInstallDir, and load it }
   if SetupHeader.SevenZipLibraryName <> '' then

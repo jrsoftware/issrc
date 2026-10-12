@@ -113,6 +113,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>When archive extraction failed to open, read, or write a file, for example because another process had it open, it could report that the archive was corrupted or an unspecified error. It now reports the actual error.</li>
     <li>Inno Setup 7.0.0 introduced a maximum dictionary size of 3.8 GB instead of 1 GB for compression methods <tt>lzma</tt> and <tt>lzma2</tt> in 64-bit installers, but <tt>lzma2</tt> installers with a dictionary size above 3 GB failed to install, reporting that the source file was corrupted. They now support up to 3.8 GB as well.</li>
     <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
+    <li>Setup crashed at startup if <tt>[Setup]</tt> section directive <tt>Encryption</tt> was set to <tt>full</tt> and the compression method was <tt>zip</tt> or <tt>bzip</tt> (broken since full encryption was introduced in 6.5.0).</li>
   </ul>
   </li>
   <li>Pascal Scripting:
