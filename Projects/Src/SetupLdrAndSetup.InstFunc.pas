@@ -34,9 +34,10 @@ function RestartComputer: Boolean;
 procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
 
 {$IFDEF SETUPPROJ}
-{ The following is not called by other SetupLdr units: it is only called by the
-  code below and by other Setup units - so the implementation exists below but it
-  is not included here in the interface, for clarity }
+{ The following are not called by other SetupLdr units: they are only called by the
+  code below and by other Setup units - so the implementations exist below but they
+  are not included here in the interface, for clarity }
+function UIntToBase36Str(AValue: UInt32; const ADigits: Integer): String;
 function GenerateUniqueName(Path: String; const Extension: String): String;
 {$ENDIF}
 
@@ -50,22 +51,21 @@ function ConvertStringSecurityDescriptorToSecurityDescriptorW(
   StringSDRevision: DWORD; var ppSecurityDescriptor: Pointer;
   dummy: Pointer): BOOL; stdcall; external advapi32;
 
-function GenerateUniqueName(Path: String; const Extension: String): String;
-
-  function UIntToBase36Str(AValue: UInt32; const ADigits: Integer): String;
-  begin
-    Result := StringOfChar('0', ADigits);
-    for var I := High(Result) downto Low(Result) do begin
-      var Digit := AValue mod 36;
-      if Digit < 10 then
-        Inc(Digit, Ord('0'))
-      else
-        Inc(Digit, Ord('A') - 10);
-      Result[I] := Chr(Digit);
-      AValue := AValue div 36;
-    end;
+function UIntToBase36Str(AValue: UInt32; const ADigits: Integer): String;
+begin
+  Result := StringOfChar('0', ADigits);
+  for var I := High(Result) downto Low(Result) do begin
+    var Digit := AValue mod 36;
+    if Digit < 10 then
+      Inc(Digit, Ord('0'))
+    else
+      Inc(Digit, Ord('A') - 10);
+    Result[I] := Chr(Digit);
+    AValue := AValue div 36;
   end;
+end;
 
+function GenerateUniqueName(Path: String; const Extension: String): String;
 const
   FiveDigitsRange = 36 * 36 * 36 * 36 * 36;
 begin
