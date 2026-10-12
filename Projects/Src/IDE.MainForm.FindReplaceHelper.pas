@@ -33,7 +33,8 @@ type
     procedure ShowReplaceDialog;
     procedure DoReplaceDialogReplace;
     { Private }
-    procedure _InitializeFindText(Dlg: TFindDialog);
+    procedure _InitializeFindText(Dialog: TFindDialog);
+    procedure _PrepareToExecute(const Dialog: TFindDialog);
     procedure _FindNext(const ReverseDirection: Boolean);
     function _StoreAndTestLastFindOptions(const Dialog: TFindDialog): Boolean;
     function _TestLastFindOptions: Boolean;
@@ -94,15 +95,28 @@ end;
 
 {  TMainFormFindReplaceHelper }
 
-procedure TMainFormFindReplaceHelper._InitializeFindText(Dlg: TFindDialog);
+procedure TMainFormFindReplaceHelper._InitializeFindText(Dialog: TFindDialog);
 var
   S: String;
 begin
   S := FActiveMemo.MainSelText;
   if (S <> '') and (Pos(#13, S) = 0) and (Pos(#10, S) = 0) then
-    Dlg.FindText := S
+    Dialog.FindText := S
   else
-    Dlg.FindText := FLastFindText;
+    Dialog.FindText := FLastFindText;
+end;
+
+procedure TMainFormFindReplaceHelper._PrepareToExecute(const Dialog: TFindDialog);
+{ Updates the non-TFindDialog-UI Options. To be called before executing the
+  dialog, because TFindDialog restores them to the values it was opened with on
+  any Find/Replace/close action (in Vcl.Dialogs). Setting them only when they
+  change in our own UI, like EFindRegEx, doesn't work, because they would get
+  lost when the dialog happens to be open }
+begin
+  if FOptions.FindRegEx then
+    Dialog.Options := Dialog.Options + [frHideWholeWord]
+  else
+    Dialog.Options := Dialog.Options - [frHideWholeWord];
 end;
 
 procedure TMainFormFindReplaceHelper.ShowFindDialog(const Down: Boolean);
@@ -114,12 +128,14 @@ begin
     FindDialog.Options := FindDialog.Options + [frDown]
   else
     FindDialog.Options := FindDialog.Options - [frDown];
+  _PrepareToExecute(FindDialog);
   ExecuteFindDialogAllowingAltEnter(FindDialog);
 end;
 
 procedure TMainFormFindReplaceHelper.ShowFindInFilesDialog;
 begin
   _InitializeFindText(FindInFilesDialog);
+  _PrepareToExecute(FindInFilesDialog);
   FindInFilesDialog.Execute;
 end;
 
@@ -330,6 +346,7 @@ begin
     _InitializeFindText(ReplaceDialog);
     ReplaceDialog.ReplaceText := FLastReplaceText;
   end;
+  _PrepareToExecute(ReplaceDialog);
   ExecuteFindDialogAllowingAltEnter(ReplaceDialog);
 end;
 

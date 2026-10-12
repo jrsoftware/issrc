@@ -4482,15 +4482,6 @@ const
   FindRegExText: array[Boolean] of String = ('', '.*');
 begin
   StatusBar.Panels[spFindRegEx].Text := FindRegExText[FOptions.FindRegEx];
-  if FOptions.FindRegEx then begin
-    FindDialog.Options := FindDialog.Options + [frHideWholeWord];
-    ReplaceDialog.Options := ReplaceDialog.Options + [frHideWholeWord];
-    FindInFilesDialog.Options := FindInFilesDialog.Options + [frHideWholeWord];
-  end else begin
-    FindDialog.Options := FindDialog.Options - [frHideWholeWord];
-    ReplaceDialog.Options := ReplaceDialog.Options - [frHideWholeWord];
-    FindInFilesDialog.Options := FindInFilesDialog.Options - [frHideWholeWord];
-  end;
 end;
 
 procedure TMainForm.UpdateMemosTabSetVisibility;
