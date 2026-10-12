@@ -358,6 +358,7 @@ begin
       while FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
               FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
         var NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText, ReplaceMode);
+        Inc(ReplaceCount);
         StartPos := NewRange.EndPos;
         EndPos := FActiveMemo.RawTextLength; { Update for replacement }
         { If the match was empty there's no consumed text guaranteeing progress past it, so must manually progress }
@@ -366,7 +367,6 @@ begin
             Break;
           StartPos := FActiveMemo.GetPositionAfter(StartPos);
         end;
-        Inc(ReplaceCount);
       end;
     finally
       FActiveMemo.EndUndoAction;
