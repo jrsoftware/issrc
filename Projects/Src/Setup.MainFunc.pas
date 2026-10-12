@@ -3311,7 +3311,7 @@ begin
       if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
         AbortInit(SIncorrectPassword);
       { The first FileExtractor (a function!) call creates the decompressor for
-        SetupHeader.CompressMethod, and the zip and bzip decompressors call into the decompressor DLL
+        SetupHeader.CompressMethod, and the zip and zstd decompressors call into the decompressor DLL
         when created, so delaying setting FileExtractor.CryptKey until SetupHeader is read and
         LoadDecompressorDLL is called below }
     end;
