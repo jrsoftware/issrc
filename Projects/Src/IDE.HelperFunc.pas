@@ -65,9 +65,7 @@ procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 procedure SetHelpFileDark(const Dark: Boolean);
 function GetHelpFile: String;
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions;
-  const RegEx: Boolean): TScintFindOptions; overload;
-function FindOptionsToSearchOptions(const MatchCase: Boolean;
-  const RegEx: Boolean): TScintFindOptions; overload;
+  const RegEx: Boolean): TScintFindOptions;
 function RegExToReplaceMode(const RegEx: Boolean): TScintReplaceMode;
 function GetSourcePath(const AFilename: String): String;
 function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
@@ -743,16 +741,6 @@ begin
     Include(Result, sfoMatchCase);
   if frWholeWord in FindOptions then
     Include(Result, sfoWholeWord);
-  if RegEx then
-    Include(Result, sfoRegEx);
-end;
-
-function FindOptionsToSearchOptions(const MatchCase: Boolean;
-  const RegEx: Boolean): TScintFindOptions; overload;
-begin
-  Result := [];
-  if MatchCase then
-    Include(Result, sfoMatchCase);
   if RegEx then
     Include(Result, sfoRegEx);
 end;

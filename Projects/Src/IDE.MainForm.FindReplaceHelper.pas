@@ -379,7 +379,7 @@ begin
         mbInformation, MB_OK);
   end
   else begin
-    if FActiveMemo.MainSelTextEquals(FLastFindText, FindOptionsToSearchOptions(frMatchCase in FLastFindOptions, FLastFindRegEx)) then begin
+    if FActiveMemo.MainSelTextEquals(FLastFindText, FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx)) then begin
       { Note: the MainSelTextEquals above performs a search so the replacement
         below is safe even if the user just enabled regex }
       FActiveMemo.ReplaceMainSelText(FLastReplaceText, ReplaceMode);
