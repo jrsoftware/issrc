@@ -13,6 +13,7 @@ object WizardForm: TWizardForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Position = poScreenCenter
+  OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy

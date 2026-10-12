@@ -32,6 +32,8 @@ type
     AppFilesAddDownloadButton: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+      NewDPI: Integer);
     procedure InsertButtonClick(Sender: TObject);
   private
     FFilesHelper: TWizardFormFilesHelper;
@@ -43,6 +45,9 @@ type
   end;
 
 implementation
+
+uses
+  Shared.CommonFunc.Vcl;
 
 {$R *.dfm}
 
@@ -63,6 +68,12 @@ end;
 procedure TFilesDesignerForm.FormDestroy(Sender: TObject);
 begin
   FFilesHelper.Free;
+end;
+
+procedure TFilesDesignerForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+  NewDPI: Integer);
+begin
+  UpdateScrollWidth(AppFilesListBox);
 end;
 
 procedure TFilesDesignerForm.SetCreateAppDir(const Value: Boolean);

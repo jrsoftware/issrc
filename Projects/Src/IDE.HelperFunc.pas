@@ -66,14 +66,13 @@ procedure SetFakeShortCut(const MenuItem: TMenuItem; const ShortCut: TShortCut);
 procedure SaveTextToFile(const Filename: String;
   const S: String; const SaveEncoding: TSaveEncoding);
 procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Integer);
+procedure UpdateAddedLinesScrollWidth(const ListBox: TListBox; const Prefix: TAddLinesPrefix; const PrefixParam: Integer);
 procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 procedure SetHelpFileDark(const Dark: Boolean);
 function GetHelpFile: String;
 procedure ShowHelp(const Keyword: String);
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions;
-  const RegEx: Boolean): TScintFindOptions; overload;
-function FindOptionsToSearchOptions(const MatchCase: Boolean;
-  const RegEx: Boolean): TScintFindOptions; overload;
+  const RegEx: Boolean): TScintFindOptions;
 function RegExToReplaceMode(const RegEx: Boolean): TScintReplaceMode;
 function GetSourcePath(const AFilename: String): String;
 function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
@@ -96,7 +95,6 @@ implementation
 
 uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, StrUtils,
-  Messages,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
   IDE.HtmlHelpFunc, IDE.MainForm, IDE.Messages, IDE.ScriptModel.Metadata;
 
@@ -636,6 +634,20 @@ begin
   end;
 end;
 
+function GetAddedLineScrollWidth(const ListBox: TListBox; const DC: HDC; const S: String;
+  const TimestampPrefixTab: Boolean; const TimestampsWidth: Integer): Integer;
+{ DC must have ListBox's font selected }
+begin
+  var Size: TSize;
+  if TimestampPrefixTab then
+    GetTextExtentPoint(DC, PChar(S)+1, Length(S)-1, Size)
+  else
+    GetTextExtentPoint(DC, PChar(S), Length(S), Size);
+  Result := Size.cx + MulDiv(5, ListBox.CurrentPPI, 96);
+  if TimestampPrefixTab then
+    Inc(Result, TimestampsWidth);
+end;
+
 procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObject; const LineBreaks: Boolean; const Prefix: TAddLinesPrefix; const PrefixParam: Integer);
 var
   ST: TSystemTime;
@@ -645,7 +657,6 @@ var
   var
     TimestampPrefixTab: Boolean;
     DC: HDC;
-    Size: TSize;
   begin
     TimestampPrefixTab := False;
     case Prefix of
@@ -673,26 +684,21 @@ var
     except
       on EOutOfResources do begin
         ListBox.Clear;
-        SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+        ListBox.ScrollWidth := 0;
         ListBox.Items.Add(SLitStatusEventPrefix + LFmtMessage(SCompilerStatusReset));
         ListBox.TopIndex := ListBox.Items.AddObject(S, AObject);
       end;
     end;
+    var ScrollWidth: Integer;
     DC := GetDC(0);
     try
       SelectObject(DC, ListBox.Font.Handle);
-      if TimestampPrefixTab then
-        GetTextExtentPoint(DC, PChar(S)+1, Length(S)-1, Size)
-      else
-        GetTextExtentPoint(DC, PChar(S), Length(S), Size);
+      ScrollWidth := GetAddedLineScrollWidth(ListBox, DC, S, TimestampPrefixTab, PrefixParam);
     finally
       ReleaseDC(0, DC);
     end;
-    Inc(Size.cx, MulDiv(5, ListBox.CurrentPPI, 96));
-    if TimestampPrefixTab then
-      Inc(Size.cx, PrefixParam);
-    if Size.cx > SendMessage(ListBox.Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
-      SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, Size.cx, 0);
+    if ScrollWidth > ListBox.ScrollWidth then
+      ListBox.ScrollWidth := ScrollWidth;
     Inc(LineNumber);
   end;
 
@@ -724,6 +730,25 @@ begin
     AddLine(Copy(S, LineStart, Maxint));
   end else
     AddLine(S);
+end;
+
+procedure UpdateAddedLinesScrollWidth(const ListBox: TListBox; const Prefix: TAddLinesPrefix; const PrefixParam: Integer);
+begin
+  var MaxScrollWidth := 0;
+  const DC = GetDC(0);
+  try
+    SelectObject(DC, ListBox.Font.Handle);
+    for var I := 0 to ListBox.Items.Count-1 do begin
+      const S = ListBox.Items[I];
+      const TimestampPrefixTab = (Prefix = alpTimestamp) and (S <> '') and (S[1] = #9);
+      const ScrollWidth = GetAddedLineScrollWidth(ListBox, DC, S, TimestampPrefixTab, PrefixParam);
+      if ScrollWidth > MaxScrollWidth then
+        MaxScrollWidth := ScrollWidth;
+    end;
+  finally
+    ReleaseDC(0, DC);
+  end;
+  ListBox.ScrollWidth := MaxScrollWidth;
 end;
 
 procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
@@ -780,16 +805,6 @@ begin
     Include(Result, sfoMatchCase);
   if frWholeWord in FindOptions then
     Include(Result, sfoWholeWord);
-  if RegEx then
-    Include(Result, sfoRegEx);
-end;
-
-function FindOptionsToSearchOptions(const MatchCase: Boolean;
-  const RegEx: Boolean): TScintFindOptions; overload;
-begin
-  Result := [];
-  if MatchCase then
-    Include(Result, sfoMatchCase);
   if RegEx then
     Include(Result, sfoRegEx);
 end;

@@ -12,6 +12,7 @@ object FilesDesignerForm: TFilesDesignerForm
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poScreenCenter
+  OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   TextHeight = 15

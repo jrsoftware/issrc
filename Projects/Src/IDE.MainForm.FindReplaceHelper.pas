@@ -29,7 +29,8 @@ type
     procedure ShowReplaceDialog;
     procedure DoReplaceDialogReplace;
     { Private }
-    procedure _InitializeFindText(Dlg: TFindDialog);
+    procedure _InitializeFindText(Dialog: TFindDialog);
+    procedure _PrepareToExecute(const Dialog: TFindDialog);
     procedure _FindNext(const ReverseDirection: Boolean);
     function _StoreAndTestLastFindOptions(const Dialog: TFindDialog): Boolean;
     function _TestLastFindOptions: Boolean;
@@ -90,15 +91,28 @@ end;
 
 {  TMainFormFindReplaceHelper }
 
-procedure TMainFormFindReplaceHelper._InitializeFindText(Dlg: TFindDialog);
+procedure TMainFormFindReplaceHelper._InitializeFindText(Dialog: TFindDialog);
 var
   S: String;
 begin
   S := FActiveMemo.MainSelText;
   if (S <> '') and (Pos(#13, S) = 0) and (Pos(#10, S) = 0) then
-    Dlg.FindText := S
+    Dialog.FindText := S
   else
-    Dlg.FindText := FLastFindText;
+    Dialog.FindText := FLastFindText;
+end;
+
+procedure TMainFormFindReplaceHelper._PrepareToExecute(const Dialog: TFindDialog);
+{ Updates the non-TFindDialog-UI Options. To be called before executing the
+  dialog, because TFindDialog restores them to the values it was opened with on
+  any Find/Replace/close action (in Vcl.Dialogs). Setting them only when they
+  change in our own UI, like EFindRegEx, doesn't work, because they would get
+  lost when the dialog happens to be open }
+begin
+  if FOptions.FindRegEx then
+    Dialog.Options := Dialog.Options + [frHideWholeWord]
+  else
+    Dialog.Options := Dialog.Options - [frHideWholeWord];
 end;
 
 procedure TMainFormFindReplaceHelper.ShowFindDialog(const Down: Boolean);
@@ -110,12 +124,14 @@ begin
     FindDialog.Options := FindDialog.Options + [frDown]
   else
     FindDialog.Options := FindDialog.Options - [frDown];
+  _PrepareToExecute(FindDialog);
   ExecuteFindDialogAllowingAltEnter(FindDialog);
 end;
 
 procedure TMainFormFindReplaceHelper.ShowFindInFilesDialog;
 begin
   _InitializeFindText(FindInFilesDialog);
+  _PrepareToExecute(FindInFilesDialog);
   FindInFilesDialog.Execute;
 end;
 
@@ -208,7 +224,6 @@ begin
     Exit;
 
   FindResultsList.Clear;
-  SendMessage(FindResultsList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
   FFindResults.Clear;
 
   var Hits := 0;
@@ -252,6 +267,7 @@ begin
   end;
 
   FindResultsList.Items.Insert(0, LFmtMessage(SFindResultSummary, [FindInFilesDialog.FindText, Hits, Files]));
+  UpdateScrollWidth(FindResultsList);
 
   FindInFilesDialog.CloseDialog;
 
@@ -283,6 +299,7 @@ begin
     _InitializeFindText(ReplaceDialog);
     ReplaceDialog.ReplaceText := FLastReplaceText;
   end;
+  _PrepareToExecute(ReplaceDialog);
   ExecuteFindDialogAllowingAltEnter(ReplaceDialog);
 end;
 
@@ -292,6 +309,13 @@ begin
     Exit;
 
   FLastReplaceText := ReplaceDialog.ReplaceText;
+
+  { The Replace dialog is modeless, so the active memo can be read-only }
+  if FActiveMemo.ReadOnly then begin
+    SysUtils.Beep;
+    Exit; { Replace All would loop endlessly }
+  end;
+
   var ReplaceMode := RegExToReplaceMode(FLastFindRegEx);
 
   if frReplaceAll in FLastFindOptions then begin
@@ -304,6 +328,7 @@ begin
       while FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
               FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
         var NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText, ReplaceMode);
+        Inc(ReplaceCount);
         StartPos := NewRange.EndPos;
         EndPos := FActiveMemo.RawTextLength; { Update for replacement }
         { If the match was empty there's no consumed text guaranteeing progress past it, so must manually progress }
@@ -312,7 +337,6 @@ begin
             Break;
           StartPos := FActiveMemo.GetPositionAfter(StartPos);
         end;
-        Inc(ReplaceCount);
       end;
     finally
       FActiveMemo.EndUndoAction;
@@ -325,7 +349,7 @@ begin
         mbInformation, MB_OK);
   end
   else begin
-    if FActiveMemo.MainSelTextEquals(FLastFindText, FindOptionsToSearchOptions(frMatchCase in FLastFindOptions, FLastFindRegEx)) then begin
+    if FActiveMemo.MainSelTextEquals(FLastFindText, FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx)) then begin
       { Note: the MainSelTextEquals above performs a search so the replacement
         below is safe even if the user just enabled regex }
       FActiveMemo.ReplaceMainSelText(FLastReplaceText, ReplaceMode);

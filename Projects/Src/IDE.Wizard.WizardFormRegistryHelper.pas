@@ -26,6 +26,7 @@ type
       FMinVerEdit: TEdit;
       FMinVerDocBitBtn: TBitmapButton;
       FPrivilegesRequired: TPrivilegesRequired;
+      FOldAfterMonitorDpiChanged: TMonitorDpiChangedEvent;
       procedure SetPrivilegesRequired(const Value: TPrivilegesRequired);
       procedure UpdateImages;
       procedure AfterMonitorDpiChanged(Sender: TObject; OldDPI: Integer; NewDPI: Integer);
@@ -97,6 +98,7 @@ begin
 
   SHAutoComplete(FileEdit.Handle, SHACF_FILESYSTEM);
 
+  FOldAfterMonitorDpiChanged := Form.OnAfterMonitorDpiChanged;
   Form.OnAfterMonitorDpiChanged := AfterMonitorDpiChanged;
   UpdateImages;
 end;
@@ -104,6 +106,8 @@ end;
 procedure TWizardFormRegistryHelper.AfterMonitorDpiChanged(Sender: TObject; OldDPI: Integer; NewDPI: Integer);
 begin
   UpdateImages;
+  if Assigned(FOldAfterMonitorDpiChanged) then
+    FOldAfterMonitorDpiChanged(Sender, OldDPI, NewDPI);
 end;
 
 procedure TWizardFormRegistryHelper.FileButtonClick(Sender: TObject);
