@@ -38,7 +38,7 @@ type
   end;
 
 function AppCreateForm(const AClass: TCustomFormClass): TCustomForm;
-procedure UpdateHorizontalExtent(const ListBox: TCustomListBox);
+procedure UpdateScrollWidth(const ListBox: TCustomListBox);
 function MinimizePathName(const Filename: String; const Font: TFont;
   MaxLen: Integer): String;
 function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer; overload;
@@ -88,35 +88,31 @@ end;
 type
   TListBoxAccess = class(TCustomListBox);
 
-procedure UpdateHorizontalExtent(const ListBox: TCustomListBox);
-var
-  I: Integer;
-  Extent, MaxExtent: Longint;
-  DC: HDC;
-  Size: TSize;
-  TextMetrics: TTextMetric;
+procedure UpdateScrollWidth(const ListBox: TCustomListBox);
 begin
-  DC := GetDC(0);
+  var MaxScrollWidth := 0;
+  const DC = GetDC(0);
   try
     SelectObject(DC, TListBoxAccess(ListBox).Font.Handle);
 
-    //Q66370 says tmAveCharWidth should be added to extent
+    //Q66370 says tmAveCharWidth should be added to scroll width
+    var TextMetrics: TTextMetric;
     GetTextMetrics(DC, TextMetrics);
 
-    MaxExtent := 0;
-    for I := 0 to ListBox.Items.Count-1 do begin
+    for var I := 0 to ListBox.Items.Count-1 do begin
+      var Size: TSize;
       GetTextExtentPoint32(DC, PChar(ListBox.Items[I]), Length(ListBox.Items[I]), Size);
-      Extent := Size.cx + TextMetrics.tmAveCharWidth;
-      if Extent > MaxExtent then
-        MaxExtent := Extent;
+      const ScrollWidth = Size.cx + TextMetrics.tmAveCharWidth;
+      if ScrollWidth > MaxScrollWidth then
+        MaxScrollWidth := ScrollWidth;
     end;
 
   finally
     ReleaseDC(0, DC);
   end;
 
-  if MaxExtent > SendMessage(ListBox.Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
-    SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, MaxExtent, 0);
+  { Don't check the existing scroll width, it might be outdated }
+  ListBox.ScrollWidth := MaxScrollWidth;
 end;
 
 function MinimizePathName(const Filename: String; const Font: TFont;

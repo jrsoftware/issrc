@@ -212,7 +212,6 @@ begin
     Exit;
 
   FindResultsList.Clear;
-  SendMessage(FindResultsList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
   FFindResults.Clear;
 
   var Hits := 0;
@@ -256,6 +255,7 @@ begin
   end;
 
   FindResultsList.Items.Insert(0, LFmtMessage(SFindResultSummary, [FindInFilesDialog.FindText, Hits, Files]));
+  UpdateScrollWidth(FindResultsList);
 
   FindInFilesDialog.CloseDialog;
 

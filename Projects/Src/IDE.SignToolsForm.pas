@@ -32,6 +32,8 @@ type
     procedure RemoveButtonClick(Sender: TObject);
     procedure EditButtonClick(Sender: TObject);
     procedure SignToolsListBoxDblClick(Sender: TObject);
+    procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+      NewDPI: Integer);
   private
     FSignTools: TStringList;
     procedure CommandDocBitBtnClick(Sender: TObject);
@@ -60,7 +62,7 @@ uses
 procedure TSignToolsForm.UpdateSignTools;
 begin
   SignToolsListBox.Items.Assign(FSignTools);
-  UpdateHorizontalExtent(SignToolsListBox);
+  UpdateScrollWidth(SignToolsListBox);
 end;
 
 procedure TSignToolsForm.UpdateSignToolsButtons;
@@ -86,6 +88,12 @@ begin
   SizeBottomButtons(OKButton, CancelButton);
 
   FSignTools := TStringList.Create();
+end;
+
+procedure TSignToolsForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+  NewDPI: Integer);
+begin
+  UpdateScrollWidth(SignToolsListBox);
 end;
 
 { This and CreateParams make bsSizeable (which has an unwanted icon) look like bsDialog, see:

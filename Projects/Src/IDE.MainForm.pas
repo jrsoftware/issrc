@@ -1338,6 +1338,10 @@ begin
   UpdateMarginsAndAutoCompleteIcons;
   UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
+  UpdateAddedLinesScrollWidth(CompilerOutputList, alpNone, 0);
+  UpdateAddedLinesScrollWidth(DebugOutputList, alpTimestamp, FDebugLogListTimestampsWidth);
+  UpdateAddedLinesScrollWidth(DebugCallStackList, alpCountdown, 0);
+  UpdateScrollWidth(FindResultsList);
   UpdateStatusPanelHeight(StatusPanel.Height);
 end;
 
@@ -2182,6 +2186,7 @@ begin
   DebugCallStackList.Clear;
   AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, Integer(CallStackCount-1));
   DebugCallStackList.Items.Insert(0, SLitStatusEventPrefix + LFmtMessage(SDebugCodeCallStack, ['[Code]']));
+  UpdateAddedLinesScrollWidth(DebugCallStackList, alpCountdown, 0);
   DebugCallStackList.Update;
 end;
 
@@ -2473,11 +2478,11 @@ begin
     UpdateEditModeStatusPanel;
     HideError;
     CompilerOutputList.Clear;
-    SendMessage(CompilerOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    CompilerOutputList.ScrollWidth := 0;
     DebugOutputList.Clear;
-    SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugOutputList.ScrollWidth := 0;
     DebugCallStackList.Clear;
-    SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugCallStackList.ScrollWidth := 0;
     OutputTabSet.TabIndex := tiCompilerOutput;
     SetStatusPanelVisible(True);
 
@@ -4818,6 +4823,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
          (FDebugEntries[I].LineNumber >= FirstLine) then
         Inc(FDebugEntries[I].LineNumber, Count);
 
+    var FindResultsChanged := False;
     for var I := FindResultsList.Items.Count-1 downto 0 do begin
       const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
       if FindResult <> nil then begin
@@ -4825,9 +4831,12 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
            (FindResult.Line >= FirstLine) then begin
           const NewLine = FindResult.Line + Count;
           UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
+          FindResultsChanged := True;
         end;
       end;
     end;
+    if FindResultsChanged then
+      UpdateScrollWidth(FindResultsList);
 
     if Assigned(Memo.LineState) and (FirstLine < Memo.LineStateCount) then begin
       { Grow FStateLine if necessary }
@@ -4879,6 +4888,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
       end;
     end;
 
+    var FindResultsChanged := False;
     for var I := FindResultsList.Items.Count-1 downto 0 do begin
       const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
       if FindResult <> nil then begin
@@ -4890,9 +4900,12 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
             const NewLine = FindResult.Line - Count;
             UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
           end;
+          FindResultsChanged := True;
         end;
       end;
     end;
+    if FindResultsChanged then
+      UpdateScrollWidth(FindResultsList);
 
     if Assigned(Memo.LineState) then begin
       { Shift existing line states }
@@ -6093,9 +6106,9 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
 
     ResetAllMemosLineState;
     DebugOutputList.Clear;
-    SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugOutputList.ScrollWidth := 0;
     DebugCallStackList.Clear;
-    SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugCallStackList.ScrollWidth := 0;
     if not (OutputTabSet.TabIndex in [tiDebugOutput, tiDebugCallStack]) then
       OutputTabSet.TabIndex := tiDebugOutput;
     SetStatusPanelVisible(True);
@@ -6159,7 +6172,7 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
       UpdateCaption;
       if DebugCallStackList.Items.Count > 0 then begin
         DebugCallStackList.Clear;
-        SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+        DebugCallStackList.ScrollWidth := 0;
         DebugCallStackList.Update;
       end;
       { Tell it to continue }

@@ -122,7 +122,7 @@ begin
     FFilesListBox.Items.Add(WizardFile.Source);
   end;
   FFilesListBox.Items.EndUpdate;
-  UpdateHorizontalExtent(FFilesListBox);
+  UpdateScrollWidth(FFilesListBox);
 end;
 
 procedure TWizardFormFilesHelper.UpdateWizardFilesButtons;

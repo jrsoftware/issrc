@@ -157,6 +157,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormDestroy(Sender: TObject);
+    procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+      NewDPI: Integer);
     procedure NextButtonClick(Sender: TObject);
     procedure BackButtonClick(Sender: TObject);
     procedure FileButtonClick(Sender: TObject);
@@ -465,6 +467,12 @@ begin
   FLanguages.Free;
   FRegistryHelper.Free;
   FFilesHelper.Free;
+end;
+
+procedure TWizardForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+  NewDPI: Integer);
+begin
+  UpdateScrollWidth(AppFilesListBox);
 end;
 
 { --- }
