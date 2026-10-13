@@ -547,7 +547,7 @@ begin
       end;
     WM_SpawnServer_ProcessRequest:
       begin
-        { If FReadyToServe is False, that tells us RestartProcess's
+        { If FReadyToServe is False, that tells us RespawnProcess's
           ShellExecuteEx call must not have returned yet and is processing
           messages. We're not ready to accept requests until after
           ShellExecuteEx has returned and the "respawn block" environment
