@@ -342,6 +342,10 @@ https://github.com/YOUR-USER-NAME/issrc to add the topic).
 Once that's done, you're set! The next time you push a branch to your fork, the
 workflow will be triggered automatically.
 
+To also check the installers for DLL sideloading, add the topic `issrc-build-verify`. To
+run this check locally, run **.github\workflows\build-verify.bat** as administrator after
+running **build.bat**.
+
 To set up automatic synchronization for your fork, first create a Fine-Grained Personal
 Access Token (at https://github.com/settings/personal-access-tokens) with access to your
 fork or all repositories you own, ensuring it has Read and Write permissions for Contents
