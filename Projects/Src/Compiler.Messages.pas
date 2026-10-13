@@ -52,7 +52,6 @@ const
   SCompilerStatusVerificationDisabled = '   Verification disabled!';
   SCompilerStatusCompressingSetupExe = '   Compressing Setup program executable';
   SCompilerStatusUpdatingVersionInfo = '   Updating version info (%s)';
-  SCompilerStatusUpdatingManifest = '   Updating manifest (%s)';
   SCompilerStatusUpdatingIcons = '   Updating icons (%s)';
   SCompilerStatusUpdatingIconsAndVsf = '   Updating icons and style (%s)';
   SCompilerStatusOutputFileInUse = '   The output file appears to be in use (%d). Retrying: %s';

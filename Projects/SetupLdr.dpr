@@ -371,7 +371,7 @@ begin
           SNewLine +
           'Show additional command-line parameters?';
 
-  { Cannot use a task dialog here, due to the compiler's call to PreventCOMCTL32Sideloading }
+  { Cannot use a task dialog here, since SetupLdr doesn't load comctl32 v6 }
   Result := MsgBox(Help, MB_YESNO or MB_ICONSTOP) = IDYES;
 end;
 

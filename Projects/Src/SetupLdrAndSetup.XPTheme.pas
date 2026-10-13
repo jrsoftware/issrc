@@ -6,8 +6,8 @@ unit SetupLdrAndSetup.XPTheme;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Enables themes. Used only by the Setup, SetupCustomStyle and SetupLdr
-  projects.
+  Links the manifest. Also enables themes, except in SetupLdr. Used only by
+  the Setup, SetupCustomStyle and SetupLdr projects.
 
   Note: XPTheme must be included directly after SafeDLLPath in the program's
   "uses" clause so that its code runs before any VCL initialization code.
@@ -17,10 +17,26 @@ interface
 
 implementation
 
-{$IFNDEF WIN64}
-{$R SetupLdrAndSetup.XPTheme-x86.res}
+{ SetupLdr's manifest differs from Setup's in two ways:
+  - It has a loadFrom entry for comctl32.dll in place of the Common-Controls
+    version 6 dependency. This prevents comctl32.dll sideloading, because
+    SetupLdr may run from an untrusted directory. As a result, SetupLdr gets
+    comctl32.dll version 5, so it has no themes and cannot use task dialogs.
+  - It has no loadFrom entries for winspool.drv and wtsapi32.dll. Only VCL
+    imports these, and SetupLdr doesn't use VCL. }
+
+{$IFDEF SETUPLDRPROJ}
+  {$IFNDEF WIN64}
+  {$R SetupLdr.XPTheme-x86.res}
+  {$ELSE}
+  {$R SetupLdr.XPTheme-x64.res}
+  {$ENDIF}
 {$ELSE}
-{$R SetupLdrAndSetup.XPTheme-x64.res}
+  {$IFNDEF WIN64}
+  {$R Setup.XPTheme-x86.res}
+  {$ELSE}
+  {$R Setup.XPTheme-x64.res}
+  {$ENDIF}
 {$ENDIF}
 
 uses

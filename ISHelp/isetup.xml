@@ -4084,7 +4084,7 @@ iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precod
 <li>Setup immediately removes all directories except the System directory from the DLL search path at startup.</li>
 <li>Setup never loads DLLs from a relative path and instead always uses absolute paths.</li>
 <li>Windows is known to sideload certain DLLs without specifying a path, even when not asked to do so. To force it to load these from the System directory, special <tt>loadFrom</tt> instructions are included in the manifest file of Setup. A daily automatic test is used to detect Windows sideloading any new DLLs not yet included in these special <tt>loadFrom</tt> instructions.</li>
-<li>Another special <tt>loadFrom</tt> instruction specifically for <tt>comctl32.dll</tt> is added to the manifest file of the setup loader program at compile time, replacing the regular <tt>dependency</tt> section.</li>
+<li>The manifest file of the setup loader program includes another special <tt>loadFrom</tt> instruction specifically for <tt>comctl32.dll</tt>, in place of the regular <tt>dependency</tt> section.</li>
 </ul>
 
 <heading>Temporary directory security</heading>
