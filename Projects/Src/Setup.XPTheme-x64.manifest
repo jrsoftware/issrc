@@ -45,4 +45,6 @@
 <file name="textshaping.dll" loadFrom="%SystemRoot%\system32\" />
 <file name="version.dll" loadFrom="%SystemRoot%\system32\" />
 <file name="winhttp.dll" loadFrom="%SystemRoot%\system32\" />
+<file name="winspool.drv" loadFrom="%SystemRoot%\system32\" />
+<file name="wtsapi32.dll" loadFrom="%SystemRoot%\system32\" />
 </assembly>
