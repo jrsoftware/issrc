@@ -25,7 +25,7 @@ type
     function HandleExec: TSpawnServerSharedMemory.TRequestResult;
     procedure WndProc(var Message: TMessage);
   public
-    constructor Create;
+    constructor Create(const AClientRequiresAdmin: Boolean);
     destructor Destroy; override;
     property SharedMemoryID: String read FSharedMemoryID;
   end;
@@ -52,6 +52,11 @@ type
     Ptr: ^Byte;
     Size: Cardinal;
   end;
+
+function ConvertStringSecurityDescriptorToSecurityDescriptor(
+  StringSecurityDescriptor: LPCWSTR; StringSDRevision: DWORD;
+  var SecurityDescriptor: Pointer; SecurityDescriptorSize: PULONG): BOOL; stdcall;
+  external advapi32 name 'ConvertStringSecurityDescriptorToSecurityDescriptorW';
 
 function AtomicReadBool(var ATarget: LongBool): LongBool;
 { Reads the most up-to-date value of ATarget (not a stale cached value), with
@@ -296,7 +301,7 @@ procedure EnterSpawnServerDebugMode;
 var
   Server: TSpawnServer;
 begin
-  Server := TSpawnServer.Create;
+  Server := TSpawnServer.Create(False);
   try
     { The UInt32 cast prevents sign extension }
     Application.Title := Format('Wnd=$%x', [UInt32(Server.FWnd)]);
@@ -314,12 +319,82 @@ end;
 
 { TSpawnServer }
 
-constructor TSpawnServer.Create;
+constructor TSpawnServer.Create(const AClientRequiresAdmin: Boolean);
 
-  procedure CreateSharedMemoryMapping;
+  function CreateSecurityDescriptorForMapping: Pointer;
+  { Since the file mapping object is named and appears in Object Manager's
+    BaseNamedObjects directory (albeit briefly because we close the handle
+    after the client connects), it should be given a secure DACL.
+
+    The default DACL assigned by CreateFileMapping (on Windows 11 25H2) when
+    no security descriptor is supplied includes the following access-allowed
+    ACEs:
+    - SYSTEM (FILE_MAP_ALL_ACCESS)
+        This is fine.
+    - The current user SID (FILE_MAP_ALL_ACCESS)
+        This is problematic when the current process (the spawn server
+        process) was started initially elevated (i.e., with the Administrators
+        group in its access token). We shouldn't allow non-elevated (medium
+        integrity) processes running as the same user to access an elevated
+        spawn server.
+    - The logon session SID (FILE_MAP_ALL_ACCESS)
+        This is unwanted because it allows any process in the same session to
+        open the object, regardless of user SID.
+
+    This function constructs a custom security descriptor with a DACL
+    containing the following access-allowed ACEs:
+    - SYSTEM (FILE_MAP_ALL_ACCESS)
+    - Administrators (FILE_MAP_ALL_ACCESS)
+    - The current user SID (FILE_MAP_WRITE)
+        Exception: If the current process (the spawn server process) has the
+        Administrators group in its access token, then the current user SID
+        ACE is excluded to prevent non-elevated processes from opening the
+        object. It is also excluded when the spawn client will be running with
+        PrivilegesRequired=admin, because in that case it's redundant; the
+        Administrators ACE will already grant them access.
+        Note that access is restricted to FILE_MAP_WRITE. This prevents
+        lower/equal-integrity processes from opening the object for read-only
+        access (which would require FILE_MAP_READ). And low-integrity
+        processes cannot open the object for FILE_MAP_WRITE access thanks to
+        Windows Mandatory Integrity Control giving the object an implicit
+        default label of medium integrity + No-Write-Up policy (i.e.,
+        processes lower than medium integrity cannot request write access).
+  }
+
+    procedure AppendAllowACE(var S: String; const ASid: String;
+      const AAccessMask: DWORD);
+    begin
+      S := S + Format('(A;;0x%x;;;%s)', [AAccessMask, ASid]);
+    end;
+
+  const
+    SDDL_REVISION_1 = 1;
+  begin
+    var StringSD := 'D:';  { Means DACL follows }
+    AppendAllowACE(StringSD, 'SY', FILE_MAP_ALL_ACCESS);  { SYSTEM }
+    AppendAllowACE(StringSD, 'BA', FILE_MAP_ALL_ACCESS);  { Administrators }
+    if not IsAdminLoggedOn and not AClientRequiresAdmin then begin
+      var CurrentUserSid := GetCurrentUserSid;
+      { We don't expect GetCurrentUserSid to ever fail, but fall back to
+        "Owner Rights" if it does }
+      if CurrentUserSid = '' then
+        CurrentUserSid := 'OW';
+      AppendAllowACE(StringSD, CurrentUserSid, FILE_MAP_WRITE);
+    end;
+    if not ConvertStringSecurityDescriptorToSecurityDescriptor(
+       PChar(StringSD), SDDL_REVISION_1, Result, nil) then
+      Win32ErrorMsg('ConvertStringSecurityDescriptorToSecurityDescriptor');
+  end;
+
+  procedure CreateSharedMemoryMapping(const ASecurityDescriptor: Pointer);
   const
     FiveDigitsRange = 36 * 36 * 36 * 36 * 36;
   begin
+    var SecurityAttr: TSecurityAttributes;
+    SecurityAttr.nLength := SizeOf(SecurityAttr);
+    SecurityAttr.lpSecurityDescriptor := ASecurityDescriptor;
+    SecurityAttr.bInheritHandle := False;
+
     var FailureCount := 0;
     while True do begin
       FSharedMemoryID := '';
@@ -332,7 +407,7 @@ constructor TSpawnServer.Create;
       { Safety: An extra 64KB ($10000) is reserved but not committed to ensure
         an overrun of Data will AV rather than step outside the mapped view }
       SetLastError(ERROR_SUCCESS);
-      const H = CreateFileMapping(INVALID_HANDLE_VALUE, nil,
+      const H = CreateFileMapping(INVALID_HANDLE_VALUE, @SecurityAttr,
         SEC_RESERVE or PAGE_READWRITE, 0,
         SizeOf(FSharedMemory^) + TSpawnServerSharedMemory.ExtraReservedSize,
         PChar(ObjectName));
@@ -354,12 +429,18 @@ constructor TSpawnServer.Create;
   end;
 
 begin
-  inherited;
+  inherited Create;
   FWnd := AllocateHWnd(WndProc);
   if FWnd = 0 then
     RaiseFunctionFailedError('AllocateHWnd');
 
-  CreateSharedMemoryMapping;
+  const SecurityDescriptor = CreateSecurityDescriptorForMapping;
+  try
+    CreateSharedMemoryMapping(SecurityDescriptor);
+  finally
+    LocalFree(SecurityDescriptor);
+  end;
+
   var SM: PSpawnServerSharedMemory;
   SM := MapViewOfFile(FSharedMemoryMapping, FILE_MAP_WRITE, 0, 0,
     SizeOf(SM^) + TSpawnServerSharedMemory.ExtraReservedSize);

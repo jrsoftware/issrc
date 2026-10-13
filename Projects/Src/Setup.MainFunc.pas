@@ -2661,7 +2661,7 @@ var
 begin
   Cancelled := False;
   try
-    Server := TSpawnServer.Create;
+    Server := TSpawnServer.Create(SetupHeader.PrivilegesRequired = prAdmin);
     try
       RespawnProcess(AElevate, SetupLdrOriginalFilename,
         Format('/SPAWNSM="%s" ', [Server.SharedMemoryID]) + AParams,
@@ -3652,7 +3652,8 @@ begin
     initializes the Setup.PathRedir unit. }
   InitMainNonGetShellFolderPathConstsAndPathRedir;
 
-  { Initialize spawn client }
+  { Initialize spawn client. Needs to be ordered after the privilege check
+    since the shared memory file mapping object may be DACLed admin-only. }
   if IsRespawnedProcess then
     InitializeSpawnClient(SpawnServerSharedMemoryID);
 
