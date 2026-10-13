@@ -18,9 +18,9 @@ interface
 implementation
 
 {$IFNDEF WIN64}
-{$R SetupLdrAndSetup.XPTheme-x86.res}
+{$R SetupLdr.XPTheme-x86.res}
 {$ELSE}
-{$R SetupLdrAndSetup.XPTheme-x64.res}
+{$R SetupLdr.XPTheme-x64.res}
 {$ENDIF}
 
 uses
