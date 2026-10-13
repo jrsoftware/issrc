@@ -11,12 +11,9 @@ test -n "$mt"
 PATH="${mt%%/mt.exe*}:$PATH"
 
 ver="$(sed -n 's/^set VER=//p' <build.bat)"
-curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip
-unzip -o ProcessMonitor.zip
 
-verify_installer() {
+prepare_installer() {
   local arch=$1
-  local previous_arch=$2
   local winsxs_arch=x86
   if test $arch = x64
   then
@@ -31,6 +28,11 @@ verify_installer() {
   mkdir -p Output/innosetup-$ver-$arch.en
   mkdir -p Output/innosetup-$ver-$arch.ENU
   mkdir -p trace/$arch
+}
+
+verify_installer() {
+  local arch=$1
+  local previous_arch=$2
   # Need to start the background process via PowerShell because it would
   # block for some reason if started as a Bash background process.
   powershell -command 'start-process -NoNewWindow -FilePath .\Procmon.exe -ArgumentList "-AcceptEula -Quiet -BackingFile trace/'$arch'/procmon.pml -RunTime 60"'
@@ -64,6 +66,17 @@ verify_installer() {
     exit 1
   fi
 }
+
+for arch in x86 x64
+do
+  prepare_installer $arch
+done
+
+# The download gives Windows time to write the comctl32.dll copies to disk
+# before the first capture starts. The filter above also tries to ignore
+# these writes.
+curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip
+unzip -o ProcessMonitor.zip
 
 previous_arch=
 for arch in x86 x64
