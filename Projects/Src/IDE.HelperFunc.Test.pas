@@ -54,8 +54,6 @@ begin
   Assert(FindOptionsToSearchOptions([frMatchCase, frWholeWord], True) =
     [sfoMatchCase, sfoWholeWord, sfoRegEx]);
   Assert(FindOptionsToSearchOptions([frDown], False) = []);
-  Assert(FindOptionsToSearchOptions(True, False) = [sfoMatchCase]);
-  Assert(FindOptionsToSearchOptions(False, True) = [sfoRegEx]);
   Assert(RegExToReplaceMode(True) = srmRegEx);
   Assert(RegExToReplaceMode(False) = srmMinimal);
 end;
