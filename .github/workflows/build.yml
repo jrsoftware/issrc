@@ -73,7 +73,7 @@ jobs:
           path: |
             ISHelp/Staging/
             ISHelp/Staging-dark/
-      - name: Verify installer
+      - name: Verify installers
         if: contains(github.event.repository.topics, 'issrc-build-verify')
         shell: bash
         run: |

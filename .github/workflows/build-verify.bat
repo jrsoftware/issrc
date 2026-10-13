@@ -27,8 +27,8 @@ xcopy /y /j ..\..\..\Output\innosetup-%VER%-*.exe Output\
 if errorlevel 1 goto failed
 
 rem  An existing PML makes Procmon prompt before it starts capturing
-del trace\x86\procmon.pml trace\x86\procmon.csv trace\x86\filtered.csv 2>nul
-for %%f in (procmon.pml procmon.csv filtered.csv) do if exist trace\x86\%%f goto failed
+for %%a in (x86 x64) do del trace\%%a\procmon.pml trace\%%a\procmon.csv trace\%%a\filtered.csv 2>nul
+for %%a in (x86 x64) do for %%f in (procmon.pml procmon.csv filtered.csv) do if exist trace\%%a\%%f goto failed
 
 "%ProgramFiles%\Git\bin\bash.exe" --noprofile --norc ../build-verify.sh
 if errorlevel 1 goto failed
