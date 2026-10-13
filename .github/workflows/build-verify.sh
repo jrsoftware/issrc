@@ -4,6 +4,7 @@
 # "Drop Filtered Events" must be off there.
 
 set -exo pipefail
+fltmc >/dev/null 2>&1 || { echo "Must be run as administrator" >&2; exit 1; }
 
 mt=$(ls -t /c/Program\ Files*/Windows\ Kits/10/bin/*/x64/mt.exe)
 test -n "$mt"
