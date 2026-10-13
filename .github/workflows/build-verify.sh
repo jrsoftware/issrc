@@ -35,7 +35,7 @@ powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -A
 
 curdir="$(cygpath -aw Output | sed 's/\\/&&/g')"
 ver="$(sed 's/\./\\&/g' <<<"$ver")"
-sed -ne '/"'$curdir'\\innosetup-'$ver'-x86\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\)"/d' \
+sed -ne '/"'$curdir'\\innosetup-'$ver'-x86\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\|nl-NL\|nl\|NLD\|NL\)"/d' \
   -e '/"System","[0-9]*","\(CreateFileMapping\|FASTIO_[A-Z_]*\)"/d' -e '/"'$curdir'\\/p' \
   trace/procmon.csv >trace/filtered.csv
 if test -s trace/filtered.csv
