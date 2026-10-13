@@ -382,7 +382,7 @@ begin
   { do not localize }
   Help := 'Additional command-line parameters:' + SNewLine2 +
           '/NOICONS' + SNewLine +
-          'Instructs Setup to initially check the Don''t create a Start Menu folder check box.' + SNewLine +
+          'Instructs Setup to initially check the Don''t create a Start menu folder checkbox.' + SNewLine +
           '/NOSTYLE' + SNewLine +
           'Prevents Setup from activating custom styles (including the built-in custom dark style).' + SNewLine +
           '/NOCANCEL' + SNewLine +

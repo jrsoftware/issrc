@@ -108,7 +108,7 @@ const
   SWizardAppDirNameError = 'Please specify the application folder name.';
   SWizardAppExeError = 'Please specify the application main executable file.';
   SWizardAppExeNotExistError = 'The specified application main executable file does not exist.';
-  SWizardAppGroupNameError = 'Please specify the application Start Menu group name.';
+  SWizardAppGroupNameError = 'Please specify the application Start menu group name.';
   SWizardFileDestRootDirError = 'Please specify the destination base folder.';
   SWizardFileAppDestRootDirError = 'Please specify a destination base folder other than the application folder.';
   SWizardFileDestNameError = 'Please specify the destination name.';
