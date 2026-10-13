@@ -42,13 +42,11 @@ procedure UpdateVersionInfo(const F: TCustomFile;
   const NewCompanyName, NewFileDescription, NewTextFileVersion, NewLegalCopyright,
   NewProductName, NewTextProductVersion, NewOriginalFileName: String;
   const SetFileVersionAndDescription: Boolean);
-procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
 
 implementation
 
 uses
-  Math,
-  UnsignedFunc;
+  Math;
 
 const
   IMAGE_NT_SIGNATURE = $00004550;
@@ -1078,45 +1076,6 @@ begin
     if Ico <> nil then
       FreeMem(Ico);
   end;
-end;
-
-{ Replaces the entire comctl32 dependency section of the manifest with spaces, then inserts a
-  comctl32 file entry before the other entries. Intended for SetupLdr only. Note: The exact number
-  of spaces is calculated to allow seamless in-place editing. }
-procedure PreventCOMCTL32Sideloading(const F: TCustomFile);
-const
-  DependencyStartTag: AnsiString = '<dependency>';
-  DependencyEndTag: AnsiString = '</dependency>';
-  FileStartTag: AnsiString = '<file name="';
-  COMCTL32Entry: AnsiString = '<file name="comctl32.dll" loadFrom="%SystemRoot%\system32\" />'#13#10;
-var
-  S: AnsiString;
-  P,Q,R: Integer;
-begin
-  { Read the manifest resource into a string }
-  SetString(S, nil, SeekToResourceData(F, 24, 1));
-  var Offset := F.Position;
-  F.ReadBuffer(S[1], ULength(S));
-
-  { Locate and update the <dependency> tag }
-  P := Pos(DependencyStartTag, S);
-  if P = 0 then
-    ResUpdateError('<dependency> tag not found');
-  Q := Pos(DependencyEndTag, S);
-  if Q <= P then
-    ResUpdateError('<dependency> end tag not found');
-  Q := Q+Length(DependencyEndTag);
-  if Length(COMCTL32Entry) > Q-P then
-    ResUpdateError('<dependency> tag shorter than replacement');
-  R := Pos(FileStartTag, S);
-  if R <= Q then
-    ResUpdateError('<dependency> end tag after <file>?');
-
-  Inc(Offset, P-1);
-  F.Seek(Offset);
-  F.WriteAnsiString(StringOfChar(AnsiChar(' '), Q-P-Length(COMCTL32Entry)));
-  F.WriteAnsiString(AnsiString(Copy(S, Q, R-Q)));
-  F.WriteAnsiString(COMCTL32Entry);
 end;
 
 end.

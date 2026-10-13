@@ -9211,12 +9211,6 @@ begin
               VersionInfoCopyright, VersionInfoProductName, VersionInfoProductTextVersion, VersionInfoOriginalFileName,
               True);
 
-            { Update manifest if needed }
-            if SetupLdrArchitecture <> slaNone then begin
-              AddStatus(Format(SCompilerStatusUpdatingManifest, ['Setup.exe']));
-              PreventCOMCTL32Sideloading(ExeFile);
-            end;
-
             { For some reason, on Win95 the date/time of the EXE sometimes
               doesn't get updated after it's been written to so it has to
               manually set it. (I don't get it!!) }
