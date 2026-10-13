@@ -17,10 +17,18 @@ interface
 
 implementation
 
-{$IFNDEF WIN64}
-{$R SetupLdr.XPTheme-x86.res}
+{$IFDEF SETUPLDRPROJ}
+  {$IFNDEF WIN64}
+  {$R SetupLdr.XPTheme-x86.res}
+  {$ELSE}
+  {$R SetupLdr.XPTheme-x64.res}
+  {$ENDIF}
 {$ELSE}
-{$R SetupLdr.XPTheme-x64.res}
+  {$IFNDEF WIN64}
+  {$R Setup.XPTheme-x86.res}
+  {$ELSE}
+  {$R Setup.XPTheme-x64.res}
+  {$ENDIF}
 {$ENDIF}
 
 uses
