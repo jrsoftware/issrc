@@ -11,36 +11,50 @@ test -n "$mt"
 PATH="${mt%%/mt.exe*}:$PATH"
 
 ver="$(sed -n 's/^set VER=//p' <build.bat)"
-mt '-inputresource:Output\innosetup-'$ver-x86.exe -out:innosetup-$ver-x86.manifest
-cat innosetup-$ver-x86.manifest
-mkdir -p Output/innosetup-$ver-x86.exe.Local
-cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/x86_microsoft.windows.common-controls_* Output/innosetup-$ver-x86.exe.Local/
-mkdir -p Output/innosetup-$ver-x86.en-US
-mkdir -p Output/innosetup-$ver-x86.en
-mkdir -p Output/innosetup-$ver-x86.ENU
-mkdir -p trace
 curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip
 unzip -o ProcessMonitor.zip
-# Need to start the background process via PowerShell because it would
-# block for some reason if started as a Bash background process.
-powershell -command 'start-process -NoNewWindow -FilePath .\Procmon.exe -ArgumentList "-AcceptEula -Quiet -BackingFile trace/procmon.pml -RunTime 60"'
-test $? = 0
-ps -W
-./Procmon.exe -AcceptEula -WaitForIdle
-./Output/innosetup-$ver-x86.exe //verysilent //suppressmsgboxes //dir=InnoSetup //noicons \
-  //tasks= //portable=1 //currentuser
-test -x InnoSetup/ISCC.exe
-./Procmon.exe -Terminate -Quiet
-powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\procmon.pml -SaveAs trace\procmon.csv"'
 
-curdir="$(cygpath -aw Output | sed 's/\\/&&/g')"
-ver="$(sed 's/\./\\&/g' <<<"$ver")"
-sed -ne '/"'$curdir'\\innosetup-'$ver'-x86\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\|nl-NL\|nl\|NLD\|NL\)"/d' \
-  -e '/"System","[0-9]*","\(CreateFileMapping\|FASTIO_[A-Z_]*\)"/d' -e '/"'$curdir'\\/p' \
-  trace/procmon.csv >trace/filtered.csv
-if test -s trace/filtered.csv
-then
-  echo ":error:Unexpected filesystem access" >&2
-  cat trace/filtered.csv >&2
-  exit 1
-fi
+verify_installer() {
+  local arch=$1
+  local winsxs_arch=x86
+  if test $arch = x64
+  then
+    winsxs_arch=amd64
+  fi
+
+  mt '-inputresource:Output\innosetup-'$ver-$arch.exe -out:innosetup-$ver-$arch.manifest
+  cat innosetup-$ver-$arch.manifest
+  mkdir -p Output/innosetup-$ver-$arch.exe.Local
+  cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/${winsxs_arch}_microsoft.windows.common-controls_* Output/innosetup-$ver-$arch.exe.Local/
+  mkdir -p Output/innosetup-$ver-$arch.en-US
+  mkdir -p Output/innosetup-$ver-$arch.en
+  mkdir -p Output/innosetup-$ver-$arch.ENU
+  mkdir -p trace/$arch
+  # Need to start the background process via PowerShell because it would
+  # block for some reason if started as a Bash background process.
+  powershell -command 'start-process -NoNewWindow -FilePath .\Procmon.exe -ArgumentList "-AcceptEula -Quiet -BackingFile trace/'$arch'/procmon.pml -RunTime 60"'
+  test $? = 0
+  ps -W
+  ./Procmon.exe -AcceptEula -WaitForIdle
+  ./Output/innosetup-$ver-$arch.exe //verysilent //suppressmsgboxes //dir=InnoSetup-$arch //noicons \
+    //tasks= //portable=1 //currentuser
+  test -x InnoSetup-$arch/ISCC.exe
+  ./Procmon.exe -Terminate -Quiet
+  powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\'$arch'\procmon.pml -SaveAs trace\'$arch'\procmon.csv"'
+
+  local curdir
+  curdir="$(cygpath -aw Output | sed 's/\\/&&/g')"
+  local escaped_ver
+  escaped_ver="$(sed 's/\./\\&/g' <<<"$ver")"
+  sed -ne '/"'$curdir'\\innosetup-'$escaped_ver'-'$arch'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\|nl-NL\|nl\|NLD\|NL\)"/d' \
+    -e '/"System","[0-9]*","\(CreateFileMapping\|FASTIO_[A-Z_]*\|WriteFile\|SetEndOfFileInformationFile\|IRP_MJ_CLOSE\)"/d' -e '/"'$curdir'\\/p' \
+    trace/$arch/procmon.csv >trace/$arch/filtered.csv
+  if test -s trace/$arch/filtered.csv
+  then
+    echo ":error:Unexpected filesystem access" >&2
+    cat trace/$arch/filtered.csv >&2
+    exit 1
+  fi
+}
+
+verify_installer x86
