@@ -3,9 +3,14 @@
 # and Output, like build-verify.bat does. Procmon uses its saved settings from
 # HKCU: "Drop Filtered Events" must be off there.
 
+# Stop at the first failing command, also inside a pipeline, and log each
+# command before it runs.
 set -exo pipefail
+
+# Stop unless running as administrator, which Procmon needs
 fltmc >/dev/null 2>&1 || { echo "Must be run as administrator" >&2; exit 1; }
 
+# Get the version from build.bat
 ver="$(sed -n 's/^set VER=//p' <build.bat)"
 
 prepare_installer() {
@@ -16,11 +21,14 @@ prepare_installer() {
     winsxs_arch=amd64
   fi
 
+  # cygpath is the Git Bash tool that converts between Windows paths and Git Bash paths
   mkdir -p Output/innosetup-$ver-$arch.exe.Local
   cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/${winsxs_arch}_microsoft.windows.common-controls_* Output/innosetup-$ver-$arch.exe.Local/
   mkdir -p Output/innosetup-$ver-$arch.en-US
   mkdir -p Output/innosetup-$ver-$arch.en
   mkdir -p Output/innosetup-$ver-$arch.ENU
+
+  # Create the folder for the Procmon output
   mkdir -p trace/$arch
 }
 
@@ -30,27 +38,43 @@ verify_installer() {
   # Need to start the background process via PowerShell because it would
   # block for some reason if started as a Bash background process.
   powershell -command 'start-process -NoNewWindow -FilePath .\Procmon.exe -ArgumentList "-AcceptEula -Quiet -BackingFile trace/'$arch'/procmon.pml -RunTime 60"'
+  # Wait until Procmon captures
   ./Procmon.exe -AcceptEula -WaitForIdle
-  ./Output/innosetup-$ver-$arch.exe //verysilent //suppressmsgboxes //dir=InnoSetup-$arch //noicons \
-    //tasks= //portable=1 //currentuser
+  # Perform the installation
+  ./Output/innosetup-$ver-$arch.exe //verysilent //suppressmsgboxes //dir=InnoSetup-$arch //noicons //tasks= //portable=1 //currentuser
+  # Make sure the installer actually installed something
   test -x InnoSetup-$arch/ISCC.exe
+  # Stop the capture
   ./Procmon.exe -Terminate -Quiet
+  # Convert the trace to CSV for the filter
   powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\'$arch'\procmon.pml -SaveAs trace\'$arch'\procmon.csv"'
 
-  local curdir
-  curdir="$(cygpath -aw Output | sed 's/\\/&&/g')"
+  # Escape the Output path and the version for use in the sed patterns
+  local escaped_output_path
+  escaped_output_path="$(cygpath -aw Output | sed 's/\\/&&/g')"
   local escaped_ver
   escaped_ver="$(sed 's/\./\\&/g' <<<"$ver")"
   local ignore_previous_installer=()
   if test -n "$previous_arch"
   then
     # Other processes can still access the previous installer
-    ignore_previous_installer=(-e '/"'$curdir'\\innosetup-'$escaped_ver'-'$previous_arch'\.exe"/d')
+    ignore_previous_installer=(-e '/"'$escaped_output_path'\\innosetup-'$escaped_ver'-'$previous_arch'\.exe"/d')
   fi
-  sed -ne '/"'$curdir'\\innosetup-'$escaped_ver'-'$arch'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\|nl-NL\|nl\|NLD\|NL\)"/d' \
+  # Copy all lines from the Procmon trace in procmon.csv to filtered.csv,
+  # except these:
+  # 1. Access to the installer file itself
+  # 2. Access to its .exe.Config file, which Windows looks for
+  # 3. Access to its resource modules, which Delphi looks for
+  # 4. Access to the previous installer, if any
+  # 5. Select file operations by the System process, such as flushing our earlier copies
+  # 6. Access outside Output
+  # Exceptions 1 to 4 only apply when the complete path matches.
+  sed -ne '/"'$escaped_output_path'\\innosetup-'$escaped_ver'-'$arch'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\|nl-NL\|nl\|NLD\|NL\)"/d' \
+    "${ignore_previous_installer[@]}" \
     -e '/"System","[0-9]*","\(CreateFileMapping\|FASTIO_[A-Z_]*\|WriteFile\|SetEndOfFileInformationFile\|IRP_MJ_CLOSE\)"/d' \
-    "${ignore_previous_installer[@]}" -e '/"'$curdir'\\/p' \
+    -e '/"'$escaped_output_path'\\/p' \
     trace/$arch/procmon.csv >trace/$arch/filtered.csv
+  # Fail if the filter left any lines, and show them
   if test -s trace/$arch/filtered.csv
   then
     echo ":error:Unexpected filesystem access during the $arch installer check" >&2
@@ -64,9 +88,9 @@ do
   prepare_installer $arch
 done
 
-# The download gives Windows time to write the comctl32.dll copies to disk
-# before the first capture starts. The filter above also tries to ignore
-# these writes.
+# The download gives Windows time to flush the comctl32.dll copies before the
+# first capture starts. The filter also ignores the flushing, but only for the
+# operations it lists.
 curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip
 unzip -o ProcessMonitor.zip
 
