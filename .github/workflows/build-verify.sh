@@ -69,8 +69,8 @@ verify_installer() {
     # Other processes can still access the previous installer
     ignore_previous_installer=(-e '/"'$escaped_output_path'\\innosetup-'$escaped_ver'-'$previous_arch'\.exe"/d')
   fi
-  # Copy all lines from the Procmon trace in procmon.csv to filtered.csv,
-  # except these:
+  # Copy all lines from the Procmon trace in procmon.csv to
+  # filtered-setupldr.csv, except these:
   # 1. Access to the installer file itself
   # 2. Access to its .exe.Config file, which Windows looks for
   # 3. Access to its resource modules, which Delphi looks for
@@ -82,12 +82,12 @@ verify_installer() {
     "${ignore_previous_installer[@]}" \
     -e '/"System","[0-9]*","\(CreateFileMapping\|FASTIO_[A-Z_]*\|WriteFile\|SetEndOfFileInformationFile\|IRP_MJ_CLOSE\)"/d' \
     -e '/"'$escaped_output_path'\\/p' \
-    trace/$arch/procmon.csv >trace/$arch/filtered.csv
+    trace/$arch/procmon.csv >trace/$arch/filtered-setupldr.csv
   # Fail if the filter left any lines, and show them
-  if test -s trace/$arch/filtered.csv
+  if test -s trace/$arch/filtered-setupldr.csv
   then
-    echo "::error::Unexpected filesystem access during the $arch installer check"
-    cat trace/$arch/filtered.csv
+    echo "::error::Unexpected filesystem access in SetupLdr's folder during the $arch installer check"
+    cat trace/$arch/filtered-setupldr.csv
     exit 1
   fi
 }
