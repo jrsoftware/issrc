@@ -68,11 +68,16 @@ verify_installer() {
   # Escape the Output path for use in the patterns
   local escaped_output_path
   escaped_output_path="$(cygpath -aw Output | escape_for_pattern)"
-  # Make sure the trace shows the installer opening itself, so the check can't
-  # pass on a trace without the installer's events
+  # Make sure the trace shows the installer opening itself and exiting, so the
+  # check can't pass on a trace without all of the installer's events
   if ! grep -q '"innosetup-'"$escaped_ver"'-'$arch'\.exe","[0-9]*","CreateFile","'"$escaped_output_path"'\\innosetup-'"$escaped_ver"'-'$arch'\.exe"' trace/$arch/procmon.csv
   then
     echo "::error::The trace doesn't show the $arch installer opening itself"
+    exit 1
+  fi
+  if ! grep -q '"innosetup-'"$escaped_ver"'-'$arch'\.exe","[0-9]*","Process Exit"' trace/$arch/procmon.csv
+  then
+    echo "::error::The trace doesn't show the $arch installer exiting"
     exit 1
   fi
   local ignore_previous_installer=()
@@ -117,6 +122,13 @@ verify_installer() {
     echo "::error::The trace doesn't show the $arch Setup loading itself exactly once"
     exit 1
   fi
+  # Make sure the trace shows Setup exiting, so the check can't pass on a trace
+  # without all of Setup's events
+  if ! grep -q '"innosetup-'"$escaped_ver"'-'$arch'\.tmp","[0-9]*","Process Exit"' trace/$arch/procmon.csv
+  then
+    echo "::error::The trace doesn't show the $arch Setup exiting"
+    exit 1
+  fi
   # Copy all lines from the Procmon trace in procmon.csv to filtered-setup.csv,
   # except these:
   # 1. Access to Setup's .tmp file itself
@@ -147,6 +159,12 @@ done
 # operations it lists.
 curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip
 unzip -o ProcessMonitor.zip Procmon.exe
+# Make sure Microsoft signed Procmon before running it elevated
+if ! powershell -command '$signature = Get-AuthenticodeSignature .\Procmon.exe; if ($signature.Status -ne "Valid" -or $signature.SignerCertificate.Subject -notlike "CN=Microsoft Corporation,*") { exit 1 }'
+then
+  echo "::error::Procmon.exe doesn't have a valid Microsoft signature"
+  exit 1
+fi
 
 previous_arch=
 for arch in x86 x64
