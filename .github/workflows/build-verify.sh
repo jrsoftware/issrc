@@ -48,12 +48,21 @@ verify_installer() {
   ./Procmon.exe -Terminate -Quiet
   # Convert the trace to CSV for the filter
   powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\'$arch'\procmon.pml -SaveAs trace\'$arch'\procmon.csv"'
+  # Make sure the conversion actually produced the CSV
+  test -s trace/$arch/procmon.csv
 
-  # Escape the Output path and the version for use in the sed patterns
+  # Escape the Output path and the version for use in the patterns
   local escaped_output_path
   escaped_output_path="$(cygpath -aw Output | sed 's/\\/&&/g')"
   local escaped_ver
   escaped_ver="$(sed 's/\./\\&/g' <<<"$ver")"
+  # Make sure the trace shows the installer opening itself, so the check can't
+  # pass on a trace without the installer's events
+  if ! grep -q '"innosetup-'$escaped_ver'-'$arch'\.exe","[0-9]*","CreateFile","'$escaped_output_path'\\innosetup-'$escaped_ver'-'$arch'\.exe"' trace/$arch/procmon.csv
+  then
+    echo "::error::The trace doesn't show the $arch installer opening itself"
+    exit 1
+  fi
   local ignore_previous_installer=()
   if test -n "$previous_arch"
   then
