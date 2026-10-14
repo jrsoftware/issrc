@@ -12,6 +12,12 @@ fltmc >/dev/null 2>&1 || { echo "Must be run as administrator" >&2; exit 1; }
 
 # Get the version from build.bat
 ver="$(sed -n 's/^set VER=//p' <build.bat)"
+test -n "$ver"
+
+escape_for_pattern() {
+  # Escape the input for literal use in a sed or grep pattern
+  sed 's/[.[\*^$]/\\&/g'
+}
 
 prepare_installer() {
   local arch=$1
@@ -52,16 +58,16 @@ verify_installer() {
   test -s trace/$arch/procmon.csv
   # Escape the version for use in the patterns
   local escaped_ver
-  escaped_ver="$(sed 's/\./\\&/g' <<<"$ver")"
+  escaped_ver="$(escape_for_pattern <<<"$ver")"
 
   # Verify SetupLdr
 
   # Escape the Output path for use in the patterns
   local escaped_output_path
-  escaped_output_path="$(cygpath -aw Output | sed 's/\\/&&/g')"
+  escaped_output_path="$(cygpath -aw Output | escape_for_pattern)"
   # Make sure the trace shows the installer opening itself, so the check can't
   # pass on a trace without the installer's events
-  if ! grep -q '"innosetup-'$escaped_ver'-'$arch'\.exe","[0-9]*","CreateFile","'$escaped_output_path'\\innosetup-'$escaped_ver'-'$arch'\.exe"' trace/$arch/procmon.csv
+  if ! grep -q '"innosetup-'"$escaped_ver"'-'$arch'\.exe","[0-9]*","CreateFile","'"$escaped_output_path"'\\innosetup-'"$escaped_ver"'-'$arch'\.exe"' trace/$arch/procmon.csv
   then
     echo "::error::The trace doesn't show the $arch installer opening itself"
     exit 1
@@ -70,7 +76,7 @@ verify_installer() {
   if test -n "$previous_arch"
   then
     # Other processes can still access the previous installer
-    ignore_previous_installer=(-e '/"'$escaped_output_path'\\innosetup-'$escaped_ver'-'$previous_arch'\.exe"/d')
+    ignore_previous_installer=(-e '/"'"$escaped_output_path"'\\innosetup-'"$escaped_ver"'-'$previous_arch'\.exe"/d')
   fi
   # Copy all lines from the Procmon trace in procmon.csv to
   # filtered-setupldr.csv, except these:
@@ -81,10 +87,10 @@ verify_installer() {
   # 5. Select file operations by the System process, such as flushing our earlier copies
   # 6. Access outside Output
   # Exceptions 1 to 4 only apply when the complete path matches.
-  sed -ne '/"'$escaped_output_path'\\innosetup-'$escaped_ver'-'$arch'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\|nl-NL\|nl\|NLD\|NL\)"/d' \
+  sed -ne '/"'"$escaped_output_path"'\\innosetup-'"$escaped_ver"'-'$arch'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\|nl-NL\|nl\|NLD\|NL\)"/d' \
     "${ignore_previous_installer[@]}" \
     -e '/"System","[0-9]*","\(CreateFileMapping\|FASTIO_[A-Z_]*\|WriteFile\|SetEndOfFileInformationFile\|IRP_MJ_CLOSE\)"/d' \
-    -e '/"'$escaped_output_path'\\/p' \
+    -e '/"'"$escaped_output_path"'\\/p' \
     trace/$arch/procmon.csv >trace/$arch/filtered-setupldr.csv
   # Fail if the filter left any lines, and show them
   if test -s trace/$arch/filtered-setupldr.csv
@@ -102,7 +108,7 @@ verify_installer() {
   # also when TEMP is an 8.3 path. This script runs elevated, so Setup doesn't
   # respawn itself and the trace must have exactly one such event.
   local escaped_setup_path
-  escaped_setup_path="$(sed -n 's/^.*"innosetup-'$escaped_ver'-'$arch'\.tmp","[0-9]*","Load Image","\([^"]*\)\\innosetup-'$escaped_ver'-'$arch'\.tmp",.*/\1/p' trace/$arch/procmon.csv | sed 's/\\/&&/g')"
+  escaped_setup_path="$(sed -n 's/^.*"innosetup-'"$escaped_ver"'-'$arch'\.tmp","[0-9]*","Load Image","\([^"]*\)\\innosetup-'"$escaped_ver"'-'$arch'\.tmp",.*/\1/p' trace/$arch/procmon.csv | escape_for_pattern)"
   if test "$(grep -c . <<<"$escaped_setup_path")" != 1
   then
     echo "::error::The trace doesn't show the $arch Setup loading itself exactly once"
@@ -115,9 +121,9 @@ verify_installer() {
   # 3. Access to its resource modules, which Delphi looks for
   # 4. Access outside Setup's folder
   # Exceptions 1 to 3 only apply when the complete path matches.
-  sed -ne '/"'$escaped_setup_path'\\innosetup-'$escaped_ver'-'$arch'\.\(tmp\|tmp\.Config\|en-US\|en\|ENU\|EN\|nl-NL\|nl\|NLD\|NL\)"/d' \
-    -e '/"'$escaped_setup_path'\\\(en-US\|en\|nl-NL\|nl\)"/d' \
-    -e '/"'$escaped_setup_path'\\/p' \
+  sed -ne '/"'"$escaped_setup_path"'\\innosetup-'"$escaped_ver"'-'$arch'\.\(tmp\|tmp\.Config\|en-US\|en\|ENU\|EN\|nl-NL\|nl\|NLD\|NL\)"/d' \
+    -e '/"'"$escaped_setup_path"'\\\(en-US\|en\|nl-NL\|nl\)"/d' \
+    -e '/"'"$escaped_setup_path"'\\/p' \
     trace/$arch/procmon.csv >trace/$arch/filtered-setup.csv
   # Fail if the filter left any lines, and show them
   if test -s trace/$arch/filtered-setup.csv
