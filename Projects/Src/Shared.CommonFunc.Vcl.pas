@@ -37,8 +37,11 @@ type
     procedure SetCurrentPPI(const CurrentPPI: Integer);
   end;
 
+  TListBoxItemIsBoldFunc = function(const Index: Integer): Boolean of object;
+
 function AppCreateForm(const AClass: TCustomFormClass): TCustomForm;
-procedure UpdateScrollWidth(const ListBox: TCustomListBox);
+procedure UpdateScrollWidth(const ListBox: TCustomListBox;
+  const ItemIsBold: TListBoxItemIsBoldFunc = nil);
 function MinimizePathName(const Filename: String; const Font: TFont;
   MaxLen: Integer): String;
 function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer; overload;
@@ -88,31 +91,47 @@ end;
 type
   TListBoxAccess = class(TCustomListBox);
 
-procedure UpdateScrollWidth(const ListBox: TCustomListBox);
+procedure UpdateScrollWidth(const ListBox: TCustomListBox;
+  const ItemIsBold: TListBoxItemIsBoldFunc);
 begin
-  var MaxScrollWidth := 0;
-  const DC = GetDC(0);
+  const Font = TListBoxAccess(ListBox).Font;
+  var BoldFont: TFont := nil;
   try
-    SelectObject(DC, TListBoxAccess(ListBox).Font.Handle);
+    var MaxScrollWidth := 0;
+    const DC = GetDC(0);
+    try
+      SelectObject(DC, Font.Handle);
 
-    //Q66370 says tmAveCharWidth should be added to scroll width
-    var TextMetrics: TTextMetric;
-    GetTextMetrics(DC, TextMetrics);
+      //Q66370 says tmAveCharWidth should be added to scroll width
+      var TextMetrics: TTextMetric;
+      GetTextMetrics(DC, TextMetrics);
 
-    for var I := 0 to ListBox.Items.Count-1 do begin
-      var Size: TSize;
-      GetTextExtentPoint32(DC, PChar(ListBox.Items[I]), Length(ListBox.Items[I]), Size);
-      const ScrollWidth = Size.cx + TextMetrics.tmAveCharWidth;
-      if ScrollWidth > MaxScrollWidth then
-        MaxScrollWidth := ScrollWidth;
+      for var I := 0 to ListBox.Items.Count-1 do begin
+        if Assigned(ItemIsBold) and ItemIsBold(I) then begin
+          if BoldFont = nil then begin
+            BoldFont := TFont.Create;
+            BoldFont.Assign(Font);
+            BoldFont.Style := [fsBold];
+          end;
+          SelectObject(DC, BoldFont.Handle);
+        end else if BoldFont <> nil then
+          SelectObject(DC, Font.Handle);
+        var Size: TSize;
+        GetTextExtentPoint32(DC, PChar(ListBox.Items[I]), Length(ListBox.Items[I]), Size);
+        const ScrollWidth = Size.cx + TextMetrics.tmAveCharWidth;
+        if ScrollWidth > MaxScrollWidth then
+          MaxScrollWidth := ScrollWidth;
+      end;
+
+    finally
+      ReleaseDC(0, DC);
     end;
 
+    { Don't check the existing scroll width, it might be outdated }
+    ListBox.ScrollWidth := MaxScrollWidth;
   finally
-    ReleaseDC(0, DC);
+    BoldFont.Free;
   end;
-
-  { Don't check the existing scroll width, it might be outdated }
-  ListBox.ScrollWidth := MaxScrollWidth;
 end;
 
 function MinimizePathName(const Filename: String; const Font: TFont;

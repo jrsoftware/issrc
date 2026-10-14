@@ -547,6 +547,7 @@ type
     function EvaluateConstant(const S: String; out Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       out Output: String): Integer;
+    function FindResultsListItemIsHeader(const Index: Integer): Boolean;
     procedure FinishLocalization;
     function GetBorderStyle: TFormBorderStyle;
     function GetMainFilename: String;
@@ -694,6 +695,7 @@ type
       const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
     procedure ReopenTabClick(Sender: TObject);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
+    procedure UpdateFindResultsListScrollWidth;
     { Other }
     procedure CreateWnd; override;
     procedure WndProc(var Message: TMessage); override;
@@ -1341,7 +1343,7 @@ begin
   UpdateAddedLinesScrollWidth(CompilerOutputList, alpNone, 0);
   UpdateAddedLinesScrollWidth(DebugOutputList, alpTimestamp, FDebugLogListTimestampsWidth);
   UpdateAddedLinesScrollWidth(DebugCallStackList, alpCountdown, 0);
-  UpdateScrollWidth(FindResultsList);
+  UpdateFindResultsListScrollWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
 end;
 
@@ -4829,7 +4831,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
       end;
     end;
     if FindResultsChanged then
-      UpdateScrollWidth(FindResultsList);
+      UpdateFindResultsListScrollWidth;
 
     if Assigned(Memo.LineState) and (FirstLine < Memo.LineStateCount) then begin
       { Grow FStateLine if necessary }
@@ -4898,7 +4900,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
       end;
     end;
     if FindResultsChanged then
-      UpdateScrollWidth(FindResultsList);
+      UpdateFindResultsListScrollWidth;
 
     if Assigned(Memo.LineState) then begin
       { Shift existing line states }
@@ -6851,19 +6853,30 @@ begin
   end;
 end;
 
+function TMainForm.FindResultsListItemIsHeader(const Index: Integer): Boolean;
+begin
+  Result := FindResultsList.Items.Objects[Index] = nil;
+end;
+
+procedure TMainForm.UpdateFindResultsListScrollWidth;
+begin
+  { FindResultsListDrawItem draws headers in bold }
+  UpdateScrollWidth(FindResultsList, FindResultsListItemIsHeader);
+end;
+
 procedure TMainForm.FindResultsListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
   State: TOwnerDrawState);
 begin
   const Canvas = FindResultsList.Canvas;
   const S = FindResultsList.Items[Index];
-  const FindResult = FindResultsList.Items.Objects[Index] as TFindResult;
 
   Canvas.FillRect(Rect);
   Inc(Rect.Left, ToCurrentPPI(2));
-  if FindResult = nil then begin
+  if FindResultsListItemIsHeader(Index) then begin
     Canvas.Font.Style := [fsBold];
     Canvas.TextOut(Rect.Left, Rect.Top, S);
   end else if not (odSelected in State) then begin
+    const FindResult = FindResultsList.Items.Objects[Index] as TFindResult;
     if FindResult.StartIndex > 1 then begin
       const Prefix = Copy(S, 1, FindResult.StartIndex-1);
       Canvas.TextOut(Rect.Left, Rect.Top, Prefix);

@@ -271,7 +271,7 @@ begin
   end;
 
   FindResultsList.Items.Insert(0, LFmtMessage(SFindResultSummary, [FindInFilesDialog.FindText, Hits, Files]));
-  UpdateScrollWidth(FindResultsList);
+  UpdateFindResultsListScrollWidth;
 
   FindInFilesDialog.CloseDialog;
 
