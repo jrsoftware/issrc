@@ -344,7 +344,11 @@ workflow will be triggered automatically.
 
 To also check the installers for DLL sideloading, add the topic `issrc-build-verify`. To
 run this check locally, run **.github\workflows\build-verify.bat** as administrator after
-running **build.bat**.
+running **build.bat**. This requires Windows with English (United States) or Dutch
+(Netherlands) as its display language. Running it clears your Process Monitor's saved
+filter and changes its backing file to
+**.github\workflows\build-verify\trace\x64\procmon.pml**. To undo the latter, choose
+File > Backing Files > Use virtual memory.
 
 To set up automatic synchronization for your fork, first create a Fine-Grained Personal
 Access Token (at https://github.com/settings/personal-access-tokens) with access to your

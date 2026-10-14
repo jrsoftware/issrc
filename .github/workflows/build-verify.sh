@@ -1,7 +1,6 @@
 # Verifies the x86 and x64 installers in Output for DLL sideloading. Run it
 # elevated from the repository root, or from a folder with the same build.bat
-# and Output, like build-verify.bat does. Procmon uses its saved settings from
-# HKCU: "Drop Filtered Events" must be off there.
+# and Output, like build-verify.bat does.
 
 # Stop at the first failing command, also inside a pipeline, and log each
 # command before it runs.
@@ -42,8 +41,9 @@ verify_installer() {
   local arch=$1
   local previous_arch=$2
   # Need to start the background process via PowerShell because it would
-  # block for some reason if started as a Bash background process.
-  powershell -command 'start-process -NoNewWindow -FilePath .\Procmon.exe -ArgumentList "-AcceptEula -Quiet -BackingFile trace/'$arch'/procmon.pml -RunTime 60"'
+  # block for some reason if started as a Bash background process. -NoFilter
+  # stops Procmon's saved filter from dropping events, but also clears it.
+  powershell -command 'start-process -NoNewWindow -FilePath .\Procmon.exe -ArgumentList "-AcceptEula -Quiet -NoFilter -BackingFile trace/'$arch'/procmon.pml -RunTime 60"'
   # Also stop the capture if the script stops early, so the PML is complete
   trap './Procmon.exe -Terminate -Quiet' EXIT
   # Wait until Procmon captures
