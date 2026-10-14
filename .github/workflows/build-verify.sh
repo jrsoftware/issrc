@@ -6,10 +6,6 @@
 set -exo pipefail
 fltmc >/dev/null 2>&1 || { echo "Must be run as administrator" >&2; exit 1; }
 
-mt=$(ls -t /c/Program\ Files*/Windows\ Kits/10/bin/*/x64/mt.exe)
-test -n "$mt"
-PATH="${mt%%/mt.exe*}:$PATH"
-
 ver="$(sed -n 's/^set VER=//p' <build.bat)"
 
 prepare_installer() {
@@ -20,8 +16,6 @@ prepare_installer() {
     winsxs_arch=amd64
   fi
 
-  mt '-inputresource:Output\innosetup-'$ver-$arch.exe -out:innosetup-$ver-$arch.manifest
-  cat innosetup-$ver-$arch.manifest
   mkdir -p Output/innosetup-$ver-$arch.exe.Local
   cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/${winsxs_arch}_microsoft.windows.common-controls_* Output/innosetup-$ver-$arch.exe.Local/
   mkdir -p Output/innosetup-$ver-$arch.en-US
@@ -36,8 +30,6 @@ verify_installer() {
   # Need to start the background process via PowerShell because it would
   # block for some reason if started as a Bash background process.
   powershell -command 'start-process -NoNewWindow -FilePath .\Procmon.exe -ArgumentList "-AcceptEula -Quiet -BackingFile trace/'$arch'/procmon.pml -RunTime 60"'
-  test $? = 0
-  ps -W
   ./Procmon.exe -AcceptEula -WaitForIdle
   ./Output/innosetup-$ver-$arch.exe //verysilent //suppressmsgboxes //dir=InnoSetup-$arch //noicons \
     //tasks= //portable=1 //currentuser

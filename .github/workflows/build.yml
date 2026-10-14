@@ -4,9 +4,6 @@ on:
   push:
   workflow_dispatch:
 
-env:
-  HOME: "${{github.workspace}}\\home"
-
 jobs:
   build:
     # Only set the topic `has-issrc-build-env` if the secrets are available
