@@ -49,7 +49,7 @@ verify_installer() {
   # Wait until Procmon captures
   ./Procmon.exe -AcceptEula -WaitForIdle
   # Perform the installation
-  ./Output/innosetup-$ver-$arch.exe //verysilent //suppressmsgboxes //dir=InnoSetup-$arch //noicons //tasks= //portable=1 //currentuser
+  ./Output/innosetup-$ver-$arch.exe //silent //suppressmsgboxes //dir=InnoSetup-$arch //noicons //tasks= //portable=1 //currentuser
   # Make sure the installer actually installed something
   test -x InnoSetup-$arch/ISCC.exe
   # Stop the capture
