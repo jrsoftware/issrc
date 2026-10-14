@@ -50,12 +50,15 @@ verify_installer() {
   powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\'$arch'\procmon.pml -SaveAs trace\'$arch'\procmon.csv"'
   # Make sure the conversion actually produced the CSV
   test -s trace/$arch/procmon.csv
-
-  # Escape the Output path and the version for use in the patterns
-  local escaped_output_path
-  escaped_output_path="$(cygpath -aw Output | sed 's/\\/&&/g')"
+  # Escape the version for use in the patterns
   local escaped_ver
   escaped_ver="$(sed 's/\./\\&/g' <<<"$ver")"
+
+  # Verify SetupLdr
+
+  # Escape the Output path for use in the patterns
+  local escaped_output_path
+  escaped_output_path="$(cygpath -aw Output | sed 's/\\/&&/g')"
   # Make sure the trace shows the installer opening itself, so the check can't
   # pass on a trace without the installer's events
   if ! grep -q '"innosetup-'$escaped_ver'-'$arch'\.exe","[0-9]*","CreateFile","'$escaped_output_path'\\innosetup-'$escaped_ver'-'$arch'\.exe"' trace/$arch/procmon.csv
@@ -91,6 +94,8 @@ verify_installer() {
     exit 1
   fi
 
+  # Verify Setup
+
   # Get Setup's folder from the event of SetupLdr starting it, and escape it
   # for use in the patterns. This script runs elevated, so Setup doesn't
   # respawn itself and the trace must have exactly one such event.
@@ -99,6 +104,24 @@ verify_installer() {
   if test "$(grep -c . <<<"$escaped_setup_path")" != 1
   then
     echo "::error::The trace doesn't show the $arch installer starting Setup exactly once"
+    exit 1
+  fi
+  # Copy all lines from the Procmon trace in procmon.csv to filtered-setup.csv,
+  # except these:
+  # 1. Access to Setup's .tmp file itself
+  # 2. Access to its .tmp.Config file and culture folders, which Windows looks for
+  # 3. Access to its resource modules, which Delphi looks for
+  # 4. Access outside Setup's folder
+  # Exceptions 1 to 3 only apply when the complete path matches.
+  sed -ne '/"'$escaped_setup_path'\\innosetup-'$escaped_ver'-'$arch'\.\(tmp\|tmp\.Config\|en-US\|en\|ENU\|EN\|nl-NL\|nl\|NLD\|NL\)"/d' \
+    -e '/"'$escaped_setup_path'\\\(en-US\|en\|nl-NL\|nl\)"/d' \
+    -e '/"'$escaped_setup_path'\\/p' \
+    trace/$arch/procmon.csv >trace/$arch/filtered-setup.csv
+  # Fail if the filter left any lines, and show them
+  if test -s trace/$arch/filtered-setup.csv
+  then
+    echo "::error::Unexpected filesystem access in Setup's folder during the $arch installer check"
+    cat trace/$arch/filtered-setup.csv
     exit 1
   fi
 }
