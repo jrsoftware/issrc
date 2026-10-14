@@ -90,6 +90,17 @@ verify_installer() {
     cat trace/$arch/filtered-setupldr.csv
     exit 1
   fi
+
+  # Get Setup's folder from the event of SetupLdr starting it, and escape it
+  # for use in the patterns. This script runs elevated, so Setup doesn't
+  # respawn itself and the trace must have exactly one such event.
+  local escaped_setup_path
+  escaped_setup_path="$(sed -n 's/^.*"innosetup-'$escaped_ver'-'$arch'\.exe","[0-9]*","Process Create","\([^"]*\)\\innosetup-'$escaped_ver'-'$arch'\.tmp",.*/\1/p' trace/$arch/procmon.csv | sed 's/\\/&&/g')"
+  if test "$(grep -c . <<<"$escaped_setup_path")" != 1
+  then
+    echo "::error::The trace doesn't show the $arch installer starting Setup exactly once"
+    exit 1
+  fi
 }
 
 for arch in x86 x64
