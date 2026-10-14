@@ -4136,7 +4136,8 @@ begin
 
     if not(roShellExec in RunEntry.Options) then begin
       if not(roSkipIfDoesntExist in RunEntry.Options) or
-         NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
+         ((ExpandedFilenameBeforeRedir <> '') and
+          NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent))) then begin
         var OutputReader: TCreateProcessOutputReader := nil;
         try
           if roLogOutput in RunEntry.Options then begin
