@@ -96,14 +96,16 @@ verify_installer() {
 
   # Verify Setup
 
-  # Get Setup's folder from the event of SetupLdr starting it, and escape it
-  # for use in the patterns. This script runs elevated, so Setup doesn't
+  # Get Setup's folder from the event of Setup loading itself, and escape it
+  # for use in the patterns. Unlike the event of SetupLdr starting Setup, this
+  # event shows the folder in the same form as the file events: the long form,
+  # also when TEMP is an 8.3 path. This script runs elevated, so Setup doesn't
   # respawn itself and the trace must have exactly one such event.
   local escaped_setup_path
-  escaped_setup_path="$(sed -n 's/^.*"innosetup-'$escaped_ver'-'$arch'\.exe","[0-9]*","Process Create","\([^"]*\)\\innosetup-'$escaped_ver'-'$arch'\.tmp",.*/\1/p' trace/$arch/procmon.csv | sed 's/\\/&&/g')"
+  escaped_setup_path="$(sed -n 's/^.*"innosetup-'$escaped_ver'-'$arch'\.tmp","[0-9]*","Load Image","\([^"]*\)\\innosetup-'$escaped_ver'-'$arch'\.tmp",.*/\1/p' trace/$arch/procmon.csv | sed 's/\\/&&/g')"
   if test "$(grep -c . <<<"$escaped_setup_path")" != 1
   then
-    echo "::error::The trace doesn't show the $arch installer starting Setup exactly once"
+    echo "::error::The trace doesn't show the $arch Setup loading itself exactly once"
     exit 1
   fi
   # Copy all lines from the Procmon trace in procmon.csv to filtered-setup.csv,
