@@ -44,6 +44,8 @@ verify_installer() {
   # Need to start the background process via PowerShell because it would
   # block for some reason if started as a Bash background process.
   powershell -command 'start-process -NoNewWindow -FilePath .\Procmon.exe -ArgumentList "-AcceptEula -Quiet -BackingFile trace/'$arch'/procmon.pml -RunTime 60"'
+  # Also stop the capture if the script stops early, so the PML is complete
+  trap './Procmon.exe -Terminate -Quiet' EXIT
   # Wait until Procmon captures
   ./Procmon.exe -AcceptEula -WaitForIdle
   # Perform the installation
@@ -52,6 +54,7 @@ verify_installer() {
   test -x InnoSetup-$arch/ISCC.exe
   # Stop the capture
   ./Procmon.exe -Terminate -Quiet
+  trap - EXIT
   # Convert the trace to CSV for the filter
   powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\'$arch'\procmon.pml -SaveAs trace\'$arch'\procmon.csv"'
   # Make sure the conversion actually produced the CSV
