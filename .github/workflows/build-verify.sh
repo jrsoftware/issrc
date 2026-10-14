@@ -77,8 +77,8 @@ verify_installer() {
   # Fail if the filter left any lines, and show them
   if test -s trace/$arch/filtered.csv
   then
-    echo ":error:Unexpected filesystem access during the $arch installer check" >&2
-    cat trace/$arch/filtered.csv >&2
+    echo "::error::Unexpected filesystem access during the $arch installer check"
+    cat trace/$arch/filtered.csv
     exit 1
   fi
 }
