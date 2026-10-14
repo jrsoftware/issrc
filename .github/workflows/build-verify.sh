@@ -143,7 +143,7 @@ done
 # first capture starts. The filter also ignores the flushing, but only for the
 # operations it lists.
 curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip
-unzip -o ProcessMonitor.zip
+unzip -o ProcessMonitor.zip Procmon.exe
 
 previous_arch=
 for arch in x86 x64
