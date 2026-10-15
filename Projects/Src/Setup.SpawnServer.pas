@@ -23,10 +23,12 @@ type
     FSharedMemoryMapping: THandle;
     FSharedMemory: PSpawnServerSharedMemory;
     function HandleExec: TSpawnServerSharedMemory.TRequestResult;
+    procedure SetFirstProcessWnd(const Value: HWND);
     procedure WndProc(var Message: TMessage);
   public
     constructor Create(const AClientRequiresAdmin: Boolean);
     destructor Destroy; override;
+    property FirstProcessWnd: HWND write SetFirstProcessWnd;
     property SharedMemoryID: String read FSharedMemoryID;
   end;
 
@@ -45,7 +47,7 @@ implementation
 
 uses
   Classes, Forms, ShellApi, PathFunc, SHA256, Shared.CommonFunc,
-  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.MainFunc;
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc;
 
 type
   TPtrAndSize = record
@@ -459,10 +461,7 @@ begin
   FSharedMemory.StructSize := SizeOf(FSharedMemory^);
   FSharedMemory.VersionNumber := FSharedMemory.ExpectedVersionNumber;
   FSharedMemory.ServerWnd := UInt32(FWnd);
-  if SetupLdrMode then
-    FSharedMemory.FirstProcessWnd := UInt32(SetupLdrWnd)
-  else
-    FSharedMemory.FirstProcessWnd := UInt32(FWnd);
+  FSharedMemory.FirstProcessWnd := UInt32(FWnd);
   MemoryBarrier;
 end;
 
@@ -477,6 +476,12 @@ begin
   if FWnd <> 0 then
     DeallocateHWnd(FWnd);
   inherited;
+end;
+
+procedure TSpawnServer.SetFirstProcessWnd(const Value: HWND);
+begin
+  FSharedMemory.FirstProcessWnd := UInt32(Value);
+  MemoryBarrier;
 end;
 
 function TSpawnServer.HandleExec: TSpawnServerSharedMemory.TRequestResult;

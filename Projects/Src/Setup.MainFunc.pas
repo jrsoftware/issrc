@@ -2663,6 +2663,8 @@ begin
   try
     Server := TSpawnServer.Create(SetupHeader.PrivilegesRequired = prAdmin);
     try
+      if SetupLdrMode then
+        Server.FirstProcessWnd := SetupLdrWnd;
       RespawnProcess(AElevate, SetupLdrOriginalFilename,
         Format('/SPAWNSM="%s" ', [Server.SharedMemoryID]) + AParams,
         Server, RespawnResults.ExitCode);
