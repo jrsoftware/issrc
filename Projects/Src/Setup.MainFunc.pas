@@ -1340,9 +1340,10 @@ begin
 end;
 
 function ExpandExternalSourceFilename(const FileEntry: PSetupFileEntry): String;
+{ Returns '' only if the SkipIfSourceDoesntExist flag is set }
 begin
   Result := ExpandConst(FileEntry^.SourceFilename);
-  if Result = '' then { when allowed ApplyPathRedirRules would throw its exception }
+  if (Result = '') and not(foSkipIfSourceDoesntExist in FileEntry^.Options) then { when allowed ApplyPathRedirRules would throw its exception }
     InternalErrorFmt('The "Source" parameter value "%s" expanded to an empty string',
       [FileEntry^.SourceFilename]);
 end;
@@ -2030,7 +2031,10 @@ begin
             if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent), Param) then
               Exit(False);
           end else begin
-            SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandExternalSourceFilename(CurFile), tpCurrent);
+            const ExpandedSourceFilename = ExpandExternalSourceFilename(CurFile);
+            if ExpandedSourceFilename = '' then
+              Continue;
+            SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandedSourceFilename, tpCurrent);
             Excludes.DelimitedText := CurFile^.Excludes;
             if foExtractArchive in CurFile^.Options then begin
               try
