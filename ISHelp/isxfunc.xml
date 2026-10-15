@@ -3095,7 +3095,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their <tt>Parent</tt> properties to the <tt><link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></tt> instance returned by this function).</p></description>
         <remarks><p>You should call this function instead of creating <tt><link topic="scriptclasses" anchor="TForm">TForm</link></tt> or <tt><link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></tt> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
 <p>The <sn>[LangOptions]</sn> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p>
-<p>You should use <isxfunc>ScaleX</isxfunc> and <isxfunc>ScaleY</isxfunc> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
+<p>Don't use <isxfunc>ScaleX</isxfunc> and <isxfunc>ScaleY</isxfunc> on the client width and height: this function scales them automatically. A form's client width and height are the form's full width and height minus its borders.</p>
 <p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form keeps its width and height, respectively, instead of growing as specified by <sn>[Setup]</sn> section directive <sd>WizardSizePercent</sd>.</p>
 <p>The signature of the <tt>CreateCustomForm</tt> function has changed as of version 6.6.0. The width and height must now be specified upfront (they are now read-only properties once the form is constructed). Previously, your code might have looked like this:</p>
 <example><pre>
@@ -3106,7 +3106,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 </pre></example>
 <p>Starting with version 6.6.0, it should be updated as follows:</p>
 <example><pre>
-  Form := CreateCustomForm(ScaleX(<num>256</num>), ScaleY(<num>128</num>), False, False);
+  Form := CreateCustomForm(<num>256</num>, <num>128</num>, False, False);
   Form.Caption := <str>'TSetupForm'</str>;
 </pre></example>
 <p>The same applies to the <tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> properties, which were writable properties before version 6.6.0, but are now specified as parameters when calling <tt>CreateCustomForm</tt> and are read-only properties afterwards.</p>
