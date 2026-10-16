@@ -1315,11 +1315,11 @@ begin
       case TInnoSetupStylerStyle(Style) of
         stCompilerDirective, stISPPReservedWord: Attributes.ForeColor := FTheme.Colors[tcRed];
         stComment: Attributes.ForeColor := FTheme.Colors[tcGreen];
-        stSection: Attributes.FontStyle := [fsBold];
+        stSection: Include(Attributes.FontStyle, fsBold);
         stSymbol: Attributes.ForeColor := FTheme.Colors[tcGray];
         stKeyword, stPascalReservedWord: Attributes.ForeColor := FTheme.Colors[tcBlue];
         //stParameterValue: Attributes.ForeColor := FTheme.Colors[tcTeal];
-        stEventFunction: Attributes.FontStyle := [fsBold];
+        stEventFunction: Include(Attributes.FontStyle, fsBold);
         stConstant: Attributes.ForeColor := FTheme.Colors[tcPurple];
         stMessageArg: Attributes.ForeColor := FTheme.Colors[tcRed];
         stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := FTheme.Colors[tcOrange];
