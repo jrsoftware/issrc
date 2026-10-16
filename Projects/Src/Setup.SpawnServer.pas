@@ -354,13 +354,29 @@ constructor TSpawnServer.Create(const AClientRequiresAdmin: Boolean);
         object. It is also excluded when the spawn client will be running with
         PrivilegesRequired=admin, because in that case it's redundant; the
         Administrators ACE will already grant them access.
-        Note that access is restricted to FILE_MAP_WRITE. This prevents
-        lower/equal-integrity processes from opening the object for read-only
-        access (which would require FILE_MAP_READ). And low-integrity
-        processes cannot open the object for FILE_MAP_WRITE access thanks to
-        Windows Mandatory Integrity Control giving the object an implicit
-        default label of medium integrity + No-Write-Up policy (i.e.,
-        processes lower than medium integrity cannot request write access).
+        Note that access is restricted to FILE_MAP_WRITE. This prohibits
+        low-integrity processes from opening the object (unless Setup itself
+        is started as a low-integrity process, which we don't support):
+        - A low-integrity process cannot open the object for read-only access
+          because that would require FILE_MAP_READ.
+        - A low-integrity process cannot open the object for read/write access
+          even though the DACL grants FILE_MAP_WRITE because by default
+          Windows Mandatory Integrity Control gives the object an implicit
+          label of medium integrity + No-Write-Up policy (i.e., processes with
+          an integrity level below medium cannot request write access).
+          However, rather than rely on that implicit label, we specify a
+          stronger explicit label; see below.
+
+    The custom security descriptor also includes a mandatory label with an
+    integrity level matching the current process's integrity level. This
+    ensures that if the current process was initially started with an
+    integrity level of high but without the Administrators group in its access
+    token, medium-integrity processes are blocked from accessing the object
+    even though the current user SID ACE would normally grant them access.
+    A process can receive such an access token when a standard user is a
+    member of the Backup Operators group and selects their own account at a
+    UAC dialog; elevation sets the token's integrity level to high as usual,
+    but adds the Backup Operators group to the token, not Administrators.
   }
 
     procedure AppendAllowACE(var S: String; const ASid: String;
@@ -383,6 +399,14 @@ constructor TSpawnServer.Create(const AClientRequiresAdmin: Boolean);
         CurrentUserSid := 'OW';
       AppendAllowACE(StringSD, CurrentUserSid, FILE_MAP_WRITE);
     end;
+
+    const IntegrityLevelSid = GetCurrentProcessIntegrityLevelSid;
+    { All processes should have an integrity level, and querying it is not
+      expected to ever fail }
+    if IntegrityLevelSid = '' then
+      RaiseFunctionFailedError('GetCurrentProcessIntegrityLevelSid');
+    StringSD := StringSD + 'S:(ML;;NWNRNX;;;' + IntegrityLevelSid + ')';
+
     if not ConvertStringSecurityDescriptorToSecurityDescriptor(
        PChar(StringSD), SDDL_REVISION_1, Result, nil) then
       Win32ErrorMsg('ConvertStringSecurityDescriptorToSecurityDescriptor');

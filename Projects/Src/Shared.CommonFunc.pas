@@ -169,6 +169,7 @@ function RegDeleteKeyIfEmpty(const RegView: TRegView; const RootKey: HKEY; const
 function GetShellFolderPath(const FolderID: Integer): String; overload;
 function GetShellFolderPath(const FolderID: Integer; out Path: String): HRESULT; overload;
 function GetCurrentUserSid: String;
+function GetCurrentProcessIntegrityLevelSid: String;
 function IsAdminLoggedOn: Boolean;
 function FontExists(const FaceName: String): Boolean;
 function GetUILanguage: LANGID;
@@ -1137,36 +1138,51 @@ begin
   GetShellFolderPath(FolderID, Result);
 end;
 
-function GetCurrentUserSid: String;
+function InternalGetCurrentProcessTokenInformationSid(
+  const AInformationClass: TTokenInformationClass): String;
 var
-  Token: THandle;
-  UserInfoSize: DWORD;
-  UserInfo: PTokenUser;
-  StringSid: PWideChar;
+  { The TOKEN_USER and TOKEN_MANDATORY_LABEL structures are laid out
+    identically: they both contain a single SID_AND_ATTRIBUTES member.
+    GetTokenInformation places the SID directly after that.
+    The size of SID_AND_ATTRIBUTES is 16 bytes in a 64-bit build, and 8 bytes
+    in a 32-bit build. A valid SID can be at most 68 bytes long (the value of
+    SECURITY_MAX_SID_SIZE in winnt.h).
+    Therefore, a buffer size of 84 bytes should be sufficient to handle the
+    worst case. We're being extra generous and providing a 512-byte buffer
+    (with 64-bit alignment because it contains a pointer). }
+  Buf: array[0..63] of UInt64;
 begin
   Result := '';
+  var Token: THandle;
   if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, Token) then
     Exit;
-  UserInfo := nil;
   try
-    UserInfoSize := 0;
-    if not GetTokenInformation(Token, TokenUser, nil, 0, UserInfoSize) and
-        (GetLastError <> ERROR_INSUFFICIENT_BUFFER) then
+    var ReturnLength: DWORD;
+    if not GetTokenInformation(Token, AInformationClass, @Buf, SizeOf(Buf),
+       ReturnLength) then
       Exit;
 
-    GetMem(UserInfo, UserInfoSize);
-    if not GetTokenInformation(Token, TokenUser, UserInfo,
-        UserInfoSize, UserInfoSize) then
-      Exit;
-
-    if ConvertSidToStringSidW(UserInfo.User.Sid, StringSid) then begin
-      Result := StringSid;
-      LocalFree(StringSid);
+    var StringSid: PChar;
+    if ConvertSidToStringSid(PSIDAndAttributes(@Buf).Sid, StringSid) then begin
+      try
+        Result := StringSid;
+      finally
+        LocalFree(StringSid);
+      end;
     end;
   finally
-    FreeMem(UserInfo);
     CloseHandle(Token);
   end;
+end;
+
+function GetCurrentUserSid: String;
+begin
+  Result := InternalGetCurrentProcessTokenInformationSid(TokenUser);
+end;
+
+function GetCurrentProcessIntegrityLevelSid: String;
+begin
+  Result := InternalGetCurrentProcessTokenInformationSid(TokenIntegrityLevel);
 end;
 
 function IsAdminLoggedOn: Boolean;
