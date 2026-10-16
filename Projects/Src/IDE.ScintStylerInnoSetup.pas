@@ -1939,6 +1939,7 @@ begin
   { Style all '{#' ISPP inline directives before anything else }
   if not IsLineCommented then begin
     I := 1;
+    var LineOpenCount: ShortInt := 0;
     while I < TextLength do begin
       if (Text[I] = '{') and (Text[I+1] = '#') then begin
         StartIndex := I;
@@ -1952,8 +1953,7 @@ begin
         end;
         ResetCurIndexTo(StartIndex);
         try
-          var OpenCount: ShortInt := 0;
-          HandleCompilerDirective(True, I - 1, OpenCount);
+          HandleCompilerDirective(True, I - 1, LineOpenCount);
         finally
           ResetCurIndexTo(1);
         end;
