@@ -821,14 +821,15 @@ begin
                   if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
                      ((ExpandedFilenameBeforeRedir <> '') and
                       NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent))) then begin
+                    const LogOutputFlag = CurRec^.ExtraData and utRun_LogOutput <> 0;
                     var OutputReader: TCreateProcessOutputReader := nil;
                     try
-                      if GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0) then
+                      if GetLogActive and LogOutputFlag then
                         OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
                       var ErrorCode: DWORD;
                       if not InstExec(RunEntry64Bit and not IsCurrentProcess64Bit,
                          ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
-                         Wait, ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then begin
+                         Wait, ShowCmd, LogOutputFlag, ProcessMessagesProc, OutputReader, ErrorCode) then begin
                         LogFmt('CreateProcess failed (%d).', [ErrorCode]);
                         Result := False;
                       end

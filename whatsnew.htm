@@ -116,6 +116,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li><tt>[Files]</tt> section entries with the <tt>external</tt> and <tt>skipifsourcedoesntexist</tt> flags failed with an internal error instead of being skipped if their <tt>Source</tt> parameter was empty after expanding constants. Likewise, <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section entries with the <tt>skipifdoesntexist</tt> flag, but without the <tt>shellexec</tt> flag, failed if their <tt>Filename</tt> parameter was empty after expanding constants (both broken since 7.0.0).</li>
     <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
     <li>Setup crashed at startup if <tt>[Setup]</tt> section directive <tt>Encryption</tt> was set to <tt>full</tt> and the compression method was <tt>zip</tt> or <tt>bzip</tt> (broken since full encryption was introduced in 6.5.0).</li>
+    <li>A console program started by support function <tt>ExecAndLogOutput</tt> or <tt>ExecAndLogOutputWithNativeSysDir</tt> with <tt>OnLog</tt> set to <tt>nil</tt> showed a console window if logging wasn't enabled, instead of always being hidden as documented. The same applied to <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section entries with the <tt>logoutput</tt> flag (broken since these were introduced in 6.3.0).</li>
   </ul>
   </li>
   <li>Pascal Scripting:

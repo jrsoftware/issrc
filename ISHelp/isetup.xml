@@ -2897,7 +2897,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <p>If this flag is specified, the wizard will be hidden while the program is running.</p>
 </flag>
 <flag name="logoutput">
-<p>If this flag is specified, the output of the program will be included in the log file. If the <tt>OnLog</tt> parameter is also specified, the output is passed to the <tt>OnLog</tt> procedure instead.</p>
+<p>If this flag is specified, the output of the program will be included in the log file. Also, console programs are always hidden, and the <tt>runhidden</tt>, <tt>runminimized</tt>, and <tt>runmaximized</tt> flags only affect GUI programs. If the <tt>OnLog</tt> parameter is also specified, the output is passed to the <tt>OnLog</tt> procedure instead.</p>
 <p>This flag cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags.</p>
 </flag>
 <flag name="nowait">

@@ -205,6 +205,7 @@ function BitsFrom64BitBoolean(const A64Bit: Boolean): Integer; inline;
 function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
 function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
 function SetWindowCloaked(const Wnd: HWND; const Cloaked: Boolean): Boolean;
+function CreateInheritableNulDevice(const DesiredAccess: DWORD): THandle;
 
 implementation
 
@@ -1900,6 +1901,17 @@ begin
     Result := False;
 end;
 
+function CreateInheritableNulDevice(const DesiredAccess: DWORD): THandle;
+begin
+  var SecurityAttributes: TSecurityAttributes;
+  SecurityAttributes.nLength := SizeOf(SecurityAttributes);
+  SecurityAttributes.bInheritHandle := True;
+  SecurityAttributes.lpSecurityDescriptor := nil;
+  Result := CreateFile('\\.\NUL', DesiredAccess,
+    FILE_SHARE_READ or FILE_SHARE_WRITE, @SecurityAttributes,
+    OPEN_EXISTING, 0, 0);
+end;
+
 { TSimpleLock }
 
 class function TSimpleLock.Create: TSimpleLock;
@@ -2085,9 +2097,7 @@ begin
   SecurityAttributes.bInheritHandle := True;
   SecurityAttributes.lpSecurityDescriptor := nil;
 
-  var NulDevice := CreateFile('\\.\NUL', GENERIC_READ,
-    FILE_SHARE_READ or FILE_SHARE_WRITE, @SecurityAttributes,
-    OPEN_EXISTING, 0, 0);
+  const NulDevice = CreateInheritableNulDevice(GENERIC_READ);
   { In case the NUL device is missing (which it inexplicably seems to
     be for some users, per web search), don't treat it as a fatal
     error. Just leave FStdInNulDevice at 0. It's not ideal, but the

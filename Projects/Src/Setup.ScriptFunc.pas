@@ -1066,6 +1066,7 @@ var
       const S = String(OrgName);
       const LogOutput = S.Contains('LogOutput');
       const CaptureOutput = S.Contains('CaptureOutput');
+      const LogOrCaptureOutput = LogOutput or CaptureOutput;
       const WithNativeSysDir = S.Contains('WithNativeSysDir');
 
       var Method: TMethod; { Must stay alive until OutputReader is freed }
@@ -1080,7 +1081,7 @@ var
         end else if CaptureOutput then
           OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLog, 0, omCapture);
         var ExecWait := TExecWait(Stack.GetInt(PStart-5));
-        if (OutputReader <> nil) and (ExecWait <> ewWaitUntilTerminated) then
+        if LogOrCaptureOutput and (ExecWait <> ewWaitUntilTerminated) then
           InternalError(Format('Must call "%s" function with Wait = ewWaitUntilTerminated', [OrgName]));
 
         var Filename := Stack.GetString(PStart-1);
@@ -1093,7 +1094,7 @@ var
             Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
               IsWin64 and WithNativeSysDir, Filename, Stack.GetString(PStart-2),
               Stack.GetString(PStart-3), ExecWait,
-              Stack.GetInt(PStart-4), ProcessMessagesProc, OutputReader, ResultCode));
+              Stack.GetInt(PStart-4), LogOrCaptureOutput, ProcessMessagesProc, OutputReader, ResultCode));
           finally
             WindowDisabler.Free;
           end;
