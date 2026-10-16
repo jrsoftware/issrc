@@ -4656,15 +4656,12 @@ const
   end;
 
   function ConvertDWordString(const S: String): String;
-  var
-    DW: DWORD;
-    E: Integer;
   begin
     Result := Trim(S);
     { Only check if it doesn't start with a constant }
     if (Result = '') or (Result[1] <> '{') then begin
-      Val(Result, DW, E);
-      if E <> 0 then
+      var DW: DWORD;
+      if not TryStrToDWord(Result, DW) then
         AbortCompileParamError(SCompilerParamInvalid2, ParamRegistryValueData);
       { Not really necessary, but sanitize the value }
       Result := Format('$%x', [DW]);
@@ -4677,7 +4674,7 @@ const
     { Only check if it doesn't start with a constant }
     if (Result = '') or (Result[1] <> '{') then begin
       var QW: UInt64;
-      if not TryStrToUInt64(Result, QW) then
+      if not TryStrToQWord(Result, QW) then
         AbortCompileParamError(SCompilerParamInvalid2, ParamRegistryValueData);
       { Not really necessary, but sanitize the value }
       Result := Format('$%x', [QW]);

@@ -182,6 +182,8 @@ procedure AddToWindowMessageFilterEx(const Wnd: HWND; const Msg: UINT);
 function ShutdownBlockReasonCreate(Wnd: HWND; const Reason: String): Boolean;
 function ShutdownBlockReasonDestroy(Wnd: HWND): Boolean;
 function TryStrToBoolean(const S: String; var BoolResult: Boolean): Boolean;
+function TryStrToDWord(const S: String; out Value: DWORD): Boolean;
+function TryStrToQWord(const S: String; out Value: UInt64): Boolean;
 procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure CreateMutex(const MutexName: String);
@@ -1610,6 +1612,36 @@ begin
   end
   else
     Result := False;
+end;
+
+function TryStrToDWord(const S: String; out Value: DWORD): Boolean;
+{ Accepts -2147483648 to 4294967295. A negative value wraps around, so '-1'
+  becomes $FFFFFFFF. Like StrToInt, a negative hexadecimal value can go down
+  to -$FFFFFFFF instead of -$80000000, so '-$FFFFFFFF' becomes 1 }
+begin
+  var IntegerValue: Integer;
+  Result := TryStrToInt(S, IntegerValue);
+  if Result then
+    Value := DWORD(IntegerValue)
+  else begin
+    { Should not use TryStrToUInt: it parses as Int64, so for example
+      '-$FFFFFFFFFFFFFFFF' would become 1 }
+    var UInt64Value: UInt64;
+    Result := TryStrToUInt64(S, UInt64Value) and (UInt64Value <= High(DWORD));
+    if Result then
+      Value := DWORD(UInt64Value);
+  end;
+end;
+
+function TryStrToQWord(const S: String; out Value: UInt64): Boolean;
+{ Same as TryStrToDWord, but 64-bit }
+begin
+  var Int64Value: Int64;
+  Result := TryStrToInt64(S, Int64Value);
+  if Result then
+    Value := UInt64(Int64Value)
+  else
+    Result := TryStrToUInt64(S, Value);
 end;
 
 procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
