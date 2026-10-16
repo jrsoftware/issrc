@@ -40,7 +40,7 @@ var
   W: Integer;
 begin
   { Keep the form from sizing vertically since we don't have any controls which can size vertically }
-  Form := CreateCustomForm(ScaleX(256), ScaleY(128), False, True);
+  Form := CreateCustomForm(256, 128, False, True);
   try
     Form.Caption := 'TSetupForm';
 

@@ -819,7 +819,8 @@ begin
               try
                 if CurRec^.ExtraData and utRun_ShellExec = 0 then begin
                   if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
-                     NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
+                     ((ExpandedFilenameBeforeRedir <> '') and
+                      NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent))) then begin
                     var OutputReader: TCreateProcessOutputReader := nil;
                     try
                       if GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0) then

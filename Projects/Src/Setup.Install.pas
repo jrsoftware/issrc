@@ -1634,7 +1634,7 @@ begin
             SourceWildcard := NewParamStr(0);
           end else begin
             SourceWildcard := ExpandExternalSourceFilename(CurFile);
-            if not(foDownload in CurFile^.Options) then
+            if not(foDownload in CurFile^.Options) and (SourceWildcard <> '') then
               SourceWildcard := ApplyPathRedirRules(Is64Bit, SourceWildcard, tpCurrent);
           end;
           Excludes.DelimitedText := CurFile^.Excludes;
@@ -1657,7 +1657,9 @@ begin
                 WarnedPerUserFonts, nil,
                 UninstallTempExeFilename, UninstallExeCreated);
               FoundFiles := True;
-            end else if foExtractArchive in CurFile^.Options then
+            end else if SourceWildcard = '' then
+              FoundFiles := False
+            else if foExtractArchive in CurFile^.Options then
               FoundFiles := RecurseExternalArchiveCopyFiles(Is64Bit,
                 SourceWildcard, Excludes, CurFile,
                 ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,

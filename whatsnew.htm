@@ -184,6 +184,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 <span class="head2">Fixes</span>
 
 <ul>
+  <li>When a download failed, for example because the server couldn't be found or its certificate was invalid, Setup reported an internal error starting with "Internal error: Worker thread terminated unexpectedly with exception:" instead of just the actual error (broken since 6.5.1).</li>
   <li>Buttons in the Compiler IDE and Setup with a long caption which shows its accelerator key in parentheses, such as the <i>Browse</i> button in Korean, could be too narrow, leaving little or no space around the caption (broken since 7.1.0).</li>
   <li>Compiler IDE:
   <ul>
@@ -226,6 +227,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li><tt>[Files]</tt> section entries with the <tt>extractarchive</tt> and <tt>recursesubdirs</tt> flags failed with an internal error if the archive contained a path of 260 characters or longer. Support function <tt>ExtractArchive</tt> wasn't affected.</li>
     <li>When archive extraction failed to open, read, or write a file, for example because another process had it open, it could report that the archive was corrupted or an unspecified error. It now reports the actual error.</li>
     <li>Inno Setup 7.0.0 introduced a maximum dictionary size of 3.8 GB instead of 1 GB for compression methods <tt>lzma</tt> and <tt>lzma2</tt> in 64-bit installers, but <tt>lzma2</tt> installers with a dictionary size above 3 GB failed to install, reporting that the source file was corrupted. They now support up to 3.8 GB as well.</li>
+    <li><tt>[Files]</tt> section entries with the <tt>external</tt> and <tt>skipifsourcedoesntexist</tt> flags failed with an internal error instead of being skipped if their <tt>Source</tt> parameter was empty after expanding constants. Likewise, <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section entries with the <tt>skipifdoesntexist</tt> flag, but without the <tt>shellexec</tt> flag, failed if their <tt>Filename</tt> parameter was empty after expanding constants (both broken since 7.0.0).</li>
     <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
     <li>Setup crashed at startup if <tt>[Setup]</tt> section directive <tt>Encryption</tt> was set to <tt>full</tt> and the compression method was <tt>zip</tt> or <tt>bzip</tt> (broken since full encryption was introduced in 6.5.0).</li>
   </ul>
@@ -236,6 +238,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Support function <tt>FloatToStr</tt> used the decimal point from the user's regional settings, such as a comma, instead of always a dot as documented. Support function <tt>StrToFloat</tt> then raised an exception when given the result (broken since 7.0.0).</li>
     <li>When debugging in the Compiler IDE, a runtime error could be reported on the line after the line which caused it.</li>
     <li>When a custom style was active, support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> didn't show the shield icon specified by the <tt>ShieldButton</tt> parameter if that button had no custom label (broken since custom styles were introduced in 6.6.0).</li>
+    <li><i>Documentation fix:</i> Since 6.6.0, support function <tt>CreateCustomForm</tt> scales the specified client width and height itself, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> and the <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> example script still used <tt>ScaleX</tt> and <tt>ScaleY</tt> for them, so they were scaled twice. For example, at 150% DPI the form was 2.25 times as wide and high as at 100% DPI, instead of 1.5 times. The documentation and the example script have now been corrected. If your script does the same, remove these calls. If you use the default font settings with standard DPI (100%), this doesn't change the form.</li>
   </ul>
   </li>
   <li>ISPP and Pascal Scripting support function <tt>ComparePackedVersion</tt> returned the wrong result if one of the two versions had a major version of 32768 or higher (broken since 6.6.0).</li>
