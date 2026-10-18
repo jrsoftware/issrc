@@ -118,13 +118,6 @@ begin
     Print(S, IncludeNewLine);
 end;
 
-procedure PrintFmtUnlessQuiet(const S: String; const Args: array of const;
-  const IncludeNewLine: Boolean = True);
-begin
-  if not Options.Quiet then
-    Print(Format(S, Args), IncludeNewLine);
-end;
-
 procedure ShowUsage;
 begin
   PrintErrOutput('Inno Setup Test Tool');

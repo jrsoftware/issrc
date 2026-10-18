@@ -12,7 +12,7 @@ unit IDE.Wizard.WizardForm;
 interface
 
 uses
-  Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
+  Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, pngimage,
   Vcl.BaseImageCollection, Vcl.ImageCollection,
   NewStaticText, DropListBox, NewCheckListBox, NewNotebook, BitmapButton, BitmapImage, 
   IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper,
@@ -157,6 +157,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormDestroy(Sender: TObject);
+    procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+      NewDPI: Integer);
     procedure NextButtonClick(Sender: TObject);
     procedure BackButtonClick(Sender: TObject);
     procedure FileButtonClick(Sender: TObject);
@@ -206,10 +208,10 @@ implementation
 {$R *.DFM}
 
 uses
-  SysUtils, ShlObj, ActiveX, UITypes,
+  SysUtils, UITypes,
   PathFunc, BrowseFunc,
-  Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.LicenseFunc,
-  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.Wizard.WizardFileForm;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.LicenseFunc,
+  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
 
 type
   TConstant = record
@@ -465,6 +467,12 @@ begin
   FLanguages.Free;
   FRegistryHelper.Free;
   FFilesHelper.Free;
+end;
+
+procedure TWizardForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
+  NewDPI: Integer);
+begin
+  UpdateScrollWidth(AppFilesListBox);
 end;
 
 { --- }

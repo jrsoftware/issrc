@@ -14,7 +14,8 @@ program ISCC;
 { For debugging purposes, remove the 'x' to have it link the compiler code
   into this program and not depend on ISCmplr.dll. You will also need to add the
   ..\Components and Src folders to the Delphi Compiler Search path in the project
-  options. Also see IDE.MainForm's STATICCOMPILER and Compiler.Compile's STATICPREPROC. }
+  options. Also see IDE.MainForm's STATICCOMPILER and Compiler.SetupCompiler's
+  STATICPREPROC. }
 
 uses
   SafeDLLPath in '..\Components\SafeDLLPath.pas',
@@ -44,6 +45,10 @@ uses
 
 {$R Res\ConsoleApp.manifest.res}
 {$R Res\ISCC.versionandicon.res}
+{$IFDEF STATICCOMPILER}
+{$R Res\ISCmplr.images.res}
+{$R Res\ISCmplr.images.dark.res}
+{$ENDIF}
 
 type
   PScriptLine = ^TScriptLine;
@@ -555,9 +560,9 @@ procedure ProcessCommandLine;
       WriteStdErr('                                         m: Short-circuit multiplication evaluation. Defaults to off.');
       WriteStdErr('                                         p: Pascal-style string literals. Defaults to on.');
       WriteStdErr('                                         u: Allow undeclared identifiers. Defaults to off.');
-      WriteStdErr('  --include-dirs=<paths>, -i<paths>    Emulates #pragma include <paths>');
+      WriteStdErr('  --include-dirs=<paths>, -i<paths>    Emulates #pragma include __INCLUDE__ + ";<paths>"');
       WriteStdErr('                                       (multiple paths can be delimited with semicolons)');
-      WriteStdErr('  --include=<filename>, -j<filename>   Emulates #include <filename>');
+      WriteStdErr('  --include=<filename>, -j<filename>   Emulates #include "<filename>"');
       WriteStdErr('  --inline-start=<string>, -{#<string> Emulates #pragma inlinestart <string>');
       WriteStdErr('  --inline-end=<string>, -}<string>    Emulates #pragma inlineend <string>');
       WriteStdErr('  --verbose=<number>, -v<number>       Emulates #pragma verboselevel <number>');

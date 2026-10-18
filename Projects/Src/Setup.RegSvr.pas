@@ -16,7 +16,7 @@ procedure RunRegSvr;
 implementation
 
 uses
-  Windows, SysUtils, Classes, Forms, PathFunc, Shared.CommonFunc, Setup.InstFunc, Setup.InstFunc.Ole,
+  Windows, SysUtils, Forms, PathFunc, Shared.CommonFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   Shared.FileClass, Shared.CommonFunc.Vcl, Shared.Struct, Setup.MainFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.RegDLL;
 
@@ -156,7 +156,7 @@ begin
     if NewFileExists(ListFilename) then begin
       { Need to load messages in order to display exception messages below.
         Note: The .msg file only exists when the .lst file does. }
-      LoadSetupMessages(MsgFilename, 0, True);
+      LoadSetupMessages(MsgFilename, 0);
       SetMessageBoxRightToLeft(lfRightToLeft in MessagesLangOptions.Flags);
       Application.Title := SetupMessages[msgSetupAppTitle];
 

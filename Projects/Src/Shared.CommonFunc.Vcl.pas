@@ -14,7 +14,7 @@ unit Shared.CommonFunc.Vcl;
 interface
 
 uses
-  Windows, Messages, SysUtils, Forms, Graphics, Controls, StdCtrls, Classes;
+  Windows, Messages, SysUtils, Forms, Graphics, Controls, StdCtrls;
 
 type
   TWindowDisabler = class
@@ -37,19 +37,16 @@ type
     procedure SetCurrentPPI(const CurrentPPI: Integer);
   end;
 
-{ Useful constant }
-const
-  EnableColor: array[Boolean] of TColor = (clBtnFace, clWindow);
+  TListBoxItemIsBoldFunc = function(const Index: Integer): Boolean of object;
 
 function AppCreateForm(const AClass: TCustomFormClass): TCustomForm;
-procedure UpdateHorizontalExtent(const ListBox: TCustomListBox);
+procedure UpdateScrollWidth(const ListBox: TCustomListBox;
+  const ItemIsBold: TListBoxItemIsBoldFunc = nil);
 function MinimizePathName(const Filename: String; const Font: TFont;
   MaxLen: Integer): String;
 function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer; overload;
 function MsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal): Integer; overload;
-function MsgBoxFmt(const Text: String; const Args: array of const;
-  const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal): Integer;
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: NativeInt);
@@ -65,9 +62,8 @@ implementation
 {$IFEND}
 
 uses
-  DwmApi, Consts, PathFunc, Themes,
-  {$IFDEF USETASKDIALOGFORM} CommCtrl, Setup.TaskDialogForm, {$ENDIF}
-  {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF}
+  DwmApi, PathFunc, Themes,
+  {$IFDEF USETASKDIALOGFORM} CommCtrl, Setup.TaskDialogForm, Setup.InstFunc, {$ENDIF}
   Shared.CommonFunc;
 
 var
@@ -95,35 +91,47 @@ end;
 type
   TListBoxAccess = class(TCustomListBox);
 
-procedure UpdateHorizontalExtent(const ListBox: TCustomListBox);
-var
-  I: Integer;
-  Extent, MaxExtent: Longint;
-  DC: HDC;
-  Size: TSize;
-  TextMetrics: TTextMetric;
+procedure UpdateScrollWidth(const ListBox: TCustomListBox;
+  const ItemIsBold: TListBoxItemIsBoldFunc);
 begin
-  DC := GetDC(0);
+  const Font = TListBoxAccess(ListBox).Font;
+  var BoldFont: TFont := nil;
   try
-    SelectObject(DC, TListBoxAccess(ListBox).Font.Handle);
+    var MaxScrollWidth := 0;
+    const DC = GetDC(0);
+    try
+      SelectObject(DC, Font.Handle);
 
-    //Q66370 says tmAveCharWidth should be added to extent
-    GetTextMetrics(DC, TextMetrics);
+      //Q66370 says tmAveCharWidth should be added to scroll width
+      var TextMetrics: TTextMetric;
+      GetTextMetrics(DC, TextMetrics);
 
-    MaxExtent := 0;
-    for I := 0 to ListBox.Items.Count-1 do begin
-      GetTextExtentPoint32(DC, PChar(ListBox.Items[I]), Length(ListBox.Items[I]), Size);
-      Extent := Size.cx + TextMetrics.tmAveCharWidth;
-      if Extent > MaxExtent then
-        MaxExtent := Extent;
+      for var I := 0 to ListBox.Items.Count-1 do begin
+        if Assigned(ItemIsBold) and ItemIsBold(I) then begin
+          if BoldFont = nil then begin
+            BoldFont := TFont.Create;
+            BoldFont.Assign(Font);
+            BoldFont.Style := [fsBold];
+          end;
+          SelectObject(DC, BoldFont.Handle);
+        end else if BoldFont <> nil then
+          SelectObject(DC, Font.Handle);
+        var Size: TSize;
+        GetTextExtentPoint32(DC, PChar(ListBox.Items[I]), Length(ListBox.Items[I]), Size);
+        const ScrollWidth = Size.cx + TextMetrics.tmAveCharWidth;
+        if ScrollWidth > MaxScrollWidth then
+          MaxScrollWidth := ScrollWidth;
+      end;
+
+    finally
+      ReleaseDC(0, DC);
     end;
 
+    { Don't check the existing scroll width, it might be outdated }
+    ListBox.ScrollWidth := MaxScrollWidth;
   finally
-    ReleaseDC(0, DC);
+    BoldFont.Free;
   end;
-
-  if MaxExtent > SendMessage(ListBox.Handle, LB_GETHORIZONTALEXTENT, 0, 0) then
-    SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, MaxExtent, 0);
 end;
 
 function MinimizePathName(const Filename: String; const Font: TFont;
@@ -437,12 +445,6 @@ begin
   if NewCaption = '' then
     NewCaption := Application.Title;
   Result := MsgBox(PChar(Text), PChar(NewCaption), Buttons or IconFlags[Typ]);
-end;
-
-function MsgBoxFmt(const Text: String; const Args: array of const;
-  const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal): Integer;
-begin
-  Result := MsgBox(Format(Text, Args), Caption, Typ, Buttons);
 end;
 
 { TWindowDisabler }

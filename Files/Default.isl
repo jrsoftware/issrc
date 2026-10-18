@@ -24,7 +24,7 @@
 ; Before you start, decide how you will translate each of these recurring terms:
 ; - Setup, Uninstall (the program), uninstall (the verb), Cannot uninstall,
 ;   program, application, component, task,
-;   shortcut, Start Menu, folder, directory, path, location, drive,
+;   shortcut, Start menu, folder, directory, path, location, drive,
 ;   existing file, source file, registry, INI entries, README,
 ;   computer, Windows, version, administrator, all users, current user,
 ;   Downloading files, Extracting files, aborted, corrupted, close (applications), restart,
@@ -32,6 +32,8 @@
 ;   and the button captions OK, Cancel, Yes, No, Next, Back, Install, Browse, Finish.
 ; - When in doubt, use Microsoft Terminology Search from:
 ;   https://msit.powerbi.com/view?r=eyJrIjoiODJmYjU4Y2YtM2M0ZC00YzYxLWE1YTktNzFjYmYxNTAxNjQ0IiwidCI6IjcyZjk4OGJmLTg2ZjEtNDFhZi05MWFiLTJkN2NkMDExZGI0NyIsImMiOjV9
+; - Also use Microsoft's Localization Style Guide for your language, from:
+;   https://learn.microsoft.com/en-us/globalization/reference/microsoft-style-guides
 ; Removing this section from your translation is allowed, but do not disregard it.
 
 [LangOptions]
@@ -219,13 +221,13 @@ SelectTasksLabel2=Select the additional tasks you want Setup to perform while in
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Select Start Menu Folder
 SelectStartMenuFolderDesc=Where should Setup place the program's shortcuts?
-SelectStartMenuFolderLabel3=Setup will create the program's shortcuts in the following Start Menu folder.
+SelectStartMenuFolderLabel3=Setup will create the program's shortcuts in the following Start menu folder.
 SelectStartMenuFolderBrowseLabel=To continue, click Next. If you would like to select a different folder, click Browse.
 MustEnterGroupName=You must enter a folder name.
 GroupNameTooLong=The folder name or path is too long.
 InvalidGroupName=The folder name is not valid.
 BadGroupName=The folder name cannot include any of the following characters:%n%n%1
-NoProgramGroupCheck2=&Don't create a Start Menu folder
+NoProgramGroupCheck2=&Don't create a Start menu folder
 
 ; *** "Ready to Install" wizard page
 WizardReady=Ready to Install
@@ -236,7 +238,7 @@ ReadyMemoUserInfo=User information:
 ReadyMemoDir=Destination location:
 ReadyMemoType=Setup type:
 ReadyMemoComponents=Selected components:
-ReadyMemoGroup=Start Menu folder:
+ReadyMemoGroup=Start menu folder:
 ReadyMemoTasks=Additional tasks:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile

@@ -2,15 +2,14 @@
 {$ifdef FPC}
 {$define PS_ARRAY_ON_STACK}
 {$endif}
+{ Pure assembler: Delphi 12.3 sometimes generates a bad instruction for the
+  Result of a float function that contains an asm block }
 function RealFloatCall_Register(p: Pointer;
   _EAX, _EDX, _ECX: Cardinal;
   StackData: Pointer;
   StackDataLen: Longint // stack length are in 4 bytes. (so 1 = 4 bytes)
   ): Extended; Stdcall; // make sure all things are on stack
-var
-  E: Extended;
-begin
-  asm
+asm
     mov ecx, stackdatalen
     jecxz @@2
     mov eax, stackdata
@@ -26,19 +25,14 @@ begin
     mov edx,_EDX
     mov ecx,_ECX
     call p
-    fstp tbyte ptr [e]
-  end;
-  Result := E;
+    mov esp, ebp // restore esp even if the callee popped the wrong size
 end;
-                 
+
 function RealFloatCall_Other(p: Pointer;
   StackData: Pointer;
   StackDataLen: Longint // stack length are in 4 bytes. (so 1 = 4 bytes)
   ): Extended; Stdcall; // make sure all things are on stack
-var
-  E: Extended;
-begin
-  asm
+asm
     mov ecx, stackdatalen
     jecxz @@2
     mov eax, stackdata
@@ -51,19 +45,14 @@ begin
     jnz @@1
     @@2:
     call p
-    fstp tbyte ptr [e]
-  end;
-  Result := E;
+    mov esp, ebp // restore esp even if the callee popped the wrong size
 end;
 
 function RealFloatCall_CDecl(p: Pointer;
   StackData: Pointer;
   StackDataLen: Longint // stack length are in 4 bytes. (so 1 = 4 bytes)
   ): Extended; Stdcall; // make sure all things are on stack
-var
-  E: Extended;
-begin
-  asm
+asm
     mov ecx, stackdatalen
     jecxz @@2
     mov eax, stackdata
@@ -76,17 +65,7 @@ begin
     jnz @@1
     @@2:
     call p
-    fstp tbyte ptr [e]
-    mov ecx, stackdatalen
-    jecxz @@4
-    @@3:
-    pop edx
-    dec ecx
-    or ecx, ecx
-    jnz @@3
-    @@4:
-  end;
-  Result := E;
+    mov esp, ebp // pops the parameters
 end;
 
 function RealCall_Register(p: Pointer;

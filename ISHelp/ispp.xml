@@ -241,9 +241,9 @@
 				</syntax>
 				<description>
 					<p>Includes the &translation; of the specified file. If a Unicode file is used, it must be UTF-8 (with or without a BOM) encoded.</p>
-					<p>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where the current file resides, then in the directory where the file that included the current file resides, and so on. If the file is not found, ISPP searches for it on the current include path, set via &pragma;, then on the path specified by the <tt>INCLUDE</tt> environment variable.</p>
-					<p>If the filename is an expression or specified in angle brackets, ISPP searches for it on the current include path only.</p>
-          <p>The filename may be prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
+					<p>If the filename is enclosed in angle brackets, ISPP searches for it on the current include path, set via &pragma;, then on the path specified by the <tt>INCLUDE</tt> environment variable. By default, the include path is the compiler directory.</p>
+					<p>If the filename is an expression, such as a filename enclosed in quotes, ISPP first searches for it in the directory where the current file resides, then in the directory where the file that included the current file resides, and so on, then in the directory specified by <tt><link href="predefinedvars">SourcePath</link></tt>. If the file isn't found, ISPP searches the same two paths as for angle brackets, and finally the compiler directory.</p>
+					<p>If the filename starts with <tt>.\</tt> or <tt>..\</tt>, it's relative to the directory where the current file resides. If it starts with <tt>compiler:</tt>, it's relative to the compiler directory. If it starts with <tt>userdocs:</tt>, it's relative to the My Documents folder of the currently logged-in user. In these cases, ISPP doesn't search other directories.</p>
 					<p>This directive can't be used inline.</p>
 				</description>
 				<section title="Examples">
@@ -592,7 +592,7 @@
 				<description>
 					<p>&sub; and &endsub; directives are used to declare a user defined procedure, which is a portion of script that may be included later, once or several times. A user defined procedure works much like an external file, and calling one works much like including that file, except that procedures may also be called from within expressions. Avoid calling procedures that emit several lines to the &translation; from within compound expressions or directives.</p>
 					<p>A procedure is called by specifying its identifier, with which it was declared.</p>
-					<p>A procedure isn't processed until it's called, so errors in its body are reported only when the procedure is called.</p>
+					<p>A procedure isn't processed until it's called, so errors in its body are reported only when the procedure is called. The exceptions are an unknown directive and a nested &sub; directive, which are reported when the procedure is declared.</p>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -977,8 +977,16 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Reads the value of the specified registry key. The first parameter is the root key, such as <tt>HKEY_LOCAL_MACHINE</tt>, <tt>HKEY_LOCAL_MACHINE_32</tt>, or <tt>HKEY_LOCAL_MACHINE_64</tt>. Constants for use with this parameter are declared in &builtins; accompanying ISPP. The second parameter specifies a subkey. The third parameter specifies the name of the value to read; if it is omitted or empty, the key's default (unnamed) value is read. The last optional parameter specifies the value to return on failure.</p>
 					<p>Note that this function can return a value of any type depending on the type of actual value in the registry.</p>
+					<p><tt>REG_DWORD</tt> values are treated as signed, so values of <tt>0x80000000</tt> or higher are returned as negative numbers. For example, <tt>0xFFFFFFFF</tt> is returned as <tt>-1</tt>. To get the unsigned value, apply <tt>&amp; 0xFFFFFFFF</tt> to the result. Because <tt>&amp;</tt> has lower precedence than <tt>==</tt>, use parentheses when comparing the unsigned value, as in the example below.</p>
 					<p>A compiler error will be raised if an invalid root key is specified or if 64-bit registry keys are requested on 32-bit Windows.</p>
 				</description>
+				<section title="Example">
+					<pre>
+						<line><ispp>#if</ispp> (ReadReg(HKEY_CURRENT_USER, <str>"Software\My Company\My Program"</str>, <str>"MyValue"</str>) &amp; <num>0xFFFFFFFF</num>) == <num>0xFFFFFFFF</num></line>
+						<line>&dsp;<ispp>#pragma</ispp> <ispp>message</ispp> <str>"MyValue is 0xFFFFFFFF"</str></line>
+						<line><ispp>#endif</ispp></line>
+					</pre>
+				</section>
 			</topic>
 			<topic id="Exec">
 				<title>Exec</title>
@@ -2015,6 +2023,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Inserts the specified <tt>Substr</tt> into <tt>S</tt> at the position given by <tt>Index</tt>. <tt>S</tt> is passed by reference (and is therefore modified).</p>
+					<p>If <tt>Index</tt> is larger than the length of <tt>S</tt>, <tt>Insert</tt> appends <tt>Substr</tt> to <tt>S</tt>.</p>
 					<p>Unrelated to &insert;.</p>
           <p>Declared in &builtins;.</p>
 				</description>
@@ -2369,7 +2378,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
     <topic id="linespan">
       <title>Line Spanning</title>
       <description header="no">
-        <p>By ending lines with ISPP's line spanning symbol preceded with a space, you can split long lines. For example:</p>
+        <p>By ending lines with ISPP's line spanning symbol preceded by a space or a tab, you can split long lines. For example:</p>
         <pre>
           <line><ispp>#define</ispp> MyAppName \</line>
           <line>&dsp;<str>"My Program"</str></line>
@@ -2410,7 +2419,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
     <topic id="example">
       <title>Example Script</title>
       <description header="no">
-        <p>An example script called <tt>ISPPExample1.iss</tt> is located in a separate folder. Click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the <tt>Examples</tt> subdirectory in your Inno Setup directory.</p>
+        <p>An example script called <tt>ISPPExample1.iss</tt> is located in a separate folder. Click the "Inno Setup Example Scripts" shortcut created in the Start menu when you installed Inno Setup, or open the <tt>Examples</tt> subdirectory in your Inno Setup directory.</p>
         <p>Also see &builtins;.</p>
       </description>
     </topic>
@@ -2429,8 +2438,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<tr><td nowrap=""><tt>--define=<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</tt>, <tt>-d<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</tt></td><td>Emulates <tt><link href="define">#define</link> public <i>&lt;name&gt; &lt;value&gt;</i></tt> (variable-definition).</td></tr>
 					<tr><td nowrap=""><tt>-$<i>&lt;letter&gt;</i>(+|-)</tt></td><td>Emulates <tt><link href="pragma">#pragma</link> option -<i>&lt;letter&gt;</i>(+|-)</tt>.</td></tr>
 					<tr><td nowrap=""><tt>-p<i>&lt;letter&gt;</i>(+|-)</tt></td><td>Emulates <tt><link href="pragma">#pragma</link> parseroption -<i>&lt;letter&gt;</i>(+|-)</tt>.</td></tr>
-					<tr><td nowrap=""><tt>--include-dirs=<i>&lt;paths&gt;</i></tt>, <tt>-i<i>&lt;paths&gt;</i></tt></td><td>Emulates <tt><link href="pragma">#pragma</link> include <i>&lt;paths&gt;</i></tt> (multiple paths can be delimited with semicolons).</td></tr>
-					<tr><td nowrap=""><tt>--include=<i>&lt;filename&gt;</i></tt>, <tt>-j<i>&lt;filename&gt;</i></tt></td><td>Emulates <tt><link href="include">#include</link>&sp;<i>&lt;filename&gt;</i></tt>.</td></tr>
+					<tr><td nowrap=""><tt>--include-dirs=<i>&lt;paths&gt;</i></tt>, <tt>-i<i>&lt;paths&gt;</i></tt></td><td>Emulates <tt><link href="pragma">#pragma</link> include <link href="predefinedvars">__INCLUDE__</link> + ";<i>&lt;paths&gt;</i>"</tt> (multiple paths can be delimited with semicolons).</td></tr>
+					<tr><td nowrap=""><tt>--include=<i>&lt;filename&gt;</i></tt>, <tt>-j<i>&lt;filename&gt;</i></tt></td><td>Emulates <tt><link href="include">#include</link>&sp;"<i>&lt;filename&gt;</i>"</tt>.</td></tr>
 					<tr><td nowrap=""><tt>--inline-start=<i>&lt;string&gt;</i></tt>, <tt>-{#<i>&lt;string&gt;</i></tt></td><td>Emulates <tt><link href="pragma">#pragma</link> inlinestart <i>&lt;string&gt;</i></tt>.</td></tr>
 					<tr><td nowrap=""><tt>--inline-end=<i>&lt;string&gt;</i></tt>, <tt>-}<i>&lt;string&gt;</i></tt></td><td>Emulates <tt><link href="pragma">#pragma</link> inlineend <i>&lt;string&gt;</i></tt>.</td></tr>
 					<tr><td nowrap=""><tt>--verbose=<i>&lt;number&gt;</i></tt>, <tt>-v<i>&lt;number&gt;</i></tt></td><td>Emulates <tt><link href="pragma">#pragma</link> verboselevel <i>&lt;number&gt;</i></tt>.</td></tr>

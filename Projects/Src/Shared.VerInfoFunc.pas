@@ -2,7 +2,7 @@ unit Shared.VerInfoFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -44,7 +44,8 @@ begin
     GetMem(VersionBuf, VersionSize);
     try
       if GetFileVersionInfo(PChar(Filename), VersionHandle, VersionSize, VersionBuf) then begin
-        if VerQueryValue(VersionBuf, '\', Pointer(VerInfo), VerInfoSize) then begin
+        if VerQueryValue(VersionBuf, '\', Pointer(VerInfo), VerInfoSize) and
+           (VerInfoSize >= SizeOf(TVSFixedFileInfo)) then begin
           VersionInfo := VerInfo^;
           Result := True;
         end;

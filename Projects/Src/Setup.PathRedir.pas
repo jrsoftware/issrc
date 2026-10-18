@@ -22,7 +22,7 @@ unit Setup.PathRedir;
 interface
 
 uses
-  Windows, SysUtils,
+  SysUtils,
   Shared.SetupTypes;
 
 type

@@ -803,6 +803,7 @@ object MainForm: TMainForm
       end
       object RStepOut: TMenuItem
         Caption = 'Step Out'
+        Enabled = False
         OnClick = RStepOutClick
       end
       object RToggleBreakPoint: TMenuItem

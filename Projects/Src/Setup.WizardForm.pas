@@ -341,7 +341,7 @@ function ValidateCustomDirEdit(const AEdit: TEdit;
 implementation
 
 uses
-  ShellApi, ShlObj, Types, Generics.Collections, Themes,
+  ShellApi, ShlObj, Types, Themes,
   BidiUtils, PathFunc, RestartManager, SHA256,
   SetupLdrAndSetup.Messages, Setup.MainForm, Shared.CommonFunc.Vcl,
   Shared.CommonFunc, Setup.InstFunc, Setup.SelectFolderForm, Setup.FileExtractor,
@@ -1340,7 +1340,7 @@ begin
   FPageList.Insert(InsertIndex, APage);
 end;
 
-{ Also see GetPreviousData in Main.pas }
+{ Also see GetPreviousData in Setup.MainFunc }
 procedure TWizardForm.FindPreviousData;
 var
   H: HKEY;

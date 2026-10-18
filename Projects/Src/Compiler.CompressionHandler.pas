@@ -2,7 +2,7 @@ unit Compiler.CompressionHandler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  SysUtils, Shared.EncryptionFunc, Compiler.Messages, Compiler.HelperFunc;
+  SysUtils, Shared.EncryptionFunc, Compiler.Messages;
 
 constructor TCompressionHandler.Create(ACompiler: TSetupCompiler;
   const InitialSliceFilename: String);

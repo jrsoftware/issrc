@@ -12,6 +12,7 @@ object SignToolsForm: TSignToolsForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Position = poScreenCenter
+  OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (

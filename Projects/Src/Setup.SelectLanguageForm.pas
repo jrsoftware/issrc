@@ -2,7 +2,7 @@ unit Setup.SelectLanguageForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit Setup.SelectLanguageForm;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Classes, Graphics, Controls, Forms,
   Setup.SetupForm, StdCtrls, ExtCtrls, NewStaticText, BitmapImage, NewCtrls;
 
 type

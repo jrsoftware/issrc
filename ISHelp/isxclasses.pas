@@ -232,12 +232,12 @@ TControl = class(TComponent)
   property Cursor: TCursor; read write;
   property StyleElements: TStyleElements; read write;
   property StyleName: String; read write;
+  property Parent: TWinControl; read write;
 end;
 
 HWND = NativeUInt;
 
 TWinControl = class(TControl)
-  property Parent: TWinControl; read write;
   property ParentBackground: Boolean; read write;
   property Handle: HWND; read;
   property Showing: Boolean; read;
@@ -267,7 +267,7 @@ TBorderIcons = set of TBorderIcon;
 
 TConstraintSize = 0..MaxInt;
 
-TSizeConstraints = class(TPersistent);
+TSizeConstraints = class(TPersistent)
   property MaxHeight: TConstraintSize; read write;
   property MaxWidth: TConstraintSize; read write;
   property MinHeight: TConstraintSize; read write;

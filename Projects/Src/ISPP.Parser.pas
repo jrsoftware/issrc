@@ -13,7 +13,7 @@ unit ISPP.Parser;
 interface
 
 uses
-  ISPP.Intf, ISPP.Base, ISPP.IdentMan, ISPP.CTokenizer;
+  ISPP.Intf, ISPP.Base, ISPP.CTokenizer;
 
 type
 
@@ -45,7 +45,6 @@ type
 
 function Parse(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): TIsppVariant;
 function ParseStr(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): string;
-function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): Int64;
 
 implementation
 
@@ -67,17 +66,6 @@ begin
   with TParser.Create(VarMan, AExpr, Offset, Options) do
   try
     Result := StrExpr(True);
-    EndOfExpr;
-  finally
-    Free
-  end;
-end;
-
-function ParseInt(const VarMan: IIdentManager; const AExpr: string; Offset: NativeInt; Options: PIsppParserOptions): Int64;
-begin
-  with TParser.Create(VarMan, AExpr, Offset, Options) do
-  try
-    Result := IntExpr(True);
     EndOfExpr;
   finally
     Free
@@ -167,7 +155,7 @@ function TParser.Factor(DoEval: Boolean): TIsppVariant;
             end;
           tkCloseParen, tkCloseBracket, tkCloseBrace:
             begin
-              NextToken;
+              NextTokenExpect([Brackets[CallContext.GroupingStyle, True]]);
               if ArgFound then CallContext.Add(ArgName, V);
               V := NULL;
               Break
@@ -339,7 +327,7 @@ begin
         evInt: MakeInt(Op2, 0);
         evStr: MakeStr(Op2, '');
       end;
-  if Op1.Typ <> Op2.Typ then
+  if (Op1.Typ <> Op2.Typ) or not (Op1.Typ in [evInt, evStr]) then
     Error(SOperatorNotApplicableToThisOpera);
   AsBool := False;
   with Result do

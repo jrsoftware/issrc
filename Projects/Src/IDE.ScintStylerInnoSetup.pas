@@ -1315,11 +1315,11 @@ begin
       case TInnoSetupStylerStyle(Style) of
         stCompilerDirective, stISPPReservedWord: Attributes.ForeColor := FTheme.Colors[tcRed];
         stComment: Attributes.ForeColor := FTheme.Colors[tcGreen];
-        stSection: Attributes.FontStyle := [fsBold];
+        stSection: Include(Attributes.FontStyle, fsBold);
         stSymbol: Attributes.ForeColor := FTheme.Colors[tcGray];
         stKeyword, stPascalReservedWord: Attributes.ForeColor := FTheme.Colors[tcBlue];
         //stParameterValue: Attributes.ForeColor := FTheme.Colors[tcTeal];
-        stEventFunction: Attributes.FontStyle := [fsBold];
+        stEventFunction: Include(Attributes.FontStyle, fsBold);
         stConstant: Attributes.ForeColor := FTheme.Colors[tcPurple];
         stMessageArg: Attributes.ForeColor := FTheme.Colors[tcRed];
         stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := FTheme.Colors[tcOrange];
@@ -1894,12 +1894,9 @@ begin
 end;
 
 function TInnoSetupStyler.LineTextSpans(const S: TScintRawString): Boolean;
-var
-  I: Integer;
 begin
-  { Note: To match ISPP behavior, require length of at least 3 }
-  I := Length(S);
-  Result := (I > 2) and (S[I] = '\') and (S[I-1] in WhitespaceChars);
+  const I = Length(S);
+  Result := (I >= 2) and (S[I] = '\') and (S[I-1] in WhitespaceChars);
 end;
 
 procedure TInnoSetupStyler.PreStyleInlineISPPDirectives;
@@ -1929,10 +1926,9 @@ var
 begin
   { Style span symbols, then replace them with spaces to prevent any further
     processing }
-  for I := 3 to TextLength do begin
+  for I := 2 to TextLength do begin
     if ((I = TextLength) or (Text[I+1] in LineEndChars)) and
-       (Text[I] = '\') and (Text[I-1] in WhitespaceChars) and
-       not(Text[I-2] in LineEndChars) then begin
+       (Text[I] = '\') and (Text[I-1] in WhitespaceChars - LineEndChars) then begin
       ReplaceText(I, I, ' ');
       ApplyStyle(Ord(stSymbol), I, I);
       if not ISPPInstalled then
@@ -1943,6 +1939,7 @@ begin
   { Style all '{#' ISPP inline directives before anything else }
   if not IsLineCommented then begin
     I := 1;
+    var LineOpenCount: ShortInt := 0;
     while I < TextLength do begin
       if (Text[I] = '{') and (Text[I+1] = '#') then begin
         StartIndex := I;
@@ -1956,8 +1953,7 @@ begin
         end;
         ResetCurIndexTo(StartIndex);
         try
-          var OpenCount: ShortInt := 0;
-          HandleCompilerDirective(True, I - 1, OpenCount);
+          HandleCompilerDirective(True, I - 1, LineOpenCount);
         finally
           ResetCurIndexTo(1);
         end;

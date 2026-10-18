@@ -40,6 +40,8 @@ Use the established Inno Setup terms consistently. Never substitute synonyms:
 | Pascal Scripting | the scripting engine (for the feature/topic name; "Pascal Script" is acceptable when referring to the RemObjects Pascal Script engine itself) |
 | extended-length paths | long paths (use "also known as super paths" parenthetically on first mention within a topic; don't use "super paths" as a standalone term) |
 | menu item | menu option |
+| Start menu (but "Start Menu" in titles, such as the *Select Start Menu Folder* wizard page) | Start Menu |
+| checkbox | check box |
 | without a BOM | BOM-less, BOMless |
 | the help file | the help |
 

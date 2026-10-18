@@ -179,11 +179,11 @@ function ReadUninstallLogFlags(const F: TFile; const Filename: String): TUninsta
 implementation
 
 uses
-  Messages, ShlObj, AnsiStrings, Character,
+  ShlObj, AnsiStrings, Character,
   UnsignedFunc, PathFunc,
   Shared.Struct, Shared.SetupTypes, Shared.SetupMessageIDs,
   SetupLdrAndSetup.Messages,
-  Setup.InstFunc, Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
+  Setup.InstFunc, Setup.InstFunc.Ole, Compression.Base,
   Setup.LoggingFunc, Setup.RegDLL, Setup.DotNetFunc, Setup.PathRedir;
 
 type
@@ -819,15 +819,17 @@ begin
               try
                 if CurRec^.ExtraData and utRun_ShellExec = 0 then begin
                   if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
-                     NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
+                     ((ExpandedFilenameBeforeRedir <> '') and
+                      NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent))) then begin
+                    const LogOutputFlag = CurRec^.ExtraData and utRun_LogOutput <> 0;
                     var OutputReader: TCreateProcessOutputReader := nil;
                     try
-                      if GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0) then
+                      if GetLogActive and LogOutputFlag then
                         OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
                       var ErrorCode: DWORD;
                       if not InstExec(RunEntry64Bit and not IsCurrentProcess64Bit,
                          ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
-                         Wait, ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then begin
+                         Wait, ShowCmd, LogOutputFlag, ProcessMessagesProc, OutputReader, ErrorCode) then begin
                         LogFmt('CreateProcess failed (%d).', [ErrorCode]);
                         Result := False;
                       end
@@ -1205,7 +1207,7 @@ procedure TUninstallLog.Save(const Filename: String;
   const Append, UpdateUninstallLogAppName: Boolean);
 { Saves all undo data to Filename. If Append is True, it appends the current
   undo data to the end of the existing file. When Append is True, it assumes
-  compatibility has already been verified with the Test method. }
+  compatibility has already been verified with the CanAppend method. }
 var
   F: TFile;
   Buffer: array[0..4095] of Byte;

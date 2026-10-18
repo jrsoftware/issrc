@@ -106,7 +106,7 @@ var
   UninstallExpandedGroupName, UninstallExpandedLanguage: String;
   UninstallSilent: Boolean;
 
-  { Variables read in from the Setup.0 file }
+  { Variables read in from setup-0.bin, or from EXE }
   SetupEncryptionHeader: TSetupEncryptionHeader;
   SetupHeader: TSetupHeader;
   OrigSetupHeaderWizardBackColor: Integer;
@@ -257,7 +257,7 @@ uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
   ChaCha20, ECDSA, ISSigFunc, NewCtrls, PathFunc, UnsignedFunc, FormBackgroundStyleHook, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
-  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir, {$IFNDEF WIN64} Setup.RedirFunc, {$ENDIF}
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
@@ -368,7 +368,7 @@ begin
   Result := Format('%s\%s_is1', [REGSTR_PATH_UNINSTALL, UninstallRegKeyBaseName]);
 end;
 
-{ Based on FindPreviousData in Wizard.pas }
+{ Based on FindPreviousData in Setup.WizardForm }
 function GetPreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
 var
   H: HKEY;
@@ -1340,9 +1340,10 @@ begin
 end;
 
 function ExpandExternalSourceFilename(const FileEntry: PSetupFileEntry): String;
+{ Returns '' only if the SkipIfSourceDoesntExist flag is set }
 begin
   Result := ExpandConst(FileEntry^.SourceFilename);
-  if Result = '' then { when allowed ApplyPathRedirRules would throw its exception }
+  if (Result = '') and not(foSkipIfSourceDoesntExist in FileEntry^.Options) then { when allowed ApplyPathRedirRules would throw its exception }
     InternalErrorFmt('The "Source" parameter value "%s" expanded to an empty string',
       [FileEntry^.SourceFilename]);
 end;
@@ -2030,7 +2031,10 @@ begin
             if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent), Param) then
               Exit(False);
           end else begin
-            SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandExternalSourceFilename(CurFile), tpCurrent);
+            const ExpandedSourceFilename = ExpandExternalSourceFilename(CurFile);
+            if ExpandedSourceFilename = '' then
+              Continue;
+            SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandedSourceFilename, tpCurrent);
             Excludes.DelimitedText := CurFile^.Excludes;
             if foExtractArchive in CurFile^.Options then begin
               try
@@ -3058,7 +3062,7 @@ var
     end;
   end;
   
-  { Also see Install.pas }
+  { Also see Setup.Install }
   function ExistingInstallationAt(const RootKey: HKEY; const SubkeyName: String): Boolean;
   var
     K: HKEY;
@@ -3161,7 +3165,7 @@ begin
   InitializeCommonVars;
 
   { NewParamsForCode will hold all params except automatic internal ones like /SL5= and /DEBUGWND=
-    Also see Uninstall.ProcessCommandLine }
+    Also see Setup.Uninstall's ProcessCommandLine }
   NewParamsForCode.Add(NewParamStr(0));
 
   { Based on SetupLdr or not?
@@ -3303,6 +3307,7 @@ begin
   end
   else
     SetupFilename := SetupLdrOriginalFilename;
+  var CryptKey: TSetupEncryptionKey;
   SetupFile := TFile.Create(SetupFilename, fdOpenExisting, faRead, fsRead);
   try
     SetupFile.Seek(SetupLdrOffset0);
@@ -3318,15 +3323,16 @@ begin
     if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
       AbortInit(msgSetupFileCorrupt);
 
-    var CryptKey: TSetupEncryptionKey;
     if SetupEncryptionHeader.EncryptionUse = euFull then begin
       if InitPassword = '' then
         AbortInit(SMissingPassword);
       GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
       if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
         AbortInit(SIncorrectPassword);
-      { FileExtractor (a function!) requires SetupHeader.CompressMethod to be set, so delaying setting
-        FileExtractor.CryptKey until SetupHeader is read below }
+      { The first FileExtractor (a function!) call creates the decompressor for
+        SetupHeader.CompressMethod, and the zip and bzip decompressors call into the decompressor DLL
+        when created, so delaying setting FileExtractor.CryptKey until SetupHeader is read and
+        LoadDecompressorDLL is called below }
     end;
 
     try
@@ -3338,9 +3344,6 @@ begin
         { Header }
         SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
           SetupHeaderStrings, SetupHeaderAnsiStrings);
-
-        if SetupEncryptionHeader.EncryptionUse = euFull then
-          FileExtractor.CryptKey := CryptKey; { See above }
 
         { SetupHeader.WizardBackColor may be overwritten below, and we need to keep the original
           value for Uninstall }
@@ -3648,6 +3651,9 @@ begin
   { Save DecompressorDLL stream as "_isdecmp.dll" in TempInstallDir, and load it }
   if SetupHeader.CompressMethod in [cmZip, cmBzip] then
     LoadDecompressorDLL;
+
+  if SetupEncryptionHeader.EncryptionUse = euFull then
+    FileExtractor.CryptKey := CryptKey; { See above }
 
   { Save SevenZipDll stream as "_is7z.dll" in TempInstallDir, and load it }
   if SetupHeader.SevenZipLibraryName <> '' then
@@ -4134,10 +4140,12 @@ begin
 
     if not(roShellExec in RunEntry.Options) then begin
       if not(roSkipIfDoesntExist in RunEntry.Options) or
-         NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
+         ((ExpandedFilenameBeforeRedir <> '') and
+          NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent))) then begin
+        const LogOutputFlag = roLogOutput in RunEntry.Options;
         var OutputReader: TCreateProcessOutputReader := nil;
         try
-          if roLogOutput in RunEntry.Options then begin
+          if LogOutputFlag then begin
             if (RunEntry.OnLog <> '') and (CodeRunner <> nil) then
               OutputReader := TCreateProcessOutputReader.Create(RunExecLogOnLog, NativeInt(PChar(RunEntry.OnLog)))
             else if GetLogActive then
@@ -4146,7 +4154,7 @@ begin
           var ErrorCode: DWORD;
           if not InstExecEx(RunAsOriginalUser, RunEntry64Bit and not IsCurrentProcess64Bit,
              ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
-             Wait, RunEntry.ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then
+             Wait, RunEntry.ShowCmd, LogOutputFlag, ProcessMessagesProc, OutputReader, ErrorCode) then
             raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
               SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
               ['CreateProcess', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));

@@ -171,7 +171,7 @@ var
     'function Succ(X: Ordinal): Ordinal;', // Implemented by TPSPascalCompiler.ProcessSub
     'function Pred(X: Ordinal): Ordinal;', //
     'function Assigned(var X): Boolean;',  //
-    { Special: keywords instead of functions in ROPS but are presented and documented as functions by us }
+    { Special: keywords instead of functions in ROPS but are presented as functions by us, and all except Exit are documented as such }
     'function Chr(X: Word): Char;',
     'function Ord(X: Ordinal): UInt64;',
     'procedure Exit;'
@@ -210,10 +210,8 @@ type
     hkISPPVoid, hkISPPStr, hkISPPInt, hkISPPAny);
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
-function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString; overload;
-function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString; overload;
+function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
 function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
-function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 
 function RemoveISPPScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
 function ExtractISPPScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
@@ -230,12 +228,6 @@ begin
   const C: AnsiString = '(';
 
   Result := Pos(C, ScriptFunc) <> 0;
-end;
-
-function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString;
-begin
-  var Dummy: TScriptFuncHeaderKind;
-  Result := RemoveScriptFuncHeader(ScriptFunc, Dummy);
 end;
 
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
@@ -302,11 +294,6 @@ begin
     raise Exception.CreateFmt('Invalid ScriptFuncWithoutHeader: %s', [Result]);
 
   Delete(Result, P, Maxint);
-end;
-
-function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
-begin
-  Result := ExtractScriptFuncWithoutHeaderName(RemoveScriptFuncHeader(ScriptFunc));
 end;
 
 function ExtractISPPScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
@@ -475,7 +462,7 @@ initialization
     'function PathEndsWith(const S, AEndsWith: String; const IgnoreCase: Boolean): Boolean;',
     'function PathConvertNormalToSuper(const Filename: String): String;',
     'function PathConvertSuperToNormal(const Filename: String): String;',
-    { All in PathFunc but with a different name }
+    { All except CharLength in PathFunc but with a different name }
     'function CharLength(const S: String; const Index: Integer): Integer;',
     'function ExpandFileName(const FileName: String): String;',
     'function ExtractFileDir(const FileName: String): String;',

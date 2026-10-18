@@ -18,7 +18,7 @@ procedure BidiUtilsRunTests;
 implementation
 
 uses
-  {$IFDEF DEBUG} Winapi.Windows, {$ENDIF} System.SysUtils, System.Types, BidiUtils;
+  {$IFDEF DEBUG} Winapi.Windows, System.SysUtils, {$ENDIF} System.Types, BidiUtils;
 
 {$C+}
 

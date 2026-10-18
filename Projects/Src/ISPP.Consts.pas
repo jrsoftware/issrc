@@ -75,11 +75,12 @@ const
   SAllocatingMacroLocalArrayUpToEle = 'Allocating macro %s Local array up to element %d';
   SArrayDeclared = '%s array declared: %s';
   SArrayReDimmed = '%s array redimensioned: %s';
-  SErrorExecutingMacro = 'Error at %1:d:%d in macro %0:s:'#13#10#13#10'%3:s';
+  SErrorExecutingMacroMainScript = 'Error in main script at %1:d:%d in macro %0:s:'#13#10#13#10'%3:s';
   SErrorExecutingMacroFile = 'Error in %1:s at %d:%d in macro %0:s:'#13#10#13#10'%4:s';
   SErrorExecutingMacroUnexpected = 'Error executing macro %s: %s';
   SFuncError = 'Unexpected error when calling function %s';
   SFuncsNoSupportNamedParams = 'Functions do not support named parameters';
+  SIdentifierIsNotAnArray = 'Identifier is not an array: %s';
   SIndexIsOutOfArraySize = 'Index %d is out of array %s size';
   SIndexNotSpecifiedForArray = 'Index not specified for array %s';
   SInsufficientParams = 'Insufficient parameters';

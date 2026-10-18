@@ -12,8 +12,8 @@ unit Setup.NewDiskForm;
 interface
 
 uses
-  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  Setup.SetupForm, StdCtrls, ExtCtrls, NewStaticText, BitmapImage, NewCtrls;
+  Windows, SysUtils, Classes, Graphics, Controls, Forms,
+  Setup.SetupForm, StdCtrls, NewStaticText, BitmapImage, NewCtrls;
 
 type
   TNewDiskForm = class(TSetupForm)

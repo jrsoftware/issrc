@@ -62,7 +62,7 @@ SetupAppRunningError=O instalador detectou que o %1 está atualmente em execuç�
 UninstallAppRunningError=O desinstalador detectou que o %1 está atualmente em execução.%n%nPor favor, feche todas as instâncias dele agora, então clique em OK para continuar ou em Cancelar para sair.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Selecione o Modo de Instalação do Instalador
+PrivilegesRequiredOverrideTitle=Selecionar o Modo de Instalação do Instalador
 PrivilegesRequiredOverrideInstruction=Selecione o modo de instalação
 PrivilegesRequiredOverrideText1=O %1 pode ser instalado para todos os usuários (requer privilégios administrativos) ou só para você.
 PrivilegesRequiredOverrideText2=O %1 pode ser instalado só para você ou para todos os usuários (requer privilégios administrativos).
@@ -80,7 +80,7 @@ ExitSetupTitle=Sair do Instalador
 ExitSetupMessage=A instalação não está completa. Se você sair agora, o programa não será instalado.%n%nVocê pode executar o instalador novamente outra hora para completar a instalação.%n%nSair do instalador?
 AboutSetupMenuItem=&Sobre o Instalador...
 AboutSetupTitle=Sobre o Instalador
-AboutSetupMessage=%1 versão %2%n%3%n%n%1 home page:%n%4
+AboutSetupMessage=%1 %2%n%3%n%nPágina inicial de %1:%n%4
 AboutSetupNote=
 TranslatorNote=
 
@@ -100,7 +100,7 @@ ButtonWizardBrowse=P&rocurar...
 ButtonNewFolder=&Criar Nova Pasta
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Selecione o Idioma do Instalador
+SelectLanguageTitle=Selecionar o Idioma do Instalador
 SelectLanguageLabel=Selecione o idioma para usar durante a instalação.
 
 ; *** Common wizard text
@@ -125,7 +125,7 @@ IncorrectPassword=A senha que você inseriu não está correta. Por favor, tente
 WizardLicense=Acordo de Licença
 LicenseLabel=Por favor, leia as seguintes informações importantes antes de continuar.
 LicenseLabel3=Por favor, leia o seguinte Acordo de Licença. Você deve aceitar os termos deste acordo antes de continuar com a instalação.
-LicenseAccepted=Eu &aceito o acordo
+LicenseAccepted=Eu a&ceito o acordo
 LicenseNotAccepted=Eu &não aceito o acordo
 
 ; *** "Information" wizard pages
@@ -145,18 +145,18 @@ UserInfoSerial=Número de &Série:
 UserInfoNameRequired=Você deve inserir um nome.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Selecione o Local de Destino
+WizardSelectDir=Selecionar o Local de Destino
 SelectDirDesc=Onde o [name] deve ser instalado?
 SelectDirLabel3=O instalador instalará o [name] na seguinte pasta.
 SelectDirBrowseLabel=Para continuar, clique em Avançar. Se deseja selecionar uma pasta diferente, clique em Procurar.
 DiskSpaceGBLabel=Pelo menos [gb] GB de espaço livre em disco são requeridos.
 DiskSpaceMBLabel=Pelo menos [mb] MB de espaço livre em disco são requeridos.
-CannotInstallToNetworkDrive=O instalador não pode instalar em um drive de rede.
+CannotInstallToNetworkDrive=O instalador não pode instalar em uma unidade de rede.
 CannotInstallToUNCPath=O instalador não pode instalar em um caminho UNC.
-InvalidPath=Você deve inserir um caminho completo com a letra do drive; por exemplo:%n%nC:\APP%n%nou um caminho UNC no formato:%n%n\\server\share
-InvalidDrive=O drive ou compartilhamento UNC que você selecionou não existe ou não está acessível. Por favor, selecione outro.
+InvalidPath=Você deve inserir um caminho completo com a letra da unidade; por exemplo:%n%nC:\App%n%nou um caminho UNC no formato:%n%n\\server\share
+InvalidDrive=A unidade ou o compartilhamento UNC que você selecionou não existe ou não está acessível. Por favor, selecione outro.
 DiskSpaceWarningTitle=Sem Espaço em Disco o Bastante
-DiskSpaceWarning=O instalador requer pelo menos %1 KB de espaço livre para instalar, mas o drive selecionado só tem %2 KB disponíveis.%n%nVocê quer continuar de qualquer maneira?
+DiskSpaceWarning=O instalador requer pelo menos %1 KB de espaço livre para instalar, mas a unidade selecionada só tem %2 KB disponíveis.%n%nVocê quer continuar de qualquer maneira?
 DirNameTooLong=O nome ou caminho da pasta é muito longo.
 InvalidDirName=O nome da pasta não é válido.
 BadDirName32=Os nomes das pastas não podem incluir quaisquer dos seguintes caracteres:%n%n%1
@@ -211,7 +211,7 @@ ReadyMemoTasks=Tarefas adicionais:
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
 DownloadingLabel2=Baixando arquivos...
 ButtonStopDownload=&Parar download
-StopDownload=Tem certeza que deseja parar o download?
+StopDownload=Você tem certeza de que deseja parar o download?
 ErrorDownloadAborted=Download abortado
 ErrorDownloadFailed=Download falhou: %1 %2
 ErrorDownloadSizeFailed=Falha ao obter o tamanho: %1 %2
@@ -221,7 +221,7 @@ ErrorFileSize=Tamanho de arquivo inválido: esperado %1, encontrado %2
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Extraindo arquivos...
 ButtonStopExtraction=&Parar extração
-StopExtraction=Tem certeza de que deseja parar a extração?
+StopExtraction=Você tem certeza de que deseja parar a extração?
 ErrorExtractionAborted=Extração abortada
 ErrorExtractionFailed=Extração falhou: %1
 
@@ -240,7 +240,7 @@ ApplicationsFound2=Os aplicativos a seguir estão usando arquivos que precisam s
 CloseApplications=&Fechar os aplicativos automaticamente
 DontCloseApplications=&Não fechar os aplicativos
 ErrorCloseApplications=O instalador foi incapaz de fechar automaticamente todos os aplicativos. É recomendado que você feche todos os aplicativos usando os arquivos que precisam ser atualizados pelo instalador antes de continuar.
-PrepareToInstallNeedsRestart=O instalador deve reiniciar seu computador. Depois de reiniciar o computador, execute o instalador novamente para completar a instalação do [name].%n%nVocê deseja reiniciar agora?
+PrepareToInstallNeedsRestart=O instalador deve reiniciar seu computador. Após reiniciar seu computador, execute o instalador novamente para completar a instalação do [name].%n%nVocê gostaria de reiniciar agora?
 
 ; *** "Installing" wizard page
 WizardInstalling=Instalando
@@ -250,7 +250,7 @@ InstallingLabel=Por favor, espere enquanto o instalador instala o [name] no seu 
 FinishedHeadingLabel=Completando o Assistente do Instalador do [name]
 FinishedLabelNoIcons=O instalador terminou de instalar o [name] no seu computador.
 FinishedLabel=O instalador terminou de instalar o [name] no seu computador. O aplicativo pode ser iniciado selecionando os atalhos instalados.
-ClickFinish=Clique em Concluir para sair do Instalador.
+ClickFinish=Clique em Concluir para sair do instalador.
 FinishedRestartLabel=Para completar a instalação do [name], o instalador deve reiniciar seu computador. Você gostaria de reiniciar agora?
 FinishedRestartMessage=Para completar a instalação do [name], o instalador deve reiniciar seu computador.%n%nVocê gostaria de reiniciar agora?
 ShowReadmeCheck=Sim, eu gostaria de visualizar o arquivo README
@@ -271,11 +271,11 @@ SelectDirectoryLabel=Por favor, especifique o local do próximo disco.
 ; *** Installation phase messages
 SetupAborted=A instalação não foi completada.%n%nPor favor, corrija o problema e execute o instalador novamente.
 AbortRetryIgnoreSelectAction=Selecionar ação
-AbortRetryIgnoreRetry=&Tentar Novamente
+AbortRetryIgnoreRetry=&Tentar novamente
 AbortRetryIgnoreIgnore=&Ignorar o erro e continuar
 AbortRetryIgnoreCancel=Cancelar instalação
 RetryCancelSelectAction=Selecionar ação
-RetryCancelRetry=&Tentar Novamente
+RetryCancelRetry=&Tentar novamente
 RetryCancelCancel=Cancelar
 
 ; *** Installation status messages
@@ -320,8 +320,8 @@ VerificationFileNameIncorrect=O nome do arquivo está incorreto
 VerificationFileTagIncorrect=A tag do arquivo está incorreta
 VerificationFileSizeIncorrect=O tamanho do arquivo está incorreto
 VerificationFileHashIncorrect=O hash do arquivo está incorreto
-ExistingFileReadOnly2=O arquivo existente não pôde ser substituído porque está marcado como somente-leitura.
-ExistingFileReadOnlyRetry=&Remover o atributo somente-leitura e tentar novamente
+ExistingFileReadOnly2=O arquivo existente não pôde ser substituído porque está marcado como somente leitura.
+ExistingFileReadOnlyRetry=&Remover o atributo somente leitura e tentar novamente
 ExistingFileReadOnlyKeepExisting=&Manter o arquivo existente
 ErrorReadingExistingDest=Ocorreu um erro ao tentar ler o arquivo existente:
 FileExistsSelectAction=Selecionar ação
@@ -362,22 +362,22 @@ ErrorOpeningReadme=Ocorreu um erro ao tentar abrir o arquivo README.
 ErrorRestartingComputer=O instalador foi incapaz de reiniciar o computador. Por favor, faça isto manualmente.
 
 ; *** Uninstaller messages
-UninstallNotFound=O arquivo "%1" não existe. Não consegue desinstalar.
-UninstallOpenError=O arquivo "%1" não pôde ser aberto. Não consegue desinstalar
-UninstallUnsupportedVer=O arquivo do log da desinstalação "%1" está num formato não reconhecido por esta versão do desinstalador. Não consegue desinstalar
+UninstallNotFound=O arquivo "%1" não existe. Não é possível desinstalar.
+UninstallOpenError=O arquivo "%1" não pôde ser aberto. Não é possível desinstalar
+UninstallUnsupportedVer=O arquivo do log da desinstalação "%1" está num formato não reconhecido por esta versão do desinstalador. Não é possível desinstalar
 UninstallUnknownEntry=Uma entrada desconhecida (%1) foi encontrada no log da desinstalação
-ConfirmUninstall=Você tem certeza que você quer remover completamente o %1 e todos os seus componentes?
+ConfirmUninstall=Você tem certeza de que deseja remover completamente o %1 e todos os seus componentes?
 UninstallOnlyOnWin64=Esta instalação só pode ser desinstalada em Windows 64 bits.
 OnlyAdminCanUninstall=Esta instalação só pode ser desinstalada por um usuário com privilégios administrativos.
 UninstallStatusLabel=Por favor, espere enquanto o %1 é removido do seu computador.
 UninstalledAll=O %1 foi removido com sucesso do seu computador.
 UninstalledMost=Desinstalação do %1 completa.%n%nAlguns elementos não puderam ser removidos. Estes podem ser removidos manualmente.
 UninstalledAndNeedsRestart=Para completar a desinstalação do %1, seu computador deve ser reiniciado.%n%nVocê gostaria de reiniciar agora?
-UninstallDataCorrupted=O arquivo "%1" está corrompido. Não consegue desinstalar
+UninstallDataCorrupted=O arquivo "%1" está corrompido. Não é possível desinstalar
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Remover Arquivo Compartilhado?
-ConfirmDeleteSharedFile2=O sistema indica que o seguinte arquivo compartilhado não está mais em uso por quaisquer programas. Você gostaria que a Desinstalação removesse este arquivo compartilhado?%n%nSe quaisquer programas ainda estão usando este arquivo e ele é removido, esses programas podem não funcionar apropriadamente. Se você não tiver certeza, escolha Não. Deixar o arquivo no seu sistema não causará qualquer dano.
+ConfirmDeleteSharedFile2=O sistema indica que o seguinte arquivo compartilhado não está mais em uso por quaisquer programas. Você gostaria que o desinstalador removesse este arquivo compartilhado?%n%nSe quaisquer programas ainda estão usando este arquivo e ele é removido, esses programas podem não funcionar apropriadamente. Se você não tiver certeza, escolha Não. Deixar o arquivo no seu sistema não causará qualquer dano.
 SharedFileNameLabel=Nome do arquivo:
 SharedFileLocationLabel=Local:
 WizardUninstalling=Status da Desinstalação
@@ -399,8 +399,8 @@ CreateQuickLaunchIcon=Criar um atalho na &barra de inicialização rápida
 ProgramOnTheWeb=%1 na Web
 UninstallProgram=Desinstalar o %1
 LaunchProgram=Iniciar o %1
-AssocFileExtension=&Associar o %1 com a extensão do arquivo %2
-AssocingFileExtension=Associando o %1 com a extensão do arquivo %2...
+AssocFileExtension=A&ssociar o %1 com a extensão de arquivo %2
+AssocingFileExtension=Associando o %1 com a extensão de arquivo %2...
 AutoStartProgramGroupDescription=Inicialização:
 AutoStartProgram=Iniciar o %1 automaticamente
 AddonHostProgramNotFound=O %1 não pôde ser localizado na pasta que você selecionou.%n%nVocê quer continuar de qualquer maneira?

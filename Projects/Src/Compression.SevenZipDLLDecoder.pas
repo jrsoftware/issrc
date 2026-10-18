@@ -210,8 +210,6 @@ type
 
 { Helper functions }
 
-function GetHandler(const Filename, NotFoundErrorMsg: String): TGUID; forward;
-
 const
   varFileTime = 64; { Delphi lacks proper VT_FILETIME support }
 type
@@ -1025,7 +1023,7 @@ begin
 end;
 
 function OpenArchive(const ExpandedArchiveFilename, Password: String; const clsid: TGUID;
-  out numItems: UInt32): IInArchive;
+  out numItems: UInt32; out OuterInArchive: IInArchive): IInArchive;
 const
   DefaultScanSize: Int64 = 1 shl 23; { From Client7z.cpp }
 begin
@@ -1049,7 +1047,7 @@ begin
     if HResultFacility(OpenResult) = FACILITY_WIN32 then
       SevenZipWin32Error('Open', DWORD(HResultCode(OpenResult)))
     else if clsid = CLSID_HandlerRar then { Try RAR5 instead of RAR4 }
-      Exit(OpenArchive(ExpandedArchiveFilename, Password, CLSID_HandlerRar5, numItems))
+      Exit(OpenArchive(ExpandedArchiveFilename, Password, CLSID_HandlerRar5, numItems, OuterInArchive))
     else
       SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot open file as archive' { Just like Client7z.cpp });
   end;
@@ -1095,6 +1093,9 @@ begin
        (SubResult.GetNumberOfItems(SubNumItems) <> S_OK) then
       Exit;
 
+    { The caller must keep the outer archive alive as long as the inner archive, like
+      OpenArchive.cpp's CArchiveLink: SubStream might not hold a reference to it }
+    OuterInArchive := Result;
     Result := SubResult;
     numItems := SubNumItems;
   end;
@@ -1126,8 +1127,9 @@ begin
 
   { Open }
   var numItems: UInt32;
+  var OuterInArchive: IInArchive;
   const InArchive = OpenArchive(ExpandedArchiveFilename, Password,
-    clsid, numItems);
+    clsid, numItems, OuterInArchive);
 
   { Extract }
   const ExtractCallback: IArchiveExtractCallback =
@@ -1142,7 +1144,7 @@ end;
 
 type
   TArchiveFindState = record
-    InArchive: IInArchive;
+    InArchive, OuterInArchive: IInArchive;
     ExpandedDestDir, ExtractedArchiveName, Password: String;
     RecurseSubDirs: Boolean;
     currentIndex, numItems: UInt32;
@@ -1219,7 +1221,8 @@ begin
   end;
 
   { Open }
-  State.InArchive := OpenArchive(ExpandedArchiveFilename, Password, clsid, State.numItems);
+  State.InArchive := OpenArchive(ExpandedArchiveFilename, Password, clsid, State.numItems,
+    State.OuterInArchive);
   State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
   State.Password := Password;
   State.RecurseSubDirs := RecurseSubDirs;
@@ -1283,7 +1286,8 @@ begin
   const I = CheckFindFileHandle(FindFile);
   var State := ArchiveFindStates[I];
   State.InArchive := nil;
-  ArchiveFindStates[I] := State; { This just updates InArchive }
+  State.OuterInArchive := nil;
+  ArchiveFindStates[I] := State; { This just updates InArchive and OuterInArchive }
   Result := True;
 end;
 

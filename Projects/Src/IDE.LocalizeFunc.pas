@@ -27,8 +27,6 @@ function LFmtMessage(const Str: String; const AllowEmpty: Boolean = False): Stri
 function LFmtMessage(const Str: String; const Args: array of const;
   const AllowEmpty: Boolean = False): String; overload;
 function LFmtMessage(const Language: TIDELanguage; const Str: String;
-  const AllowEmpty: Boolean = False): String; overload;
-function LFmtMessage(const Language: TIDELanguage; const Str: String;
   const Args: array of const; const AllowEmpty: Boolean = False): String; overload;
 
 procedure LocalizeComponent(const Component: TComponent);
@@ -166,12 +164,6 @@ begin
     Exit('');
   Result := TranslateMessage(Str);
   Result := FmtIDEMessage(PChar(Result), Args);
-end;
-
-function LFmtMessage(const Language: TIDELanguage; const Str: String;
-  const AllowEmpty: Boolean): String;
-begin
-  Result := LFmtMessage(Language, Str, [], AllowEmpty);
 end;
 
 function LFmtMessage(const Language: TIDELanguage; const Str: String;

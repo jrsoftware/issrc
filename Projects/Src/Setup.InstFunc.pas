@@ -84,7 +84,7 @@ function GetUserNameString: String;
 procedure IncrementSharedCount(const Key64Bit: Boolean; const Filename: String;
   const AlreadyExisted: Boolean);
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
-  WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
+  WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer; const HideConsole: Boolean;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: DWORD): Boolean;
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
@@ -117,10 +117,10 @@ procedure ShellChangeNotifyPath(const EventId: Integer; const Path: String;
 implementation
 
 uses
-  Messages, ShellApi, ShlObj, Classes, RegStr, Math,
+  Messages, ShellApi, ShlObj, RegStr, Math,
   PathFunc, UnsignedFunc,
   Shared.SetupTypes, Shared.SetupMessageIDs,
-  SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
+  SetupLdrAndSetup.Messages, Setup.PathRedir,
   Setup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc;
 
 procedure InternalError(const Id: String);
@@ -153,8 +153,9 @@ end;
 function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
 { Returns RootKey casted to UInt32 if it appears to be a predefined HKEY_*
   value: $800000xx or $FFFFFFFF800000xx. Otherwise, returns 0.
-  HKEY_* constants are supposed to be zero-extended, but in Delphi (12.1) they
-  are erroneously sign-extended. Windows accepts both, so we do as well.
+  HKEY_* constants are sign-extended, but root keys converted from UInt32,
+  such as those of registry entries or read back by CrackRegExtraData, are
+  zero-extended. Windows accepts both, so we do as well.
   But we do not allow anything other than 0 or $FFFFFFFF in the upper 32 bits,
   regardless of whether Windows allows it. }
 begin
@@ -646,7 +647,7 @@ begin
 end;
 
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
-  WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
+  WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer; const HideConsole: Boolean;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: DWORD): Boolean;
 var
@@ -690,9 +691,21 @@ begin
 
   var InheritHandles := False;
   var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
+  var NulDevice: THandle := INVALID_HANDLE_VALUE;
 
-  if (OutputReader <> nil) and (Wait = ewWaitUntilTerminated) then begin
-    OutputReader.UpdateStartupInfo(StartupInfo);
+  if ((OutputReader <> nil) or HideConsole) and (Wait = ewWaitUntilTerminated) then begin
+    if OutputReader <> nil then
+      OutputReader.UpdateStartupInfo(StartupInfo)
+    else begin
+      { Without NUL as stdin, the program could wait for input on its hidden console }
+      NulDevice := CreateInheritableNulDevice(GENERIC_READ or GENERIC_WRITE);
+      if NulDevice <> INVALID_HANDLE_VALUE then begin
+        StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
+        StartupInfo.hStdInput := NulDevice;
+        StartupInfo.hStdOutput := NulDevice;
+        StartupInfo.hStdError := NulDevice;
+      end;
+    end;
     InheritHandles := True;
     dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
   end;
@@ -700,8 +713,11 @@ begin
   Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil,
     InheritHandles, dwCreationFlags, nil, PChar(WorkingDir),
     StartupInfo, ProcessInfo);
+  const LastError = GetLastError;
+  if NulDevice <> INVALID_HANDLE_VALUE then
+    CloseHandle(NulDevice);
   if not Result then begin
-    ResultCode := GetLastError;
+    ResultCode := LastError;
     Exit;
   end;
 
@@ -851,7 +867,7 @@ end;
 
 function MakePendingFileRenameOperationsChecksum: TSHA256Digest;
 { Calculates a checksum of the current PendingFileRenameOperations registry
-  value The caller can use this checksum to determine if
+  value. The caller can use this checksum to determine if
   PendingFileRenameOperations was changed (perhaps by another program). }
 var
   Context: TSHA256Context;
@@ -879,8 +895,8 @@ end;
 procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesProc;
   Param: Pointer);
 { Enumerates all the filenames in the current PendingFileRenameOperations
-  registry value or WININIT.INI file. The function does not distinguish between
-  source and destination filenames; it enumerates both. }
+  registry value. The function does not distinguish between source and
+  destination filenames; it enumerates both. }
 
   procedure DoValue(const K: HKEY; const ValueName: PChar);
   var

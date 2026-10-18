@@ -388,7 +388,7 @@ end;
 
 procedure TMainFormUpdateMenuHelper.UpdateViewMenu(const Menu: TMenuItem);
 begin
-  VZoomIn.Enabled := (FActiveMemo.Zoom < 20);
+  VZoomIn.Enabled := (FActiveMemo.Zoom < 60);
   VZoomOut.Enabled := (FActiveMemo.Zoom > -10);
   VZoomReset.Enabled := (FActiveMemo.Zoom <> 0);
   VToolbar.Checked := ToolbarPanel.Visible;
@@ -488,7 +488,7 @@ begin
   RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo is TIDEScintFileEdit);
   RStepInto.Enabled := RRun.Enabled;
   RStepOver.Enabled := RRun.Enabled;
-  RStepOut.Enabled := FPaused;
+  RStepOut.Enabled := FDebugging and FPaused;
   RToggleBreakPoint.Enabled := FActiveMemo is TIDEScintFileEdit;
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
   TerminateButton.Enabled := RTerminate.Enabled;
