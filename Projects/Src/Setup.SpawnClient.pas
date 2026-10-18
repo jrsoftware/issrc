@@ -34,7 +34,7 @@ function StopSpawnServerProcess(const AExitCode: DWORD): Boolean;
 implementation
 
 uses
-  Classes, SHA256, Setup.SpawnCommon;
+  Classes, Forms, SHA256, Setup.SpawnCommon;
 
 var
   SpawnServerSharedMemory: PSpawnServerSharedMemory;
@@ -151,6 +151,7 @@ begin
     advancing the state to smsHandBackToClient. Loop until we're able to
     reacquire the lock. }
   while True do begin
+    ProcessMessagesProc;
     const PrevState = SM.TryChangeLockState(
       smsHandBackToClient, smsClientHandlingResult);
     case PrevState of
@@ -160,10 +161,17 @@ begin
       InternalErrorFmt('CallSpawnServer: Unexpected state (%d)',
         [Ord(PrevState)]);
     end;
-    ProcessMessagesProc;
-    WaitMessageWithTimeout(10);
-    ProcessMessagesProc;
     CheckIfServerWndValid;
+    { After the server releases the lock, it posts a WM_NULL message to the
+      client to try to make this WaitMessageWithTimeout call return
+      immediately instead of waiting up to 100ms to time out. Receiving the
+      WM_NULL isn't critical; the purpose is only to speed things up a bit.
+      (Note: Don't place a ProcessMessagesProc call directly before
+      WaitMessageWithTimeout because that could pluck a just-posted WM_NULL
+      message from the queue before it has the intended effect of making
+      WaitMessageWithTimeout return. There needs to be a TryChangeLockState
+      call in between.) }
+    WaitMessageWithTimeout(100);
   end;
 
   { Lock was successfully reacquired }
@@ -274,6 +282,7 @@ begin
       InternalError('InitializeSpawnClient: Wrong size or version');
     if AtomicCmpExchange(Integer(SM.ClientConnected), 1, 0) <> 0 then
       InternalError('InitializeSpawnClient: Client already connected');
+    SM.ClientWakeWnd := UInt32(Application.Handle);
   except
     UnmapViewOfFile(SM);
     raise;

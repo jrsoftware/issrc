@@ -607,6 +607,13 @@ begin
             end;
             { Release lock }
             FSharedMemory.TryChangeLockState(smsServerProcessing, smsHandBackToClient);
+            { Post a no-op message back to the client to try to make its
+              WaitMessageWithTimeout call return immediately; see comments in
+              CallSpawnServer. Windows' UIPI does allow WM_NULL to be sent to
+              higher-integrity processes. }
+            const ClientWakeWnd = FSharedMemory.ClientWakeWnd;
+            if ClientWakeWnd <> 0 then
+              PostMessage(ClientWakeWnd, WM_NULL, 0, 0);
           end;
         end;
       end;

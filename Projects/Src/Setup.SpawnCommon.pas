@@ -40,7 +40,7 @@ type
   public
     StructSize: UInt32;
     VersionNumber: Int32;
-    [volatile] ServerWnd, FirstProcessWnd: UInt32;  { HWND }
+    [volatile] ServerWnd, FirstProcessWnd, ClientWakeWnd: UInt32;  { HWND }
     [volatile] ClientConnected: LongBool;
     [volatile] ExitNowRequested: LongBool;
     [volatile] ExitNowExitCode: DWORD;
