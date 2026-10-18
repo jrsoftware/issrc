@@ -370,7 +370,7 @@ var
 const
   PascalVariables: array of AnsiString = [
     { ScriptClasses }
-    'WizardForm', 'MainForm', 'UninstallProgressForm'
+    'WizardForm', 'UninstallProgressForm'
   ];
 
   BasicEventFunctions: array of AnsiString = [

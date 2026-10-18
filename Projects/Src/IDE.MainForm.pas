@@ -600,6 +600,7 @@ type
     function EvaluateConstant(const S: String; out Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       out Output: String): Integer;
+    function FindResultsListItemIsHeader(const Index: Integer): Boolean;
     procedure FinishLocalization;
     procedure FocusNavigator(const AOpenDropDown: Boolean);
     function GetBorderStyle: TFormBorderStyle;
@@ -766,6 +767,7 @@ type
     function LiveScriptObjectFactoryForMemo(const AMemo: TScintEdit): TLiveScriptObjectFactory;
     procedure ResetLiveScriptObjectFactoryForMemo(const AMemo: TScintEdit);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
+    procedure UpdateFindResultsListScrollWidth;
     { Other }
     procedure CreateWnd; override;
     procedure WndProc(var Message: TMessage); override;
@@ -1057,6 +1059,12 @@ constructor TMainForm.Create(AOwner: TComponent);
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', 10);
       FMainMemo.Font.Charset := TFontCharSet(Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset));
+      var EditorFontStyle: TFontStyles := [];
+      if Ini.ReadBool('Options', 'EditorFontBold', False) then
+        Include(EditorFontStyle, fsBold);
+      if Ini.ReadBool('Options', 'EditorFontItalic', False) then
+        Include(EditorFontStyle, fsItalic);
+      FMainMemo.Font.Style := EditorFontStyle;
       FMainMemo.Zoom := Ini.ReadInteger('Options', 'Zoom', 0); { MemoZoom will zoom the other memos }
       for Memo in FMemos do
         if Memo <> FMainMemo then
@@ -1562,6 +1570,10 @@ begin
   UpdateMarginsAndAutoCompleteIcons;
   UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
+  UpdateAddedLinesScrollWidth(CompilerOutputList, alpNone, 0);
+  UpdateAddedLinesScrollWidth(DebugOutputList, alpTimestamp, FDebugLogListTimestampsWidth);
+  UpdateAddedLinesScrollWidth(DebugCallStackList, alpCountdown, 0);
+  UpdateFindResultsListScrollWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
   UpdateInspectorPanelWidth(InspectorPanel.Width);
   UpdateInspectorHeaderPanelLayout; { Also calls UpdateNavigatorPanelLayout }
@@ -1863,7 +1875,7 @@ begin
   if (EFindRegEx.ShortCut = AltR) and
      (ShortCut(Message.CharCode, KeyDataToShiftState(Message.KeyData)) = AltR) and
      not FActiveMemo.Focused then begin
-    SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r'));
+    SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r')); { Just beeps if no menu uses R, which is ok }
     Exit(True);
   end;
 
@@ -2474,6 +2486,7 @@ begin
   DebugCallStackList.Clear;
   AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, Integer(CallStackCount-1));
   DebugCallStackList.Items.Insert(0, SLitStatusEventPrefix + LFmtMessage(SDebugCodeCallStack, ['[Code]']));
+  UpdateAddedLinesScrollWidth(DebugCallStackList, alpCountdown, 0);
   DebugCallStackList.Update;
 end;
 
@@ -2766,11 +2779,11 @@ begin
     FInspector.UpdateReadOnly;
     HideError;
     CompilerOutputList.Clear;
-    SendMessage(CompilerOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    CompilerOutputList.ScrollWidth := 0;
     DebugOutputList.Clear;
-    SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugOutputList.ScrollWidth := 0;
     DebugCallStackList.Clear;
-    SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugCallStackList.ScrollWidth := 0;
     OutputTabSet.TabIndex := tiCompilerOutput;
     SetStatusPanelVisible(True);
 
@@ -4761,6 +4774,8 @@ begin
       Ini.WriteString('Options', 'EditorFontName', FMainMemo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
+      Ini.WriteBool('Options', 'EditorFontBold', fsBold in FMainMemo.Font.Style);
+      Ini.WriteBool('Options', 'EditorFontItalic', fsItalic in FMainMemo.Font.Style);
       Ini.WriteBool('Options', 'InspectorShowAllKnownDirectives', FOptions.InspectorShowAllKnownDirectives);
       Ini.WriteBool('Options', 'InspectorFollowCaret', FOptions.InspectorFollowCaret);
       Ini.WriteBool('Options', 'InspectorQuoteNewParameterValues', FOptions.InspectorQuoteNewParameterValues);
@@ -5049,13 +5064,6 @@ const
   FindRegExText: array[Boolean] of String = ('', '.*');
 begin
   StatusBar.Panels[spFindRegEx].Text := FindRegExText[FOptions.FindRegEx];
-  if FOptions.FindRegEx then begin
-    FindDialog.Options := FindDialog.Options + [frHideWholeWord];
-    ReplaceDialog.Options := ReplaceDialog.Options + [frHideWholeWord];
-  end else begin
-    FindDialog.Options := FindDialog.Options - [frHideWholeWord];
-    ReplaceDialog.Options := ReplaceDialog.Options - [frHideWholeWord];
-  end;
 end;
 
 procedure TMainForm.UpdateMemosTabSetVisibility;
@@ -5396,6 +5404,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
          (FDebugEntries[I].LineNumber >= FirstLine) then
         Inc(FDebugEntries[I].LineNumber, Count);
 
+    var FindResultsChanged := False;
     for var I := FindResultsList.Items.Count-1 downto 0 do begin
       const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
       if FindResult <> nil then begin
@@ -5403,9 +5412,12 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
            (FindResult.Line >= FirstLine) then begin
           const NewLine = FindResult.Line + Count;
           UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
+          FindResultsChanged := True;
         end;
       end;
     end;
+    if FindResultsChanged then
+      UpdateFindResultsListScrollWidth;
 
     if Assigned(Memo.LineState) and (FirstLine < Memo.LineStateCount) then begin
       { Grow FStateLine if necessary }
@@ -5457,6 +5469,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
       end;
     end;
 
+    var FindResultsChanged := False;
     for var I := FindResultsList.Items.Count-1 downto 0 do begin
       const FindResult = FindResultsList.Items.Objects[I] as TFindResult;
       if FindResult <> nil then begin
@@ -5468,9 +5481,12 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
             const NewLine = FindResult.Line - Count;
             UpdateFindResult(FindResult, I, NewLine, Memo.GetPositionFromLine(NewLine));
           end;
+          FindResultsChanged := True;
         end;
       end;
     end;
+    if FindResultsChanged then
+      UpdateFindResultsListScrollWidth;
 
     if Assigned(Memo.LineState) then begin
       { Shift existing line states }
@@ -6721,9 +6737,9 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
 
     ResetAllMemosLineState;
     DebugOutputList.Clear;
-    SendMessage(DebugOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugOutputList.ScrollWidth := 0;
     DebugCallStackList.Clear;
-    SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+    DebugCallStackList.ScrollWidth := 0;
     if not (OutputTabSet.TabIndex in [tiDebugOutput, tiDebugCallStack]) then
       OutputTabSet.TabIndex := tiDebugOutput;
     SetStatusPanelVisible(True);
@@ -6787,7 +6803,7 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
       UpdateCaption;
       if DebugCallStackList.Items.Count > 0 then begin
         DebugCallStackList.Clear;
-        SendMessage(DebugCallStackList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
+        DebugCallStackList.ScrollWidth := 0;
         DebugCallStackList.Update;
       end;
       { Tell it to continue }
@@ -7490,19 +7506,30 @@ begin
   end;
 end;
 
+function TMainForm.FindResultsListItemIsHeader(const Index: Integer): Boolean;
+begin
+  Result := FindResultsList.Items.Objects[Index] = nil;
+end;
+
+procedure TMainForm.UpdateFindResultsListScrollWidth;
+begin
+  { FindResultsListDrawItem draws headers in bold }
+  UpdateScrollWidth(FindResultsList, FindResultsListItemIsHeader);
+end;
+
 procedure TMainForm.FindResultsListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
   State: TOwnerDrawState);
 begin
   const Canvas = FindResultsList.Canvas;
   const S = FindResultsList.Items[Index];
-  const FindResult = FindResultsList.Items.Objects[Index] as TFindResult;
 
   Canvas.FillRect(Rect);
   Inc(Rect.Left, ToCurrentPPI(2));
-  if FindResult = nil then begin
+  if FindResultsListItemIsHeader(Index) then begin
     Canvas.Font.Style := [fsBold];
     Canvas.TextOut(Rect.Left, Rect.Top, S);
   end else if not (odSelected in State) then begin
+    const FindResult = FindResultsList.Items.Objects[Index] as TFindResult;
     if FindResult.StartIndex > 1 then begin
       const Prefix = Copy(S, 1, FindResult.StartIndex-1);
       Canvas.TextOut(Rect.Left, Rect.Top, Prefix);

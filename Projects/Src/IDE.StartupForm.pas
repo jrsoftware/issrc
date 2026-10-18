@@ -74,7 +74,7 @@ begin
   if MRUFilesList.Count > 0 then begin
     const NDefault = OpenListBox.Items.Count;
     OpenListBox.Items.AddStrings(MRUFilesList);
-    UpdateHorizontalExtent(OpenListBox);
+    UpdateScrollWidth(OpenListBox);
     OpenListBox.ItemIndex := NDefault;
   end;
 end;
@@ -97,6 +97,7 @@ procedure TStartupForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
   UpdateImages;
+  UpdateScrollWidth(OpenListBox);
 end;
 
 procedure TStartupForm.FormCreate(Sender: TObject);
@@ -127,7 +128,7 @@ begin
   OpenListBox.Items.Add(LFmtMessage(SCompilerExampleScripts));
   OpenListBox.Items.Add(LFmtMessage(SCompilerMoreFiles));
   OpenListBox.ItemIndex := 0;
-  UpdateHorizontalExtent(OpenListBox);
+  UpdateScrollWidth(OpenListBox);
 
   OpenRadioButton.Checked := True;
   ActiveControl := OpenRadioButton;

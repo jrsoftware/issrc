@@ -1,6 +1,6 @@
 ; -- Example2.iss --
 ; Same as Example1.iss, but creates its icon in the Programs folder of the
-; Start Menu instead of in a subfolder, and also creates a desktop icon.
+; Start menu instead of in a subfolder, and also creates a desktop icon.
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
@@ -10,7 +10,7 @@ AppVersion=1.5
 WizardStyle=modern dynamic
 DefaultDirName={autopf}\My Program
 ; Since no icons will be created in "{group}", we don't need the wizard
-; to ask for a Start Menu folder name:
+; to ask for a Start menu folder name:
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\MyProg.exe
 Compression=lzma2

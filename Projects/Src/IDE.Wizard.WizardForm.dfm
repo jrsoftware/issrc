@@ -13,6 +13,7 @@ object WizardForm: TWizardForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Position = poScreenCenter
+  OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -813,7 +814,7 @@ object WizardForm: TWizardForm
             Height = 16
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
-            Caption = 'Application &Start Menu folder name:'
+            Caption = 'Application &Start menu folder name:'
             FocusControl = AppGroupNameEdit
             TabOrder = 1
             WordWrap = True
@@ -843,7 +844,7 @@ object WizardForm: TWizardForm
             Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
-            Caption = 'Allow user to &change the Start Menu folder name'
+            Caption = 'Allow user to &change the Start menu folder name'
             TabOrder = 3
             OnClick = NotDisableProgramGroupPageCheckClick
           end
@@ -853,7 +854,7 @@ object WizardForm: TWizardForm
             Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
-            Caption = 'Allow user to &disable Start Menu folder creation'
+            Caption = 'Allow user to &disable Start menu folder creation'
             TabOrder = 4
           end
           object DesktopIconCheck: TCheckBox
@@ -871,7 +872,7 @@ object WizardForm: TWizardForm
             Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
-            Caption = 'Create an &Uninstall shortcut in the Start Menu folder'
+            Caption = 'Create an &Uninstall shortcut in the Start menu folder'
             TabOrder = 6
           end
           object CreateURLIconCheck: TCheckBox
@@ -880,7 +881,7 @@ object WizardForm: TWizardForm
             Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
-            Caption = 'Create an &Internet shortcut in the Start Menu folder'
+            Caption = 'Create an &Internet shortcut in the Start menu folder'
             TabOrder = 5
           end
           object UseAutoProgramsCheck: TCheckBox
@@ -889,7 +890,7 @@ object WizardForm: TWizardForm
             Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
-            Caption = '&Create a Start Menu shortcut but no folder'
+            Caption = '&Create a Start menu shortcut but no folder'
             TabOrder = 0
             OnClick = UseAutoProgramsCheckClick
           end

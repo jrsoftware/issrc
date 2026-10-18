@@ -235,7 +235,7 @@ begin
       Msg := (FResult.SavedFatalException as Exception).Message
     else
       Msg := FResult.SavedFatalException.ClassName;
-    InternalErrorFmt('Worker thread terminated unexpectedly with exception: %s', [Msg]);
+    raise Exception.Create(Msg);
   end else begin
     if Aborted then begin
       if UseSetupMessagesForErrors then

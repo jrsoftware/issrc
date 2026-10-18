@@ -1765,10 +1765,16 @@ procedure TScintEdit.ReplaceRawMainSelText(const S: TScintRawString;
 begin
   { First replace the selection }
   Call(SCI_TARGETFROMSELECTION, 0, 0);
+  const OldEndPos = GetTarget.EndPos;
+  const OldLength = GetRawTextLength;
   Call(GetReplaceTargetMessage(ReplaceMode), Length(S), S);
   { Then make the main selection an empty selection at the end of the inserted
     text, just like SCI_REPLACESEL }
-  var Pos := GetTarget.EndPos; { SCI_REPLACETARGET* updates the target }
+  var Pos: Integer;
+  if ReplaceMode = srmMinimal then
+    Pos := OldEndPos + GetRawTextLength - OldLength { The updated target can end too early }
+  else
+    Pos := GetTarget.EndPos; { SCI_REPLACETARGET* updates the target }
   var MainSel := MainSelection;
   SetSelectionCaretPosition(MainSel, Pos);
   SetSelectionAnchorPosition(MainSel, Pos);
@@ -1782,9 +1788,13 @@ function TScintEdit.ReplaceRawTextRange(const StartPos, EndPos: Integer;
   const S: TScintRawString; const ReplaceMode: TScintReplaceMode): TScintRange;
 begin
   CheckPosRange(StartPos, EndPos);
+  const OldLength = GetRawTextLength;
   SetTarget(StartPos, EndPos);
   Call(GetReplaceTargetMessage(ReplaceMode), Length(S), S);
-  Result := GetTarget;
+  if ReplaceMode = srmMinimal then
+    Result := TScintRange.Create(StartPos, EndPos + GetRawTextLength - OldLength) { The updated target can begin too late and/or end too early }
+  else
+    Result := GetTarget;
 end;
 
 function TScintEdit.ReplaceTextRange(const StartPos, EndPos: Integer;

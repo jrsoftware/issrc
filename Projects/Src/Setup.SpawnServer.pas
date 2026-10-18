@@ -553,7 +553,7 @@ begin
     end
     else begin
       FSharedMemory.LockedFields.ExecResult := InstExec(EDisableFsRedir <> 0,
-        EFilename, EParams, EWorkingDir, TExecWait(EWait), EShowCmd,
+        EFilename, EParams, EWorkingDir, TExecWait(EWait), EShowCmd, False,
         ProcessMessagesProc, nil, FSharedMemory.LockedFields.ExecResultCode);
     end;
   finally

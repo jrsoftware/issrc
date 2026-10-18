@@ -172,10 +172,6 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 
 <p><a name="7.1.1"></a><span class="ver">7.1.1-dev </span><span class="date">(?)</span></p>
 
-<p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p>
-
-<p><b>Using Inno Setup commercially?</b> Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
-
 <span class="head2">Changes</span>
 
 <ul>
@@ -188,11 +184,13 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 <span class="head2">Fixes</span>
 
 <ul>
+  <li>When a download failed, for example because the server couldn't be found or its certificate was invalid, Setup reported an internal error starting with "Internal error: Worker thread terminated unexpectedly with exception:" instead of just the actual error (broken since 6.5.1).</li>
   <li>Buttons in the Compiler IDE and Setup with a long caption which shows its accelerator key in parentheses, such as the <i>Browse</i> button in Korean, could be too narrow, leaving little or no space around the caption (broken since 7.1.0).</li>
   <li>Compiler IDE:
   <ul>
     <li>Clicking OK in the <i>Options</i> dialog or reopening a closed tab could silently discard unsaved changes to an <tt>#include</tt> file, if you had saved that file, or another program had changed it, since the script was last opened or compiled, or if an earlier <tt>#include</tt> file couldn't be opened (broken since tabs for <tt>#include</tt> files were introduced in 6.1.0).</li>
     <li>Unsaved changes to an <tt>#include</tt> file were lost without a save prompt when the main script was reloaded after another program changed it, or after <i>Automatically open #include files</i> was turned off in the <i>Options</i> dialog (broken since tabs for <tt>#include</tt> files were introduced in 6.1.0).</li>
+    <li>Several issues with replacing text and with multiple selections have been fixed. For example, <i>Replace All</i> could hang when the replacement text ended with the text to find, such as when replacing <tt>Program</tt> with <tt>MyProgram</tt>, and the caret could end up in the wrong place after <i>Replace</i>, <i>Generate GUID</i>, or pasting one line per selection (broken since 6.4.0). <i>Replace All</i> could also hang when used on the preprocessor output tab or during a compile.</li>
     <li>When an open <tt>#include</tt> file was changed during a compile and you switched back to the Compiler IDE before the compile ended, the file's editor kept the old contents (broken since 6.1.0).</li>
     <li>When a compile error was in an <tt>#include</tt> file whose tab you had closed, and the list of <tt>#include</tt> files had changed since the previous compile, the reopened tab and other <tt>#include</tt> tabs could show the contents of a different file (broken since closing tabs was introduced in 6.3.0).</li>
     <li><i>Run</i> didn't compile the script first after an <tt>#include</tt> file was changed during a compile, and ran the previous installer instead (broken since 6.1.0).</li>
@@ -202,7 +200,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Navigating back or forward, or opening the dropdown of the <i>Back</i> button, could show an error after a recompile produced shorter preprocessor output (broken since navigation was introduced in 6.3.0).</li>
     <li>While the Compiler IDE was active, the Calculator key and similar keys did nothing (broken since navigation was introduced in 6.3.0).</li>
     <li>With multiple selections, Ctrl+Insert pasted instead of copied when the clipboard had one line per selection, and Shift+Insert didn't paste one line per selection like Ctrl+V does (broken since this was introduced for Ctrl+V in 6.4.0).</li>
-    <li>The editor font selected in the <i>Options</i> dialog wasn't applied when the name of the font contained non-ASCII characters.</li>
+    <li>The editor font selected in the <i>Options</i> dialog wasn't applied when the name of the font contained non-ASCII characters. Also, a bold or italic font style selected there was lost after restarting the Compiler IDE.</li>
   </ul>
   </li>
   <li>Compiler:
@@ -229,7 +227,11 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li><tt>[Files]</tt> section entries with the <tt>extractarchive</tt> and <tt>recursesubdirs</tt> flags failed with an internal error if the archive contained a path of 260 characters or longer. Support function <tt>ExtractArchive</tt> wasn't affected.</li>
     <li>When archive extraction failed to open, read, or write a file, for example because another process had it open, it could report that the archive was corrupted or an unspecified error. It now reports the actual error.</li>
     <li>Inno Setup 7.0.0 introduced a maximum dictionary size of 3.8 GB instead of 1 GB for compression methods <tt>lzma</tt> and <tt>lzma2</tt> in 64-bit installers, but <tt>lzma2</tt> installers with a dictionary size above 3 GB failed to install, reporting that the source file was corrupted. They now support up to 3.8 GB as well.</li>
+    <li><tt>[Files]</tt> section entries with the <tt>external</tt> and <tt>skipifsourcedoesntexist</tt> flags failed with an internal error instead of being skipped if their <tt>Source</tt> parameter was empty after expanding constants. Likewise, <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section entries with the <tt>skipifdoesntexist</tt> flag, but without the <tt>shellexec</tt> flag, failed if their <tt>Filename</tt> parameter was empty after expanding constants (both broken since 7.0.0).</li>
+    <li>When <tt>[Setup]</tt> section directive <tt>WizardImageOpacity</tt> or <tt>WizardBackImageOpacity</tt> was used with an image without an alpha channel, the image wasn't blended with its background color (broken since these directives were introduced in 6.6.1 and 6.7.0).</li>
     <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
+    <li>Setup crashed at startup if <tt>[Setup]</tt> section directive <tt>Encryption</tt> was set to <tt>full</tt> and the compression method was <tt>zip</tt> or <tt>bzip</tt> (broken since full encryption was introduced in 6.5.0).</li>
+    <li>A console program started by support function <tt>ExecAndLogOutput</tt> or <tt>ExecAndLogOutputWithNativeSysDir</tt> with <tt>OnLog</tt> set to <tt>nil</tt> showed a console window if logging wasn't enabled, instead of always being hidden as documented. The same applied to <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section entries with the <tt>logoutput</tt> flag (broken since these were introduced in 6.3.0).</li>
   </ul>
   </li>
   <li>Pascal Scripting:
@@ -238,6 +240,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Support function <tt>FloatToStr</tt> used the decimal point from the user's regional settings, such as a comma, instead of always a dot as documented. Support function <tt>StrToFloat</tt> then raised an exception when given the result (broken since 7.0.0).</li>
     <li>When debugging in the Compiler IDE, a runtime error could be reported on the line after the line which caused it.</li>
     <li>When a custom style was active, support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> didn't show the shield icon specified by the <tt>ShieldButton</tt> parameter if that button had no custom label (broken since custom styles were introduced in 6.6.0).</li>
+    <li><i>Documentation fix:</i> Since 6.6.0, support function <tt>CreateCustomForm</tt> scales the specified client width and height itself, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> and the <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> example script still used <tt>ScaleX</tt> and <tt>ScaleY</tt> for them, so they were scaled twice. For example, at 150% DPI the form was 2.25 times as wide and high as at 100% DPI, instead of 1.5 times. The documentation and the example script have now been corrected. If your script does the same, remove these calls. If you use the default font settings with standard DPI (100%), this doesn't change the form.</li>
   </ul>
   </li>
   <li>ISPP and Pascal Scripting support function <tt>ComparePackedVersion</tt> returned the wrong result if one of the two versions had a major version of 32768 or higher (broken since 6.6.0).</li>

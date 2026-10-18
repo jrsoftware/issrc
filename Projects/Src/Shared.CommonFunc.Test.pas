@@ -283,6 +283,36 @@ begin
   Assert(not TryStrToBoolean('2', BoolResult));
   Assert(BoolResult);
 
+  { TryStrToDWord: accepts both the signed and the unsigned range; a negative
+    value wraps around }
+  var DW: DWORD;
+  Assert(TryStrToDWord('2147483647', DW) and (DW = $7FFFFFFF));
+  Assert(TryStrToDWord('2147483648', DW) and (DW = $80000000));
+  Assert(TryStrToDWord('4294967295', DW) and (DW = $FFFFFFFF));
+  Assert(TryStrToDWord('$FFFFFFFF', DW) and (DW = $FFFFFFFF));
+  Assert(TryStrToDWord('-1', DW) and (DW = $FFFFFFFF));
+  Assert(TryStrToDWord('-2147483648', DW) and (DW = $80000000));
+  Assert(not TryStrToDWord('4294967296', DW));
+  Assert(not TryStrToDWord('-2147483649', DW));
+  Assert(not TryStrToDWord('1x', DW));
+  { Like StrToInt, a negative hexadecimal value wraps around at 32 bits, but
+    not at 64 bits }
+  Assert(TryStrToDWord('-$FFFFFFFF', DW) and (DW = 1));
+  Assert(not TryStrToDWord('-$FFFFFFFFFFFFFFFF', DW));
+
+  { TryStrToQWord: same as TryStrToDWord, but 64-bit }
+  var QW: UInt64;
+  Assert(TryStrToQWord('9223372036854775807', QW) and (QW = UInt64(High(Int64))));
+  Assert(TryStrToQWord('9223372036854775808', QW) and (QW = UInt64(1) shl 63));
+  Assert(TryStrToQWord('18446744073709551615', QW) and (QW = High(UInt64)));
+  Assert(TryStrToQWord('$FFFFFFFFFFFFFFFF', QW) and (QW = High(UInt64)));
+  Assert(TryStrToQWord('-1', QW) and (QW = High(UInt64)));
+  Assert(TryStrToQWord('-9223372036854775808', QW) and (QW = UInt64(1) shl 63));
+  Assert(not TryStrToQWord('18446744073709551616', QW));
+  Assert(not TryStrToQWord('-9223372036854775809', QW));
+  Assert(not TryStrToQWord('1x', QW));
+  Assert(TryStrToQWord('-$FFFFFFFFFFFFFFFF', QW) and (QW = 1));
+
   { CompareUInt64: ordering across the full UInt64 range, including values
     with the high bit set }
   Assert(CompareUInt64(0, 0) = 0);

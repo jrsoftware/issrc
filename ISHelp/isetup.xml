@@ -140,7 +140,7 @@
 The installer has the ability to compare file version info, replace in-use files, use shared file counting, register DLL/OCX's and type libraries, install fonts, download and verify files, and extract archives.<br/>
 Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. Also includes support for extended-length paths.</li>
 
-<li>Creation of <link topic="iconssection">shortcuts</link> anywhere, including in the Start Menu and on the desktop.</li>
+<li>Creation of <link topic="iconssection">shortcuts</link> anywhere, including in the Start menu and on the desktop.</li>
 
 <li>Creation of <link topic="registrysection">registry</link> and <tt><link topic="inisection">.ini</link></tt> file entries.</li>
 
@@ -568,7 +568,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="group">{group}</a></b></dt>
 <dd>
-<p>The path to the Start Menu folder, as selected by the user on Setup's <i>Select Start Menu Folder</i> wizard page. This folder is created in the <i>All Users</i> profile unless the installation is running in <link topic="admininstallmode">non administrative install mode</link>, in which case it is created in the current user's profile.</p>
+<p>The path to the Start menu folder, as selected by the user on Setup's <i>Select Start Menu Folder</i> wizard page. This folder is created in the <i>All Users</i> profile unless the installation is running in <link topic="admininstallmode">non administrative install mode</link>, in which case it is created in the current user's profile.</p>
 </dd>
 
 <dt><b><a name="localappdata">{localappdata}</a></b></dt>
@@ -613,7 +613,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="userprograms">{userprograms}</a></b> &amp; <b><a name="commonprograms">{commonprograms}</a></b></dt>
 <dd>
-<p>The path to the Programs folder on the Start Menu.</p>
+<p>The path to the Programs folder on the Start menu.</p>
 </dd>
 
 <dt><b><a name="usersavedgames">{usersavedgames}</a></b></dt>
@@ -628,12 +628,12 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="userstartmenu">{userstartmenu}</a></b> &amp; <b><a name="commonstartmenu">{commonstartmenu}</a></b></dt>
 <dd>
-<p>The path to the top level of the Start Menu.</p>
+<p>The path to the top level of the Start menu.</p>
 </dd>
 
 <dt><b><a name="userstartup">{userstartup}</a></b> &amp; <b><a name="commonstartup">{commonstartup}</a></b></dt>
 <dd>
-<p>The path to the Startup folder on the Start Menu.</p>
+<p>The path to the Startup folder on the Start menu.</p>
 </dd>
 
 <dt><b><a name="usertemplates">{usertemplates}</a></b> &amp; <b><a name="commontemplates">{commontemplates}</a></b></dt>
@@ -930,7 +930,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <p>Supported by all sections except <sn>[Types]</sn>, <sn>[Components]</sn> and <sn>[Tasks]</sn>.</p>
 <p>A space separated list of task names, telling Setup to which task the entry belongs. If the end user selects a task from this list, the entry is processed (for example: the file is installed).</p>
 <p>An entry without a <tt>Tasks</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
-<p>Note that the <i>Don't create a Start Menu folder</i> checkbox on the <i>Select Start Menu Folder</i> wizard page doesn't affect <sn>[Icons]</sn> entries that have <tt>Tasks</tt> parameters since they have their own checkboxes.</p>
+<p>Note that the <i>Don't create a Start menu folder</i> checkbox on the <i>Select Start Menu Folder</i> wizard page doesn't affect <sn>[Icons]</sn> entries that have <tt>Tasks</tt> parameters since they have their own checkboxes.</p>
 <example>
 <pre>
 <sec>[Icons]</sec>
@@ -1201,7 +1201,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 
 <heading><a name="startmenufolder">Start Menu Folder</a></heading>
 
-<p>These directives control the application's Start Menu folder and the <i>Select Start Menu Folder</i> wizard page which asks for it.</p>
+<p>These directives control the application's Start menu folder and the <i>Select Start Menu Folder</i> wizard page which asks for it.</p>
 
 <ul appearance="compact">
 <li><link topic="setup_allownoicons">AllowNoIcons</link></li>
@@ -1470,7 +1470,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 <keyword value="Tasks" />
 <body>
 
-<p>This section is optional. It defines all of the user-customizable tasks Setup will perform during installation. These tasks appear as check boxes and radio buttons on the <i>Select Additional Tasks</i> wizard page.</p>
+<p>This section is optional. It defines all of the user-customizable tasks Setup will perform during installation. These tasks appear as checkboxes and radio buttons on the <i>Select Additional Tasks</i> wizard page.</p>
 
 <p>By itself a task does nothing: it needs to be 'linked' to other installation entries. See <link topic="componentstasksparams">Components and Tasks Parameters</link>.</p>
 
@@ -2074,7 +2074,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <keyword value="Icons" />
 <body>
 
-<p>This optional section defines any shortcuts Setup is to create in the Start Menu and/or other locations, such as the desktop.</p>
+<p>This optional section defines any shortcuts Setup is to create in the Start menu and/or other locations, such as the desktop.</p>
 
 <p>Here is an example of an <tt>[Icons]</tt> section:</p>
 
@@ -2193,7 +2193,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Prevents the Start menu entry for the new shortcut from receiving a highlight on Windows 7 and additionally prevents the new shortcut from being automatically pinned the Start screen on Windows 8 (or later). Ignored on earlier Windows versions.</p>
 </flag>
 <flag name="preventpinning">
-<p>Prevents a Start menu entry from being pinnable to Taskbar or the Start Menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions.</p>
+<p>Prevents a Start menu entry from being pinnable to Taskbar or the Start menu on Windows 7 (or later). This also makes the entry ineligible for inclusion in the Start menu's Most Frequently Used (MFU) list. Ignored on earlier Windows versions.</p>
 </flag>
 <flag name="runmaximized">
 <p>When this flag is set, Setup sets the "Run" setting of the icon to "Maximized" so that the program will be initially maximized when it is started.</p>
@@ -2898,7 +2898,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <p>If this flag is specified, the wizard will be hidden while the program is running.</p>
 </flag>
 <flag name="logoutput">
-<p>If this flag is specified, the output of the program will be included in the log file. If the <tt>OnLog</tt> parameter is also specified, the output is passed to the <tt>OnLog</tt> procedure instead.</p>
+<p>If this flag is specified, the output of the program will be included in the log file. Also, console programs are always hidden, and the <tt>runhidden</tt>, <tt>runminimized</tt>, and <tt>runmaximized</tt> flags only affect GUI programs. If the <tt>OnLog</tt> parameter is also specified, the output is passed to the <tt>OnLog</tt> procedure instead.</p>
 <p>This flag cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags.</p>
 </flag>
 <flag name="nowait">
@@ -3124,7 +3124,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <keyword value="Example Scripts" />
 <body>
 
-<p>The Inno Setup Example Scripts are located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the <tt>Examples</tt> subdirectory in your Inno Setup directory.</p>
+<p>The Inno Setup Example Scripts are located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start menu when you installed Inno Setup, or open the <tt>Examples</tt> subdirectory in your Inno Setup directory.</p>
 
 </body>
 </topic>
@@ -3172,7 +3172,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 
 <p>Install the 64-bit edition of Inno Setup to run 64-bit versions of the Compiler IDE and ISCC. Both editions read the same scripts and defaults, and either can build 32-bit or 64-bit installers.</p>
 
-<p>To check which edition you installed, click the "Inno Setup Compiler" shortcut in the Start Menu. The 32-bit edition displays "32-bit" in the title bar, while the 64-bit edition does not.</p>
+<p>To check which edition you installed, click the "Inno Setup Compiler" shortcut in the Start menu. The 32-bit edition displays "32-bit" in the title bar, while the 64-bit edition does not.</p>
 
 <p>Using the 64-bit edition is recommended.</p>
 
@@ -3196,7 +3196,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 
 <p>Prior to Inno Setup 6 two versions of Inno Setup were available: Non Unicode Inno Setup and Unicode Inno Setup. Starting with Inno Setup 6 there's only one version available: Unicode Inno Setup.</p>
 <p>Key features of Unicode Inno Setup are its ability to display any language on any system regardless of the system code page, and its ability to work with Unicode filenames.</p>
-<p>To check which edition you installed, click the "Inno Setup Compiler" shortcut in the Start Menu. Non Unicode Inno Setup displays "(a)" in the title bar, while Unicode Inno Setup does not.</p>
+<p>To check which edition you installed, click the "Inno Setup Compiler" shortcut in the Start menu. Non Unicode Inno Setup displays "(a)" in the title bar, while Unicode Inno Setup does not.</p>
 <p>Key differences and capabilities:</p>
 <ul>
 <li>Unicode Inno Setup supports UTF-8 encoded <tt>.iss</tt> and <tt>.isl</tt> files. Starting with Inno Setup 6.3, a BOM is no longer required. UTF-16 is not supported.</li>
@@ -3232,7 +3232,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <keyword value="BDE installation" />
 <body>
 
-<p>The Frequently Asked Questions is now located in a separate document. Please click the "Inno Setup FAQ" shortcut created in the Start Menu when you installed Inno Setup, or open the <tt>isfaq.url</tt> file in your Inno Setup directory.</p>
+<p>The Frequently Asked Questions is now located in a separate document. Please click the "Inno Setup FAQ" shortcut created in the Start menu when you installed Inno Setup, or open the <tt>isfaq.url</tt> file in your Inno Setup directory.</p>
 
 <p>For the most recent Frequently Asked Questions, go to <extlink href="https://jrsoftware.org/isfaq.php">https://jrsoftware.org/isfaq.php</extlink></p>
 
@@ -4197,7 +4197,7 @@ iside --no-recently-opened <i>&lt;script name&gt;</i></precode>
 <li>Setup immediately removes all directories except the System directory from the DLL search path at startup.</li>
 <li>Setup never loads DLLs from a relative path and instead always uses absolute paths.</li>
 <li>Windows is known to sideload certain DLLs without specifying a path, even when not asked to do so. To force it to load these from the System directory, special <tt>loadFrom</tt> instructions are included in the manifest file of Setup. A daily automatic test is used to detect Windows sideloading any new DLLs not yet included in these special <tt>loadFrom</tt> instructions.</li>
-<li>Another special <tt>loadFrom</tt> instruction specifically for <tt>comctl32.dll</tt> is added to the manifest file of the setup loader program at compile time, replacing the regular <tt>dependency</tt> section.</li>
+<li>The manifest file of the setup loader program includes another special <tt>loadFrom</tt> instruction specifically for <tt>comctl32.dll</tt>, in place of the regular <tt>dependency</tt> section.</li>
 </ul>
 
 <heading>Temporary directory security</heading>
@@ -4762,7 +4762,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="NOICONS">/NOICONS</a></b></dt>
 <dd>
-<p>Instructs Setup to initially check the <i>Don't create a Start Menu folder</i> check box on the <i>Select Start Menu Folder</i> wizard page.</p>
+<p>Instructs Setup to initially check the <i>Don't create a Start menu folder</i> checkbox on the <i>Select Start Menu Folder</i> wizard page.</p>
 </dd>
 
 <dt><b><a name="TYPE">/TYPE=</a><i>type name</i></b></dt>
@@ -5777,7 +5777,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>auto</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Start Menu Folder</i> wizard page.</p>
-<p>If this is set to <tt>auto</tt>, Setup will not show the <i>Select Start Menu Folder</i> wizard page if it finds the Start Menu folder name of a previous installation. See <sd>UsePreviousGroup</sd>.</p>
+<p>If this is set to <tt>auto</tt>, Setup will not show the <i>Select Start Menu Folder</i> wizard page if it finds the Start menu folder name of a previous installation. See <sd>UsePreviousGroup</sd>.</p>
 <p>Also see <sd>AlwaysShowGroupOnReadyPage</sd>.</p>
 </body>
 </setuptopic>
@@ -5964,8 +5964,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 
 <setuptopic directive="DefaultGroupName">
 <body>
-<p>The value of this directive is used for the default Start Menu folder name on the <i>Select Start Menu Folder</i> page of the wizard. If this directive is blank or isn't specified, it will use "(Default)" for the name.</p>
-<p>Keep in mind that Start Menu folders are stored as literal directories so any characters not allowed in normal directory names can't be used in Start Menu folder names.</p>
+<p>The value of this directive is used for the default Start menu folder name on the <i>Select Start Menu Folder</i> page of the wizard. If this directive is blank or isn't specified, it will use "(Default)" for the name.</p>
+<p>Keep in mind that Start menu folders are stored as literal directories so any characters not allowed in normal directory names can't be used in Start menu folder names.</p>
 <example><pre><key>DefaultGroupName</key>=My Program</pre></example>
 </body>
 </setuptopic>
@@ -6068,8 +6068,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, Setup will display a <i>Don't create a Start Menu folder</i> check box on the <i>Select Start Menu Folder</i> wizard page, which allows the user to skip creation of program shortcuts on the Start Menu.</p>
-<p>Only <sn>[Icons]</sn> entries that have a <tt>Name</tt> parameter starting with <tt>{group}\</tt> and no <tt>Tasks</tt> parameter are affected by default. To force the check box to have an effect on a particular <sn>[Icons]</sn> entry, add a <tt>Check: not <isxfunc>WizardNoIcons</isxfunc></tt> parameter.</p>
+<p>When set to <tt>yes</tt>, Setup will display a <i>Don't create a Start menu folder</i> checkbox on the <i>Select Start Menu Folder</i> wizard page, which allows the user to skip creation of program shortcuts on the Start menu.</p>
+<p>Only <sn>[Icons]</sn> entries that have a <tt>Name</tt> parameter starting with <tt>{group}\</tt> and no <tt>Tasks</tt> parameter are affected by default. To force the checkbox to have an effect on a particular <sn>[Icons]</sn> entry, add a <tt>Check: not <isxfunc>WizardNoIcons</isxfunc></tt> parameter.</p>
 </body>
 </setuptopic>
 
@@ -6196,7 +6196,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the Start Menu folder name of the previous installation as the default Start Menu folder name presented to the user in the wizard. Additionally, if <sd>AllowNoIcons</sd> is set to <tt>yes</tt>, the <i>Don't create a Start Menu folder</i> setting from the previous installation will be restored.</p>
+<p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the Start menu folder name of the previous installation as the default Start menu folder name presented to the user in the wizard. Additionally, if <sd>AllowNoIcons</sd> is set to <tt>yes</tt>, the <i>Don't create a Start menu folder</i> setting from the previous installation will be restored.</p>
 <p>Note that Setup cannot re-use settings from a previous installation that had <sd>Uninstallable</sd> set to <tt>no</tt>, since the registry entries it looks for are not created when <sd>Uninstallable</sd> is <tt>no</tt>.</p>
 </body>
 </setuptopic>
@@ -6779,8 +6779,8 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If this directive is set to <tt>yes</tt>, Setup will always show the selected Start Menu folder name in the list of settings on the <i>Ready to Install</i> wizard page. If this is set to <tt>no</tt>, Setup will not show the selected Start Menu folder name if <sd>DisableProgramGroupPage</sd> is <tt>yes</tt>.</p>
-<p>If no Start Menu folder is going to be created by Setup, this directive is effectively ignored.</p>
+<p>If this directive is set to <tt>yes</tt>, Setup will always show the selected Start menu folder name in the list of settings on the <i>Ready to Install</i> wizard page. If this is set to <tt>no</tt>, Setup will not show the selected Start menu folder name if <sd>DisableProgramGroupPage</sd> is <tt>yes</tt>.</p>
+<p>If no Start menu folder is going to be created by Setup, this directive is effectively ignored.</p>
 </body>
 </setuptopic>
 

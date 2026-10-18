@@ -21,7 +21,7 @@ function GetSpawnServerFirstProcessWnd: HWND;
 procedure InitializeSpawnClient(const AServerSharedMemoryID: String);
 function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
-  const Wait: TExecWait; const ShowCmd: Integer;
+  const Wait: TExecWait; const ShowCmd: Integer; const HideConsole: Boolean;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: DWORD): Boolean;
 function InstShellExecEx(const RunAsOriginalUser: Boolean;
@@ -185,7 +185,7 @@ end;
 
 function InstExecEx(const RunAsOriginalUser: Boolean;
   const DisableFsRedir: Boolean; const Filename, Params, WorkingDir: String;
-  const Wait: TExecWait; const ShowCmd: Integer;
+  const Wait: TExecWait; const ShowCmd: Integer; const HideConsole: Boolean;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: DWORD): Boolean;
 var
@@ -193,7 +193,7 @@ var
 begin
   if not RunAsOriginalUser or not Assigned(SpawnServerSharedMemory) then begin
     Result := InstExec(DisableFsRedir, Filename, Params, WorkingDir,
-      Wait, ShowCmd, ProcessMessagesProc, OutputReader, ResultCode);
+      Wait, ShowCmd, HideConsole, ProcessMessagesProc, OutputReader, ResultCode);
     Exit;
   end;
 

@@ -189,6 +189,8 @@ procedure AddToWindowMessageFilterEx(const Wnd: HWND; const Msg: UINT);
 function ShutdownBlockReasonCreate(Wnd: HWND; const Reason: String): Boolean;
 function ShutdownBlockReasonDestroy(Wnd: HWND): Boolean;
 function TryStrToBoolean(const S: String; var BoolResult: Boolean): Boolean;
+function TryStrToDWord(const S: String; out Value: DWORD): Boolean;
+function TryStrToQWord(const S: String; out Value: UInt64): Boolean;
 procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure CreateMutex(const MutexName: String);
@@ -212,6 +214,7 @@ function BitsFrom64BitBoolean(const A64Bit: Boolean): Integer; inline;
 function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
 function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
 function SetWindowCloaked(const Wnd: HWND; const Cloaked: Boolean): Boolean;
+function CreateInheritableNulDevice(const DesiredAccess: DWORD): THandle;
 function NewStringToColor(const S: string): TColor;
 function NewTryStringToColor(const S: String; var Color: TColor): Boolean;
 function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData): Boolean;
@@ -1664,6 +1667,36 @@ begin
     Result := False;
 end;
 
+function TryStrToDWord(const S: String; out Value: DWORD): Boolean;
+{ Accepts -2147483648 to 4294967295. A negative value wraps around, so '-1'
+  becomes $FFFFFFFF. Like StrToInt, a negative hexadecimal value can go down
+  to -$FFFFFFFF instead of -$80000000, so '-$FFFFFFFF' becomes 1 }
+begin
+  var IntegerValue: Integer;
+  Result := TryStrToInt(S, IntegerValue);
+  if Result then
+    Value := DWORD(IntegerValue)
+  else begin
+    { Should not use TryStrToUInt: it parses as Int64, so for example
+      '-$FFFFFFFFFFFFFFFF' would become 1 }
+    var UInt64Value: UInt64;
+    Result := TryStrToUInt64(S, UInt64Value) and (UInt64Value <= High(DWORD));
+    if Result then
+      Value := DWORD(UInt64Value);
+  end;
+end;
+
+function TryStrToQWord(const S: String; out Value: UInt64): Boolean;
+{ Same as TryStrToDWord, but 64-bit }
+begin
+  var Int64Value: Int64;
+  Result := TryStrToInt64(S, Int64Value);
+  if Result then
+    Value := UInt64(Int64Value)
+  else
+    Result := TryStrToUInt64(S, Value);
+end;
+
 procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 { Like WaitMessage, but times out if a message isn't received before
   Milliseconds ms have elapsed. }
@@ -1953,6 +1986,17 @@ begin
     Result := False;
 end;
 
+function CreateInheritableNulDevice(const DesiredAccess: DWORD): THandle;
+begin
+  var SecurityAttributes: TSecurityAttributes;
+  SecurityAttributes.nLength := SizeOf(SecurityAttributes);
+  SecurityAttributes.bInheritHandle := True;
+  SecurityAttributes.lpSecurityDescriptor := nil;
+  Result := CreateFile('\\.\NUL', DesiredAccess,
+    FILE_SHARE_READ or FILE_SHARE_WRITE, @SecurityAttributes,
+    OPEN_EXISTING, 0, 0);
+end;
+
 { TSimpleLock }
 
 class function TSimpleLock.Create: TSimpleLock;
@@ -2138,9 +2182,7 @@ begin
   SecurityAttributes.bInheritHandle := True;
   SecurityAttributes.lpSecurityDescriptor := nil;
 
-  var NulDevice := CreateFile('\\.\NUL', GENERIC_READ,
-    FILE_SHARE_READ or FILE_SHARE_WRITE, @SecurityAttributes,
-    OPEN_EXISTING, 0, 0);
+  const NulDevice = CreateInheritableNulDevice(GENERIC_READ);
   { In case the NUL device is missing (which it inexplicably seems to
     be for some users, per web search), don't treat it as a fatal
     error. Just leave FStdInNulDevice at 0. It's not ideal, but the

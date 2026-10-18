@@ -413,7 +413,7 @@ begin
     H := Bmp.Height;
   end;
 
-  if (BackColor <> clNone) and (Is32Bit or (Bmp.Width < R.Width) or (Bmp.Height < R.Height)) then begin
+  if (BackColor <> clNone) and (Is32Bit or (Opacity <> 255) or (Bmp.Width < R.Width) or (Bmp.Height < R.Height)) then begin
     var BrushColor := BackColor;
     if Sender is TControl then
       BrushColor := AdjustColorForStyle(TControl(Sender), BrushColor);
