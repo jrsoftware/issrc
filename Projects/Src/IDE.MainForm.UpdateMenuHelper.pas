@@ -523,7 +523,7 @@ begin
   RRunToCursor.Enabled := RRun.Enabled and (FActiveMemo is TIDEScintFileEdit);
   RStepInto.Enabled := RRun.Enabled;
   RStepOver.Enabled := RRun.Enabled;
-  RStepOut.Enabled := FPaused;
+  RStepOut.Enabled := FDebugging and FPaused;
   RToggleBreakPoint.Enabled := FActiveMemo is TIDEScintFileEdit;
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
   TerminateButton.Enabled := RTerminate.Enabled;

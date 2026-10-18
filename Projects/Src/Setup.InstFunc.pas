@@ -110,7 +110,7 @@ function GetUserNameString: String;
 procedure IncrementSharedCount(const Key64Bit: Boolean; const Filename: String;
   const AlreadyExisted: Boolean);
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
-  WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
+  WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer; const HideConsole: Boolean;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: DWORD): Boolean;
 function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
@@ -673,7 +673,7 @@ begin
 end;
 
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
-  WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
+  WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer; const HideConsole: Boolean;
   const ProcessMessagesProc: TProcedure; const OutputReader: TCreateProcessOutputReader;
   var ResultCode: DWORD): Boolean;
 var
@@ -717,9 +717,21 @@ begin
 
   var InheritHandles := False;
   var dwCreationFlags: DWORD := CREATE_DEFAULT_ERROR_MODE;
+  var NulDevice: THandle := INVALID_HANDLE_VALUE;
 
-  if (OutputReader <> nil) and (Wait = ewWaitUntilTerminated) then begin
-    OutputReader.UpdateStartupInfo(StartupInfo);
+  if ((OutputReader <> nil) or HideConsole) and (Wait = ewWaitUntilTerminated) then begin
+    if OutputReader <> nil then
+      OutputReader.UpdateStartupInfo(StartupInfo)
+    else begin
+      { Without NUL as stdin, the program could wait for input on its hidden console }
+      NulDevice := CreateInheritableNulDevice(GENERIC_READ or GENERIC_WRITE);
+      if NulDevice <> INVALID_HANDLE_VALUE then begin
+        StartupInfo.dwFlags := StartupInfo.dwFlags or STARTF_USESTDHANDLES;
+        StartupInfo.hStdInput := NulDevice;
+        StartupInfo.hStdOutput := NulDevice;
+        StartupInfo.hStdError := NulDevice;
+      end;
+    end;
     InheritHandles := True;
     dwCreationFlags := dwCreationFlags or CREATE_NO_WINDOW;
   end;
@@ -727,8 +739,11 @@ begin
   Result := CreateProcessRedir(DisableFsRedir, nil, PChar(CmdLine), nil, nil,
     InheritHandles, dwCreationFlags, nil, PChar(WorkingDir),
     StartupInfo, ProcessInfo);
+  const LastError = GetLastError;
+  if NulDevice <> INVALID_HANDLE_VALUE then
+    CloseHandle(NulDevice);
   if not Result then begin
-    ResultCode := GetLastError;
+    ResultCode := LastError;
     Exit;
   end;
 

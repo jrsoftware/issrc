@@ -17,7 +17,7 @@ procedure PerformInstall(var Succeeded: Boolean; const ChangesEnvironment,
 implementation
 
 uses
-  Windows, Messages, ShlObj, RegStr, Classes, SysUtils, Forms,
+  Windows, Messages, ShlObj, RegStr, Classes, SysUtils, SysConst, Forms,
   ISSigFunc, PathFunc, SHA256, UnsignedFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass,
   Shared.SetupMessageIDs, Shared.SetupTypes, Shared.Struct, Shared.VerInfoFunc,
@@ -2190,7 +2190,9 @@ begin
                           RegError(reRegSetValueEx, RK, S, ErrorCode);
                       end;
                     rtDWord: begin
-                        DV := DWORD(StrToInt(ExpandConst(ValueData)));
+                        const DWordString = ExpandConst(ValueData);
+                        if not TryStrToDWord(DWordString, DV) then
+                          raise EConvertError.CreateFmt(SInvalidInteger, [DWordString]);
                         ErrorCode := DWORD(RegSetValueEx(K, PChar(N), 0, REG_DWORD,
                           @DV, SizeOf(DV)));
                         if (ErrorCode <> ERROR_SUCCESS) and
@@ -2198,7 +2200,10 @@ begin
                           RegError(reRegSetValueEx, RK, S, ErrorCode);
                       end;
                     rtQWord: begin
-                        const QV: UInt64 = StrToUInt64(ExpandConst(ValueData));
+                        const QWordString = ExpandConst(ValueData);
+                        var QV: UInt64;
+                        if not TryStrToQWord(QWordString, QV) then
+                          raise EConvertError.CreateFmt(SInvalidInteger, [QWordString]);
                         ErrorCode := DWORD(RegSetValueEx(K, PChar(N), 0, REG_QWORD,
                           @QV, SizeOf(QV)));
                         if (ErrorCode <> ERROR_SUCCESS) and

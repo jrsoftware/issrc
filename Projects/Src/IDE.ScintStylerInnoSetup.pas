@@ -179,11 +179,11 @@ begin
       case TInnoSetupStylerStyle(Style) of
         stCompilerDirective, stISPPReservedWord: Attributes.ForeColor := FTheme.Colors[tcRed];
         stComment: Attributes.ForeColor := FTheme.Colors[tcGreen];
-        stSection: Attributes.FontStyle := [fsBold];
+        stSection: Include(Attributes.FontStyle, fsBold);
         stSymbol: Attributes.ForeColor := FTheme.Colors[tcGray];
         stKeyword, stPascalReservedWord: Attributes.ForeColor := FTheme.Colors[tcBlue];
         //stParameterValue: Attributes.ForeColor := FTheme.Colors[tcTeal];
-        stEventFunction: Attributes.FontStyle := [fsBold];
+        stEventFunction: Include(Attributes.FontStyle, fsBold);
         stConstant: Attributes.ForeColor := FTheme.Colors[tcPurple];
         stMessageArg: Attributes.ForeColor := FTheme.Colors[tcRed];
         stPascalString, stPascalNumber, stISPPString, stISPPNumber: Attributes.ForeColor := FTheme.Colors[tcOrange];
@@ -801,6 +801,7 @@ begin
   { Style all '{#' ISPP inline directives before anything else }
   if not IsLineCommented then begin
     I := 1;
+    var LineOpenCount: ShortInt := 0;
     while I < TextLength do begin
       if (Text[I] = '{') and (Text[I+1] = '#') then begin
         StartIndex := I;
@@ -814,8 +815,7 @@ begin
         end;
         ResetCurIndexTo(StartIndex);
         try
-          var OpenCount: ShortInt := 0;
-          HandleCompilerDirective(True, I - 1, OpenCount);
+          HandleCompilerDirective(True, I - 1, LineOpenCount);
         finally
           ResetCurIndexTo(1);
         end;

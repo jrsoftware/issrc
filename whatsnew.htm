@@ -200,7 +200,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Navigating back or forward, or opening the dropdown of the <i>Back</i> button, could show an error after a recompile produced shorter preprocessor output (broken since navigation was introduced in 6.3.0).</li>
     <li>While the Compiler IDE was active, the Calculator key and similar keys did nothing (broken since navigation was introduced in 6.3.0).</li>
     <li>With multiple selections, Ctrl+Insert pasted instead of copied when the clipboard had one line per selection, and Shift+Insert didn't paste one line per selection like Ctrl+V does (broken since this was introduced for Ctrl+V in 6.4.0).</li>
-    <li>The editor font selected in the <i>Options</i> dialog wasn't applied when the name of the font contained non-ASCII characters.</li>
+    <li>The editor font selected in the <i>Options</i> dialog wasn't applied when the name of the font contained non-ASCII characters. Also, a bold or italic font style selected there was lost after restarting the Compiler IDE.</li>
   </ul>
   </li>
   <li>Compiler:
@@ -228,8 +228,10 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>When archive extraction failed to open, read, or write a file, for example because another process had it open, it could report that the archive was corrupted or an unspecified error. It now reports the actual error.</li>
     <li>Inno Setup 7.0.0 introduced a maximum dictionary size of 3.8 GB instead of 1 GB for compression methods <tt>lzma</tt> and <tt>lzma2</tt> in 64-bit installers, but <tt>lzma2</tt> installers with a dictionary size above 3 GB failed to install, reporting that the source file was corrupted. They now support up to 3.8 GB as well.</li>
     <li><tt>[Files]</tt> section entries with the <tt>external</tt> and <tt>skipifsourcedoesntexist</tt> flags failed with an internal error instead of being skipped if their <tt>Source</tt> parameter was empty after expanding constants. Likewise, <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section entries with the <tt>skipifdoesntexist</tt> flag, but without the <tt>shellexec</tt> flag, failed if their <tt>Filename</tt> parameter was empty after expanding constants (both broken since 7.0.0).</li>
+    <li>When <tt>[Setup]</tt> section directive <tt>WizardImageOpacity</tt> or <tt>WizardBackImageOpacity</tt> was used with an image without an alpha channel, the image wasn't blended with its background color (broken since these directives were introduced in 6.6.1 and 6.7.0).</li>
     <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
     <li>Setup crashed at startup if <tt>[Setup]</tt> section directive <tt>Encryption</tt> was set to <tt>full</tt> and the compression method was <tt>zip</tt> or <tt>bzip</tt> (broken since full encryption was introduced in 6.5.0).</li>
+    <li>A console program started by support function <tt>ExecAndLogOutput</tt> or <tt>ExecAndLogOutputWithNativeSysDir</tt> with <tt>OnLog</tt> set to <tt>nil</tt> showed a console window if logging wasn't enabled, instead of always being hidden as documented. The same applied to <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section entries with the <tt>logoutput</tt> flag (broken since these were introduced in 6.3.0).</li>
   </ul>
   </li>
   <li>Pascal Scripting:

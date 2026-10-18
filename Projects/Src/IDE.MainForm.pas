@@ -1059,6 +1059,12 @@ constructor TMainForm.Create(AOwner: TComponent);
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', 10);
       FMainMemo.Font.Charset := TFontCharSet(Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset));
+      var EditorFontStyle: TFontStyles := [];
+      if Ini.ReadBool('Options', 'EditorFontBold', False) then
+        Include(EditorFontStyle, fsBold);
+      if Ini.ReadBool('Options', 'EditorFontItalic', False) then
+        Include(EditorFontStyle, fsItalic);
+      FMainMemo.Font.Style := EditorFontStyle;
       FMainMemo.Zoom := Ini.ReadInteger('Options', 'Zoom', 0); { MemoZoom will zoom the other memos }
       for Memo in FMemos do
         if Memo <> FMainMemo then
@@ -4768,6 +4774,8 @@ begin
       Ini.WriteString('Options', 'EditorFontName', FMainMemo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
+      Ini.WriteBool('Options', 'EditorFontBold', fsBold in FMainMemo.Font.Style);
+      Ini.WriteBool('Options', 'EditorFontItalic', fsItalic in FMainMemo.Font.Style);
       Ini.WriteBool('Options', 'InspectorShowAllKnownDirectives', FOptions.InspectorShowAllKnownDirectives);
       Ini.WriteBool('Options', 'InspectorFollowCaret', FOptions.InspectorFollowCaret);
       Ini.WriteBool('Options', 'InspectorQuoteNewParameterValues', FOptions.InspectorQuoteNewParameterValues);

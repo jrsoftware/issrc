@@ -4125,9 +4125,10 @@ begin
       if not(roSkipIfDoesntExist in RunEntry.Options) or
          ((ExpandedFilenameBeforeRedir <> '') and
           NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent))) then begin
+        const LogOutputFlag = roLogOutput in RunEntry.Options;
         var OutputReader: TCreateProcessOutputReader := nil;
         try
-          if roLogOutput in RunEntry.Options then begin
+          if LogOutputFlag then begin
             if (RunEntry.OnLog <> '') and (CodeRunner <> nil) then
               OutputReader := TCreateProcessOutputReader.Create(RunExecLogOnLog, NativeInt(PChar(RunEntry.OnLog)))
             else if GetLogActive then
@@ -4136,7 +4137,7 @@ begin
           var ErrorCode: DWORD;
           if not InstExecEx(RunAsOriginalUser, RunEntry64Bit and not IsCurrentProcess64Bit,
              ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
-             Wait, RunEntry.ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then
+             Wait, RunEntry.ShowCmd, LogOutputFlag, ProcessMessagesProc, OutputReader, ErrorCode) then
             raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
               SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
               ['CreateProcess', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
