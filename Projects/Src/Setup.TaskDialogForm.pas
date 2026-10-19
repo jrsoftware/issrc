@@ -23,7 +23,7 @@ const
   TD_TASKFORM_HELP_ICON = MAKEINTRESOURCEW(Word(-100));
 
 type
-  TCopyFormat = (cfTaskDialog, cfMessageBox);
+  TDialogKind = (dkTaskDialog, dkMessageBox);
 
   TTaskDialogForm = class(TSetupForm)
     BottomPanel: TPanel;
@@ -49,7 +49,7 @@ type
     FCommonButtons: array of TNewButton;
     FCommonButtonFlags: array of Cardinal;
     FMainButtons: array of TNewButton;
-    FCopyFormat: TCopyFormat;
+    FDialogKind: TDialogKind;
     procedure Finish(const DefCommonButton: Integer);
     procedure UpdateCommonButtons(const CommonButtons: Cardinal; const ShieldButton: Integer);
     procedure UpdateIcon(const Icon: PChar);
@@ -58,14 +58,15 @@ type
     procedure UpdateMainButtonsAndBorderIcons(const CommonButtons: Cardinal;
       const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
     procedure UpdateVerificationText(const VerificationText: String);
+    procedure WMClose(var Message: TWMClose); message WM_CLOSE;
   public
-    constructor Create(AOwner: TComponent; const ACopyFormat: TCopyFormat; const ASetForeground: Boolean); reintroduce;
+    constructor Create(AOwner: TComponent; const ADialogKind: TDialogKind; const ASetForeground: Boolean); reintroduce;
   end;
 
 function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
   const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: Cardinal;
-  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat;
+  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const DialogKind: TDialogKind;
   const SetForeground: Boolean): Integer;
 
 implementation
@@ -80,10 +81,10 @@ uses
 function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
   const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: Cardinal;
-  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat;
+  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const DialogKind: TDialogKind;
   const SetForeground: Boolean): Integer;
 begin
-  const Form = TTaskDialogForm.Create(nil, CopyFormat, SetForeground);
+  const Form = TTaskDialogForm.Create(nil, DialogKind, SetForeground);
   try
     Form.Caption := Caption;
     Form.UpdateInstructionAndText(Instruction, Text);
@@ -117,14 +118,14 @@ end;
 
 { TTaskDialogForm }
 
-constructor TTaskDialogForm.Create(AOwner: TComponent; const ACopyFormat: TCopyFormat; const ASetForeground: Boolean);
+constructor TTaskDialogForm.Create(AOwner: TComponent; const ADialogKind: TDialogKind; const ASetForeground: Boolean);
 begin
   inherited Create(AOwner);
 
   FCommonButtons := [OkButton, YesButton, NoButton, RetryButton, CancelButton];
   FCommonButtonFlags := [TDCBF_OK_BUTTON, TDCBF_YES_BUTTON, TDCBF_NO_BUTTON, TDCBF_RETRY_BUTTON, TDCBF_CANCEL_BUTTON];
   FMainButtons := [MainButton1, MainButton2, MainButton3];
-  FCopyFormat := ACopyFormat;
+  FDialogKind := ADialogKind;
   SetForeground := ASetForeground;
 
   if not CustomWizardBackground or (SetupHeader.WizardBackColor = clWindow) then begin
@@ -326,6 +327,14 @@ begin
     end;
   end;
 
+  if (FDialogKind = dkMessageBox) and (CommonButtons = TDCBF_OK_BUTTON) then begin
+    { Same as MessageBox: Escape and the close button choose OK if it is the only button.
+      Also see WMClose. Note that TaskDialog ignores Escape in this situation, because we
+      don't use TDF_ALLOW_DIALOG_CANCELLATION. }
+    OkButton.Cancel := True;
+    HaveCancel := True;
+  end;
+
   if not HaveCancel and (CommonButtons and TDCBF_CANCEL_BUTTON = 0) then begin
     const SystemMenu = GetSystemMenu(Handle, False);
     if SystemMenu <> 0 then
@@ -339,6 +348,15 @@ begin
     VerificationCheck.Caption := VerificationText
   else
     BottomPanel2.Visible := False;
+end;
+
+procedure TTaskDialogForm.WMClose(var Message: TWMClose);
+begin
+  { Close would return mrCancel }
+  if OkButton.Cancel then
+    ModalResult := OkButton.ModalResult
+  else
+    inherited;
 end;
 
 procedure TTaskDialogForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -363,7 +381,7 @@ begin
       const SLine = '---------------------------';
       const SLineAndNewLine = SLine + SNewLine;
 
-      const MessageBoxFormat = FCopyFormat = cfMessageBox;
+      const MessageBoxFormat = FDialogKind = dkMessageBox;
 
       if MessageBoxFormat then
         SB.Append(SLine)

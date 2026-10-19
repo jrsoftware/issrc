@@ -352,7 +352,7 @@ begin
             MsgBoxFlagsDecode(Flags, Icon, TDCommonButtons, DefCommonButton, SetForeground);
             { Note: Shared.TaskDialogFunc also uses TaskDialogForm }
             Result := TaskDialogForm('', Text, Caption, Icon, TDCommonButtons, [], [], DefCommonButton, 0,
-              Flags, '', nil, cfMessageBox, SetForeground);
+              Flags, '', nil, dkMessageBox, SetForeground);
             Exit;
           end;
         end;
