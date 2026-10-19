@@ -413,6 +413,9 @@ begin
                   Exit; { Non-whitespace which should not be there }
               end;
             end;
+            { Only initiate autocompletion for multiple values when a [Setup] directive was found }
+            if FoundMultipleSetupDirectiveValues and (FoundSetupDirectiveName = '') then
+              Exit;
             { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' or a [Setup] directive }
             if (Key = ' ') and not (FoundSemicolon or FoundFlagsOrType or (FoundSetupDirectiveName <> '')) then
               Exit;
