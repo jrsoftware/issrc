@@ -3444,7 +3444,6 @@ begin
              SetupHeader.PrivilegesRequired <> prLowest) then begin
           FreeAndNil(Reader);
           FreeAndNil(SetupFile);
-          RedirectionGuardConfigure(ShouldEnableRedirectionGuard);
           RespawnParams := GetCmdTailEx(StartParam);
           if ExtraRespawnParam <> '' then
             RespawnParams := RespawnParams + ' ' + ExtraRespawnParam;

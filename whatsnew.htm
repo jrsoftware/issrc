@@ -118,6 +118,13 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
     <li>Setup crashed at startup if <tt>[Setup]</tt> section directive <tt>Encryption</tt> was set to <tt>full</tt> and the compression method was <tt>zip</tt> or <tt>bzip</tt> (broken since full encryption was introduced in 6.5.0).</li>
     <li>A console program started by support function <tt>ExecAndLogOutput</tt> or <tt>ExecAndLogOutputWithNativeSysDir</tt> with <tt>OnLog</tt> set to <tt>nil</tt> showed a console window if logging wasn't enabled, instead of always being hidden as documented. The same applied to <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section entries with the <tt>logoutput</tt> flag (broken since these were introduced in 6.3.0).</li>
+    <li>When <tt>[Setup]</tt> section directive <tt><a href="https://jrsoftware.org/ishelp/index.php?topic=setup_redirectionguard">RedirectionGuard</a></tt> was enabled (which it is by default), the RedirectionGuard mitigation was inherited by any child processes, which wasn't as documented. For child processes started by Setup with the (normally non-elevated) credentials of the user that started Setup initially, such as those started by <tt>[Run]</tt> section entries with the <tt>runasoriginaluser</tt> or <tt>postinstall</tt> flag, this also wasn't as intended (broken since RedirectionGuard support was introduced in 6.7.0). This is no longer the case for such processes. Notes:
+    <ul>
+      <li>If Setup didn't have to request administrative privileges, for example because <tt>[Setup]</tt> section directive <tt>PrivilegesRequired</tt> is set to <tt>lowest</tt>, or because Setup was started with administrative privileges already, the RedirectionGuard mitigation is still inherited. This will be addressed in a future version.</li>
+      <li>Most applications aren't affected by RedirectionGuard, but they might be, for example when your users load files from their OneDrive Personal Vault.</li>
+      <li>Setup didn't and still doesn't enable RedirectionGuard for the application that is installed, so the issue only affects instances of it started by Setup or Uninstall.</li>
+    </ul>
+    </li>
   </ul>
   </li>
   <li>Pascal Scripting:
