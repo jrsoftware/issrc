@@ -101,7 +101,7 @@ var
 begin
   Result := ExtractInteger(Data, Len);
   if Result then begin
-    if (Len < 0) or (Len > $FFFF) then
+    if (Len < 0) or (Len > $7FFE) then
       Result := False
     else begin
       Result := ExtractBytes(Data, Cardinal(Len) * SizeOf(Value[1]), P);
@@ -517,10 +517,16 @@ var
   ClientCurrentDir, SaveCurrentDir: String;
 begin
   Result := smrInvalidData;
-  Data.Ptr := @FSharedMemory.LockedFields.Data[0];
   Data.Size := FSharedMemory.LockedFields.DataSize;
-  if Data.Size > SizeOf(FSharedMemory.LockedFields.Data) then
+  if (Data.Size <= 0) or (Data.Size > SizeOf(FSharedMemory.LockedFields.Data)) then
     Exit;
+  { Sanity check: To be really sure Data isn't being modified while we're
+    reading it (which should never happen due to locking via LockState), we
+    make a copy, hash-check the copy, and read only from the copy }
+  var DataCopy: TBytes;
+  SetLength(DataCopy, NativeInt(Data.Size));
+  Move(FSharedMemory.LockedFields.Data, DataCopy[0], Length(DataCopy));
+  Data.Ptr := @DataCopy[0];
 
   const ActualDataHash = SHA256Buf(Data.Ptr^, Data.Size);
   if not SHA256DigestsEqual(FSharedMemory.LockedFields.DataHash, ActualDataHash) then
@@ -537,7 +543,8 @@ begin
   if not ExtractString(Data, EFilename) then Exit;
   if not ExtractString(Data, EParams) then Exit;
   if not ExtractString(Data, EWorkingDir) then Exit;
-  if not ExtractInteger(Data, EWait) then Exit;
+  if not ExtractInteger(Data, EWait) or (EWait < Ord(Low(TExecWait))) or
+     (EWait > Ord(High(TExecWait))) then Exit;
   if not ExtractInteger(Data, EShowCmd) then Exit;
   if not ExtractString(Data, ClientCurrentDir) then Exit;
   if Data.Size <> 0 then Exit;

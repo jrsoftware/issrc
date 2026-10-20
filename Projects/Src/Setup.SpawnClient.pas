@@ -49,7 +49,7 @@ var
   Len: Integer;
 begin
   Len := Length(Value);
-  if Len > $FFFF then
+  if Len > $7FFE then  { Maximum length of NT UNICODE_STRING }
     InternalError('WriteStringToStream: Length limit exceeded');
   WriteLongintToStream(M, Len);
   if Len > 0 then
@@ -66,16 +66,10 @@ procedure AllowSpawnServerToSetForegroundWindow;
   If it does have a visible window, though, it definitely is needed (e.g. in
   the /DebugSpawnServer case). Let's not rely on any undocumented behavior and
   call AllowSetForegroundWindow unconditionally. }
-var
-  PID: DWORD;
-  AllowSetForegroundWindowFunc: function(dwProcessId: DWORD): BOOL; stdcall;
 begin
-  if GetWindowThreadProcessId(SpawnServerSharedMemory.ServerWnd, @PID) <> 0 then begin
-    AllowSetForegroundWindowFunc := GetProcAddress(GetModuleHandle(user32),
-      'AllowSetForegroundWindow');
-    if Assigned(AllowSetForegroundWindowFunc) then
-      AllowSetForegroundWindowFunc(PID);
-  end;
+  var PID: DWORD;
+  if GetWindowThreadProcessId(SpawnServerSharedMemory.ServerWnd, PID) <> 0 then
+    AllowSetForegroundWindow(PID);
 end;
 
 function CallSpawnServer(var M: TMemoryStream;

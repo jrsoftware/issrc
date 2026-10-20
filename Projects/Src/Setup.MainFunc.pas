@@ -3280,7 +3280,7 @@ begin
     else if SameText(ParamName, '/SPAWNSM=') then begin
       ParamIsAutomaticInternal := True; { sent by RespawnSetupProcess }
       IsRespawnedProcess := True;
-      SpawnServerSharedMemoryID := ParamValue;
+      SpawnServerSharedMemoryID := UpperCase(ParamValue);
     end else if SameText(ParamName, '/DebugSpawnServer') then { for debugging }
       EnterSpawnServerDebugMode  { does not return }
     else if SameText(ParamName, '/DEBUGWND=') then begin
