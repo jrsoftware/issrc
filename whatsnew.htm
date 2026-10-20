@@ -170,7 +170,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 <details>
 <summary>Inno Setup 7.1</summary>
 
-<p><a name="7.1.1"></a><span class="ver">7.1.1-dev </span><span class="date">(?)</span></p>
+<p><a name="7.1.1"></a><span class="ver">7.1.1-dev </span><span class="date">(2026-10-28)</span></p>
 
 <span class="head2">Changes</span>
 
@@ -232,6 +232,13 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>On the <i>Preparing to Install</i> wizard page, after an error, clicking Back and then Install again could place the options to close or not close the applications partly or fully outside the page (broken since 5.5.0).</li>
     <li>Setup crashed at startup if <tt>[Setup]</tt> section directive <tt>Encryption</tt> was set to <tt>full</tt> and the compression method was <tt>zip</tt> or <tt>bzip</tt> (broken since full encryption was introduced in 6.5.0).</li>
     <li>A console program started by support function <tt>ExecAndLogOutput</tt> or <tt>ExecAndLogOutputWithNativeSysDir</tt> with <tt>OnLog</tt> set to <tt>nil</tt> showed a console window if logging wasn't enabled, instead of always being hidden as documented. The same applied to <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section entries with the <tt>logoutput</tt> flag (broken since these were introduced in 6.3.0).</li>
+    <li>When <tt>[Setup]</tt> section directive <tt><a href="https://jrsoftware.org/ishelp/index.php?topic=setup_redirectionguard">RedirectionGuard</a></tt> was enabled (which it is by default), the RedirectionGuard mitigation was inherited by any child processes, which wasn't as documented. For child processes started by Setup with the (normally non-elevated) credentials of the user that started Setup initially, such as those started by <tt>[Run]</tt> section entries with the <tt>runasoriginaluser</tt> or <tt>postinstall</tt> flag, this also wasn't as intended (broken since RedirectionGuard support was introduced in 6.7.0). This is no longer the case for such processes. Notes:
+    <ul>
+      <li>If Setup didn't have to request administrative privileges, for example because <tt>[Setup]</tt> section directive <tt>PrivilegesRequired</tt> is set to <tt>lowest</tt>, or because Setup was started with administrative privileges already, the RedirectionGuard mitigation is still inherited. This will be addressed in a future version.</li>
+      <li>Most applications aren't affected by RedirectionGuard, but they might be, for example when your users load files from their OneDrive Personal Vault.</li>
+      <li>Setup didn't and still doesn't enable RedirectionGuard for the application that is installed, so the issue only affects instances of it started by Setup or Uninstall.</li>
+    </ul>
+    </li>
   </ul>
   </li>
   <li>Pascal Scripting:
@@ -240,6 +247,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Support function <tt>FloatToStr</tt> used the decimal point from the user's regional settings, such as a comma, instead of always a dot as documented. Support function <tt>StrToFloat</tt> then raised an exception when given the result (broken since 7.0.0).</li>
     <li>When debugging in the Compiler IDE, a runtime error could be reported on the line after the line which caused it.</li>
     <li>When a custom style was active, support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> didn't show the shield icon specified by the <tt>ShieldButton</tt> parameter if that button had no custom label (broken since custom styles were introduced in 6.6.0).</li>
+    <li>Support function <tt>WizardSetupType</tt> didn't expand constants in the description it returned, unlike support functions <tt>WizardSelectedComponents</tt> and <tt>WizardSelectedTasks</tt>.</li>
     <li><i>Documentation fix:</i> Since 6.6.0, support function <tt>CreateCustomForm</tt> scales the specified client width and height itself, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> and the <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> example script still used <tt>ScaleX</tt> and <tt>ScaleY</tt> for them, so they were scaled twice. For example, at 150% DPI the form was 2.25 times as wide and high as at 100% DPI, instead of 1.5 times. The documentation and the example script have now been corrected. If your script does the same, remove these calls. If you use the default font settings with standard DPI (100%), this doesn't change the form.</li>
   </ul>
   </li>
@@ -616,6 +624,16 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 </details>
 <details>
 <summary>Inno Setup 6.7</summary>
+
+<p><a name="6.7.4"></a><span class="ver">6.7.4 </span><span class="date">(2026-10-28)</span></p>
+
+<ul>
+  <li>Fix backported from <a href="https://jrsoftware.org/isdl.php#v7">Inno Setup 7</a>:
+  <ul>
+    <li>Pascal Scripting: When a COM object or a variant array was passed as an argument to a method of a <a href="https://jrsoftware.org/ishelp/index.php?topic=scriptautomation">COM Automation object</a>, such as in <tt>ParentNode.appendChild(ChildNode)</tt>, or assigned to a property of one, it was released one time too many. This could cause access violations, for example when using MSXML after installing a September 2026 Windows update with a new MSXML version, such as KB5124007 or KB5124008.</li>
+  </ul>
+  </li>
+</ul>
 
 <p><a name="6.7.3"></a><span class="ver">6.7.3 </span><span class="date">(2026-05-26)</span></p>
 
