@@ -78,7 +78,7 @@ begin
   while (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
     Pos := AMemo.GetPositionAfter(Pos);
 
-  { Require '#' as first non-whitespace character }
+  { Require '#' as first non-whitespace character. Also see InitiateAutoComplete (scCode). }
   if (Pos >= ScanEndPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
     Exit;
   Pos := AMemo.GetPositionAfter(Pos);
@@ -301,6 +301,10 @@ begin
         begin
           const Section = TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[Line]);
           if Section = scCode then begin
+            { Only initiate autocompletion for non-ISPP directive lines. Also see IsInISPPLineContext. }
+            if AMemo.GetByteAtPosition(AMemo.GetLineIndentPosition(Line)) = '#' then
+              Exit;
+
             { Space can only initiate autocompletion after non whitespace }
             if (Key = ' ') and OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
               Exit;
