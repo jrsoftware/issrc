@@ -1719,7 +1719,7 @@ var
       var TypeEntry := GetWizardForm.GetSetupType;
       if TypeEntry <> nil then begin
         if Stack.GetBool(PStart-1) then
-          Stack.SetString(PStart, TypeEntry.Description)
+          Stack.SetString(PStart, ExpandConst(TypeEntry.Description))
         else
           Stack.SetString(PStart, TypeEntry.Name);
       end

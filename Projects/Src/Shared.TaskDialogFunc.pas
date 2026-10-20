@@ -207,7 +207,7 @@ begin
 
     { Note: Shared.CommonFunc.Vcl also uses TaskDialogForm }
     Result := TaskDialogForm(Instruction, Text, MessageBoxCaption, IconP, TDCommonButtons, ButtonLabels, ButtonIDs, 0, ShieldButton,
-      TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked, cfTaskDialog, SetForeground);
+      TriggerMessageBoxCallbackFuncFlags, VerificationText, pfVerificationFlagChecked, dkTaskDialog, SetForeground);
     Exit;
   end;
   {$ENDIF}

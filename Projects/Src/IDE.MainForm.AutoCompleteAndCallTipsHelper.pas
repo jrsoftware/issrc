@@ -133,7 +133,7 @@ begin
   { Skip leading whitespace }
   Pos := SkipChars(Pos, WhitespaceChars);
 
-  { Require '#' as first non-whitespace character }
+  { Require '#' as first non-whitespace character. Also see InitiateAutoComplete (scCode). }
   if (Pos >= ScanEndPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
     Exit;
   Pos := AMemo.GetPositionAfter(Pos);
@@ -262,6 +262,17 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
+  function SkipWhiteSpaceBefore(const LinePos, Pos: Integer): Integer;
+  begin
+    Result := Pos;
+    while Result > LinePos do begin
+      const PosBefore = AMemo.GetPositionBefore(Result);
+      if AMemo.GetByteAtPosition(PosBefore) > ' ' then
+        Break;
+      Result := PosBefore;
+    end;
+  end;
+
   function SkipLanguagePrefixBeforeWord(const LinePos, WordStartPos: Integer): Integer;
   begin
     { Also see TScriptModelSectionMetadata.TryGetMember }
@@ -385,7 +396,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         TInnoSetupStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string or comment }
         Res.FoundSemicolon := C = ';';
         if not Res.FoundSemicolon then begin
-          const ParameterWordEndPos = I;
+          const ParameterWordEndPos = SkipWhiteSpaceBefore(LinePos, I);
           const ParameterWordStartPos = AMemo.GetWordStartPosition(ParameterWordEndPos, True);
           const ParameterWord = AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
           if ParameterHasAutoCompleteValues(ParameterWord, Section) then
@@ -400,18 +411,19 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         { Verify that a word (language or directive name) precedes the '.' or '=', then check for
           any non-whitespace characters before the word. Among other things, this ensures
           we're not inside a comment. }
-        const NameStartPos = AMemo.GetWordStartPosition(I, True);
-        if NameStartPos >= I then
+        var NameEndPos := I;
+        if C = '=' then
+          NameEndPos := SkipWhiteSpaceBefore(LinePos, NameEndPos);
+        const NameStartPos = AMemo.GetWordStartPosition(NameEndPos, True);
+        if NameStartPos >= NameEndPos then
           Exit;
         var NameOrPrefixStartPos := NameStartPos;
         if (Section = scLangOptions) and (C = '=') then
           NameOrPrefixStartPos := SkipLanguagePrefixBeforeWord(LinePos, NameStartPos);
         if not OnlyWhiteSpaceBeforeWord(LinePos, NameOrPrefixStartPos) then
           Exit;
-        if C = '=' then begin
-          const NameEndPos = AMemo.GetWordEndPosition(NameStartPos, True);
+        if C = '=' then
           Res.FoundMemberName := AMemo.GetTextRange(NameStartPos, NameEndPos);
-        end;
         Break;
       end else if C > ' ' then begin
         if IsParamSection then begin
@@ -600,6 +612,9 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       current word }
     if ParameterValueIsSingleValue(Res.FoundMemberName, Section) and Res.FoundWord then
       Exit;
+    { Only initiate autocompletion for multiple values when a [Setup] directive was found }
+    if Res.FoundMultipleSetupDirectiveValues and (Res.FoundMemberName = '') then
+      Exit;
     { A space can only initiate autocompletion after ';' or a member name }
     if (Key = ' ') and not (Res.FoundSemicolon or (Res.FoundMemberName <> '')) then
       Exit;
@@ -745,6 +760,9 @@ begin
           if Section in [scUnknown, scThirdParty] then
             Exit
           else if Section = scCode then begin
+            { Only initiate autocompletion for non-ISPP directive lines. Also see IsInISPPLineContext. }
+            if AMemo.GetByteAtPosition(AMemo.GetLineIndentPosition(Line)) = '#' then
+              Exit;
             if not ChooseCodeWordList(LinePos, WordStartPos, WordList) then
               Exit;
           end else begin
