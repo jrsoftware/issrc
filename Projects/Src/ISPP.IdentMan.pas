@@ -772,14 +772,7 @@ var
 const
   VM: array[itVariable..itMacro] of string = ('variable', 'macro');
 begin
-  {if Scope = dsAny then
-  begin
-    P := Find(Name, dsPrivate);
-    if P = nil then P := Find(Name, dsProtected);
-    if P = nil then P := Find(Name, dsPublic)
-  end
-  else}
-    P := Find(Name, Scope);
+  P := Find(Name, Scope);
   if (P <> nil) and (P.IdentType in [itVariable, itMacro]) then
   begin
     //if PDefinable(P).Scope.Locality <> FLocalLevel then Exit;
