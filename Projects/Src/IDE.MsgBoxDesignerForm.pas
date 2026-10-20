@@ -111,8 +111,8 @@ type
 implementation
 
 uses
-  ShellAPI,
-  Shared.CommonFunc.Vcl, Shared.TaskDialogFunc, IDE.Messages, IDE.LocalizeFunc;
+  CommCtrl, ShellAPI,
+  Shared.CommonFunc.Vcl, Shared.TaskDialogFunc, IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc;
 
 {$R *.DFM}
 
@@ -164,6 +164,12 @@ begin
   IMGmbCriticalError.InitializeFromStockIcon(SIID_ERROR, clNone, [32, 48, 64]);
 
   cb_Suppressible.Checked := True;
+  if WindowsVersionAtLeast(10, 0, 17763) then begin
+    { Ensure we receive CRLF pastes }
+    const ExtendedStyle = ES_EX_ALLOWEOL_ALL or ES_EX_CONVERT_EOL_ON_PASTE;
+    SendMessage(MSGText.Handle, EM_SETEXTENDEDSTYLE, ExtendedStyle, ExtendedStyle);
+    SendMessage(MSGText.Handle, EM_SETENDOFLINE, EC_ENDOFLINE_CRLF, 0);
+  end;
   MSGText.Text := '<' + LFmtMessage(SMsgBoxDesignerDefaultInputText) + '>';
   MSGText.SelectAll;
   cb_IDCANCEL.Enabled := False;
