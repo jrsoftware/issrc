@@ -44,6 +44,7 @@ implementation
 
 { For debugging only; remove 'x' to enable the define: }
 {x$DEFINE SPAWNSERVER_RESPAWN_ALWAYS}
+{x$DEFINE SPAWNSERVER_DEBUGMODE}
 
 uses
   Classes, Forms, ShellApi, PathFunc, SHA256, Shared.CommonFunc,
@@ -297,25 +298,20 @@ begin
 end;
 
 procedure EnterSpawnServerDebugMode;
-{ For debugging purposes only: Creates a spawn server window, but does not
-  start a new process. Displays the server window handle in the taskbar.
-  Terminates when F11 is pressed. }
-var
-  Server: TSpawnServer;
+{ For debugging purposes only: Creates a spawn server, but does not start a
+  new process. Displays the server's shared memory ID in a message box, and
+  terminates when the message box is closed. }
 begin
-  Server := TSpawnServer.Create(False);
+  {$IFDEF SPAWNSERVER_DEBUGMODE}
+  const Server = TSpawnServer.Create(False);
   try
-    { The UInt32 cast prevents sign extension }
-    Application.Title := Format('Wnd=$%x', [UInt32(Server.FWnd)]);
-    while True do begin
-      ProcessMessagesProc;
-      if (GetFocus = Application.Handle) and (GetKeyState(VK_F11) < 0) then
-        Break;
-      WaitMessage;
-    end;
+    Server.FReadyToServe := True;
+    MessageBox(0, PChar(Format('/SPAWNSM="%s"', [Server.SharedMemoryID])),
+      'Setup: Spawn server debug mode', MB_OK or MB_ICONINFORMATION);
   finally
     Server.Free;
   end;
+  {$ENDIF}
   Halt(1);
 end;
 
