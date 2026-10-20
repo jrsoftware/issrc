@@ -273,6 +273,7 @@ begin
   FRichEdit.Align := alClient;
   FRichEdit.WordWrap := True;
   FRichEdit.ScrollBars := ssVertical;
+  FRichEdit.MaxLength := $7FFFFFFE; { Default is 64K }
   {$IFDEF HAVEURLS}
   FRichEdit.EnableURLs := True;
   FRichEdit.OnLinkClick := RichEditLinkClick;
@@ -442,7 +443,7 @@ procedure TRichEditForm.OpenFile(const AFilename: String);
     EditStream.dwCookie := DWORD_PTR(@Data);
     EditStream.dwError := 0;
     EditStream.pfnCallback := StreamLoad;
-    SendMessage(FRichEdit.Handle, EM_EXLIMITTEXT, 0, LPARAM($7FFFFFFE));
+    { MaxLength already set by CreateRichEditControl }
     SendMessage(FRichEdit.Handle, EM_STREAMIN, SF_RTF, LPARAM(@EditStream));
     if EditStream.dwError <> 0 then { dwError is not a Win32 error code }
       raise Exception.Create(LFmtMessage(SRichEditStreamInError, [EditStream.dwError]));
