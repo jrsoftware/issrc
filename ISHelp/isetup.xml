@@ -2917,7 +2917,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <flag name="runasoriginaluser">
 <p>Valid only in a <tt>[Run]</tt> section. If this flag is specified, the spawned process will execute with the (normally non-elevated) credentials of the user that started Setup initially (i.e., the "pre-UAC dialog" credentials).</p>
 <p>This is the default behavior when the <tt>postinstall</tt> flag is used.</p>
-<p>If a user launches Setup by right-clicking its EXE file and selecting "Run as administrator", then this flag, unfortunately, will have no effect, because Setup has no opportunity to run any code with the original user credentials. The same is true if Setup is launched from an already-elevated process. Note, however, that this is not an Inno Setup-specific limitation; Windows Installer-based installers cannot return to the original user credentials either in such cases.</p>
+<p>If a user launches Setup by right-clicking its EXE file and selecting "Run as administrator", then this flag, unfortunately, will have no effect on the credentials, because Setup has no opportunity to run any code with the original user credentials. The same is true if Setup is launched from an already-elevated process. Note, however, that this is not an Inno Setup-specific limitation; Windows Installer-based installers cannot return to the original user credentials either in such cases. This flag does always ensure the spawned process won't inherit the RedirectionGuard mitigation (see <sd>RedirectionGuard</sd>).</p>
 <p>This flag cannot be combined with the <tt>runascurrentuser</tt> flag.</p>
 </flag>
 <flag name="runhidden">
