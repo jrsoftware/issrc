@@ -3939,12 +3939,12 @@ end;
 
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
 
-  procedure StopNonElevatedSetupProcesses;
+  procedure StopFirstSetupProcesses;
   begin
     var ProcessHandle: THandle := 0;
     try
-      { The "first process" is usually the non-elevated SetupLdr process, but
-        if UseSetupLdr=no, it's the non-elevated Setup process. }
+      { The "first process" is usually the first SetupLdr process, but
+        if UseSetupLdr=no, it's the first Setup process. }
       var PID: DWORD;
       if GetWindowThreadProcessId(GetSpawnServerFirstProcessWnd, PID) = 0 then
         LogWithLastError('Failed to get PID of first process.')
@@ -3954,9 +3954,9 @@ procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
           LogWithLastError('Failed to open handle to first process.');
       end;
 
-      { Tell the non-elevated Setup process (which hosts the spawn server) to
+      { Tell the first Setup process (which hosts the spawn server) to
         exit now, instead of waiting for its child process to terminate. Once
-        it does, the non-elevated SetupLdr process (if UseSetupLdr=yes) will
+        it does, the first SetupLdr process (if UseSetupLdr=yes) will
         also exit. }
       LogFmt('Instructing parent Setup process to exit with exit code %d.',
         [SetupExitCode]);
@@ -4050,7 +4050,7 @@ begin
     { On Windows Server, by default, a process can only initiate a restart if
       it has the Administrators group in its access token. So we have to
       initiate the restart from one of our elevated processes. But first, we
-      need to stop the non-elevated processes to ensure they don't try to
+      need to stop the first Setup processes to ensure they don't try to
       block the shutdown, and also to keep them from being terminated
       uncleanly by Windows (which could leave behind temporary files).
 
@@ -4061,7 +4061,7 @@ begin
       default, UAC is disabled on the built-in Administrator account). }
     if IsSpawnServerPresent then begin
       Log('Need to stop other Setup processes before restarting Windows.');
-      StopNonElevatedSetupProcesses;
+      StopFirstSetupProcesses;
     end;
 
     Log('Restarting Windows.');
