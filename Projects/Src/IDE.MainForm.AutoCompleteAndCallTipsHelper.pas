@@ -195,6 +195,17 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
+  function SkipWhiteSpaceBefore(const AMemo: TScintEdit; const LinePos, Pos: Integer): Integer;
+  begin
+    Result := Pos;
+    while Result > LinePos do begin
+      const PosBefore = AMemo.GetPositionBefore(Result);
+      if AMemo.GetByteAtPosition(PosBefore) > ' ' then
+        Break;
+      Result := PosBefore;
+    end;
+  end;
+
 begin
   if AMemo.AutoCompleteActive or AMemo.ReadOnly then
     Exit;
@@ -367,7 +378,7 @@ begin
                 TInnoSetupStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string or comment }
                 FoundSemicolon := C = ';';
                 if not FoundSemicolon then begin
-                  const ParameterWordEndPos = I;
+                  const ParameterWordEndPos = SkipWhiteSpaceBefore(AMemo, LinePos, I);
                   const ParameterWordStartPos = AMemo.GetWordStartPosition(ParameterWordEndPos, True);
                   const ParameterWord = AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
                   FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
@@ -382,13 +393,14 @@ begin
                 { Verify that a word (language or directive name) precedes the '.' or '=', then check for
                   any non-whitespace characters before the word. Among other things, this ensures
                   we're not inside a comment. }
-                const NameStartPos = AMemo.GetWordStartPosition(I, True);
-                if (NameStartPos >= I) or not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, NameStartPos) then
+                var NameEndPos := I;
+                if Section = scSetup then
+                  NameEndPos := SkipWhiteSpaceBefore(AMemo, LinePos, NameEndPos);
+                const NameStartPos = AMemo.GetWordStartPosition(NameEndPos, True);
+                if (NameStartPos >= NameEndPos) or not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, NameStartPos) then
                   Exit;
-                if Section = scSetup then begin
-                  const NameEndPos = AMemo.GetWordEndPosition(NameStartPos, True);
+                if Section = scSetup then
                   FoundSetupDirectiveName := AMemo.GetTextRange(NameStartPos, NameEndPos);
-                end;
                 Break;
               end else if C > ' ' then begin
                 if IsParamSection and not (Section in [scInstallDelete, scUninstallDelete]) and
