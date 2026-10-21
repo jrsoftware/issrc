@@ -34,7 +34,7 @@
 
 <p>Note: the Pascal scripting feature works exclusively at run-time, and has no compile-time functionality.</p>
 
-<heading>Language differences compared to Delphi</heading>
+<heading><a name="languagedifferences">Language differences compared to Delphi</a></heading>
 
 <p>Pascal Script has some language differences compared to Delphi. Key differences include:</p>
 

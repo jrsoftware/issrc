@@ -914,7 +914,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       </function>
       <function>
         <name>Length</name>
-        <prototype>function Length(S: AnyString): LongInt;</prototype>
+        <prototype>function Length(var X): LongInt;</prototype>
         <description><p>Returns the length of the specified string or array.</p></description>
       </function>
       <function>
@@ -1398,8 +1398,9 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     <subcategory>
       <function>
         <name>SetLength</name>
-        <prototype>procedure SetLength(var S: AnyString; L: LongInt);</prototype>
+        <prototype>procedure SetLength(var X; L: LongInt);</prototype>
         <description><p>Sets the length of a string or dynamic array.</p></description>
+        <remarks><p>If a dynamic array is shared with another variable, <tt>SetLength</tt> copies it only when the length changes. See <link topic="scriptintro" anchor="languagedifferences">Language differences compared to Delphi</link>.</p></remarks>
       </function>
       <function>
         <name>CharToOemBuff</name>
@@ -1526,6 +1527,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>SetArrayLength</name>
         <prototype>procedure SetArrayLength(var Arr: Array; I: LongInt);</prototype>
         <description><p>Sets the length of an array. Always call <tt>SetArrayLength</tt> before accessing the elements in an array.</p></description>
+        <remarks><p>If the array is shared with another variable, <tt>SetArrayLength</tt> copies it only when the length changes. See <link topic="scriptintro" anchor="languagedifferences">Language differences compared to Delphi</link>.</p></remarks>
       </function>
     </subcategory>
   </category>
