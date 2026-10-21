@@ -915,7 +915,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>Length</name>
         <prototype>function Length(S: AnyString): LongInt;</prototype>
-        <description><p>Returns the length of the specified string.</p></description>
+        <description><p>Returns the length of the specified string or array.</p></description>
       </function>
       <function>
         <name>LowerCase</name>
@@ -1399,7 +1399,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>SetLength</name>
         <prototype>procedure SetLength(var S: AnyString; L: LongInt);</prototype>
-        <description><p>Sets the length of a string.</p></description>
+        <description><p>Sets the length of a string or dynamic array.</p></description>
       </function>
       <function>
         <name>CharToOemBuff</name>
