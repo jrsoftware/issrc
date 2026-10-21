@@ -105,7 +105,7 @@ type
 function NewGetOpenOrSaveFileName(const Prompt: String; var FileName: String;
   const InitialDirectory, Filter, DefaultExtension: String;
   const ParentWnd: HWND; const GetOpenOrSaveFileNameFunc: TGetOpenOrSaveFileNameFunc;
-  const Flags: DWORD): Boolean;
+  const FunctionName: String; const Flags: DWORD): Boolean;
 
   function AllocFilterStr(const S: string): string;
   var
@@ -135,23 +135,39 @@ function NewGetOpenOrSaveFileName(const Prompt: String; var FileName: String;
     SetString(Result, P, E - P);
   end;
 
+  function ShowDialog(var ofn: TOpenFileName; out ExtendedError: DWORD): Boolean;
+  begin
+    Result := GetOpenOrSaveFileNameFunc(ofn);
+    if Result then
+      ExtendedError := 0
+    else
+      ExtendedError := CommDlgExtendedError; { 0 if the user cancelled }
+  end;
+
 var
   ofn: TOpenFileName;
-  lpstrFile: array[0..8191] of Char;
+  FileBuffer: array of Char;
   TempFilter: String;
   SaveCurDir: String;
   ActiveWindow: HWND;
   WindowList: Pointer;
 begin
-  StrPLCopy(lpstrFile, FileName, (SizeOf(lpstrFile) div SizeOf(lpstrFile[0])) - 1);
+  const MultiSelect = Flags and OFN_ALLOWMULTISELECT <> 0;
+  var MaxFile: Cardinal;
+  if MultiSelect then
+    MaxFile := High(Word) - 16 { Same as TOpenDialog }
+  else
+    MaxFile := 8192;
+  SetLength(FileBuffer, MaxFile); { Zero-filled, which GetMultiSelectString needs after a single selection }
+  StrPLCopy(@FileBuffer[0], FileName, MaxFile - 1);
 
   FillChar(ofn, SizeOf(ofn), 0);
   ofn.lStructSize := SizeOf(ofn);
   ofn.hwndOwner := ParentWnd;
   TempFilter := AllocFilterStr(Filter);
   ofn.lpstrFilter := PChar(TempFilter);
-  ofn.lpstrFile := lpstrFile;
-  ofn.nMaxFile := SizeOf(lpstrFile) div SizeOf(lpstrFile[0]);
+  ofn.lpstrFile := @FileBuffer[0];
+  ofn.nMaxFile := MaxFile;
   ofn.lpstrInitialDir := PChar(InitialDirectory);
   ofn.lpstrTitle := PChar(Prompt);
   ofn.Flags := Flags or OFN_NOCHANGEDIR;
@@ -173,19 +189,27 @@ begin
     {$ENDIF}
     try
       SaveCurDir := GetCurrentDir;
-      if GetOpenOrSaveFileNameFunc(ofn) then begin
-        if Flags and OFN_ALLOWMULTISELECT <> 0 then
-          FileName := GetMultiSelectString(lpstrFile)
+      var ExtendedError: DWORD;
+      Result := ShowDialog(ofn, ExtendedError);
+      if (ExtendedError = FNERR_INVALIDFILENAME) and (ofn.lpstrFile^ <> #0) then begin
+        { Windows rejects an invalid initial file name without showing the dialog }
+        ofn.lpstrFile^ := #0;
+        Result := ShowDialog(ofn, ExtendedError);
+      end;
+      if Result then begin
+        if MultiSelect then
+          FileName := GetMultiSelectString(ofn.lpstrFile)
         else
-          FileName := lpstrFile;
-        Result := True;
-      end else
-        Result := False;
+          FileName := ofn.lpstrFile;
+      end;
       { Restore current directory. The OFN_NOCHANGEDIR flag we pass is
         supposed to do that, but the MSDN docs claim: "This flag is
         ineffective for GetOpenFileName." I see no such problem on
         Windows 2000 or XP, but to be safe... }
       SetCurrentDir(SaveCurDir);
+      if ExtendedError <> 0 then
+        raise Exception.CreateFmt('%s failed with error code 0x%x',
+          [FunctionName, ExtendedError]);
     finally
       {$IFDEF CPUX86}
       asm
@@ -206,7 +230,7 @@ function NewGetOpenFileName(const Prompt: String; var FileName: String;
   const ParentWnd: HWND): Boolean;
 begin
   Result := NewGetOpenOrSaveFileName(Prompt, FileName, InitialDirectory, Filter, DefaultExtension,
-    ParentWnd, GetOpenFileName, OFN_HIDEREADONLY or OFN_PATHMUSTEXIST or OFN_FILEMUSTEXIST);
+    ParentWnd, GetOpenFileName, 'GetOpenFileName', OFN_HIDEREADONLY or OFN_PATHMUSTEXIST or OFN_FILEMUSTEXIST);
 end;
 
 function NewGetOpenFileNameMulti(const Prompt: String; const FileNameList: TStrings;
@@ -226,7 +250,7 @@ var
   P: PChar;
 begin
   Result := NewGetOpenOrSaveFileName(Prompt, Files, InitialDirectory, Filter, DefaultExtension,
-    ParentWnd, GetOpenFileName, OFN_HIDEREADONLY or OFN_PATHMUSTEXIST or OFN_FILEMUSTEXIST or
+    ParentWnd, GetOpenFileName, 'GetOpenFileName', OFN_HIDEREADONLY or OFN_PATHMUSTEXIST or OFN_FILEMUSTEXIST or
     OFN_ALLOWMULTISELECT or OFN_EXPLORER);
   if Result then begin
     FileNameList.Clear;
@@ -252,7 +276,7 @@ function NewGetSaveFileName(const Prompt: String; var FileName: String;
   const ParentWnd: HWND): Boolean;
 begin
   Result := NewGetOpenOrSaveFileName(Prompt, FileName, InitialDirectory, Filter, DefaultExtension,
-    ParentWnd, GetSaveFileName, OFN_OVERWRITEPROMPT or OFN_HIDEREADONLY or OFN_PATHMUSTEXIST);
+    ParentWnd, GetSaveFileName, 'GetSaveFileName', OFN_OVERWRITEPROMPT or OFN_HIDEREADONLY or OFN_PATHMUSTEXIST);
 end;
 
 end.

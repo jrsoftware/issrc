@@ -914,8 +914,8 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       </function>
       <function>
         <name>Length</name>
-        <prototype>function Length(S: AnyString): LongInt;</prototype>
-        <description><p>Returns the length of the specified string.</p></description>
+        <prototype>function Length(var X): LongInt;</prototype>
+        <description><p>Returns the length of the specified string or array.</p></description>
       </function>
       <function>
         <name>LowerCase</name>
@@ -1399,8 +1399,9 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     <subcategory>
       <function>
         <name>SetLength</name>
-        <prototype>procedure SetLength(var S: AnyString; L: LongInt);</prototype>
-        <description><p>Sets the length of a string.</p></description>
+        <prototype>procedure SetLength(var X; L: LongInt);</prototype>
+        <description><p>Sets the length of a string or dynamic array.</p></description>
+        <remarks><p>If a dynamic array is shared with another variable, <tt>SetLength</tt> copies it only when the length changes. See <link topic="scriptintro" anchor="languagedifferences">Language differences compared to Delphi</link>.</p></remarks>
       </function>
       <function>
         <name>CharToOemBuff</name>
@@ -1527,6 +1528,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>SetArrayLength</name>
         <prototype>procedure SetArrayLength(var Arr: Array; I: LongInt);</prototype>
         <description><p>Sets the length of an array. Always call <tt>SetArrayLength</tt> before accessing the elements in an array.</p></description>
+        <remarks><p>If the array is shared with another variable, <tt>SetArrayLength</tt> copies it only when the length changes. See <link topic="scriptintro" anchor="languagedifferences">Language differences compared to Delphi</link>.</p></remarks>
       </function>
     </subcategory>
   </category>
@@ -3318,7 +3320,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>GetOpenFileName</name>
         <prototype>function GetOpenFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select an existing file. Returns <tt>True</tt> if the user selected a file, <tt>False</tt> otherwise. The name of the selected file is returned in the <tt>FileName</tt> string.</p></description>
+        <description><p>Displays a dialog box that enables the user to select an existing file. Returns <tt>True</tt> if the user selected a file, <tt>False</tt> if the user cancelled the dialog box. The name of the selected file is returned in the <tt>FileName</tt> string.</p>
+<p>An exception will be raised if an error occurs.</p></description>
         <remarks><p>An example <tt>Filter</tt>: <tt>'Text files (*.txt)|*.txt|All files (*.*)|*.*'</tt></p></remarks>
         <example><pre><key>var</key>
   FileName: String;
@@ -3336,7 +3339,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>GetOpenFileNameMulti</name>
         <prototype>function GetOpenFileNameMulti(const Prompt: String; const FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns <tt>True</tt> if the user selected a file, <tt>False</tt> otherwise. The name of the selected file(s) is returned in the <tt>FileNameList</tt> list.</p></description>
+        <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns <tt>True</tt> if the user selected a file, <tt>False</tt> if the user cancelled the dialog box. The name of the selected file(s) is returned in the <tt>FileNameList</tt> list.</p>
+<p>An exception will be raised if an error occurs.</p></description>
         <remarks><p>An example <tt>Filter</tt>: <tt>'Text files (*.txt)|*.txt|All files (*.*)|*.*'</tt></p></remarks>
         <example><pre><key>var</key>
   FileNameList: TStrings;
@@ -3358,7 +3362,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>GetSaveFileName</name>
         <prototype>function GetSaveFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select a new file. Returns <tt>True</tt> if the user selected a file, <tt>False</tt> otherwise. The name of the selected file is returned in the <tt>FileName</tt> string.</p></description>
+        <description><p>Displays a dialog box that enables the user to select a new file. Returns <tt>True</tt> if the user selected a file, <tt>False</tt> if the user cancelled the dialog box. The name of the selected file is returned in the <tt>FileName</tt> string.</p>
+<p>An exception will be raised if an error occurs.</p></description>
         <remarks><p>An example <tt>Filter</tt>: <tt>'Text files (*.txt)|*.txt|All files (*.*)|*.*'</tt></p></remarks>
         <example><pre><key>var</key>
   Filename: String;
