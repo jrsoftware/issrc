@@ -3319,7 +3319,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>GetOpenFileName</name>
         <prototype>function GetOpenFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select an existing file. Returns <tt>True</tt> if the user selected a file, <tt>False</tt> otherwise. The name of the selected file is returned in the <tt>FileName</tt> string.</p></description>
+        <description><p>Displays a dialog box that enables the user to select an existing file. Returns <tt>True</tt> if the user selected a file, <tt>False</tt> if the user cancelled the dialog box. The name of the selected file is returned in the <tt>FileName</tt> string.</p>
+<p>An exception will be raised if an error occurs.</p></description>
         <remarks><p>An example <tt>Filter</tt>: <tt>'Text files (*.txt)|*.txt|All files (*.*)|*.*'</tt></p></remarks>
         <example><pre><key>var</key>
   FileName: String;
@@ -3337,7 +3338,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>GetOpenFileNameMulti</name>
         <prototype>function GetOpenFileNameMulti(const Prompt: String; const FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns <tt>True</tt> if the user selected a file, <tt>False</tt> otherwise. The name of the selected file(s) is returned in the <tt>FileNameList</tt> list.</p></description>
+        <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns <tt>True</tt> if the user selected a file, <tt>False</tt> if the user cancelled the dialog box. The name of the selected file(s) is returned in the <tt>FileNameList</tt> list.</p>
+<p>An exception will be raised if an error occurs.</p></description>
         <remarks><p>An example <tt>Filter</tt>: <tt>'Text files (*.txt)|*.txt|All files (*.*)|*.*'</tt></p></remarks>
         <example><pre><key>var</key>
   FileNameList: TStrings;
@@ -3359,7 +3361,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>GetSaveFileName</name>
         <prototype>function GetSaveFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select a new file. Returns <tt>True</tt> if the user selected a file, <tt>False</tt> otherwise. The name of the selected file is returned in the <tt>FileName</tt> string.</p></description>
+        <description><p>Displays a dialog box that enables the user to select a new file. Returns <tt>True</tt> if the user selected a file, <tt>False</tt> if the user cancelled the dialog box. The name of the selected file is returned in the <tt>FileName</tt> string.</p>
+<p>An exception will be raised if an error occurs.</p></description>
         <remarks><p>An example <tt>Filter</tt>: <tt>'Text files (*.txt)|*.txt|All files (*.*)|*.*'</tt></p></remarks>
         <example><pre><key>var</key>
   Filename: String;
