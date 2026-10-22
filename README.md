@@ -45,8 +45,15 @@ Getting Started
    running **getit.bat** and following the instructions. When using the
    Community Edition, first remove the references to the Stellar and
    Zircon VCL styles from both **getit.bat** and
-   **Projects\SetupCustomStyle.dproj**. To ignore these changes consider
-   using Git's assume-unchanged or skip-worktree functionality.
+   **Projects\SetupCustomStyle.dproj**. When using Delphi 13.0 or newer,
+   either copy **Windows11_Modern_Dark.vsf** from the `%BDSCOMMONDIR%\Styles`
+   folder of a Delphi 12.3 installation to the same folder of your newer Delphi
+   installation, or in both **Projects\ISIDE.dproj** and
+   **Projects\SetupCustomStyle.dproj** replace
+   `Windows11 Modern Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows11_Modern_Dark.vsf`
+   with `Windows Modern Dark SE|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows_Modern_Dark_SE.vsf`.
+   The first option requires no project changes. To ignore these changes
+   consider using Git's assume-unchanged or skip-worktree functionality.
 
 3. **Install Microsoft HTML Help Workshop**
 
@@ -322,6 +329,9 @@ cd /d "%BDSCOMMONDIR%"
   Styles\Stellar.vsf ^
   Styles\Zircon.vsf
 ```
+
+When using Delphi 13.0 or newer and you edited the .dproj files instead of copying the style,
+replace `Styles\Windows11_Modern_Dark.vsf` above with `Styles\Windows_Modern_Dark_SE.vsf`.
 
 When using Delphi 13.1 or newer, also run:
 ```
