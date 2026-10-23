@@ -14,18 +14,24 @@ interface
 uses
   Messages,
   Classes, Graphics,
+  ScintInt,
   IDE.IDEScintEdit;
 
 type
   TMinimap = class(TIDEScintEdit)
   private
     FGutterWidth: Integer;
+    FMemo: TIDEScintEdit;
+    procedure SetDocPointer;
     procedure SetGutterWidth(const Value: Integer);
   protected
     procedure CreateWnd; override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notify(const N: TSCNotification); override;
     procedure WndProc(var Message: TMessage); override;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure SetMemo(const AMemo: TIDEScintEdit);
     procedure UpdateFont(const AFont: TFont);
     property GutterWidth: Integer read FGutterWidth write SetGutterWidth;
   end;
@@ -33,8 +39,7 @@ type
 implementation
 
 uses
-  Windows, ActiveX,
-  ScintInt;
+  Windows, ActiveX;
 
 const
   { VS Code's minimap with its default scale draws each character 1 device
@@ -60,23 +65,60 @@ begin
     text into the document }
   RevokeDragDrop(Handle);
 
+  { No blank margins, scrollbars or caret on the minimap }
+  Call(SCI_SETMARGINLEFT, 0, 0);
+  Call(SCI_SETMARGINRIGHT, 0, 0);
   Call(SCI_SETVSCROLLBAR, 0, 0);
   Call(SCI_SETHSCROLLBAR, 0, 0);
+  Call(SCI_SETCARETSTYLE, CARETSTYLE_INVISIBLE, 0);
 
-  { The gutter uses margin 2: TScintEdit.UpdateLineNumbersWidth sets margin 0's
-    width, and margin 3's mask draws the folding markers. SC_MARGIN_BACK gives it
-    the default style's background instead of STYLE_LINENUMBER's. }
+  { Regular cursor always }
+  SetCursorID(SC_CURSORARROW);
+
+  { Use the entire gutter for a single margin showing change history }
   for var Margin := 0 to Call(SCI_GETMARGINS, 0, 0)-1 do
     Call(SCI_SETMARGINWIDTHN, Margin, 0);
   Call(SCI_SETMARGINTYPEN, mmChangeHistory, SC_MARGIN_BACK);
   Call(SCI_SETMARGINWIDTHN, mmChangeHistory, FGutterWidth);
-  Call(SCI_SETMARGINLEFT, 0, 0);
-  Call(SCI_SETMARGINRIGHT, 0, 0);
 
-  Call(SCI_SETCARETSTYLE, CARETSTYLE_INVISIBLE, 0);
-  SetCursorID(SC_CURSORARROW);
+  { Ensure the icon markers stay invisible now that the minimap has no margin
+    for them. Without this Scintilla would display them as line markers instead. }
+  for var Marker := mmiFirst to mmiLast do
+    Call(SCI_MARKERDEFINE, Marker, SC_MARK_EMPTY);
+
+  { No change notifications or undo selection history, don't need them }
   Call(SCI_SETMODEVENTMASK, 0, 0);
   Call(SCI_SETUNDOSELECTIONHISTORY, SC_UNDO_SELECTION_HISTORY_DISABLED, 0);
+
+  { Ensure document is shared }
+  SetDocPointer;
+end;
+
+procedure TMinimap.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited;
+  if (Operation = opRemove) and (AComponent = FMemo) then
+    FMemo := nil;
+end;
+
+procedure TMinimap.Notify(const N: TSCNotification);
+begin
+  { Undo and redo make every view scroll its caret into view, also sideways.
+    Detect and fix using SCN_UPDATEUI. Comes before the paint so doesn't
+    cause flicker. }
+  if (N.nmhdr.code = SCN_UPDATEUI) and (N.updated and SC_UPDATE_H_SCROLL <> 0) and
+     (Call(SCI_GETXOFFSET, 0, 0) <> 0) then { Check because SCI_SETXOFFSET always repaints }
+    Call(SCI_SETXOFFSET, 0, 0);
+  inherited;
+end;
+
+procedure TMinimap.SetDocPointer;
+begin
+  if (FMemo <> nil) and HandleAllocated then begin
+    { Not using FMemo.Call: its Integer result can't hold a pointer }
+    const Document = SendMessage(FMemo.Handle, SCI_GETDOCPOINTER, 0, 0);
+    Call(SCI_SETDOCPOINTER, 0, Document);
+  end;
 end;
 
 procedure TMinimap.SetGutterWidth(const Value: Integer);
@@ -86,6 +128,19 @@ begin
     if HandleAllocated then
       Call(SCI_SETMARGINWIDTHN, mmChangeHistory, FGutterWidth);
   end;
+end;
+
+procedure TMinimap.SetMemo(const AMemo: TIDEScintEdit);
+{ Always calls SetDocPointer, so resyncs always }
+begin
+  if FMemo <> AMemo then begin
+    if FMemo <> nil then
+      FMemo.RemoveFreeNotification(Self);
+    FMemo := AMemo;
+    if FMemo <> nil then
+      FMemo.FreeNotification(Self);
+  end;
+  SetDocPointer;
 end;
 
 procedure TMinimap.UpdateFont(const AFont: TFont);

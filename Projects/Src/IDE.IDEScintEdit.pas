@@ -24,12 +24,14 @@ const
 
   { Memo marker icon and line marker numbers }
   mmiHasEntry = 0;        { grey dot }
+  mmiFirst = mmiHasEntry;
   mmiEntryProcessed = 1;  { green dot }
   mmiBreakpoint = 2;      { stop sign }
   mmiBreakpointGood = 3;  { stop sign + check }
   mmiBreakpointBad = 4;   { stop sign + X }
   mmiStep = 5;            { blue arrow }
   mmiBreakpointStep = 6;  { blue arrow on top of a stop sign + check }
+  mmiLast = mmiBreakpointStep;
   mmiMask = $7F;
 
   mlmError = 10;          { maroon line highlight }

@@ -1029,10 +1029,16 @@ constructor TMainForm.Create(AOwner: TComponent);
   procedure CreateMinimap;
   begin
     FMinimap := TMinimap.Create(Self);
+    FMinimap.Styler := FMemosStyler;
+    { ^ Must come before the minimap has a window: otherwise this assignment
+      clears the styling of the shared document, affecting the memo. See
+      TScintEdit.SetStyler. }
     FMinimap.StyleName := 'Windows';
     FMinimap.Visible := False;
     FMinimap.Parent := MemoPanel;
-    FMinimap.UpdateFont(FMainMemo.Font); { After setting Parent, whose rescaling of the font can round its size }
+    FMinimap.UpdateFont(FMainMemo.Font);
+    { ^ After setting Parent, whose rescaling of the font can round its size }
+    FMinimap.SetMemo(FActiveMemo);
   end;
 
   procedure ReadAndApplyConfig;
@@ -3741,6 +3747,8 @@ begin
       wrap on. }
     const KeepCaretInView = FOptions.WordWrap and
       FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
+    if AVisible then
+      FMinimap.SetMemo(FActiveMemo);
     FMinimap.Visible := AVisible;
     UpdateMinimapReservationsAndLayout;
     if KeepCaretInView then
@@ -4202,6 +4210,8 @@ begin
       SetInspectorActiveFactory;
     if NavigatorPanel.Visible then
       SetNavigatorActiveFactory;
+    if FMinimap.Visible then
+      FMinimap.SetMemo(FActiveMemo);
     UpdateMinimapLayout;
   end;
 end;
