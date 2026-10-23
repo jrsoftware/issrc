@@ -90,11 +90,14 @@ function GetSetupDirectiveDefaultValue(const DirectiveName: String): String;
 function FindSetupDirectiveValue(const DirectiveName: String): String;
 function FindSetupDirectiveValueAsBoolean(const DirectiveName: String): Boolean;
 function AnyInputDown: Boolean;
+function CalculateMinimapWidth(const RemainingWidth, VerticalScrollbarWidth: Integer;
+  const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
+  const MinimapMaxColumn, CaretRoomWidth, MinimapGutterWidth: Integer): Integer;
 
 implementation
 
 uses
-  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, StrUtils,
+  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, StrUtils, Math,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
   IDE.HtmlHelpFunc, IDE.MainForm, IDE.Messages, IDE.ScriptModel.Metadata;
 
@@ -1025,6 +1028,20 @@ begin
     if (GetAsyncKeyState(Key) < 0) and (MapVirtualKey(Key, MAPVK_VK_TO_VSC) <> 0) then
       Exit(True);
   Result := False;
+end;
+
+function CalculateMinimapWidth(const RemainingWidth, VerticalScrollbarWidth: Integer;
+  const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
+  const MinimapMaxColumn, CaretRoomWidth, MinimapGutterWidth: Integer): Integer;
+{ RemainingWidth should be the editor's whole width, vertical scrollbar
+  included, minus its gutter }
+begin
+  { VS Code's formula, see minimapWidth in
+    EditorLayoutInfoComputer._computeMinimapLayout }
+  const MinimapMaxWidth = Floor(MinimapMaxColumn * MinimapCharWidth);
+  Result := Min(MinimapMaxWidth, Max(0, Floor((RemainingWidth -
+    VerticalScrollbarWidth - CaretRoomWidth) * MinimapCharWidth /
+    (EditorTypicalHalfwidthCharWidth + MinimapCharWidth))) + MinimapGutterWidth);
 end;
 
 initialization

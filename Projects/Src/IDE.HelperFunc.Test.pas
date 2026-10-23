@@ -173,6 +173,27 @@ begin
   Assert(not TryStrToLanguage('', Language));
 end;
 
+procedure TestCalculateMinimapWidth;
+begin
+  { Floor((1017 - 17 - 2) * 2 / (8 + 2)) = 199, plus the minimap gutter }
+  Assert(CalculateMinimapWidth(1017, 17, 8, 2, 120, 2, 8) = 207);
+
+  { A wider editor character, such as after zooming in, leaves fewer columns }
+  Assert(CalculateMinimapWidth(1017, 17, 16, 2, 120, 2, 8) = 118);
+
+  { The cap is Floor(120 * 2) = 240, minimap gutter included }
+  Assert(CalculateMinimapWidth(1178, 17, 8, 2, 120, 2, 8) = 239);
+  Assert(CalculateMinimapWidth(1179, 17, 8, 2, 120, 2, 8) = 240);
+  Assert(CalculateMinimapWidth(2017, 17, 8, 2, 120, 2, 8) = 240);
+
+  { A fractional minimap character width floors the cap: Floor(120 * 1.9375) = 232 }
+  Assert(CalculateMinimapWidth(4017, 17, 8, 1.9375, 120, 2, 8) = 232);
+
+  { Without room for any column, only the minimap gutter is left }
+  Assert(CalculateMinimapWidth(19, 17, 8, 2, 120, 2, 8) = 8);
+  Assert(CalculateMinimapWidth(17, 17, 8, 2, 120, 2, 8) = 8);
+end;
+
 procedure IDEHelperFuncRunTests;
 begin
   TestStringHelpers;
@@ -183,6 +204,7 @@ begin
   TestSetLowPriority;
   TestGetSetupDirectiveDefaultValue;
   TestTryStrToLanguage;
+  TestCalculateMinimapWidth;
 end;
 
 {$IFDEF DEBUG}

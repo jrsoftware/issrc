@@ -608,6 +608,7 @@ type
     function GetMainFilename: String;
     function GetMainBaseDir: String;
     function GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
+    function GetMinimapWidth(const AMemo: TIDEScintEdit): Integer;
     function GetSignTools: TStringList;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
@@ -630,7 +631,7 @@ type
     procedure MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
-    procedure MemoResize(Sender: TObject);
+    procedure MemoResizeOrLineNumbersWidthChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
     class procedure MessageBoxCallback(const Flags: Cardinal; const After: Boolean;
@@ -683,6 +684,7 @@ type
     procedure UpdateMemosTabSetVisibility;
     procedure UpdateMinimapLayout;
     procedure UpdateMinimapReservation(const AMemo: TIDEScintEdit);
+    procedure UpdateMinimapReservationsAndLayout;
     procedure UpdateModifiedStatusPanel;
     procedure UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
@@ -826,10 +828,15 @@ const
   { Minimap widths, at 96 dpi. A memo's right margin (as set by
     SCI_SETMARGINRIGHT) contains, from left to right: the caret room, the
     minimap, and the vertical scrollbar's space while the scrollbar is hidden.
-    The minimap starts with the gap. }
-  MinimapFixedWidth = 100; { Temporary, will be non-fixed later }
-  MinimapGapWidth = 8;
+    The minimap starts with its gutter. }
+  MinimapGutterWidth = 8; { VS Code's MINIMAP_GUTTER_WIDTH }
   MinimapCaretRoomWidth = 2;
+
+  { VS Code's default for its editor.minimap.maxColumn setting, see
+    'maxColumn: 120' in src/vs/editor/common/config/editorOptions.ts. Note:
+    Column is VS Code's term for one minimap character, so the minimap, its
+    gutter included, is at most this many characters wide. }
+  MinimapMaxColumn = 120;
 
 procedure SaveBooleanOption(const OptionName: String; const Value: Boolean);
 begin
@@ -906,10 +913,11 @@ begin
   Memo.OnHintShow := MemoHintShow;
   Memo.OnKeyDown := MemoKeyDown;
   Memo.OnKeyPress := MemoKeyPress;
+  Memo.OnLineNumbersWidthChange := MemoResizeOrLineNumbersWidthChange;
   Memo.OnMarginClick := MemoMarginClick;
   Memo.OnMarginRightClick := MemoMarginRightClick;
   Memo.OnModifiedChange := MemoModifiedChange;
-  Memo.OnResize := MemoResize;
+  Memo.OnResize := MemoResizeOrLineNumbersWidthChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
   Memo.Parent := MemoPanel;
@@ -1021,9 +1029,7 @@ constructor TMainForm.Create(AOwner: TComponent);
     FMinimap.StyleName := 'Windows';
     FMinimap.Parent := MemoPanel;
     FMinimap.UpdateFont(FMainMemo.Font); { After setting Parent, whose rescaling of the font can round its size }
-    for var Memo in FMemos do
-      UpdateMinimapReservation(Memo);
-    UpdateMinimapLayout;
+    UpdateMinimapReservationsAndLayout;
   end;
 
   procedure ReadAndApplyConfig;
@@ -1169,6 +1175,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       end;
 
       SyncEditorOptions;
+      UpdateMinimapReservationsAndLayout;
       UpdateNewMainFileButtons;
       UpdateKeyMapping;
       UpdateFindRegExUI;
@@ -3728,6 +3735,32 @@ begin
     Result := 0;
 end;
 
+function TMainForm.GetMinimapWidth(const AMemo: TIDEScintEdit): Integer;
+
+  function GetTypicalHalfwidthCharWidth(const Edit: TScintEdit): Double;
+  begin
+    { Like VS Code, measures 'n' repeated 256 times, see
+      FontMeasurementsImpl._actualReadFontInfo, and DomCharWidthReader._render
+      and _readFromDomElements. This only matters for fractional character
+      widths, which GDI doesn't have. Currently GDI is used, so the repeat has
+      no effect. }
+    const RepeatCount = 256;
+    Result := Edit.Call(SCI_TEXTWIDTH, STYLE_DEFAULT,
+      AnsiString(StringOfChar('n', RepeatCount))) / RepeatCount;
+  end;
+
+begin
+  var RemainingWidth := AMemo.Width - AMemo.Call(SCI_GETMARGINLEFT, 0, 0);
+  for var Margin := 0 to AMemo.Call(SCI_GETMARGINS, 0, 0)-1 do
+    Dec(RemainingWidth, AMemo.Call(SCI_GETMARGINWIDTHN, Margin, 0));
+
+  { Always passes the vertical scrollbar's width, even while it's hidden:
+    otherwise the reservation could show or hide it through rewrapping }
+  Result := CalculateMinimapWidth(RemainingWidth, AMemo.GetSystemMetrics(SM_CXVSCROLL),
+    GetTypicalHalfwidthCharWidth(AMemo), GetTypicalHalfwidthCharWidth(FMinimap),
+    MinimapMaxColumn, ToCurrentPPI(MinimapCaretRoomWidth), ToCurrentPPI(MinimapGutterWidth));
+end;
+
 function TMainForm.GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
 { Returns the width AMemo should reserve right of its text, inside its client area.
   A shown vertical scrollbar already makes the client area smaller, so the
@@ -3737,7 +3770,7 @@ function TMainForm.GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
   text, which could show or hide the scrollbar again. }
 begin
   if FMinimap <> nil then
-    Result := ToCurrentPPI(MinimapFixedWidth) + ToCurrentPPI(MinimapCaretRoomWidth) +
+    Result := GetMinimapWidth(AMemo) + ToCurrentPPI(MinimapCaretRoomWidth) +
       GetVScrollWidthIfHidden(AMemo)
   else
     Result := 0;
@@ -3753,11 +3786,18 @@ begin
     AMemo.Call(SCI_SETMARGINRIGHT, 0, Reservation);
 end;
 
+procedure TMainForm.UpdateMinimapReservationsAndLayout;
+begin
+  for var Memo in FMemos do
+    UpdateMinimapReservation(Memo);
+  UpdateMinimapLayout;
+end;
+
 procedure TMainForm.UpdateMinimapLayout;
 begin
   if FMinimap <> nil then begin
-    FMinimap.GapWidth := ToCurrentPPI(MinimapGapWidth);
-    const MinimapWidth = ToCurrentPPI(MinimapFixedWidth);
+    FMinimap.GutterWidth :=ToCurrentPPI(MinimapGutterWidth);
+    const MinimapWidth = GetMinimapWidth(FActiveMemo);
     FMinimap.SetBounds(FActiveMemo.Left + FActiveMemo.ClientWidth -
       GetVScrollWidthIfHidden(FActiveMemo) - MinimapWidth, FActiveMemo.Top,
         MinimapWidth, FActiveMemo.ClientHeight);
@@ -4629,9 +4669,11 @@ begin
   var CaretWidth := ToCurrentPPI(2);
   var WhiteSpaceSize := CaretWidth;
 
-  for var Memo in FMemos do
+  for var Memo in FMemos do begin
     Memo.UpdateWidthsAndSizes(IconMarkersWidth, BaseChangeHistoryWidth, FolderMarkersWidth,
-      LeftBlankMarginWidth, GetMinimapReservation(Memo), SquigglyWidth, CaretWidth, WhiteSpaceSize);
+      LeftBlankMarginWidth, 0, SquigglyWidth, CaretWidth, WhiteSpaceSize);
+    UpdateMinimapReservation(Memo); { Depends on the margin widths set above }
+  end;
 
   UpdateMinimapLayout;
 end;
@@ -5922,10 +5964,11 @@ begin
     finally
       FSynchingZoom := False;
     end;
+    UpdateMinimapReservationsAndLayout;
   end;
 end;
 
-procedure TMainForm.MemoResize(Sender: TObject);
+procedure TMainForm.MemoResizeOrLineNumbersWidthChange(Sender: TObject);
 begin
   { Also runs when the vertical scrollbar shows or hides, which changes the
     reservation }

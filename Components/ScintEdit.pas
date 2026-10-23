@@ -135,6 +135,7 @@ type
     FOnCharAdded: TScintEditCharAddedEvent;
     FOnDropFiles: TScintEditDropFilesEvent;
     FOnHintShow: TScintEditHintShowEvent;
+    FOnLineNumbersWidthChange: TNotifyEvent;
     FOnMarginClick: TScintEditMarginClickEvent;
     FOnMarginRightClick: TScintEditMarginClickEvent;
     FOnModifiedChange: TNotifyEvent;
@@ -477,6 +478,7 @@ type
     property OnKeyDown;
     property OnKeyPress;
     property OnKeyUp;
+    property OnLineNumbersWidthChange: TNotifyEvent read FOnLineNumbersWidthChange write FOnLineNumbersWidthChange;
     property OnMarginClick: TScintEditMarginClickEvent read FOnMarginClick write FOnMarginClick;
     property OnMarginRightClick: TScintEditMarginClickEvent read FOnMarginRightClick write FOnMarginRightClick;
     property OnModifiedChange: TNotifyEvent read FOnModifiedChange write FOnModifiedChange;
@@ -2604,7 +2606,11 @@ begin
   end else
     PixelWidth := 0;
   
-  Call(SCI_SETMARGINWIDTHN, 0, PixelWidth);
+  if Call(SCI_GETMARGINWIDTHN, 0, 0) <> PixelWidth then begin
+    Call(SCI_SETMARGINWIDTHN, 0, PixelWidth);
+    if Assigned(FOnLineNumbersWidthChange) then
+      FOnLineNumbersWidthChange(Self);
+  end;
 end;
 
 procedure TScintEdit.UpdateStyleAttributes;
