@@ -367,6 +367,7 @@ type
     VNavigatorFocus: TMenuItem;
     VNavigatorFocusAndSelect: TMenuItem;
     N28: TMenuItem;
+    VMinimap: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -525,6 +526,7 @@ type
     procedure VNavigatorClick(Sender: TObject);
     procedure VNavigatorFocusClick(Sender: TObject);
     procedure NavigatorPanelResizeOrCaretInCodeSectionChange(Sender: TObject);
+    procedure VMinimapClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -652,6 +654,7 @@ type
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
     procedure SetInspectorActiveFactory;
     procedure SetInspectorVisible(const AVisible: Boolean);
+    procedure SetMinimapVisible(const AVisible: Boolean);
     procedure NavigatorComboBoxItemsChanged(Sender: TObject;
       const AComboBox: TComboBox);
     procedure SetNavigatorActiveFactory;
@@ -1027,9 +1030,9 @@ constructor TMainForm.Create(AOwner: TComponent);
   begin
     FMinimap := TMinimap.Create(Self);
     FMinimap.StyleName := 'Windows';
+    FMinimap.Visible := False;
     FMinimap.Parent := MemoPanel;
     FMinimap.UpdateFont(FMainMemo.Font); { After setting Parent, whose rescaling of the font can round its size }
-    UpdateMinimapReservationsAndLayout;
   end;
 
   procedure ReadAndApplyConfig;
@@ -1043,7 +1046,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Menu check boxes state }
       ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
-      { ShowNavigator and ShowInspector done below }
+      { ShowNavigator, ShowMinimap, and ShowInspector done below }
       FOptions.LowPriorityDuringCompile := Ini.ReadBool('Options', 'LowPriorityDuringCompile', False);
 
       { Configuration options - does not read ThemeType, see ReadAndUpdateTheme instead }
@@ -1175,7 +1178,6 @@ constructor TMainForm.Create(AOwner: TComponent);
       end;
 
       SyncEditorOptions;
-      UpdateMinimapReservationsAndLayout;
       UpdateNewMainFileButtons;
       UpdateKeyMapping;
       UpdateFindRegExUI;
@@ -1189,6 +1191,9 @@ constructor TMainForm.Create(AOwner: TComponent);
       StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
         (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(OutputTabSet.Height)));
       SetNavigatorVisible(Ini.ReadBool('Options', 'ShowNavigator', True));
+
+      { Minimap visibility }
+      SetMinimapVisible(Ini.ReadBool('Options', 'ShowMinimap', True));
 
       { Inspector widths and visibility }
       SyncInspectorOptions;
@@ -1359,6 +1364,7 @@ begin
   CreateNavigator; { Also hooks and must be after previous calls }
 
   CreateMinimap;
+  TWinControlMSAANameHook.Create(FMinimap, RemoveAccelChar(VMinimap.Caption));
 
   FMemosStyler.Theme := FTheme;
 
@@ -1459,6 +1465,7 @@ destructor TMainForm.Destroy;
       Ini.WriteBool('Options', 'ShowToolbar', ToolbarPanel.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
       Ini.WriteBool('Options', 'ShowNavigator', NavigatorPanel.Visible);
+      Ini.WriteBool('Options', 'ShowMinimap', FMinimap.Visible);
       Ini.WriteBool('Options', 'ShowInspector', InspectorPanel.Visible);
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
@@ -3726,6 +3733,27 @@ begin
   SetNavigatorVisible(not NavigatorPanel.Visible);
 end;
 
+procedure TMainForm.SetMinimapVisible(const AVisible: Boolean);
+begin
+  if FMinimap.Visible <> AVisible then begin
+    { Showing or hiding the minimap changes the width of the memos' text. See
+      SetInspectorVisible for why this keeps the caret in view only with word
+      wrap on. }
+    const KeepCaretInView = FOptions.WordWrap and
+      FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
+    FMinimap.Visible := AVisible;
+    UpdateMinimapReservationsAndLayout;
+    if KeepCaretInView then
+      FActiveMemo.ScrollCaretIntoView;
+  end;
+  VMinimap.Checked := AVisible;
+end;
+
+procedure TMainForm.VMinimapClick(Sender: TObject);
+begin
+  SetMinimapVisible(not FMinimap.Visible);
+end;
+
 function GetVScrollWidthIfHidden(const Memo: TScintEdit): Integer;
 begin
   { See the explanation in GetMinimapReservation below }
@@ -3769,7 +3797,7 @@ function TMainForm.GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
   the same when the scrollbar shows or hides, so word wrap never rewraps the
   text, which could show or hide the scrollbar again. }
 begin
-  if FMinimap <> nil then
+  if (FMinimap <> nil) and FMinimap.Visible then
     Result := GetMinimapWidth(AMemo) + ToCurrentPPI(MinimapCaretRoomWidth) +
       GetVScrollWidthIfHidden(AMemo)
   else
@@ -3795,8 +3823,8 @@ end;
 
 procedure TMainForm.UpdateMinimapLayout;
 begin
-  if FMinimap <> nil then begin
-    FMinimap.GutterWidth :=ToCurrentPPI(MinimapGutterWidth);
+  if (FMinimap <> nil) and FMinimap.Visible then begin
+    FMinimap.GutterWidth := ToCurrentPPI(MinimapGutterWidth);
     const MinimapWidth = GetMinimapWidth(FActiveMemo);
     FMinimap.SetBounds(FActiveMemo.Left + FActiveMemo.ClientWidth -
       GetVScrollWidthIfHidden(FActiveMemo) - MinimapWidth, FActiveMemo.Top,

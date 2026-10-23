@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ItalianIDETranslations: array [0..1012] of TTranslationPair = (
+  ItalianIDETranslations: array [0..1013] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Uso della riga di comando:'),
     (English: 'Examples:'; Localized: 'Esempi:'),
     (English: 'script file'; Localized: 'file di script'),
@@ -372,6 +372,7 @@ const
     (English: '&Reset'; Localized: '&Reimposta'),
     (English: '&Toolbar'; Localized: '&Barra degli strumenti'),
     (English: 'Na&vigator'; Localized: '&Navigatore'),
+    (English: '&Minimap'; Localized: '&Minimappa'),
     (English: '&Inspector'; Localized: '&Ispettore'),
     (English: 'St&atus Bar'; Localized: 'Barra di s&tato'),
     (English: '&Next Tab'; Localized: '&Scheda successiva'),

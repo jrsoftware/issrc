@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  FrenchIDETranslations: array [0..1012] of TTranslationPair = (
+  FrenchIDETranslations: array [0..1013] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Utilisation en ligne de commande :'),
     (English: 'Examples:'; Localized: 'Exemples :'),
     (English: 'script file'; Localized: 'fichier de script'),
@@ -371,6 +371,7 @@ const
     (English: '&Reset'; Localized: 'Ré&initialiser'),
     (English: '&Toolbar'; Localized: '&Barre d''outils'),
     (English: 'Na&vigator'; Localized: '&Navigateur'),
+    (English: '&Minimap'; Localized: 'Minim&ap'),
     (English: '&Inspector'; Localized: '&Inspecteur'),
     (English: 'St&atus Bar'; Localized: 'Barre d''é&tat'),
     (English: '&Next Tab'; Localized: 'Onglet &suivant'),

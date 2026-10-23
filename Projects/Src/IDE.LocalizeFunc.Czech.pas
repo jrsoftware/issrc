@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..1012] of TTranslationPair = (
+  CzechIDETranslations: array [0..1013] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -371,6 +371,7 @@ const
     (English: '&Reset'; Localized: 'O&bnovit'),
     (English: '&Toolbar'; Localized: 'Pa&nel nástrojů'),
     (English: 'Na&vigator'; Localized: 'Navi&gátor'),
+    (English: '&Minimap'; Localized: '&Minimapa'),
     (English: '&Inspector'; Localized: 'Insp&ektor'),
     (English: 'St&atus Bar'; Localized: '&Stavový řádek'),
     (English: '&Next Tab'; Localized: 'Další ka&rta'),
@@ -386,7 +387,7 @@ const
     (English: 'D&ebug Call Stack'; Localized: 'Záso&bník volání ladění'),
     (English: '&Find Results'; Localized: 'Výsledky &hledání'),
     (English: '&Hide Bottom Pane'; Localized: 'Skrýt &dolní podokno'),
-    (English: '&Word Wrap'; Localized: 'Zala&mování řádků'),
+    (English: '&Word Wrap'; Localized: '&Zalamování řádků'),
     (English: '&Go to'; Localized: '&Přejít'),
     (English: 'Show all known directives'; Localized: 'Zobrazovat všechny známé direktivy'),
     (English: 'Follow cursor'; Localized: 'Sledovat kurzor'),

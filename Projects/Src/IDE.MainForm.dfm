@@ -782,6 +782,10 @@ object MainForm: TMainForm
         Caption = 'Na&vigator'
         OnClick = VNavigatorClick
       end
+      object VMinimap: TMenuItem
+        Caption = '&Minimap'
+        OnClick = VMinimapClick
+      end
       object VInspector: TMenuItem
         Caption = '&Inspector'
         OnClick = VInspectorClick

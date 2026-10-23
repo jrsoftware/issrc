@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ChineseTraditionalIDETranslations: array [0..1012] of TTranslationPair = (
+  ChineseTraditionalIDETranslations: array [0..1013] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '命令列用法：'),
     (English: 'Examples:'; Localized: '範例：'),
     (English: 'script file'; Localized: '指令碼檔案'),
@@ -371,6 +371,7 @@ const
     (English: '&Reset'; Localized: '重設(&R)'),
     (English: '&Toolbar'; Localized: '工具列(&T)'),
     (English: 'Na&vigator'; Localized: '導覽器(&V)'),
+    (English: '&Minimap'; Localized: '縮圖(&M)'),
     (English: '&Inspector'; Localized: '檢查器(&I)'),
     (English: 'St&atus Bar'; Localized: '狀態列(&A)'),
     (English: '&Next Tab'; Localized: '下一個索引標籤(&N)'),

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  KoreanIDETranslations: array [0..1012] of TTranslationPair = (
+  KoreanIDETranslations: array [0..1013] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '명령줄 사용법:'),
     (English: 'Examples:'; Localized: '사용 예:'),
     (English: 'script file'; Localized: '스크립트 파일'),
@@ -371,6 +371,7 @@ const
     (English: '&Reset'; Localized: '다시 설정(&R)'),
     (English: '&Toolbar'; Localized: '도구 모음(&T)'),
     (English: 'Na&vigator'; Localized: '탐색기(&V)'),
+    (English: '&Minimap'; Localized: '미니맵(&M)'),
     (English: '&Inspector'; Localized: '검사기(&I)'),
     (English: 'St&atus Bar'; Localized: '상태 표시줄(&A)'),
     (English: '&Next Tab'; Localized: '다음 탭(&N)'),
