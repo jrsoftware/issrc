@@ -248,6 +248,7 @@ type
     procedure InitRawString(var S: TScintRawString; const Len: Integer);
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure Notify(const N: TSCNotification); virtual;
+    procedure Resize; override;
     procedure SetTarget(const StartPos, EndPos: Integer);
   public
     constructor Create(AOwner: TComponent); override;
@@ -482,6 +483,7 @@ type
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
+    property OnResize;
     property OnUpdateUI: TScintEditUpdateUIEvent read FOnUpdateUI write FOnUpdateUI;
     property OnZoom: TNotifyEvent read FOnZoom write FOnZoom;
   end;
@@ -1801,6 +1803,13 @@ function TScintEdit.ReplaceTextRange(const StartPos, EndPos: Integer;
   const S: String; const ReplaceMode: TScintReplaceMode): TScintRange;
 begin
   Result := ReplaceRawTextRange(StartPos, EndPos, ConvertStringToRawString(S), ReplaceMode);
+end;
+
+procedure TScintEdit.Resize;
+begin
+  { The window receives WM_SIZE while it's being created, before Call works }
+  if FDirectPtr <> nil then
+    inherited;
 end;
 
 procedure TScintEdit.RestyleLine(const Line: Integer);

@@ -28,7 +28,7 @@ uses
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
   Shared.DebugStruct, Shared.CompilerInt.Struct, Shared.ConfigIniFile, NewUxTheme, ImageList, ImgList, ToolWin,
-  IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.Navigator, IDE.LiveScriptObjectFactory,
+  IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.Navigator, IDE.Minimap, IDE.LiveScriptObjectFactory,
   VirtualImageList, BaseImageCollection, BitmapButton, NewStaticText;
 
 const
@@ -578,6 +578,7 @@ type
     FAllowUpdateInspectorPanelWidth: Boolean;
     FInAppOnActivate: Boolean;
     FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
+    FMinimap: TMinimap;
     procedure AppOnActivate(Sender: TObject);
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -606,6 +607,7 @@ type
     function GetBorderStyle: TFormBorderStyle;
     function GetMainFilename: String;
     function GetMainBaseDir: String;
+    function GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
     function GetSignTools: TStringList;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
@@ -628,6 +630,7 @@ type
     procedure MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
+    procedure MemoResize(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
     class procedure MessageBoxCallback(const Flags: Cardinal; const After: Boolean;
@@ -678,6 +681,8 @@ type
     procedure UpdateMarginsAndAutoCompleteIcons;
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
+    procedure UpdateMinimapLayout;
+    procedure UpdateMinimapReservation(const AMemo: TIDEScintEdit);
     procedure UpdateModifiedStatusPanel;
     procedure UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
@@ -818,6 +823,14 @@ const
 
   LineStateGrowAmount = 4000;
 
+  { Minimap widths, at 96 dpi. A memo's right margin (as set by
+    SCI_SETMARGINRIGHT) contains, from left to right: the caret room, the
+    minimap, and the vertical scrollbar's space while the scrollbar is hidden.
+    The minimap starts with the gap. }
+  MinimapFixedWidth = 100; { Temporary, will be non-fixed later }
+  MinimapGapWidth = 8;
+  MinimapCaretRoomWidth = 2;
+
 procedure SaveBooleanOption(const OptionName: String; const Value: Boolean);
 begin
   const Ini = TConfigIniFile.Create;
@@ -896,6 +909,7 @@ begin
   Memo.OnMarginClick := MemoMarginClick;
   Memo.OnMarginRightClick := MemoMarginRightClick;
   Memo.OnModifiedChange := MemoModifiedChange;
+  Memo.OnResize := MemoResize;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
   Memo.Parent := MemoPanel;
@@ -999,6 +1013,17 @@ constructor TMainForm.Create(AOwner: TComponent);
     FNavigator := TNavigator.Create(NavigatorComboBox, NavigatorComboBox2,
       LiveScriptObjectFactoryForMemo(FActiveMemo),
       NavigatorPanelResizeOrCaretInCodeSectionChange, NavigatorComboBoxItemsChanged);
+  end;
+
+  procedure CreateMinimap;
+  begin
+    FMinimap := TMinimap.Create(Self);
+    FMinimap.StyleName := 'Windows';
+    FMinimap.Parent := MemoPanel;
+    FMinimap.UpdateFont(FMainMemo.Font); { After setting Parent, whose rescaling of the font can round its size }
+    for var Memo in FMemos do
+      UpdateMinimapReservation(Memo);
+    UpdateMinimapLayout;
   end;
 
   procedure ReadAndApplyConfig;
@@ -1325,6 +1350,8 @@ begin
   TWinControlMSAANameHook.Create(NavigatorComboBox, NavigatorComboBox.Hint);
   TWinControlMSAANameHook.Create(NavigatorComboBox2, NavigatorComboBox2.Hint);
   CreateNavigator; { Also hooks and must be after previous calls }
+
+  CreateMinimap;
 
   FMemosStyler.Theme := FTheme;
 
@@ -3692,6 +3719,51 @@ begin
   SetNavigatorVisible(not NavigatorPanel.Visible);
 end;
 
+function GetVScrollWidthIfHidden(const Memo: TScintEdit): Integer;
+begin
+  { See the explanation in GetMinimapReservation below }
+  if GetWindowLong(Memo.Handle, GWL_STYLE) and WS_VSCROLL = 0 then
+    Result := Memo.GetSystemMetrics(SM_CXVSCROLL)
+  else
+    Result := 0;
+end;
+
+function TMainForm.GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
+{ Returns the width AMemo should reserve right of its text, inside its client area.
+  A shown vertical scrollbar already makes the client area smaller, so the
+  reservation leaves it out. A hidden one leaves its space to the client area,
+  so then the reservation includes that space. This keeps the memo's text width
+  the same when the scrollbar shows or hides, so word wrap never rewraps the
+  text, which could show or hide the scrollbar again. }
+begin
+  if FMinimap <> nil then
+    Result := ToCurrentPPI(MinimapFixedWidth) + ToCurrentPPI(MinimapCaretRoomWidth) +
+      GetVScrollWidthIfHidden(AMemo)
+  else
+    Result := 0;
+end;
+
+procedure TMainForm.UpdateMinimapReservation(const AMemo: TIDEScintEdit);
+begin
+  { The check avoids rewrapping all text on every resize, also when only the
+    height changes: SCI_SETMARGINRIGHT always invalidates the layout, even if
+    the value is unchanged, and with word wrap on that rewraps all text }
+  const Reservation = GetMinimapReservation(AMemo);
+  if AMemo.Call(SCI_GETMARGINRIGHT, 0, 0) <> Reservation then
+    AMemo.Call(SCI_SETMARGINRIGHT, 0, Reservation);
+end;
+
+procedure TMainForm.UpdateMinimapLayout;
+begin
+  if FMinimap <> nil then begin
+    FMinimap.GapWidth := ToCurrentPPI(MinimapGapWidth);
+    const MinimapWidth = ToCurrentPPI(MinimapFixedWidth);
+    FMinimap.SetBounds(FActiveMemo.Left + FActiveMemo.ClientWidth -
+      GetVScrollWidthIfHidden(FActiveMemo) - MinimapWidth, FActiveMemo.Top,
+        MinimapWidth, FActiveMemo.ClientHeight);
+  end;
+end;
+
 procedure TMainForm.FocusNavigator(const AOpenDropDown: Boolean);
 begin
   if NavigatorPanel.Visible then begin
@@ -4062,6 +4134,7 @@ begin
       SetInspectorActiveFactory;
     if NavigatorPanel.Visible then
       SetNavigatorActiveFactory;
+    UpdateMinimapLayout;
   end;
 end;
 
@@ -4543,9 +4616,10 @@ begin
 end;
 
 procedure TMainForm.UpdateMarginsAndSquigglyAndCaretWidths;
-{ Update the width of our two margins. Note: the width of the line numbers
-  margin is fully handled by TScintEdit. Should be called at startup and after
-  DPI change. }
+{ Update the widths of the memos' margins, including the minimap reservations,
+  and the minimap layout. Note: the width of the line numbers margin is fully
+  handled by TScintEdit. Should be called at startup, after DPI change, and
+  after options change. }
 begin
   var IconMarkersWidth := ToCurrentPPI(18); { 3 pixel margin on both sides of the icon }
   var BaseChangeHistoryWidth := ToCurrentPPI(6); { 6 = 2 pixel bar with 2 pixel margin on both sides because: "SC_MARK_BAR ... takes ... 1/3 of the margin width" }
@@ -4557,7 +4631,9 @@ begin
 
   for var Memo in FMemos do
     Memo.UpdateWidthsAndSizes(IconMarkersWidth, BaseChangeHistoryWidth, FolderMarkersWidth,
-      LeftBlankMarginWidth, 0, SquigglyWidth, CaretWidth, WhiteSpaceSize);
+      LeftBlankMarginWidth, GetMinimapReservation(Memo), SquigglyWidth, CaretWidth, WhiteSpaceSize);
+
+  UpdateMinimapLayout;
 end;
 
 procedure TMainForm.StatusSplitPanelMouseMove(Sender: TObject;
@@ -5849,6 +5925,16 @@ begin
   end;
 end;
 
+procedure TMainForm.MemoResize(Sender: TObject);
+begin
+  { Also runs when the vertical scrollbar shows or hides, which changes the
+    reservation }
+  const Memo = Sender as TIDEScintEdit;
+  UpdateMinimapReservation(Memo);
+  if Memo = FActiveMemo then
+    UpdateMinimapLayout;
+end;
+
 procedure TMainForm.StatusBarResize(Sender: TObject);
 begin
   { Without this, on Windows XP with themes, the status bar's size grip gets
@@ -6519,6 +6605,7 @@ begin
     The following components (and any children) ignore the active style because
     their StyleName is set to 'Windows' always, either by the .dfm or by code:
     - FMemos
+    - FMinimap
     - ToolbarPanel
     - UpdatePanel
     - StatusSplitPanel
