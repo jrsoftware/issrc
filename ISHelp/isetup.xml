@@ -5028,7 +5028,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <p>A license key is a string of at least 108 characters. It always starts with <tt>in</tt> and ends with <tt>no</tt>. To users the key is presented as multiple lines of 28 characters per line.</p>
 
-<p>Please note that installers built without a license are not explicitly marked as unlicensed. This means you may choose not to install the license key on a CI machine, even if we ask you to assign a license to it.</p>
+<p>Please note that installers built without a license are not explicitly marked as unlicensed. This means you may choose not to install the license key on CI machines, even though we ask you to <extlink href="https://jrsoftware.org/isorder.php#howmanylicenses">assign licenses to them</extlink>.</p>
 
 <p>Also see <link topic="donate">Donate to Inno Setup</link>.</p>
 
