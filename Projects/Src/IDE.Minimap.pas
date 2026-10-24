@@ -112,12 +112,12 @@ end;
 
 procedure TMinimap.Notify(const N: TSCNotification);
 begin
-  { Undo and redo make every view scroll its caret into view, also sideways.
+  { Undo and redo make every view scroll its caret into view, also horizontally.
     Detect and fix using SCN_UPDATEUI. Comes before the paint so doesn't
     cause flicker. }
   if (N.nmhdr.code = SCN_UPDATEUI) and (N.updated and SC_UPDATE_H_SCROLL <> 0) and
      (Call(SCI_GETXOFFSET, 0, 0) <> 0) then { Check because SCI_SETXOFFSET always repaints }
-    Call(SCI_SETXOFFSET, 0, 0);
+    Call(SCI_SETXOFFSET, 0, 0); { Safe: queues another SCN_UPDATEUI but Scintilla then discards it on return }
   inherited;
 end;
 
