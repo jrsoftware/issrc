@@ -20,11 +20,17 @@ uses
 type
   TMinimap = class(TIDEScintEdit)
   private
-    FGutterWidth: Integer;
-    FMemo: TIDEScintEdit;
-    procedure SetDocPointer;
-    procedure SetGutterWidth(const Value: Integer);
-    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
+    type
+      TMinimapLayout = record
+        LineCount, MinimapLinesFitting, ViewportStartLine, ViewportLineCount: Integer;
+      end;
+    var
+      FGutterWidth: Integer;
+      FMemo: TIDEScintEdit;
+      function GetMinimapLayout: TMinimapLayout;
+      procedure SetDocPointer;
+      procedure SetGutterWidth(const Value: Integer);
+      procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
   protected
     procedure CreateWnd; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -105,6 +111,31 @@ begin
   SetDocPointer;
 end;
 
+function TMinimap.GetMinimapLayout: TMinimapLayout;
+begin
+  { When nothing changed, such as on a caret blink, each Scintilla call below
+    just reads stored values, except GetDocLineFromVisibleLine, which does a
+    binary search over the document lines when the memo folds or wraps. Even
+    with 100,000 lines, this routine was measured to only take about 8
+    microseconds. }
+
+  Result.LineCount := GetVisibleLineFromDocLine(Lines.Count);
+  Result.MinimapLinesFitting := LinesInWindow;
+
+  const MemoTopLine = FMemo.TopLine;
+  const MemoLastDocLine = FMemo.Lines.Count-1;
+  { Wrapping and folding are per view, so the memo's visible lines can differ
+    from the minimap's: convert through the document lines they share }
+  const MemoFirstVisibleDocLine = FMemo.GetDocLineFromVisibleLine(MemoTopLine);
+  const MemoLastFullyVisibleDocLine = Min(FMemo.GetDocLineFromVisibleLine(MemoTopLine +
+    FMemo.LinesInWindow - 1), MemoLastDocLine);
+
+  { The viewport is the slider: the minimap's lines of what the memo shows }
+  Result.ViewportStartLine := GetVisibleLineFromDocLine(MemoFirstVisibleDocLine);
+  Result.ViewportLineCount := GetVisibleLineFromDocLine(MemoLastFullyVisibleDocLine + 1) -
+    Result.ViewportStartLine;
+end;
+
 procedure TMinimap.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
@@ -158,29 +189,9 @@ begin
   if (FMemo = nil) or not HandleAllocated or not Visible then
     Exit;
 
-  { When nothing changed, such as on a caret blink, each Scintilla call below
-    just reads stored values, except GetDocLineFromVisibleLine, which does a
-    binary search over the document lines when the memo folds or wraps. Even
-    with 100,000 lines, this routine was measured to only take about 8
-    microseconds. }
-
-  const VisibleLineCount = GetVisibleLineFromDocLine(Lines.Count);
-
-  const MemoTopLine = FMemo.TopLine;
-  const MemoLastDocLine = FMemo.Lines.Count-1;
-  { Wrapping and folding are per view, so the memo's visible lines can differ
-    from the minimap's: convert through the document lines they share }
-  const MemoFirstVisibleDocLine = FMemo.GetDocLineFromVisibleLine(MemoTopLine);
-  const MemoLastFullyVisibleDocLine = Min(FMemo.GetDocLineFromVisibleLine(MemoTopLine +
-    FMemo.LinesInWindow - 1), MemoLastDocLine);
-
-  { The viewport is the slider: the minimap's lines of what the memo shows }
-  const ViewportStartLine = GetVisibleLineFromDocLine(MemoFirstVisibleDocLine);
-  const ViewportLineCount = GetVisibleLineFromDocLine(MemoLastFullyVisibleDocLine + 1) -
-    ViewportStartLine;
-
-  TopLine := CalculateMinimapTopLine(VisibleLineCount, LinesInWindow,
-    ViewportStartLine, ViewportLineCount);
+  const MinimapLayout = GetMinimapLayout;
+  TopLine := CalculateMinimapTopLine(MinimapLayout.LineCount, MinimapLayout.MinimapLinesFitting,
+    MinimapLayout.ViewportStartLine, MinimapLayout.ViewportLineCount);
 end;
 
 procedure TMinimap.UpdateFont(const AFont: TFont);
