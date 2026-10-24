@@ -40,7 +40,7 @@ type
 implementation
 
 uses
-  Windows, ActiveX;
+  ActiveX;
 
 const
   { VS Code's minimap with its default scale draws each character 1 device
@@ -116,11 +116,8 @@ end;
 
 procedure TMinimap.SetDocPointer;
 begin
-  if (FMemo <> nil) and HandleAllocated then begin
-    { Not using FMemo.Call: its Integer result can't hold a pointer }
-    const Document = SendMessage(FMemo.Handle, SCI_GETDOCPOINTER, 0, 0);
-    Call(SCI_SETDOCPOINTER, 0, Document);
-  end;
+  if (FMemo <> nil) and HandleAllocated then
+    DocumentPointer := FMemo.DocumentPointer;
 end;
 
 procedure TMinimap.SetGutterWidth(const Value: Integer);

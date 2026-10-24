@@ -160,6 +160,7 @@ type
     function GetCaretLineText: String;
     function GetCaretPosition: Integer;
     function GetCaretVirtualSpace: Integer;
+    function GetDocumentPointer: Pointer;
     function GetInsertMode: Boolean;
     function GetLineEndings: TScintLineEndings;
     function GetLineEndingString: TScintRawString;
@@ -196,6 +197,7 @@ type
     procedure SetCaretPositionWithSelectFromAnchor(const Value: Integer);
     procedure SetCaretVirtualSpace(const Value: Integer);
     procedure SetChangeHistory(const Value: TScintChangeHistory);
+    procedure SetDocumentPointer(const Value: Pointer);
     procedure SetFillSelectionToEdge(const Value: Boolean);
     procedure SetFoldFlags(const Value: TScintFoldFlags);
     procedure SetIndentationGuides(const Value: TScintIndentationGuides);
@@ -408,6 +410,7 @@ type
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
     property CaretPositionWithSelectFromAnchor: Integer write SetCaretPositionWithSelectFromAnchor;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
+    property DocumentPointer: Pointer read GetDocumentPointer write SetDocumentPointer;
     property EffectiveCodePage: Word read FEffectiveCodePage;
     property FoldFlags: TScintFoldFlags write SetFoldFlags;
     property InsertMode: Boolean read GetInsertMode;
@@ -1173,6 +1176,12 @@ end;
 function TScintEdit.GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
 begin
   Result := Call(SCI_DOCLINEFROMVISIBLE, VisibleLine, 0);
+end;
+
+function TScintEdit.GetDocumentPointer: Pointer;
+begin
+  { Not using Call: its Integer result can't hold a pointer }
+  Result := Pointer(SendMessage(Handle, SCI_GETDOCPOINTER, 0, 0));
 end;
 
 function TScintEdit.GetIndicatorAtPosition(
@@ -2022,6 +2031,74 @@ end;
 procedure TScintEdit.SetDefaultWordChars;
 begin
   SetWordChars(GetDefaultWordChars);
+end;
+
+procedure TScintEdit.SetDocumentPointer(const Value: Pointer);
+{ Makes this view (this TScintEdit) show the document of another: set it to
+  the DocumentPointer of that view. Set it to nil to show a new, empty
+  document, with the Scintilla defaults for its document-level settings.
+  Resets the selections, the target, brace highlighting, folding, and
+  extended styles of this view.
+
+  Each setting is either document-level (shared by all views of a document), or
+  view-level (kept by each view). The Scintilla documentation tells the level of
+  only a few settings, such as SCI_SETREADONLY: "the read-only flag for the
+  document", and folding: "Line visibility is a property of the view". For the
+  other settings, find the message in Editor::WndProc in Scintilla's Editor.cxx,
+  or in ScintillaBase::WndProc for autocompletion and call tips. If the message
+  changes pdoc, the setting is document-level. If it changes vs, sel, pcs or
+  another field of the editor, the setting is view-level.
+
+  Document-level: RawText, Lines, Lines.State, ReadOnly, LineEndings,
+  TabWidth, UseTabCharacter, WordChars, SetLineIndentation, and the undo
+  history: Undo, Redo, BeginUndoAction, EndUndoAction, ClearUndo and
+  SetSavePoint.
+
+  View-level: AcceptDroppedFiles, AutoCompleteFontName, AutoCompleteFontSize,
+  Color, FillSelectionToEdge, FoldFlags, Font, IndentationGuides, InsertMode,
+  LineNumbers, MainSelection, Target, TopLine, UseStyleAttributes,
+  VirtualSpaceOptions, WordWrap, Zoom, and the Caret* and Selection*
+  properties. Also what AssignCmdKey, ClearCmdKey, EnsureLineVisible,
+  FoldLine, SetAutoComplete*, SetBraceBadHighlighting, SetBraceHighlighting,
+  SetCallTipHighlight and SetCursorID set.
+
+  Special:
+  -AddMarker, DeleteMarker, GetMarkers, SetIndicators, ClearIndicators and
+   GetIndicatorAtPosition are document-level, but GetMarkers also returns
+   change history markers if this view shows change history as markers. The
+   appearance of markers and indicators, set with SCI_MARKERDEFINE and
+   SCI_INDICSET*, is view-level.
+  -ChangeHistory: recording changes is document-level, showing them is
+   view-level. A view starts showing them only at ClearUndo, which clears the
+   undo history of the document for all its views.
+  -Styler: its styling, line states and fold levels are document-level, its
+   style attributes are view-level. Only one of the views does the styling,
+   using its own Styler and ReportCaretPositionToStyler. Give all views the
+   same Styler, and assign it before the handle is allocated: else it clears
+   the styling of the document.
+  -CodePage, EffectiveCodePage, TabWidth, UseTabCharacter and WordChars: each
+   TScintEdit keeps its own copy, which setting DocumentPointer doesn't
+   update. Give all views of a document the same values. Also, ApplyOptions
+   sets all its options together. Thus, a change to a view-level option such
+   as WordWrap also sets TabWidth and UseTabCharacter for the document. If
+   ChangeHistory is schDisabled, the change also disables change history for
+   the document.
+  -Modified is document-level, except for ForceModifiedState, which is
+   view-level.
+  -OnChange and OnModifiedChange occur for each view, because changes to the
+   document notify all its views. }
+begin
+  { Add temporary reference, otherwise assigning the document of this view to
+    itself could free the document }
+  if Value <> nil then
+    Call(SCI_ADDREFDOCUMENT, 0, LPARAM(Value));
+  try
+    Call(SCI_SETDOCPOINTER, 0, LPARAM(Value));
+  finally
+    if Value <> nil then
+      Call(SCI_RELEASEDOCUMENT, 0, LPARAM(Value));
+  end;
+  UpdateLineNumbersWidth; { The line count of the new document can differ }
 end;
 
 procedure TScintEdit.SetEmptySelection;
