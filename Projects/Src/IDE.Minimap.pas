@@ -13,7 +13,7 @@ interface
 
 uses
   Messages,
-  Classes, Graphics,
+  Types, Classes, Graphics, Controls,
   ScintInt,
   IDE.IDEScintEdit;
 
@@ -26,13 +26,19 @@ type
       end;
     var
       FGutterWidth: Integer;
+      FHovering, FHoveringSlider: Boolean;
+      FLastSliderRect: TRect;
       FMemo: TIDEScintEdit;
+      procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
+      procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
       function GetMinimapLayout: TMinimapLayout;
+      function GetSliderRect(const MinimapLayout: TMinimapLayout): TRect;
       procedure SetDocPointer;
       procedure SetGutterWidth(const Value: Integer);
       procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
   protected
     procedure CreateWnd; override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure Notify(const N: TSCNotification); override;
     procedure WndProc(var Message: TMessage); override;
@@ -50,6 +56,7 @@ implementation
 uses
   Windows, ActiveX,
   Math,
+  ModernColors,
   IDE.HelperFunc;
 
 const
@@ -67,6 +74,21 @@ begin
   ParentShowHint := False;
   ShowHint := False;
   TabStop := False;
+end;
+
+procedure TMinimap.CMMouseEnter(var Message: TMessage);
+begin
+  FHovering := True;
+  Invalidate;
+  inherited;
+end;
+
+procedure TMinimap.CMMouseLeave(var Message: TMessage);
+begin
+  FHovering := False;
+  FHoveringSlider := False;
+  Invalidate;
+  inherited;
 end;
 
 procedure TMinimap.CreateWnd;
@@ -136,6 +158,22 @@ begin
     Result.ViewportStartLine;
 end;
 
+function TMinimap.GetSliderRect(const MinimapLayout: TMinimapLayout): TRect;
+begin
+  Result := Bounds(0, (MinimapLayout.ViewportStartLine - TopLine) * LineHeight, ClientWidth,
+    MinimapLayout.ViewportLineCount * LineHeight);
+end;
+
+procedure TMinimap.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  const HoveringSlider = (FMemo <> nil) and PtInRect(GetSliderRect(GetMinimapLayout), Point(X, Y));
+  if FHoveringSlider <> HoveringSlider then begin
+    FHoveringSlider := HoveringSlider;
+    Invalidate;
+  end;
+end;
+
 procedure TMinimap.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
@@ -192,6 +230,18 @@ begin
   const MinimapLayout = GetMinimapLayout;
   TopLine := CalculateMinimapTopLine(MinimapLayout.LineCount, MinimapLayout.MinimapLinesFitting,
     MinimapLayout.ViewportStartLine, MinimapLayout.ViewportLineCount);
+
+  const SliderRect = GetSliderRect(MinimapLayout);
+  if SliderRect <> FLastSliderRect then begin
+    FLastSliderRect := SliderRect;
+    if FHovering then begin
+      { The memo's scroll, or the minimap's own, may have moved the slider
+        under the mouse, or away from it }
+      var CursorPos: TPoint;
+      FHoveringSlider := GetCursorPos(CursorPos) and PtInRect(SliderRect, ScreenToClient(CursorPos));
+      Invalidate;
+    end;
+  end;
 end;
 
 procedure TMinimap.UpdateFont(const AFont: TFont);
@@ -214,6 +264,39 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
   procedure PrintClient(const DC: HDC);
   begin
     CallWindowProc(DefWndProc, Handle, WM_PRINTCLIENT, WPARAM(DC), PRF_CLIENT);
+  end;
+
+  procedure DrawSlider(const DC: HDC; const SliderRect: TRect);
+  const
+    SliderAlphas: array[TThemeType, Boolean] of Byte = ((40, 70), (25, 33), (31, 54)); { This gives the colors of VS Code's slider }
+  begin
+    const SliderDC = CreateCompatibleDC(DC);
+    if SliderDC = 0 then
+      Exit;
+    try
+      const SliderBitmap = CreateCompatibleBitmap(DC, 1, 1);
+      if SliderBitmap = 0 then
+        Exit;
+      try
+        const OldBitmap = SelectObject(SliderDC, SliderBitmap);
+        try
+          SetPixel(SliderDC, 0, 0, COLORREF(ColorToRGB(Theme.Colors[tcFore])));
+          var BlendFunction: TBlendFunction;
+          BlendFunction.BlendOp := AC_SRC_OVER;
+          BlendFunction.BlendFlags := 0;
+          BlendFunction.SourceConstantAlpha := SliderAlphas[Theme.Typ, FHoveringSlider];
+          BlendFunction.AlphaFormat := 0;
+          AlphaBlend(DC, SliderRect.Left, SliderRect.Top, SliderRect.Width,
+            SliderRect.Height, SliderDC, 0, 0, 1, 1, BlendFunction);
+        finally
+          SelectObject(SliderDC, OldBitmap);
+        end;
+      finally
+        DeleteObject(SliderBitmap);
+      end;
+    finally
+      DeleteDC(SliderDC);
+    end;
   end;
 
   function PaintToBitmap(const DC: HDC): Boolean;
@@ -243,6 +326,8 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
             Color, ContrastBoosts[(Theme <> nil) and Theme.Dark]);
           { ^ Color could be the wrong background for lines with a line marker and
               for text with an indicator, but the effect is negligible }
+          if FHovering and (FMemo <> nil) and (Theme <> nil) then
+            DrawSlider(MemoryDC, GetSliderRect(GetMinimapLayout));
           Result := BitBlt(DC, 0, 0, BitmapWidth, BitmapHeight, MemoryDC, 0, 0, SRCCOPY);
         finally
           SelectObject(MemoryDC, OldBitmap);
