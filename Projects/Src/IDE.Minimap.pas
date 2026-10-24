@@ -24,6 +24,7 @@ type
     FMemo: TIDEScintEdit;
     procedure SetDocPointer;
     procedure SetGutterWidth(const Value: Integer);
+    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
   protected
     procedure CreateWnd; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
@@ -40,7 +41,8 @@ type
 implementation
 
 uses
-  ActiveX;
+  Windows, ActiveX,
+  IDE.HelperFunc;
 
 const
   { VS Code's minimap with its default scale draws each character 1 device
@@ -151,6 +153,60 @@ end;
 procedure TMinimap.UpdateTheme;
 begin
   UpdateThemeColorsAndStyleAttributes;
+end;
+
+procedure TMinimap.WMPaint(var Message: TWMPaint);
+{ Paints Scintilla's content into a bitmap first, so we can make changes to it
+  ourselves afterwards. Uses WM_PRINTCLIENT because Scintilla's own WM_PAINT
+  ignores Message.DC and paints straight to the screen. }
+
+  procedure PrintClient(const DC: HDC);
+  begin
+    CallWindowProc(DefWndProc, Handle, WM_PRINTCLIENT, WPARAM(DC), PRF_CLIENT);
+  end;
+
+  function PaintToBitmap(const DC: HDC): Boolean;
+  begin
+    const MemoryDC = CreateCompatibleDC(DC);
+    if MemoryDC = 0 then
+      Exit(False);
+    try
+      const BitmapWidth = ClientWidth;
+      const BitmapHeight = ClientHeight;
+      var pvBits: Pointer;
+      const Bitmap = CreateDIBSection(DC, CreateBitmapInfo(BitmapWidth, -BitmapHeight, 32),
+        DIB_RGB_COLORS, pvBits, 0, 0);
+      if Bitmap = 0 then
+        Exit(False);
+      try
+        const OldBitmap = SelectObject(MemoryDC, Bitmap);
+        try
+          PrintClient(MemoryDC);
+          Result := BitBlt(DC, 0, 0, BitmapWidth, BitmapHeight, MemoryDC, 0, 0, SRCCOPY);
+        finally
+          SelectObject(MemoryDC, OldBitmap);
+        end;
+      finally
+        DeleteObject(Bitmap);
+      end;
+    finally
+      DeleteDC(MemoryDC);
+    end;
+  end;
+
+begin
+  { Similar to TWinControl.PaintHandler }
+  var PaintStruct: TPaintStruct;
+  var DC := Message.DC;
+  if DC = 0 then
+    DC := BeginPaint(Handle, PaintStruct);
+  try
+    if not PaintToBitmap(DC) then
+      PrintClient(DC);
+  finally
+    if Message.DC = 0 then
+      EndPaint(Handle, PaintStruct);
+  end;
 end;
 
 procedure TMinimap.WndProc(var Message: TMessage);

@@ -4609,8 +4609,8 @@ type
   begin
     { Prepare a bitmap and select it }
     var pvBits: Pointer;
-    var Bitmap := CreateDIBSection(DC, BitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
-    var OldBitmap := SelectObject(DC, Bitmap);
+    const Bitmap = CreateDIBSection(DC, BitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    const OldBitmap = SelectObject(DC, Bitmap);
 
     { Fill the entire bitmap to avoid any alpha so we don't have to worry about
       whether will be premultiplied or not (it was in tests) when Scintilla wants
