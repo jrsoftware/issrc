@@ -19,7 +19,7 @@ implementation
 
 uses
   Windows,
-  SysUtils, Classes, StrUtils, Dialogs, Menus,
+  SysUtils, Classes, StrUtils, Dialogs, Menus, Graphics,
   ScintEdit,
   IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc;
 
@@ -194,6 +194,95 @@ begin
   Assert(CalculateMinimapWidth(17, 17, 8, 2, 120, 2, 8) = 8);
 end;
 
+procedure TestBoostTextContrast;
+
+  function Boost(const BackgroundColor, PixelColor: TColor;
+    const ContrastBoost: Double = 3): TColor;
+  begin
+    var Pixel: TRGBQuad;
+    Pixel.rgbBlue := GetBValue(DWORD(PixelColor));
+    Pixel.rgbGreen := GetGValue(DWORD(PixelColor));
+    Pixel.rgbRed := GetRValue(DWORD(PixelColor));
+    Pixel.rgbReserved := 0;
+    BoostTextContrast(@Pixel, 1, 1, 0, BackgroundColor, ContrastBoost);
+    Assert(Pixel.rgbReserved = 0);
+    Result := TColor(RGB(Pixel.rgbRed, Pixel.rgbGreen, Pixel.rgbBlue));
+  end;
+
+var
+  Pixels: array[0..1, 0..2] of TRGBQuad;
+begin
+  { The background stays as it is }
+  Assert(Boost($FFFFFF, $FFFFFF) = $FFFFFF);
+  Assert(Boost($1F1F1F, $1F1F1F) = $1F1F1F);
+
+  { Fully saturated pixels stay as they are, also when not all channels are,
+    such as the error line's background, or the step line's with only one }
+  Assert(Boost($FFFFFF, $000000) = $000000);
+  Assert(Boost($FFFFFF, $000080) = $000080);
+  Assert(Boost($FFFFFF, $D47800) = $D47800);
+  Assert(Boost($808080, $FFFFFF) = $FFFFFF);
+
+  { Pixels lighter than the background are boosted too: 64 * 4 / (128 / 255 * 3 + 1)
+    rounds to 102 }
+  Assert(Boost($808080, $C0C0C0) = $E6E6E6);
+
+  { Faint pixels get about k+1 times stronger: 1 * 4 / (1 / 255 * 3 + 1) and
+    10 * 4 / (10 / 255 * 3 + 1) round to 4 and 36 }
+  Assert(Boost($FFFFFF, $FEFEFE) = $FBFBFB);
+  Assert(Boost($FFFFFF, $F5F5F5) = $DBDBDB);
+
+  { Light theme gray text at full coverage: 143 * 3 / (143 / 255 * 2 + 1) rounds to 202 }
+  Assert(Boost($FFFFFF, $707070, 2) = $353535);
+
+  { The hue stays: the channel differences 100, 50, and 0 become 184, 92, and 0 }
+  Assert(Boost($FFFFFF, $FFCD9B) = $FFA347);
+
+  { A stronger pixel stays stronger, and no pixel gets weaker }
+  var Previous := 255;
+  for var I := 255 downto 0 do begin
+    const Boosted = GetRValue(DWORD(Boost($FFFFFF, I * $010101)));
+    Assert((Boosted <= I) and (Boosted <= Previous));
+    Previous := Boosted;
+  end;
+
+  { A negative k weakens faint pixels instead, but leaves the background and
+    saturated pixels alone: 32 * 0.5 / (1 - 36 / 255 * 0.5) rounds to 17 }
+  Assert(Boost($1F1F1F, $1F1F1F, -0.5) = $1F1F1F);
+  Assert(Boost($1F1F1F, $000080, -0.5) = $000080);
+  Assert(Boost($1F1F1F, $3F3F3F, -0.5) = $303030);
+
+  { With a negative k a stronger pixel stays stronger too, and no pixel gets
+    stronger }
+  Previous := $1F;
+  for var I := $1F to 255 do begin
+    const Weakened = GetRValue(DWORD(Boost($1F1F1F, I * $010101, -0.5)));
+    Assert((Weakened >= $1F) and (Weakened <= I) and (Weakened >= Previous));
+    Previous := Weakened;
+  end;
+
+  { Every row is boosted, but only from Left on }
+  const Left = 1;
+  for var Y := Low(Pixels) to High(Pixels) do begin
+    for var X := Low(Pixels[Y]) to High(Pixels[Y]) do begin
+      Pixels[Y, X].rgbBlue := $70;
+      Pixels[Y, X].rgbGreen := $70;
+      Pixels[Y, X].rgbRed := $70;
+      Pixels[Y, X].rgbReserved := 0;
+    end;
+  end;
+  BoostTextContrast(@Pixels[0, 0], Length(Pixels[0]), Length(Pixels), Left, $FFFFFF, 3);
+  for var Y := Low(Pixels) to High(Pixels) do begin
+    for var X := Low(Pixels[Y]) to High(Pixels[Y]) do begin
+      var Expected := $2A;
+      if X < Left then
+        Expected := $70;
+      Assert((Pixels[Y, X].rgbBlue = Expected) and (Pixels[Y, X].rgbGreen = Expected) and
+        (Pixels[Y, X].rgbRed = Expected));
+    end;
+  end;
+end;
+
 procedure IDEHelperFuncRunTests;
 begin
   TestStringHelpers;
@@ -205,6 +294,7 @@ begin
   TestGetSetupDirectiveDefaultValue;
   TestTryStrToLanguage;
   TestCalculateMinimapWidth;
+  TestBoostTextContrast;
 end;
 
 {$IFDEF DEBUG}

@@ -79,6 +79,11 @@ begin
   { Regular cursor always }
   SetCursorID(SC_CURSORARROW);
 
+  { Grayscale anti-aliasing, because Windows' default ClearType gives the
+    edges of characters a colored tint, which the contrast boost would make
+    stronger }
+  Call(SCI_SETFONTQUALITY, SC_EFF_QUALITY_ANTIALIASED, 0);
+
   { Use the entire gutter for a single margin showing change history }
   for var Margin := 0 to Call(SCI_GETMARGINS, 0, 0)-1 do
     Call(SCI_SETMARGINWIDTHN, Margin, 0);
@@ -153,6 +158,7 @@ end;
 procedure TMinimap.UpdateTheme;
 begin
   UpdateThemeColorsAndStyleAttributes;
+  Invalidate; { WMPaint depends on the theme }
 end;
 
 procedure TMinimap.WMPaint(var Message: TWMPaint);
@@ -166,6 +172,11 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
   end;
 
   function PaintToBitmap(const DC: HDC): Boolean;
+  const
+    { On a light background, anti-aliased text this small is too faint, so
+      it's strengthened. On a dark background it's brighter than VS Code's
+      minimap, so it's dimmed instead. }
+    ContrastBoosts: array[Boolean] of Double = (2, -0.5);
   begin
     const MemoryDC = CreateCompatibleDC(DC);
     if MemoryDC = 0 then
@@ -182,6 +193,11 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
         const OldBitmap = SelectObject(MemoryDC, Bitmap);
         try
           PrintClient(MemoryDC);
+          GdiFlush; { See CreateDIBSection's documentation }
+          BoostTextContrast(pvBits, BitmapWidth, BitmapHeight, FGutterWidth,
+            Color, ContrastBoosts[(Theme <> nil) and Theme.Dark]);
+          { ^ Color could be the wrong background for lines with a line marker and
+              for text with an indicator, but the effect is negligible }
           Result := BitBlt(DC, 0, 0, BitmapWidth, BitmapHeight, MemoryDC, 0, 0, SRCCOPY);
         finally
           SelectObject(MemoryDC, OldBitmap);

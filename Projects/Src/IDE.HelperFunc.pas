@@ -93,6 +93,8 @@ function AnyInputDown: Boolean;
 function CalculateMinimapWidth(const RemainingWidth, VerticalScrollbarWidth: Integer;
   const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
   const MinimapMaxColumn, CaretRoomWidth, MinimapGutterWidth: Integer): Integer;
+procedure BoostTextContrast(const pvBits: PRGBQuad; const BitmapWidth, BitmapHeight, Left: Integer;
+  const BackgroundColor: TColor; const ContrastBoost: Double);
 
 implementation
 
@@ -1042,6 +1044,76 @@ begin
   Result := Min(MinimapMaxWidth, Max(0, Floor((RemainingWidth -
     VerticalScrollbarWidth - CaretRoomWidth) * MinimapCharWidth /
     (EditorTypicalHalfwidthCharWidth + MinimapCharWidth))) + MinimapGutterWidth);
+end;
+
+procedure BoostTextContrast(const pvBits: PRGBQuad; const BitmapWidth, BitmapHeight, Left: Integer;
+  const BackgroundColor: TColor; const ContrastBoost: Double);
+{ Makes the faint pixels of anti-aliased text on BackgroundColor stronger, or
+  with a negative ContrastBoost, weaker. A ContrastBoost of -1 or lower isn't
+  allowed. Pixels left of Left stay as they are. }
+
+  function NormalizedDistance(const Difference, Background: Integer): Integer;
+  { Returns 0 to 255 }
+  begin
+    if Difference > 0 then
+      Result := Difference * 255 div (255 - Background)
+    else if Difference < 0 then
+      Result := -Difference * 255 div Background
+    else
+      Result := 0;
+  end;
+
+  function Boosted(const Background, Difference: Integer; const Factor: Single): Byte;
+  begin
+    const Channel = Background + Integer(Round(Difference * Factor));
+    Result := Byte(Min(Max(Channel, 0), 255));
+  end;
+
+var
+  Factors: array[1..255] of Single;
+begin
+  { Uses DirectWrite's contrast enhancement curve s*(k+1)/(s*k+1), as
+    reimplemented by Windows Terminal in DWrite_EnhanceContrast, with
+    ContrastBoost as k. s is how far a pixel is from the background, from 0
+    (the background) to 1 (as far as a color can get), measured on its
+    farthest channel. This curve works well because:
+    1. The background stays as it is
+    2. Fully colored pixels, such as line backgrounds, stay as they are
+    3. A stronger pixel stays stronger than a weaker one, so the soft edges of
+       characters stay soft
+    4. A positive k never makes a pixel weaker, and a negative k never makes
+       it stronger
+    5. The faintest pixels change most: they get about k+1 times as strong
+    The polynomial ease-out curve 1-(1-s)^k works well too, see d3-ease's
+    easePolyOut.exponent(k) at d3js.org/d3-ease }
+  for var I := Low(Factors) to High(Factors) do
+    Factors[I] := (ContrastBoost + 1) / (I / 255 * ContrastBoost + 1);
+
+  const Background = COLORREF(ColorToRGB(BackgroundColor));
+  const BackgroundBlue = Integer(GetBValue(Background));
+  const BackgroundGreen = Integer(GetGValue(Background));
+  const BackgroundRed = Integer(GetRValue(Background));
+
+  for var Y := 0 to BitmapHeight-1 do begin
+    var pvPixel := pvBits;
+    Inc(pvPixel, Y * BitmapWidth + Left);
+    for var X := Left to BitmapWidth-1 do begin
+      const DifferenceBlue = pvPixel.rgbBlue - BackgroundBlue;
+      const DifferenceGreen = pvPixel.rgbGreen - BackgroundGreen;
+      const DifferenceRed = pvPixel.rgbRed - BackgroundRed;
+      const DistanceBlue = NormalizedDistance(DifferenceBlue, BackgroundBlue);
+      const DistanceGreen = NormalizedDistance(DifferenceGreen, BackgroundGreen);
+      const DistanceRed = NormalizedDistance(DifferenceRed, BackgroundRed);
+      const Distance = Max(DistanceBlue, Max(DistanceGreen, DistanceRed));
+      if Distance > 0 then begin
+        const Factor = Factors[Distance];
+        pvPixel.rgbBlue := Boosted(BackgroundBlue, DifferenceBlue, Factor);
+        pvPixel.rgbGreen := Boosted(BackgroundGreen, DifferenceGreen, Factor);
+        pvPixel.rgbRed := Boosted(BackgroundRed, DifferenceRed, Factor);
+      end;
+      Inc(pvPixel);
+    end;
+  end;
 end;
 
 initialization
