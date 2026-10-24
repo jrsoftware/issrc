@@ -1033,6 +1033,7 @@ constructor TMainForm.Create(AOwner: TComponent);
     { ^ Must come before the minimap has a window: otherwise this assignment
       clears the styling of the shared document, affecting the memo. See
       TScintEdit.SetStyler. }
+    FMinimap.Theme := FTheme;
     FMinimap.StyleName := 'Windows';
     FMinimap.Visible := False;
     FMinimap.Parent := MemoPanel;
@@ -1109,6 +1110,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       for Memo in FMemos do
         if Memo <> FMainMemo then
           Memo.Font := FMainMemo.Font;
+      FMinimap.UpdateFont(FMainMemo.Font);
 
       { UpdatePanel visibility }
       const BannerGreen = $ABE3AB; { MGreen with HSL lightness changed from 40% to 78% }
@@ -1615,6 +1617,7 @@ procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
 begin
   UpdateImages;
   UpdateMarginsAndAutoCompleteIcons;
+  FMinimap.UpdateFont(FMainMemo.Font); { VCL rescaled the font for the new DPI, which can round its size, so reapply }
   UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateAddedLinesScrollWidth(CompilerOutputList, alpNone, 0);
@@ -2984,6 +2987,11 @@ begin
 
     Memo.LineNumbers := FOptions.GutterLineNumbers;
   end;
+
+  { Only view-level options, and no document-level ones: the minimap shares the
+    active memo's document }
+  FMinimap.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
+  FMinimap.Call(SCI_INDICSETSTYLE, minSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
 end;
 
 procedure TMainForm.SyncInspectorOptions;
@@ -4177,6 +4185,7 @@ begin
   inherited;
   for var Memo in FMemos do
     Memo.SysColorChange(Message);
+  FMinimap.SysColorChange(Message);
 end;
 
 procedure TMainForm.MemosTabSetPopupMenuClick(Sender: TObject);
@@ -4883,6 +4892,7 @@ begin
       Memo.CaretLine := Memo.CaretLine;
       Memo.Font.Assign(OptionsForm.FontPanel.Font);
     end;
+    FMinimap.UpdateFont(OptionsForm.FontPanel.Font);
     SyncEditorOptions;
     UpdateMarginsAndSquigglyAndCaretWidths;
     UpdateNewMainFileButtons;
@@ -6171,6 +6181,7 @@ begin
   inherited;
   for var Memo in FMemos do
     Memo.DPIChanged(Message);
+  FMinimap.DPIChanged(Message);
 end;
 
 procedure TMainForm.WMDebuggerException(var Message: TMessage);
@@ -6736,6 +6747,7 @@ begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlWindowTheme(Memo, FTheme.Dark);
   end;
+  FMinimap.UpdateTheme;
   SetListBoxWindowTheme(CompilerOutputList);
   SetListBoxWindowTheme(DebugOutputList);
   SetListBoxWindowTheme(DebugCallStackList);
@@ -7476,6 +7488,7 @@ begin
   end;
   for var Memo in FMemos do
     Memo.SettingChange(Message);
+  FMinimap.SettingChange(Message);
 end;
 
 procedure TMainForm.WMThemeChanged(var Message: TMessage);

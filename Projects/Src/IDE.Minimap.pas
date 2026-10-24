@@ -33,6 +33,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure SetMemo(const AMemo: TIDEScintEdit);
     procedure UpdateFont(const AFont: TFont);
+    procedure UpdateTheme;
     property GutterWidth: Integer read FGutterWidth write SetGutterWidth;
   end;
 
@@ -53,6 +54,7 @@ const
 constructor TMinimap.Create(AOwner: TComponent);
 begin
   inherited;
+  ParentShowHint := False;
   ShowHint := False;
   TabStop := False;
 end;
@@ -147,6 +149,11 @@ procedure TMinimap.UpdateFont(const AFont: TFont);
 begin
   Font.Assign(AFont);
   Font.Size := MinimapFontSize;
+end;
+
+procedure TMinimap.UpdateTheme;
+begin
+  UpdateThemeColorsAndStyleAttributes;
 end;
 
 procedure TMinimap.WndProc(var Message: TMessage);
