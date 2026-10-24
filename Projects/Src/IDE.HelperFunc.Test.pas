@@ -19,7 +19,7 @@ implementation
 
 uses
   Windows,
-  SysUtils, Classes, StrUtils, Dialogs, Menus, Graphics,
+  SysUtils, Classes, StrUtils, Math, Dialogs, Menus, Graphics,
   ScintEdit,
   IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc;
 
@@ -194,6 +194,40 @@ begin
   Assert(CalculateMinimapWidth(17, 17, 8, 2, 120, 2, 8) = 8);
 end;
 
+procedure TestCalculateMinimapTopLine;
+begin
+  { A minimap which shows all lines doesn't scroll }
+  Assert(CalculateMinimapTopLine(80, 100, 40, 30) = 0);
+  Assert(CalculateMinimapTopLine(100, 100, 50, 30) = 0);
+
+  { Neither does it when the memo shows all lines }
+  Assert(CalculateMinimapTopLine(200, 100, 0, 200) = 0);
+
+  { The minimap reaches its top and its end when the memo does: 950 * 900 / 950 = 900 }
+  Assert(CalculateMinimapTopLine(1000, 100, 0, 50) = 0);
+  Assert(CalculateMinimapTopLine(1000, 100, 950, 50) = 900);
+
+  { In between it rounds down: 1 * 900 / 950 = 0.95 and 500 * 900 / 950 = 473.7 }
+  Assert(CalculateMinimapTopLine(1000, 100, 1, 50) = 0);
+  Assert(CalculateMinimapTopLine(1000, 100, 500, 50) = 473);
+
+  { A large document doesn't overflow SliderTop's 2400000 * 950:
+    2400000 * 2999050 / 3000000 = 2399240 }
+  Assert(CalculateMinimapTopLine(3000050, 1000, 2400000, 50) = 2399240);
+
+  { Scrolling down one line at a time never moves the top line up, also while
+    ViewportLineCount shrinks, as when a long wrapped line comes into view at
+    the memo's bottom }
+  var Previous := 0;
+  for var ViewportStartLine := 0 to 999 do begin
+    const ViewportLineCount = Max(1, 50 - ViewportStartLine);
+    const TopLine = CalculateMinimapTopLine(1000, 100, ViewportStartLine, ViewportLineCount);
+    Assert(TopLine >= Previous);
+    Previous := TopLine;
+  end;
+  Assert(Previous = 900);
+end;
+
 procedure TestBoostTextContrast;
 
   function Boost(const BackgroundColor, PixelColor: TColor;
@@ -294,6 +328,7 @@ begin
   TestGetSetupDirectiveDefaultValue;
   TestTryStrToLanguage;
   TestCalculateMinimapWidth;
+  TestCalculateMinimapTopLine;
   TestBoostTextContrast;
 end;
 

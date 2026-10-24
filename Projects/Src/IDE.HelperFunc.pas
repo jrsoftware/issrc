@@ -93,6 +93,8 @@ function AnyInputDown: Boolean;
 function CalculateMinimapWidth(const RemainingWidth, VerticalScrollbarWidth: Integer;
   const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
   const MinimapMaxColumn, CaretRoomWidth, MinimapGutterWidth: Integer): Integer;
+function CalculateMinimapTopLine(const LineCount, MinimapLinesFitting,
+  ViewportStartLine, ViewportLineCount: Integer): Integer;
 procedure BoostTextContrast(const pvBits: PRGBQuad; const BitmapWidth, BitmapHeight, Left: Integer;
   const BackgroundColor: TColor; const ContrastBoost: Double);
 
@@ -1044,6 +1046,21 @@ begin
   Result := Min(MinimapMaxWidth, Max(0, Floor((RemainingWidth -
     VerticalScrollbarWidth - CaretRoomWidth) * MinimapCharWidth /
     (EditorTypicalHalfwidthCharWidth + MinimapCharWidth))) + MinimapGutterWidth);
+end;
+
+function CalculateMinimapTopLine(const LineCount, MinimapLinesFitting,
+  ViewportStartLine, ViewportLineCount: Integer): Integer;
+begin
+  { VS Code's sliderTop and startLineNumber with editor.scrollBeyondLastLine
+    off, see the static create method of class MinimapLayout. VS Code's
+    sliderTop counts pixels. The slider moves like a scrollbar thumb: from 0
+    to MinimapLinesFitting - ViewportLineCount while the memo scrolls from its
+    top to its end. }
+  if (LineCount <= MinimapLinesFitting) or (LineCount <= ViewportLineCount) then
+    Exit(0);
+  const SliderTop = Int64(ViewportStartLine) * (MinimapLinesFitting - ViewportLineCount) /
+    (LineCount - ViewportLineCount);
+  Result := Floor(ViewportStartLine - SliderTop); { = startLineNumber }
 end;
 
 procedure BoostTextContrast(const pvBits: PRGBQuad; const BitmapWidth, BitmapHeight, Left: Integer;

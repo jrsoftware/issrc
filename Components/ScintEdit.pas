@@ -139,6 +139,7 @@ type
     FOnMarginClick: TScintEditMarginClickEvent;
     FOnMarginRightClick: TScintEditMarginClickEvent;
     FOnModifiedChange: TNotifyEvent;
+    FOnPainted: TNotifyEvent;
     FOnUpdateUI: TScintEditUpdateUIEvent;
     FOnZoom: TNotifyEvent;
     FReportCaretPositionToStyler: Boolean;
@@ -488,6 +489,7 @@ type
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
+    property OnPainted: TNotifyEvent read FOnPainted write FOnPainted;
     property OnResize;
     property OnUpdateUI: TScintEditUpdateUIEvent read FOnUpdateUI write FOnUpdateUI;
     property OnZoom: TNotifyEvent read FOnZoom write FOnZoom;
@@ -1245,6 +1247,9 @@ end;
 
 function TScintEdit.GetLinesInWindow: Integer;
 begin
+  { SCI_LINESONSCREEN doesn't update the line height after a style change,
+    calling SCI_TEXTHEIGHT for any line does }
+  Call(SCI_TEXTHEIGHT, 0, 0);
   Result := Call(SCI_LINESONSCREEN, 0, 0);
 end;
 
@@ -1602,8 +1607,9 @@ begin
 end;
 
 function TScintEdit.GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
+{ DocLine can be Lines.Count, which gives the number of visible lines }
 begin
-  FLines.CheckIndexRange(DocLine);
+  FLines.CheckIndexRangePlusOne(DocLine);
   Result := Call(SCI_VISIBLEFROMDOCLINE, DocLine, 0);
 end;
 
@@ -1709,6 +1715,11 @@ begin
 
         if (N.linesAdded <> 0) and FLineNumbers then
           UpdateLineNumbersWidth;
+      end;
+    SCN_PAINTED:
+      begin
+        if Assigned(FOnPainted) then
+          FOnPainted(Self);
       end;
     SCN_SAVEPOINTLEFT,
     SCN_SAVEPOINTREACHED:

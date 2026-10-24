@@ -633,6 +633,7 @@ type
     procedure MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
+    procedure MemoPainted(Sender: TObject);
     procedure MemoResizeOrLineNumbersWidthChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
@@ -920,6 +921,7 @@ begin
   Memo.OnMarginClick := MemoMarginClick;
   Memo.OnMarginRightClick := MemoMarginRightClick;
   Memo.OnModifiedChange := MemoModifiedChange;
+  Memo.OnPainted := MemoPainted;
   Memo.OnResize := MemoResizeOrLineNumbersWidthChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
@@ -3845,6 +3847,7 @@ begin
     FMinimap.SetBounds(FActiveMemo.Left + FActiveMemo.ClientWidth -
       GetVScrollWidthIfHidden(FActiveMemo) - MinimapWidth, FActiveMemo.Top,
         MinimapWidth, FActiveMemo.ClientHeight);
+    FMinimap.SyncScrollPosition;
   end;
 end;
 
@@ -5525,6 +5528,13 @@ procedure TMainForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
   end;
 
 begin
+  { Scintilla sends OnUpdateUI before the minimap repaints, so syncing now
+    keeps it from first painting at its old position. MemoPainted catches the
+    rest. }
+  if FMinimap.Visible and (Sender = FActiveMemo) and
+     (Updated * [suContent, suVScroll] <> []) then
+    FMinimap.SyncScrollPosition;
+
   if Updated * [suContent, suSelection] = [] then
     Exit;
 
@@ -5553,6 +5563,17 @@ procedure TMainForm.MemoModifiedChange(Sender: TObject);
 begin
   if Sender = FActiveMemo then
     UpdateModifiedStatusPanel;
+end;
+
+procedure TMainForm.MemoPainted(Sender: TObject);
+begin
+  { Folding, unfolding, and lazy rewrapping send no OnUpdateUI unless the top
+    line changes. In Scintilla's Editor.cxx, only ContainerNeedsUpdate makes it
+    send one: FoldLine, FoldExpand, and FoldAll never call it, and WrapLines
+    calls it only through SetTopLine, when the top line changes.
+    This also runs on every caret blink, so SyncScrollPosition must stay cheap! }
+  if FMinimap.Visible and (Sender = FActiveMemo) then
+    FMinimap.SyncScrollPosition;
 end;
 
 procedure TMainForm.MemoCallTipArrowClick(Sender: TObject;
