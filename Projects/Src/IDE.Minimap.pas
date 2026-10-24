@@ -266,9 +266,11 @@ begin
   case Message.Msg of
     WM_LBUTTONDOWN, WM_LBUTTONDBLCLK, WM_LBUTTONUP,
     WM_RBUTTONDOWN, WM_RBUTTONDBLCLK, WM_RBUTTONUP,
-    WM_MBUTTONDOWN, WM_MBUTTONDBLCLK, WM_MBUTTONUP,
-    WM_MOUSEWHEEL, WM_MOUSEHWHEEL:
+    WM_MBUTTONDOWN, WM_MBUTTONDBLCLK, WM_MBUTTONUP:
       ;
+    WM_MOUSEWHEEL, WM_MOUSEHWHEEL:
+      if FMemo <> nil then
+        Message.Result := SendMessage(FMemo.Handle, Message.Msg, Message.WParam, Message.LParam);
   else
     inherited;
   end;
