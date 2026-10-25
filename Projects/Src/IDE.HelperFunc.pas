@@ -95,6 +95,8 @@ function CalculateMinimapWidth(const RemainingWidth, VerticalScrollbarWidth: Int
   const MinimapMaxColumn, CaretRoomWidth, MinimapGutterWidth: Integer): Integer;
 function CalculateMinimapTopLine(const LineCount, MinimapLinesFitting,
   ViewportStartLine, ViewportLineCount: Integer): Integer;
+function CalculateMinimapViewportStartLineFromDelta(const LineCount, MinimapLinesFitting,
+  ViewportStartLine, ViewportLineCount: Integer; const Delta: Double): Integer;
 procedure BoostTextContrast(const pvBits: PRGBQuad; const BitmapWidth, BitmapHeight, Left: Integer;
   const BackgroundColor: TColor; const ContrastBoost: Double);
 
@@ -1053,14 +1055,37 @@ function CalculateMinimapTopLine(const LineCount, MinimapLinesFitting,
 begin
   { VS Code's sliderTop and startLineNumber with editor.scrollBeyondLastLine
     off, see the static create method of class MinimapLayout. VS Code's
-    sliderTop counts pixels. The slider moves like a scrollbar thumb: from 0
-    to MinimapLinesFitting - ViewportLineCount while the memo scrolls from its
-    top to its end. }
+    sliderTop counts pixels, SliderTop counts minimap lines. The slider moves
+    like a scrollbar thumb: from 0 to MinimapLinesFitting - ViewportLineCount
+    while the memo scrolls from its top to its end. }
   if (LineCount <= MinimapLinesFitting) or (LineCount <= ViewportLineCount) then
     Exit(0);
   const SliderTop = Int64(ViewportStartLine) * (MinimapLinesFitting - ViewportLineCount) /
     (LineCount - ViewportLineCount);
   Result := Floor(ViewportStartLine - SliderTop); { = startLineNumber }
+end;
+
+function CalculateMinimapViewportStartLineFromDelta(const LineCount, MinimapLinesFitting,
+  ViewportStartLine, ViewportLineCount: Integer; const Delta: Double): Integer;
+{ The layout values and Delta should be from the start of the drag, not from
+  the previous mouse move }
+begin
+  { VS Code's maxMinimapSliderTop and computedSliderRatio with
+    editor.scrollBeyondLastLine off, see the static create method of class
+    MinimapLayout }
+  const MaxMinimapSliderTop = Min(LineCount, MinimapLinesFitting) - ViewportLineCount;
+  if MaxMinimapSliderTop <= 0 then
+    Exit(ViewportStartLine); { The slider can't move }
+  const ComputedSliderRatio = MaxMinimapSliderTop / (LineCount - ViewportLineCount);
+  { VS Code's getDesiredScrollTopFromDelta. ViewportStartLine is VS Code's
+    scrollTop. VS Code's delta and scrollTop count pixels, Delta and
+    ViewportStartLine count minimap lines. }
+  const DesiredViewportStartLine = ViewportStartLine + Delta / ComputedSliderRatio;
+  { Clamp to the minimap's lines: like VS Code's editor, the memo clamps its
+    own scroll position, so a drag reaches the memo's end exactly, also with
+    word wrap on, where ViewportLineCount changes while the memo scrolls }
+  const ClampedViewportStartLine = Min(Max(DesiredViewportStartLine, 0), LineCount - 1);
+  Result := Floor(ClampedViewportStartLine + 0.5); { Rounds halves up, like VS Code's Math.round }
 end;
 
 procedure BoostTextContrast(const pvBits: PRGBQuad; const BitmapWidth, BitmapHeight, Left: Integer;

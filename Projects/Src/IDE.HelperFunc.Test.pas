@@ -228,6 +228,44 @@ begin
   Assert(Previous = 900);
 end;
 
+procedure TestCalculateMinimapViewportStartLineFromDelta;
+begin
+  { A click without a move doesn't scroll }
+  Assert(CalculateMinimapViewportStartLineFromDelta(1000, 100, 500, 50, 0) = 500);
+
+  { The slider follows the mouse: the slider moves 950 / 50 = 19 times slower
+    than the memo, and CalculateMinimapTopLine puts it at 190 - 180 = 10 }
+  Assert(CalculateMinimapViewportStartLineFromDelta(1000, 100, 0, 50, 10) = 190);
+  Assert(CalculateMinimapTopLine(1000, 100, 190, 50) = 180);
+
+  { It rounds to nearest: 19 / 3 = 6.3 and 38 / 3 = 12.7 }
+  Assert(CalculateMinimapViewportStartLineFromDelta(1000, 100, 0, 50, 1/3) = 6);
+  Assert(CalculateMinimapViewportStartLineFromDelta(1000, 100, 0, 50, 2/3) = 13);
+
+  { Halves round up, not to the nearest even line: 20.5, 21.5, and when moving
+    up, 19.5 }
+  Assert(CalculateMinimapViewportStartLineFromDelta(80, 100, 20, 30, 0.5) = 21);
+  Assert(CalculateMinimapViewportStartLineFromDelta(80, 100, 21, 30, 0.5) = 22);
+  Assert(CalculateMinimapViewportStartLineFromDelta(80, 100, 20, 30, -0.5) = 20);
+
+  { A minimap which shows all lines moves the slider as fast as the memo }
+  Assert(CalculateMinimapViewportStartLineFromDelta(80, 100, 20, 30, 5) = 25);
+  Assert(CalculateMinimapViewportStartLineFromDelta(80, 100, 20, 30, -5) = 15);
+  Assert(CalculateMinimapViewportStartLineFromDelta(80, 100, 20, 30, 0) = 20);
+  Assert(CalculateMinimapViewportStartLineFromDelta(80, 100, 20, 30, 2/3) = 21);
+
+  { It clamps to the minimap's lines, not to the last start line the memo
+    allows }
+  Assert(CalculateMinimapViewportStartLineFromDelta(1000, 100, 900, 50, 10) = 999);
+  Assert(CalculateMinimapViewportStartLineFromDelta(1000, 100, 10, 50, -10) = 0);
+  Assert(CalculateMinimapViewportStartLineFromDelta(80, 100, 20, 30, 100) = 79);
+
+  { A slider which can't move doesn't scroll, also when the memo shows all lines }
+  Assert(CalculateMinimapViewportStartLineFromDelta(1000, 100, 500, 100, 5) = 500);
+  Assert(CalculateMinimapViewportStartLineFromDelta(1000, 100, 500, 120, -5) = 500);
+  Assert(CalculateMinimapViewportStartLineFromDelta(80, 100, 0, 80, 5) = 0);
+end;
+
 procedure TestBoostTextContrast;
 
   function Boost(const BackgroundColor, PixelColor: TColor;
@@ -329,6 +367,7 @@ begin
   TestTryStrToLanguage;
   TestCalculateMinimapWidth;
   TestCalculateMinimapTopLine;
+  TestCalculateMinimapViewportStartLineFromDelta;
   TestBoostTextContrast;
 end;
 

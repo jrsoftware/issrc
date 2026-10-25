@@ -24,17 +24,25 @@ type
       TMinimapLayout = record
         LineCount, MinimapLinesFitting, ViewportStartLine, ViewportLineCount: Integer;
       end;
+      TMinimapLayoutDrag = record
+        Dragging: Boolean;
+        StartMinimapLayout: TMinimapLayout;
+        StartMemoTopLine, StartY: Integer;
+      end;
     var
+      FDrag: TMinimapLayoutDrag;
       FGutterWidth: Integer;
       FHovering, FHoveringSlider: Boolean;
       FLastSliderRect: TRect;
       FMemo: TIDEScintEdit;
       procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
       procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+      function GetMemoLineFromMinimapLine(const MinimapLine: Integer): Integer;
       function GetMinimapLayout: TMinimapLayout;
       function GetSliderRect(const MinimapLayout: TMinimapLayout): TRect;
       procedure SetDocPointer;
       procedure SetGutterWidth(const Value: Integer);
+      procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
       procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
   protected
     procedure CreateWnd; override;
@@ -133,6 +141,18 @@ begin
   SetDocPointer;
 end;
 
+function TMinimap.GetMemoLineFromMinimapLine(const MinimapLine: Integer): Integer;
+begin
+  { MinimapLine is below the last line when clicking below the end of the
+    document. GetDocLineFromVisibleLine then returns a document line that
+    doesn't exist, so we clamp. }
+  const DocLine = Min(GetDocLineFromVisibleLine(MinimapLine), Lines.Count-1);
+  Result := FMemo.GetVisibleLineFromDocLine(DocLine);
+  { ^ Result can be off while the memo still has lines Scintilla hasn't
+      wrapped yet, such as right after a resize with word wrap on.
+      EnsureLineVisible would wrap them first, but it also unfolds. }
+end;
+
 function TMinimap.GetMinimapLayout: TMinimapLayout;
 begin
   { When nothing changed, such as on a caret blink, each Scintilla call below
@@ -167,6 +187,22 @@ end;
 procedure TMinimap.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
+  if FDrag.Dragging and (FMemo <> nil) then begin
+    const NewViewportStartLine = CalculateMinimapViewportStartLineFromDelta(
+      FDrag.StartMinimapLayout.LineCount, FDrag.StartMinimapLayout.MinimapLinesFitting,
+      FDrag.StartMinimapLayout.ViewportStartLine, FDrag.StartMinimapLayout.ViewportLineCount,
+      (Y - FDrag.StartY) / LineHeight);
+    { When the slider is back where it was at the start of the drag, use
+      StartMemoTopLine to restore the top line, instead of using
+      GetMemoLineFromMinimapLine. This makes it able to restore the second
+      line of a wrapped line as the top line. Limitation: when the last line
+      wraps into more lines than the memo can show, the drag stops at the
+      start of that line. }
+    if NewViewportStartLine = FDrag.StartMinimapLayout.ViewportStartLine then
+      FMemo.TopLine := FDrag.StartMemoTopLine
+    else
+      FMemo.TopLine := GetMemoLineFromMinimapLine(NewViewportStartLine);
+  end;
   const HoveringSlider = (FMemo <> nil) and PtInRect(GetSliderRect(GetMinimapLayout), Point(X, Y));
   if FHoveringSlider <> HoveringSlider then begin
     FHoveringSlider := HoveringSlider;
@@ -213,6 +249,8 @@ procedure TMinimap.SetMemo(const AMemo: TIDEScintEdit);
 { Always calls SetDocPointer, so resyncs always }
 begin
   if FMemo <> AMemo then begin
+    if FDrag.Dragging then
+      MouseCapture := False;
     if FMemo <> nil then
       FMemo.RemoveFreeNotification(Self);
     FMemo := AMemo;
@@ -239,8 +277,9 @@ begin
         under the mouse, or away from it }
       var CursorPos: TPoint;
       FHoveringSlider := GetCursorPos(CursorPos) and PtInRect(SliderRect, ScreenToClient(CursorPos));
-      Invalidate;
     end;
+    if FHovering or FDrag.Dragging then
+      Invalidate;
   end;
 end;
 
@@ -256,6 +295,15 @@ begin
   Invalidate; { WMPaint depends on the theme }
 end;
 
+procedure TMinimap.WMCaptureChanged(var Message: TMessage);
+begin
+  if FDrag.Dragging then begin
+    FDrag.Dragging := False;
+    Invalidate;
+  end;
+  inherited;
+end;
+
 procedure TMinimap.WMPaint(var Message: TWMPaint);
 { Paints Scintilla's content into a bitmap first, so we can make changes to it
   ourselves afterwards. Uses WM_PRINTCLIENT because Scintilla's own WM_PAINT
@@ -268,7 +316,9 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
 
   procedure DrawSlider(const DC: HDC; const SliderRect: TRect);
   const
-    SliderAlphas: array[TThemeType, Boolean] of Byte = ((40, 70), (25, 33), (31, 54)); { This gives the colors of VS Code's slider }
+    { These give the colors of VS Code's slider }
+    SliderAlphas: array[TThemeType, Boolean] of Byte = ((40, 70), (25, 33), (31, 54));
+    SliderAlphasDragging: array[TThemeType] of Byte = (99, 45, 76);
   begin
     const SliderDC = CreateCompatibleDC(DC);
     if SliderDC = 0 then
@@ -284,7 +334,10 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
           var BlendFunction: TBlendFunction;
           BlendFunction.BlendOp := AC_SRC_OVER;
           BlendFunction.BlendFlags := 0;
-          BlendFunction.SourceConstantAlpha := SliderAlphas[Theme.Typ, FHoveringSlider];
+          if FDrag.Dragging then
+            BlendFunction.SourceConstantAlpha := SliderAlphasDragging[Theme.Typ]
+          else
+            BlendFunction.SourceConstantAlpha := SliderAlphas[Theme.Typ, FHoveringSlider];
           BlendFunction.AlphaFormat := 0;
           AlphaBlend(DC, SliderRect.Left, SliderRect.Top, SliderRect.Width,
             SliderRect.Height, SliderDC, 0, 0, 1, 1, BlendFunction);
@@ -326,7 +379,7 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
             Color, ContrastBoosts[(Theme <> nil) and Theme.Dark]);
           { ^ Color could be the wrong background for lines with a line marker and
               for text with an indicator, but the effect is negligible }
-          if FHovering and (FMemo <> nil) and (Theme <> nil) then
+          if (FHovering or FDrag.Dragging) and (FMemo <> nil) and (Theme <> nil) then
             DrawSlider(MemoryDC, GetSliderRect(GetMinimapLayout));
           Result := BitBlt(DC, 0, 0, BitmapWidth, BitmapHeight, MemoryDC, 0, 0, SRCCOPY);
         finally
@@ -356,36 +409,33 @@ begin
 end;
 
 procedure TMinimap.WndProc(var Message: TMessage);
-
-  function GetMemoLineFromMinimapLine(const MinimapLine: Integer): Integer;
-  begin
-    { MinimapLine is below the last line when clicking below the end of the
-      document. GetDocLineFromVisibleLine then returns a document line that
-      doesn't exist, so we clamp. }
-    const DocLine = Min(GetDocLineFromVisibleLine(MinimapLine), Lines.Count-1);
-    Result := FMemo.GetVisibleLineFromDocLine(DocLine);
-    { ^ Result can be off while the memo still has lines Scintilla hasn't
-        wrapped yet, such as right after a resize with word wrap on.
-        EnsureLineVisible would wrap them first, but it also unfolds. }
-  end;
-
 begin
   { Scintilla would take the focus, change its own selection, or scroll and zoom
     itself }
   case Message.Msg of
     WM_LBUTTONDOWN, WM_LBUTTONDBLCLK:
       begin
-        { Like VS Code's minimap, acts on mouse down, not on mouse up. See
-          _pointerDownListener in its InnerMinimap class. }
+        { Like VS Code's minimap, acts on mouse down, not on mouse up, like a
+          scrollbar track. See _pointerDownListener in its InnerMinimap class. }
         if FMemo <> nil then begin
           const ClickPoint = SmallPointToPoint(TWMMouse(Message).Pos);
-          if not PtInRect(GetSliderRect(GetMinimapLayout), ClickPoint) then begin
+          const MinimapLayout = GetMinimapLayout;
+          if PtInRect(GetSliderRect(MinimapLayout), ClickPoint) then begin
+            MouseCapture := True;
+            FDrag.Dragging := True;
+            FDrag.StartMinimapLayout := MinimapLayout;
+            FDrag.StartMemoTopLine := FMemo.TopLine;
+            FDrag.StartY := ClickPoint.Y;
+            Invalidate;
+          end else begin
             const ClickedMemoLine = GetMemoLineFromMinimapLine(TopLine + ClickPoint.Y div LineHeight);
             FMemo.TopLine := ClickedMemoLine - FMemo.LinesInWindow div 2;
           end;
         end;
       end;
-    WM_LBUTTONUP,
+    WM_LBUTTONUP:
+      if FDrag.Dragging then
+        MouseCapture := False;
     WM_RBUTTONDOWN, WM_RBUTTONDBLCLK, WM_RBUTTONUP,
     WM_MBUTTONDOWN, WM_MBUTTONDBLCLK, WM_MBUTTONUP:
       ;
