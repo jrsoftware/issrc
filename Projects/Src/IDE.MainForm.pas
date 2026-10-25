@@ -6535,9 +6535,11 @@ begin
     - NavigatorPanel, for styling of the navigator's comboboxes
     Menus ignore the active style because shMenus is removed from TStyleManager.SystemHooks
     at startup. }
-  if FTheme.Dark then
-    TStyleManager.TrySetStyle('Windows11 Modern Dark')
-  else
+  if FTheme.Dark then begin
+    { Which one is present depends on the .dproj, see README.md }
+    if not TStyleManager.TrySetStyle('Windows Modern Dark SE', False) then
+      TStyleManager.TrySetStyle('Windows11 Modern Dark');
+  end else
     TStyleManager.TrySetStyle('Windows');
   { Because StyleElements is empty it needs this: with StyleName set to an empty string, dialog boxes
     it opens, such as MsgBox, look broken }
