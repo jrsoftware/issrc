@@ -193,7 +193,7 @@ begin
       Result := ShowDialog(ofn, ExtendedError);
       if (ExtendedError = FNERR_INVALIDFILENAME) and (ofn.lpstrFile^ <> #0) then begin
         { Windows rejects an invalid initial file name without showing the dialog }
-        ofn.lpstrFile^ := #0;
+        FillChar(FileBuffer[0], MaxFile * SizeOf(Char), 0); { See above, full fill for GetMultiSelectString }
         Result := ShowDialog(ofn, ExtendedError);
       end;
       if Result then begin
