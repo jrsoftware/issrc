@@ -442,6 +442,18 @@ begin
     WM_MOUSEWHEEL, WM_MOUSEHWHEEL:
       if FMemo <> nil then
         Message.Result := SendMessage(FMemo.Handle, Message.Msg, Message.WParam, Message.LParam);
+    WM_SETFOCUS:
+      begin
+        { Deny getting focus, for example by a screenreader. Prevents typed
+          input, which would edit the shared document. Setting ReadOnly
+          instead is not possible: it's document-level, so it would make the
+          memo read-only too. Changing the focus here is safe:
+          TCustomForm.WndProc does it too. }
+        const LostFocusWnd = TWMSetFocus(Message).FocusedWnd;
+        if ((LostFocusWnd = 0) or (Windows.SetFocus(LostFocusWnd) = 0)) and
+           ((FMemo = nil) or (Windows.SetFocus(FMemo.Handle) = 0)) then
+          inherited; { Should never happen }
+      end;
   else
     inherited;
   end;
