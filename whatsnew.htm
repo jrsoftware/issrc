@@ -121,6 +121,16 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Thanks to the creators of <a href="https://github.com/project-jedi/jvcl">TJvInspector</a>: The (heavily modified) inspector control used in the Compiler IDE.</li>
   </ul>
   </li>
+  <li>Added a new <i>Minimap</i> to the left of the Compiler IDE editor's vertical scrollbar. It shows a syntax-highlighted miniature of the script, allowing you to see where you are and to scroll to any part of it.
+  <ul>
+    <li>Shows the line with a compile error and highlighted occurrences, and underlines syntax errors, like the editor.</li>
+    <li>Shows a slider marking the editor's visible lines while the mouse is over the Minimap.</li>
+    <li>Clicking a line outside the slider centers it in the editor, without moving the editor's cursor. Dragging the slider or rotating the mouse wheel scrolls the editor.</li>
+    <li>Becomes narrower when the editor does.</li>
+    <li>Supports dark mode.</li>
+    <li>The Minimap is shown by default and can be hidden using the new <i>Minimap</i> item in the <i>View</i> menu.</li>
+  </ul>
+  </li>
   <li>Compiler IDE autocompletion improved:
   <ul>
     <li>Parameter and directive values:
