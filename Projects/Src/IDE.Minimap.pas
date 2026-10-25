@@ -17,6 +17,13 @@ uses
   ScintInt,
   IDE.IDEScintEdit;
 
+const
+  MinimapGutterWidth = 8;
+  { ^ VS Code's MINIMAP_GUTTER_WIDTH. Not scaled for DPI. VS Code draws it
+      unscaled too (see dx in InnerMinimap._renderLine), but scales it when it
+      calculates the minimap's width, which perhaps is a bug. We never scale
+      it, for consistency, and to avoid complications. }
+
 type
   TMinimap = class(TIDEScintEdit)
   private
@@ -31,7 +38,6 @@ type
       end;
     var
       FDrag: TMinimapLayoutDrag;
-      FGutterWidth: Integer;
       FHovering, FHoveringSlider: Boolean;
       FLastSliderRect: TRect;
       FMemo: TIDEScintEdit;
@@ -41,7 +47,6 @@ type
       function GetMinimapLayout: TMinimapLayout;
       function GetSliderRect(const MinimapLayout: TMinimapLayout): TRect;
       procedure SetDocPointer;
-      procedure SetGutterWidth(const Value: Integer);
       procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
       procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
   protected
@@ -56,7 +61,6 @@ type
     procedure SyncScrollPosition;
     procedure UpdateFont(const AFont: TFont);
     procedure UpdateTheme;
-    property GutterWidth: Integer read FGutterWidth write SetGutterWidth;
   end;
 
 implementation
@@ -107,8 +111,7 @@ begin
     text into the document }
   RevokeDragDrop(Handle);
 
-  { No blank margins, scrollbars or caret on the minimap }
-  Call(SCI_SETMARGINLEFT, 0, 0);
+  { No right blank margin, scrollbars or caret on the minimap }
   Call(SCI_SETMARGINRIGHT, 0, 0);
   Call(SCI_SETVSCROLLBAR, 0, 0);
   Call(SCI_SETHSCROLLBAR, 0, 0);
@@ -122,11 +125,22 @@ begin
     stronger }
   Call(SCI_SETFONTQUALITY, SC_EFF_QUALITY_ANTIALIASED, 0);
 
-  { Use the entire gutter for a single margin showing change history }
+  { Use the gutter for a single margin showing change history }
   for var Margin := 0 to Call(SCI_GETMARGINS, 0, 0)-1 do
     Call(SCI_SETMARGINWIDTHN, Margin, 0);
   Call(SCI_SETMARGINTYPEN, mmChangeHistory, SC_MARGIN_BACK);
-  Call(SCI_SETMARGINWIDTHN, mmChangeHistory, FGutterWidth);
+  { Like VS Code, use 2 pixel wide change markers, not scaled for DPI }
+  const ChangeHistoryWidth = 2 * 3; { SC_MARK_BAR shows a bar a third of its width }
+  Call(SCI_SETMARGINWIDTHN, mmChangeHistory, ChangeHistoryWidth);
+  { Add a blank margin between the change history margin and the text.
+    Together with the previous call, this ensures a change marker has 2 blank
+    pixels before it and the rest after it, like VS Code. }
+  Call(SCI_SETMARGINLEFT, 0, MinimapGutterWidth - ChangeHistoryWidth);
+
+  { Show change history as markers, but leave enabling it to the memo, because
+    that's document-level. Must come before SetDocPointer, else this would
+    disable it for the memo's document. }
+  Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_MARKERS, 0);
 
   { Ensure the icon markers stay invisible now that the minimap has no margin
     for them. Without this Scintilla would display them as line markers instead. }
@@ -243,15 +257,6 @@ begin
   if (FMemo <> nil) and HandleAllocated then begin
     DocumentPointer := FMemo.DocumentPointer;
     SyncScrollPosition;
-  end;
-end;
-
-procedure TMinimap.SetGutterWidth(const Value: Integer);
-begin
-  if FGutterWidth <> Value then begin
-    FGutterWidth := Value;
-    if HandleAllocated then
-      Call(SCI_SETMARGINWIDTHN, mmChangeHistory, FGutterWidth);
   end;
 end;
 
@@ -387,7 +392,7 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
         try
           PrintClient(MemoryDC);
           GdiFlush; { See CreateDIBSection's documentation }
-          BoostTextContrast(pvBits, BitmapWidth, BitmapHeight, FGutterWidth,
+          BoostTextContrast(pvBits, BitmapWidth, BitmapHeight, MinimapGutterWidth,
             Color, ContrastBoosts[(Theme <> nil) and Theme.Dark]);
           { ^ Color could be the wrong background for lines with a line marker and
               for text with an indicator, but the effect is negligible }

@@ -829,11 +829,9 @@ const
 
   LineStateGrowAmount = 4000;
 
-  { Minimap widths, at 96 dpi. A memo's right margin (as set by
+  { Minimap caret room width, at 96 dpi. A memo's right margin (as set by
     SCI_SETMARGINRIGHT) contains, from left to right: the caret room, the
-    minimap, and the vertical scrollbar's space while the scrollbar is hidden.
-    The minimap starts with its gutter. }
-  MinimapGutterWidth = 8; { VS Code's MINIMAP_GUTTER_WIDTH }
+    minimap, and the vertical scrollbar's space while the scrollbar is hidden. }
   MinimapCaretRoomWidth = 2;
 
   { VS Code's default for its editor.minimap.maxColumn setting, see
@@ -3804,7 +3802,7 @@ begin
     otherwise the reservation could show or hide it through rewrapping }
   Result := CalculateMinimapWidth(RemainingWidth, AMemo.GetSystemMetrics(SM_CXVSCROLL),
     GetTypicalHalfwidthCharWidth(AMemo), GetTypicalHalfwidthCharWidth(FMinimap),
-    MinimapMaxColumn, ToCurrentPPI(MinimapCaretRoomWidth), ToCurrentPPI(MinimapGutterWidth));
+    MinimapMaxColumn, ToCurrentPPI(MinimapCaretRoomWidth), MinimapGutterWidth);
 end;
 
 function TMainForm.GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
@@ -3842,7 +3840,6 @@ end;
 procedure TMainForm.UpdateMinimapLayout;
 begin
   if (FMinimap <> nil) and FMinimap.Visible then begin
-    FMinimap.GutterWidth := ToCurrentPPI(MinimapGutterWidth);
     const MinimapWidth = GetMinimapWidth(FActiveMemo);
     FMinimap.SetBounds(FActiveMemo.Left + FActiveMemo.ClientWidth -
       GetVScrollWidthIfHidden(FActiveMemo) - MinimapWidth, FActiveMemo.Top,
