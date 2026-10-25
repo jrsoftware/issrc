@@ -356,11 +356,36 @@ begin
 end;
 
 procedure TMinimap.WndProc(var Message: TMessage);
+
+  function GetMemoLineFromMinimapLine(const MinimapLine: Integer): Integer;
+  begin
+    { MinimapLine is below the last line when clicking below the end of the
+      document. GetDocLineFromVisibleLine then returns a document line that
+      doesn't exist, so we clamp. }
+    const DocLine = Min(GetDocLineFromVisibleLine(MinimapLine), Lines.Count-1);
+    Result := FMemo.GetVisibleLineFromDocLine(DocLine);
+    { ^ Result can be off while the memo still has lines Scintilla hasn't
+        wrapped yet, such as right after a resize with word wrap on.
+        EnsureLineVisible would wrap them first, but it also unfolds. }
+  end;
+
 begin
   { Scintilla would take the focus, change its own selection, or scroll and zoom
     itself }
   case Message.Msg of
-    WM_LBUTTONDOWN, WM_LBUTTONDBLCLK, WM_LBUTTONUP,
+    WM_LBUTTONDOWN, WM_LBUTTONDBLCLK:
+      begin
+        { Like VS Code's minimap, acts on mouse down, not on mouse up. See
+          _pointerDownListener in its InnerMinimap class. }
+        if FMemo <> nil then begin
+          const ClickPoint = SmallPointToPoint(TWMMouse(Message).Pos);
+          if not PtInRect(GetSliderRect(GetMinimapLayout), ClickPoint) then begin
+            const ClickedMemoLine = GetMemoLineFromMinimapLine(TopLine + ClickPoint.Y div LineHeight);
+            FMemo.TopLine := ClickedMemoLine - FMemo.LinesInWindow div 2;
+          end;
+        end;
+      end;
+    WM_LBUTTONUP,
     WM_RBUTTONDOWN, WM_RBUTTONDBLCLK, WM_RBUTTONUP,
     WM_MBUTTONDOWN, WM_MBUTTONDBLCLK, WM_MBUTTONUP:
       ;
