@@ -84,14 +84,16 @@ begin
   var Services: IAccPropServices;
   if (CoCreateInstance(CLSID_AccPropServices, nil, CLSCTX_INPROC_SERVER,
       IAccPropServices, Services) = S_OK) and (Services <> nil) then begin
+    { Pass a copy of PROPID_ACC_NAME to SetHwndPropStr: on 64-bit,
+      Delphi doesn't copy its by-value idProp argument, so the callee could
+      change the writable memory holding the typed constant }
+    var PropId := PROPID_ACC_NAME;
     if AName <> '' then
       Services.SetHwndPropStr(wireHWND(AWindow)^, DWORD(OBJID_CLIENT),
-        CHILDID_SELF, PROPID_ACC_NAME, PChar(AName))
-    else begin
-      var PropId := PROPID_ACC_NAME;
+        CHILDID_SELF, PropId, PChar(AName))
+    else
       Services.ClearHwndProps(wireHWND(AWindow)^, DWORD(OBJID_CLIENT),
         CHILDID_SELF, PropId, 1);
-    end;
   end;
 end;
 

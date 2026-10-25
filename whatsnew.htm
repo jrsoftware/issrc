@@ -185,6 +185,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 <span class="head2">Fixes</span>
 
 <ul>
+  <li>In the 64-bit Compiler IDE and 64-bit installers, screen readers announced whether each item in a list of checkboxes and radio buttons was checked, partially checked, or disabled based on the item above it. For example, on the <i>Setup Languages</i> page of the New Script Wizard, a language you had just checked was still announced as not checked. This also affected Setup's wizard pages with such a list, such as <i>Select Components</i> (broken since 7.0.0).</li>
   <li>When a download failed, for example because the server couldn't be found or its certificate was invalid, Setup reported an internal error starting with "Internal error: Worker thread terminated unexpectedly with exception:" instead of just the actual error (broken since 6.5.1).</li>
   <li>Buttons in the Compiler IDE and Setup with a long caption which shows its accelerator key in parentheses, such as the <i>Browse</i> button in Korean, could be too narrow, leaving little or no space around the caption (broken since 7.1.0).</li>
   <li>Compiler IDE:
@@ -249,6 +250,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>When debugging in the Compiler IDE, a runtime error could be reported on the line after the line which caused it.</li>
     <li>When a custom style was active, support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> didn't show the shield icon specified by the <tt>ShieldButton</tt> parameter if that button had no custom label (broken since custom styles were introduced in 6.6.0).</li>
     <li>Support function <tt>WizardSetupType</tt> didn't expand constants in the description it returned, unlike support functions <tt>WizardSelectedComponents</tt> and <tt>WizardSelectedTasks</tt>.</li>
+    <li>Support functions <tt>StringSplit</tt>, <tt>StringSplitEx</tt>, <tt>ExecAndCaptureOutput</tt>, and <tt>ExecAndCaptureOutputWithNativeSysDir</tt> could also change another array variable that shared its array with the one receiving the result, if the result had the same length (broken since their introduction). For example, after <tt>Saved := Parts; Parts := StringSplit(...)</tt>, <tt>Saved</tt> was changed too. Since 7.1.0, support functions <tt>LoadStringsFromFile</tt>, <tt>LoadStringsFromLockedFile</tt>, <tt>RegGetSubkeyNames</tt>, and <tt>RegGetValueNames</tt> had the same problem, but only if the array passed to them had exactly 16 elements before the call.</li>
     <li><i>Documentation fix:</i> Since 6.6.0, support function <tt>CreateCustomForm</tt> scales the specified client width and height itself, but <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_createcustomform">its documentation</a> and the <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> example script still used <tt>ScaleX</tt> and <tt>ScaleY</tt> for them, so they were scaled twice. For example, at 150% DPI the form was 2.25 times as wide and high as at 100% DPI, instead of 1.5 times. The documentation and the example script have now been corrected. If your script does the same, remove these calls. If you use the default font settings with standard DPI (100%), this doesn't change the form.</li>
   </ul>
   </li>
@@ -629,9 +631,16 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 <p><a name="6.7.4"></a><span class="ver">6.7.4 </span><span class="date">(2026-10-28)</span></p>
 
 <ul>
-  <li>Fix backported from <a href="https://jrsoftware.org/isdl.php#v7">Inno Setup 7</a>:
+  <li>Fixes backported from <a href="https://jrsoftware.org/isdl.php#v7">Inno Setup 7</a>:
   <ul>
     <li>Pascal Scripting: When a COM object or a variant array was passed as an argument to a method of a <a href="https://jrsoftware.org/ishelp/index.php?topic=scriptautomation">COM Automation object</a>, such as in <tt>ParentNode.appendChild(ChildNode)</tt>, or assigned to a property of one, it was released one time too many. This could cause access violations, for example when using MSXML after installing a September 2026 Windows update with a new MSXML version, such as KB5124007 or KB5124008.</li>
+    <li>When <tt>[Setup]</tt> section directive <tt><a href="https://jrsoftware.org/ishelp/index.php?topic=setup_redirectionguard">RedirectionGuard</a></tt> was enabled (which it is by default), the RedirectionGuard mitigation was inherited by any child processes, which wasn't as documented. For child processes started by Setup with the (normally non-elevated) credentials of the user that started Setup initially, such as those started by <tt>[Run]</tt> section entries with the <tt>runasoriginaluser</tt> or <tt>postinstall</tt> flag, this also wasn't as intended (broken since RedirectionGuard support was introduced in 6.7.0). This is no longer the case for such processes. Notes:
+    <ul>
+      <li>If Setup didn't have to request administrative privileges, for example because <tt>[Setup]</tt> section directive <tt>PrivilegesRequired</tt> is set to <tt>lowest</tt>, or because Setup was started with administrative privileges already, the RedirectionGuard mitigation is still inherited. This will be addressed in a future version of Inno Setup 7.</li>
+      <li>Most applications aren't affected by RedirectionGuard, but they might be, for example when your users load files from their OneDrive Personal Vault.</li>
+      <li>Setup didn't and still doesn't enable RedirectionGuard for the application that is installed, so the issue only affects instances of it started by Setup or Uninstall.</li>
+    </ul>
+    </li>
   </ul>
   </li>
 </ul>
