@@ -1073,7 +1073,7 @@ begin
   { VS Code's maxMinimapSliderTop and computedSliderRatio with
     editor.scrollBeyondLastLine off, see the static create method of class
     MinimapLayout }
-  const MaxMinimapSliderTop = Min(LineCount, MinimapLinesFitting) - ViewportLineCount;
+  const MaxMinimapSliderTop = Min(LineCount, MinimapLinesFitting) - ViewportLineCount; { Also see TMinimap.GetSliderRect }
   if MaxMinimapSliderTop <= 0 then
     Exit(ViewportStartLine); { The slider can't move }
   const ComputedSliderRatio = MaxMinimapSliderTop / (LineCount - ViewportLineCount);

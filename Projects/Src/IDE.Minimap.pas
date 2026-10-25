@@ -180,6 +180,16 @@ end;
 
 function TMinimap.GetSliderRect(const MinimapLayout: TMinimapLayout): TRect;
 begin
+  { Like VS Code's with editor.scrollBeyondLastLine off, there's no slider
+    while it can't move, such as while the memo shows the whole document. See
+    maxMinimapSliderTop and sliderNeeded in the static create method of class
+    MinimapLayout. Limitation: ViewportLineCount counts whole document lines,
+    so with word wrap on, the slider can disappear and reappear while the memo
+    scrolls through a short document with long wrapped lines. }
+  const MaxMinimapSliderTop = Min(MinimapLayout.LineCount, MinimapLayout.MinimapLinesFitting) -
+    MinimapLayout.ViewportLineCount; { Also see CalculateMinimapViewportStartLineFromDelta }
+  if MaxMinimapSliderTop <= 0 then
+    Exit(TRect.Empty);
   Result := Bounds(0, (MinimapLayout.ViewportStartLine - TopLine) * LineHeight, ClientWidth,
     MinimapLayout.ViewportLineCount * LineHeight);
 end;
@@ -320,6 +330,8 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
     SliderAlphas: array[TThemeType, Boolean] of Byte = ((40, 70), (25, 33), (31, 54));
     SliderAlphasDragging: array[TThemeType] of Byte = (99, 45, 76);
   begin
+    if SliderRect.IsEmpty then
+      Exit;
     const SliderDC = CreateCompatibleDC(DC);
     if SliderDC = 0 then
       Exit;
