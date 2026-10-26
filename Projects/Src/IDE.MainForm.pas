@@ -2949,6 +2949,7 @@ end;
 procedure TMainForm.SyncEditorOptions;
 const
   SquigglyStyles: array[Boolean] of TScintIndicatorStyle = (sisHidden, sisSquiggle);
+  MinimapSquigglyStyles: array[Boolean] of TScintIndicatorStyle = (sisHidden, sisFullBox);
   WhiteSpaceStyles: array[Boolean] of Integer = (SCWS_INVISIBLE, SCWS_VISIBLEALWAYS);
 var
   Memo: TIDEScintEdit;
@@ -2986,7 +2987,7 @@ begin
   { Only view-level options, and no document-level ones: the minimap shares the
     active memo's document }
   FMinimap.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
-  FMinimap.IndicatorStyle[minSquiggly] := SquigglyStyles[FOptions.UnderlineErrors];
+  FMinimap.IndicatorStyle[minSquiggly] := MinimapSquigglyStyles[FOptions.UnderlineErrors];
 end;
 
 procedure TMainForm.SyncInspectorOptions;

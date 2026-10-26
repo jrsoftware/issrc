@@ -372,8 +372,16 @@ begin
 end;
 
 procedure TMinimap.UpdateTheme;
+const
+  { These make the boxes about as strong as VS Code's, after the contrast boost }
+  SquigglyAlphas: array[TThemeType] of Byte = (171, 255, 128);
 begin
   UpdateThemeColorsAndStyleAttributes;
+  if Theme <> nil then begin
+    const SquigglyAlpha = SquigglyAlphas[Theme.Typ];
+    Call(SCI_INDICSETALPHA, minSquiggly, SquigglyAlpha);
+    Call(SCI_INDICSETOUTLINEALPHA, minSquiggly, SquigglyAlpha);
+  end;
   Invalidate; { WMPaint depends on the theme }
 end;
 
