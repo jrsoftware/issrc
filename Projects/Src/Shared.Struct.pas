@@ -17,7 +17,7 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '6.7.4-dev';
+  SetupVersion = '6.7.4';
   SetupBinVersion = (6 shl 24) + (7 shl 16) + (4 shl 8) + 0;
 
 type
