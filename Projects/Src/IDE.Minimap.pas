@@ -46,6 +46,7 @@ type
       function GetMemoLineFromMinimapLine(const MinimapLine: Integer): Integer;
       function GetMinimapLayout: TMinimapLayout;
       function GetSliderRect(const MinimapLayout: TMinimapLayout): TRect;
+      procedure GetVisibleDocLines(out FirstLine, LastLine: Integer);
       procedure SetDocPointer;
       procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
       procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
@@ -220,6 +221,13 @@ begin
     MinimapLayout.ViewportLineCount * LineHeight);
 end;
 
+procedure TMinimap.GetVisibleDocLines(out FirstLine, LastLine: Integer);
+{ Includes the partial bottom line }
+begin
+  FirstLine := GetDocLineFromVisibleLine(TopLine);
+  LastLine := Min(GetDocLineFromVisibleLine(TopLine + LinesInWindow), Lines.Count-1);
+end;
+
 procedure TMinimap.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
@@ -331,9 +339,10 @@ begin
     selections it didn't copy stay missing until the memo's selections or
     content change. }
   const AlwaysCopiedSelectionCount = 1000;
-  const FirstVisiblePosition = GetPositionFromLine(GetDocLineFromVisibleLine(TopLine));
-  const LastVisiblePosition = GetLineEndPosition(Min(GetDocLineFromVisibleLine(
-    TopLine + LinesInWindow), Lines.Count-1)); { Includes the partial bottom line }
+  var FirstVisibleLine, LastVisibleLine: Integer;
+  GetVisibleDocLines(FirstVisibleLine, LastVisibleLine);
+  const FirstVisiblePosition = GetPositionFromLine(FirstVisibleLine);
+  const LastVisiblePosition = GetLineEndPosition(LastVisibleLine);
 
   { Updates the minimap's selections in place and adds or removes them only at
     the end: rebuilding them would take quadratic time, because adding a
@@ -419,6 +428,41 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
     CallWindowProc(DefWndProc, Handle, WM_PRINTCLIENT, WPARAM(DC), PRF_CLIENT);
   end;
 
+  procedure DrawAlphaRects(const DC: HDC; const Rects: array of TRect;
+    const Color: TColor; const Alpha: Byte);
+  begin
+    if Length(Rects) = 0 then
+      Exit;
+    const ColorDC = CreateCompatibleDC(DC);
+    if ColorDC = 0 then
+      Exit;
+    try
+      const ColorBitmap = CreateCompatibleBitmap(DC, 1, 1);
+      if ColorBitmap = 0 then
+        Exit;
+      try
+        const OldBitmap = SelectObject(ColorDC, ColorBitmap);
+        try
+          SetPixel(ColorDC, 0, 0, COLORREF(ColorToRGB(Color)));
+          var BlendFunction: TBlendFunction;
+          BlendFunction.BlendOp := AC_SRC_OVER;
+          BlendFunction.BlendFlags := 0;
+          BlendFunction.SourceConstantAlpha := Alpha;
+          BlendFunction.AlphaFormat := 0;
+          for var Rect in Rects do
+            AlphaBlend(DC, Rect.Left, Rect.Top, Rect.Width, Rect.Height,
+              ColorDC, 0, 0, 1, 1, BlendFunction);
+        finally
+          SelectObject(ColorDC, OldBitmap);
+        end;
+      finally
+        DeleteObject(ColorBitmap);
+      end;
+    finally
+      DeleteDC(ColorDC);
+    end;
+  end;
+
   procedure DrawSlider(const DC: HDC; const SliderRect: TRect);
   const
     { These give the colors of VS Code's slider }
@@ -427,36 +471,12 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
   begin
     if SliderRect.IsEmpty then
       Exit;
-    const SliderDC = CreateCompatibleDC(DC);
-    if SliderDC = 0 then
-      Exit;
-    try
-      const SliderBitmap = CreateCompatibleBitmap(DC, 1, 1);
-      if SliderBitmap = 0 then
-        Exit;
-      try
-        const OldBitmap = SelectObject(SliderDC, SliderBitmap);
-        try
-          SetPixel(SliderDC, 0, 0, COLORREF(ColorToRGB(Theme.Colors[tcFore])));
-          var BlendFunction: TBlendFunction;
-          BlendFunction.BlendOp := AC_SRC_OVER;
-          BlendFunction.BlendFlags := 0;
-          if FDrag.Dragging then
-            BlendFunction.SourceConstantAlpha := SliderAlphasDragging[Theme.Typ]
-          else
-            BlendFunction.SourceConstantAlpha := SliderAlphas[Theme.Typ, FHoveringSlider];
-          BlendFunction.AlphaFormat := 0;
-          AlphaBlend(DC, SliderRect.Left, SliderRect.Top, SliderRect.Width,
-            SliderRect.Height, SliderDC, 0, 0, 1, 1, BlendFunction);
-        finally
-          SelectObject(SliderDC, OldBitmap);
-        end;
-      finally
-        DeleteObject(SliderBitmap);
-      end;
-    finally
-      DeleteDC(SliderDC);
-    end;
+    var SliderAlpha: Byte;
+    if FDrag.Dragging then
+      SliderAlpha := SliderAlphasDragging[Theme.Typ]
+    else
+      SliderAlpha := SliderAlphas[Theme.Typ, FHoveringSlider];
+    DrawAlphaRects(DC, [SliderRect], Theme.Colors[tcFore], SliderAlpha);
   end;
 
   function PaintToBitmap(const DC: HDC): Boolean;
