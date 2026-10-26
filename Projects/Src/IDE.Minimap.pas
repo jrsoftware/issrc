@@ -380,7 +380,7 @@ end;
 
 procedure TMinimap.UpdateTheme;
 const
-  SquigglyAlphas: array[TThemeType] of Byte = (171, 255, 128);
+  SquigglyAlphas: array[TThemeType] of Byte = (171, 217, 128);
   OccurrenceAlphas: array[TThemeType] of Byte = (42, 162, 42);
 begin
   UpdateThemeColorsAndStyleAttributes;
