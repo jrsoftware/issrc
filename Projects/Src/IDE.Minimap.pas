@@ -152,6 +152,13 @@ begin
   for var Marker: TScintMarkerNumber := mmiFirst to mmiLast do
     MarkerSymbol[Marker] := smsEmpty;
 
+  { Like VS Code, draw occurrences as boxes. Also see TMainForm.SyncEditorOptions
+    for squiggly boxes. }
+  for var Indicator: TScintIndicatorNumber in [minWordAtCursorOccurrence, minSelTextOccurrence] do begin
+    IndicatorStyle[Indicator] := sisFullBox;
+    Call(SCI_INDICSETUNDER, Indicator, 0); { Over the text, like VS Code }
+  end;
+
   { No change notifications or undo selection history, don't need them }
   ChangeNotifications := False;
   UndoSelectionHistory := False;
@@ -373,14 +380,22 @@ end;
 
 procedure TMinimap.UpdateTheme;
 const
-  { These make the boxes about as strong as VS Code's, after the contrast boost }
   SquigglyAlphas: array[TThemeType] of Byte = (171, 255, 128);
+  OccurrenceAlphas: array[TThemeType] of Byte = (42, 162, 42);
 begin
   UpdateThemeColorsAndStyleAttributes;
   if Theme <> nil then begin
     const SquigglyAlpha = SquigglyAlphas[Theme.Typ];
     Call(SCI_INDICSETALPHA, minSquiggly, SquigglyAlpha);
     Call(SCI_INDICSETOUTLINEALPHA, minSquiggly, SquigglyAlpha);
+    { Like VS Code, use one color for both kinds of occurrences }
+    const OccurrenceAlpha = OccurrenceAlphas[Theme.Typ];
+    for var Indicator: TScintIndicatorNumber in [minWordAtCursorOccurrence, minSelTextOccurrence] do begin
+      Call(SCI_INDICSETFORE, Indicator, Theme.Colors[tcMinimapOccurrenceBack]);
+      Call(SCI_INDICSETALPHA, Indicator, OccurrenceAlpha);
+      Call(SCI_INDICSETOUTLINEALPHA, Indicator, OccurrenceAlpha);
+    end;
+    SetSelectionBackColor(Theme.Colors[tcMinimapSelBack]);
   end;
   Invalidate; { WMPaint depends on the theme }
 end;

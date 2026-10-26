@@ -104,6 +104,7 @@ type
     function GetComplexCommand(const ShortCut: TShortCut): TIDEScintComplexCommand;
     function GetComplexCommandShortCut(const Command: TIDEScintComplexCommand): TShortCut;
     function GetRectExtendShiftState: TShiftState;
+    procedure SetSelectionBackColor(const Color: TColor);
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TIDEScintIndicatorNumber);
     procedure UpdateWidthsAndSizes(const IconMarkersWidth,
@@ -366,6 +367,15 @@ begin
   end;
 end;
 
+procedure TIDEScintEdit.SetSelectionBackColor(const Color: TColor);
+begin
+  Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_BACK, Color);
+  Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_ADDITIONAL_BACK, Color);
+  Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_SECONDARY_BACK, Color);
+  Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, Color);
+  Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, Color);
+end;
+
 procedure TIDEScintEdit.SetSmartHome(const Value: Boolean);
 begin
   if FSmartHome <> Value then begin
@@ -520,12 +530,7 @@ begin
     Call(SCI_CALLTIPSETBACK, FTheme.Colors[tcIntelliBack], 0);
     Call(SCI_CALLTIPSETFOREHLT, FTheme.Colors[tcBlue], 0);
 
-    var SelBackColor := FTheme.Colors[tcSelBack];
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_BACK, SelBackColor);
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_ADDITIONAL_BACK, SelBackColor);
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_SECONDARY_BACK, SelBackColor);
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, SelBackColor);
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, SelBackColor);
+    SetSelectionBackColor(FTheme.Colors[tcSelBack]);
 
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_WHITE_SPACE, FTheme.Colors[tcIndentGuideFore] or (SC_ALPHA_OPAQUE shl 24));
 
