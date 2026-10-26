@@ -125,6 +125,10 @@ begin
     stronger }
   FontQuality := sfqAntialiased;
 
+  { Scintilla makes each tab at least 2 pixels wide, which at this font size
+    is a column or more, so tabs would be wider than in the memo }
+  TabMinimumWidth := 0;
+
   { Use the gutter for a single margin showing change history }
   for var Margin := 0 to MarginCount-1 do
     MarginWidth[Margin] := 0;
