@@ -5555,6 +5555,8 @@ begin
     FInspector.UpdateFromCaret;
   if NavigatorPanel.Visible and (Memo = FActiveMemo) then
     FNavigator.UpdateFromCaret;
+  if FMinimap.Visible and (Memo = FActiveMemo) then
+    FMinimap.SyncSelections;
 end;
 
 procedure TMainForm.MemoModifiedChange(Sender: TObject);

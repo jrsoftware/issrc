@@ -305,6 +305,7 @@ type
     destructor Destroy; override;
     procedure AddMarker(const Line: Integer; const Marker: TScintMarkerNumber);
     procedure AddSelection(const CaretPos, AnchorPos: Integer);
+    function AllSelectionsEmpty: Boolean;
     procedure AssignCmdKey(const Key: AnsiChar; const Shift: TShiftState;
       const Command: TScintCommand); overload;
     procedure AssignCmdKey(const KeyCode: TScintKeyCode; const Shift: TShiftState;
@@ -401,6 +402,7 @@ type
       const Options: TScintFindOptions): Boolean;
     procedure Redo;
     procedure RemoveAdditionalSelections;
+    procedure RemoveSelection(const Selection: Integer);
     procedure ReplaceMainSelText(const S: String;
       const ReplaceMode: TScintReplaceMode = srmNormal);
     procedure ReplaceRawMainSelText(const S: TScintRawString;
@@ -704,6 +706,11 @@ procedure TScintEdit.AddSelection(const CaretPos, AnchorPos: Integer);
   selection should be added with SetSingleSelection. }
 begin
   Call(SCI_ADDSELECTION, CaretPos, AnchorPos);
+end;
+
+function TScintEdit.AllSelectionsEmpty: Boolean;
+begin
+  Result := Call(SCI_GETSELECTIONEMPTY, 0, 0) <> 0;
 end;
 
 procedure TScintEdit.ApplyOptions;
@@ -2008,6 +2015,11 @@ begin
   SetSingleSelection(CaretPos, AnchorPos);
 end;
 
+procedure TScintEdit.RemoveSelection(const Selection: Integer);
+begin
+  Call(SCI_DROPSELECTIONN, Selection, 0);
+end;
+
 procedure TScintEdit.ReplaceMainSelText(const S: String;
   const ReplaceMode: TScintReplaceMode);
 begin
@@ -2333,15 +2345,15 @@ procedure TScintEdit.SetDocumentPointer(const Value: Pointer);
   Selection* properties. Also what AddSelection, AssignCmdKey, BraceMatch,
   CancelAutoComplete*, CancelCallTip, ChooseCaretX, ClearCmdKey,
   EnsureLineVisible, EnsurePositionInViewVertically, FoldLine,
-  RemoveAdditionalSelections, ScrollCaretIntoView, Select*, SetAutoComplete*,
-  SetBraceBadHighlighting, SetBraceHighlighting, SetCallTipHighlight,
-  SetCursorID, SetEmptySelection*, SetSingleSelection, ShowAutoComplete,
-  ShowCallTip, ZoomIn and ZoomOut set, and what DPIChanged, SettingChange and
-  SysColorChange forward. And what GetDocLineFromVisibleLine,
-  GetPointFromPosition, GetPositionFromPoint, GetSelection*,
-  GetVisibleLineFromDocLine, IsPositionInViewVertically, MainSelTextEquals,
-  RawMainSelTextEquals, SelEmpty, SelNotEmpty and WordAtCaret* return, and
-  what GetTextWidth measures.
+  RemoveAdditionalSelections, RemoveSelection, ScrollCaretIntoView, Select*,
+  SetAutoComplete*, SetBraceBadHighlighting, SetBraceHighlighting,
+  SetCallTipHighlight, SetCursorID, SetEmptySelection*, SetSingleSelection,
+  ShowAutoComplete, ShowCallTip, ZoomIn and ZoomOut set, and what DPIChanged,
+  SettingChange and SysColorChange forward. And what AllSelectionsEmpty,
+  GetDocLineFromVisibleLine, GetPointFromPosition, GetPositionFromPoint,
+  GetSelection*, GetVisibleLineFromDocLine, IsPositionInViewVertically,
+  MainSelTextEquals, RawMainSelTextEquals, SelEmpty, SelNotEmpty and
+  WordAtCaret* return, and what GetTextWidth measures.
 
   Special:
   -AddMarker, DeleteMarker, GetMarkers, SetIndicators, ClearIndicators and

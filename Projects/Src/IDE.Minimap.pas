@@ -59,6 +59,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure SetMemo(const AMemo: TIDEScintEdit);
     procedure SyncScrollPosition;
+    procedure SyncSelections;
     procedure UpdateFont(const AFont: TFont);
     procedure UpdateTheme;
   end;
@@ -261,6 +262,7 @@ begin
   if (FMemo <> nil) and HandleAllocated then begin
     DocumentPointer := FMemo.DocumentPointer;
     SyncScrollPosition;
+    SyncSelections; { Uses the scroll position }
   end;
 end;
 
@@ -300,6 +302,67 @@ begin
     if FHovering or FDrag.Dragging then
       Invalidate;
   end;
+end;
+
+procedure TMinimap.SyncSelections;
+begin
+  if (FMemo = nil) or not HandleAllocated then
+    Exit;
+
+  { Copies the memo's non-empty selections only. The minimap doesn't need the
+    empty ones because its caret is invisible. }
+
+  if FMemo.AllSelectionsEmpty then begin
+    if (SelectionCount > 1) or not AllSelectionsEmpty then
+      SetEmptySelection;
+    Exit;
+  end;
+
+  { Adding thousands of selections takes noticeable time, so after the first
+    ones this only copies those the minimap shows. Limitation: when the minimap
+    then shows other lines, such as when it scrolls, grows, or is shown, the
+    selections it didn't copy stay missing until the memo's selections or
+    content change. }
+  const AlwaysCopiedSelectionCount = 1000;
+  const FirstVisiblePosition = GetPositionFromLine(GetDocLineFromVisibleLine(TopLine));
+  const LastVisiblePosition = GetLineEndPosition(Min(GetDocLineFromVisibleLine(
+    TopLine + LinesInWindow), Lines.Count-1)); { Includes the partial bottom line }
+
+  { Updates the minimap's selections in place and adds or removes them only at
+    the end: rebuilding them would take quadratic time, because adding a
+    selection trims all others. Only sets a selection when it changed, because
+    setting one repaints the minimap. }
+  var MinimapSelection := 0;
+  for var MemoSelection := 0 to FMemo.SelectionCount-1 do begin
+    const CaretPosition = FMemo.SelectionCaretPosition[MemoSelection];
+    const CaretVirtualSpace = FMemo.SelectionCaretVirtualSpace[MemoSelection];
+    const AnchorPosition = FMemo.SelectionAnchorPosition[MemoSelection];
+    const AnchorVirtualSpace = FMemo.SelectionAnchorVirtualSpace[MemoSelection];
+    if (CaretPosition = AnchorPosition) and (CaretVirtualSpace = AnchorVirtualSpace) then
+      Continue;
+    if (MinimapSelection >= AlwaysCopiedSelectionCount) and
+       ((Min(CaretPosition, AnchorPosition) > LastVisiblePosition) or
+        (Max(CaretPosition, AnchorPosition) < FirstVisiblePosition)) then
+      Continue;
+    if MinimapSelection = SelectionCount then begin
+      AddSelection(CaretPosition, AnchorPosition);
+      { Adding removes the selections it trims to empty, so the new one can be
+        at a lower index }
+      MinimapSelection := SelectionCount-1;
+    end;
+    if (SelectionCaretPosition[MinimapSelection] <> CaretPosition) or
+       (SelectionCaretVirtualSpace[MinimapSelection] <> CaretVirtualSpace) or
+       (SelectionAnchorPosition[MinimapSelection] <> AnchorPosition) or
+       (SelectionAnchorVirtualSpace[MinimapSelection] <> AnchorVirtualSpace) then begin
+      SelectionCaretPosition[MinimapSelection] := CaretPosition;
+      SelectionCaretVirtualSpace[MinimapSelection] := CaretVirtualSpace;
+      SelectionAnchorPosition[MinimapSelection] := AnchorPosition;
+      SelectionAnchorVirtualSpace[MinimapSelection] := AnchorVirtualSpace;
+    end;
+    Inc(MinimapSelection);
+  end;
+  for var Selection := SelectionCount-1 downto MinimapSelection do
+    RemoveSelection(Selection);
 end;
 
 procedure TMinimap.UpdateFont(const AFont: TFont);
