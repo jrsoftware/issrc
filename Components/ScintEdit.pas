@@ -2339,12 +2339,12 @@ procedure TScintEdit.SetDocumentPointer(const Value: Pointer);
   ChangeNotifications, Color, FillSelectionToEdge, FoldFlags, Font,
   FontQuality, HorizontalScrollBar, IndentationGuides, IndicatorStyle,
   InsertMode, LeftBlankMarginWidth, LineHeight, LineNumbers, LinesInWindow,
-  MainSelection, MarkerSymbol, RightBlankMarginWidth, TabMinimumWidth, Target,
-  TopLine, UndoSelectionHistory, UseStyleAttributes, VerticalScrollBar,
-  VirtualSpaceOptions, WordWrap, XOffset, Zoom, and the Caret*, Margin* and
-  Selection* properties. Also what AddSelection, AssignCmdKey, BraceMatch,
-  CancelAutoComplete*, CancelCallTip, ChooseCaretX, ClearCmdKey,
-  EnsureLineVisible, EnsurePositionInViewVertically, FoldLine,
+  MainSelection, MarkerSymbol, RawCaretLineText, RightBlankMarginWidth,
+  TabMinimumWidth, Target, TopLine, UndoSelectionHistory, UseStyleAttributes,
+  VerticalScrollBar, VirtualSpaceOptions, WordWrap, XOffset, Zoom, and the
+  Caret*, Margin* and Selection* properties. Also what AddSelection,
+  AssignCmdKey, BraceMatch, CancelAutoComplete*, CancelCallTip, ChooseCaretX,
+  ClearCmdKey, EnsureLineVisible, EnsurePositionInViewVertically, FoldLine,
   RemoveAdditionalSelections, RemoveSelection, ScrollCaretIntoView, Select*,
   SetAutoComplete*, SetBraceBadHighlighting, SetBraceHighlighting,
   SetCallTipHighlight, SetCursorID, SetEmptySelection*, SetSingleSelection,
@@ -2353,7 +2353,8 @@ procedure TScintEdit.SetDocumentPointer(const Value: Pointer);
   GetDocLineFromVisibleLine, GetPointFromPosition, GetPositionFromPoint,
   GetSelection*, GetVisibleLineFromDocLine, IsPositionInViewVertically,
   MainSelTextEquals, RawMainSelTextEquals, SelEmpty, SelNotEmpty and
-  WordAtCaret* return, and what GetTextWidth measures.
+  WordAtCaret* return, what FormatRange formats, and what GetTextWidth
+  measures.
 
   Special:
   -AddMarker, DeleteMarker, GetMarkers, SetIndicators, ClearIndicators and
@@ -2381,8 +2382,7 @@ procedure TScintEdit.SetDocumentPointer(const Value: Pointer);
   -Modified is document-level, except for ForceModifiedState, which is
    view-level.
   -OnChange and OnModifiedChange occur for each view, because changes to the
-   document notify all its views. OnChange only while ChangeNotifications is
-   True.
+   document notify all its views.
   -MainSelText, RawMainSelText, RawSelText and SelText read the selections of
    this view, but setting them edits the document.
   -View-level too, but without a TScintEdit member yet, so sent with Call:

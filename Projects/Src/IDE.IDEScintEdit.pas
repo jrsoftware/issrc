@@ -248,7 +248,7 @@ begin
   
   Call(SCI_SETSCROLLWIDTH, 1024 * GetTextWidth(0, 'X'), 0);
 
-  IndicatorStyle[minSquiggly] := sisSquiggle; { Overwritten by TCompForm.SyncEditorOptions }
+  IndicatorStyle[minSquiggly] := sisSquiggle; { Overwritten by TMainForm.SyncEditorOptions }
   Call(SCI_INDICSETFORE, minSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   IndicatorStyle[minPendingSquiggly] := sisHidden;
 
