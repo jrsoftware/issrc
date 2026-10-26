@@ -92,7 +92,7 @@ function FindSetupDirectiveValueAsBoolean(const DirectiveName: String): Boolean;
 function AnyInputDown: Boolean;
 function CalculateMinimapWidth(const RemainingWidth, VerticalScrollbarWidth: Integer;
   const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
-  const MinimapMaxColumn, CaretRoomWidth, MinimapGutterWidth: Integer): Integer;
+  const MinimapMaxColumn, MinimapGutterWidth: Integer): Integer;
 function CalculateMinimapTopLine(const LineCount, MinimapLinesFitting,
   ViewportStartLine, ViewportLineCount: Integer): Integer;
 function CalculateMinimapViewportStartLineFromDelta(const LineCount, MinimapLinesFitting,
@@ -1038,13 +1038,14 @@ end;
 
 function CalculateMinimapWidth(const RemainingWidth, VerticalScrollbarWidth: Integer;
   const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
-  const MinimapMaxColumn, CaretRoomWidth, MinimapGutterWidth: Integer): Integer;
+  const MinimapMaxColumn, MinimapGutterWidth: Integer): Integer;
 { RemainingWidth should be the editor's whole width, vertical scrollbar
   included, minus its gutter }
 begin
   { VS Code's formula, see minimapWidth in
     EditorLayoutInfoComputer._computeMinimapLayout }
   const MinimapMaxWidth = Floor(MinimapMaxColumn * MinimapCharWidth);
+  const CaretRoomWidth = 0; { VS Code uses 2, but Scintilla can't draw the caret outside its text area }
   Result := Min(MinimapMaxWidth, Max(0, Floor((RemainingWidth -
     VerticalScrollbarWidth - CaretRoomWidth) * MinimapCharWidth /
     (EditorTypicalHalfwidthCharWidth + MinimapCharWidth))) + MinimapGutterWidth);

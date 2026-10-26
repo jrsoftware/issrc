@@ -829,11 +829,6 @@ const
 
   LineStateGrowAmount = 4000;
 
-  { Minimap caret room width, at 96 dpi. A memo's right margin (its
-    RightBlankMarginWidth) contains, from left to right: the caret room, the
-    minimap, and the vertical scrollbar's space while the scrollbar is hidden. }
-  MinimapCaretRoomWidth = 2;
-
   { VS Code's default for its editor.minimap.maxColumn setting, see
     'maxColumn: 120' in src/vs/editor/common/config/editorOptions.ts. Note:
     Column is VS Code's term for one minimap character, so the minimap, its
@@ -3802,7 +3797,7 @@ begin
     otherwise the reservation could show or hide it through rewrapping }
   Result := CalculateMinimapWidth(RemainingWidth, AMemo.GetSystemMetrics(SM_CXVSCROLL),
     GetTypicalHalfwidthCharWidth(AMemo), GetTypicalHalfwidthCharWidth(FMinimap),
-    MinimapMaxColumn, ToCurrentPPI(MinimapCaretRoomWidth), MinimapGutterWidth);
+    MinimapMaxColumn, MinimapGutterWidth);
 end;
 
 function TMainForm.GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
@@ -3814,8 +3809,7 @@ function TMainForm.GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
   text, which could show or hide the scrollbar again. }
 begin
   if (FMinimap <> nil) and FMinimap.Visible then
-    Result := GetMinimapWidth(AMemo) + ToCurrentPPI(MinimapCaretRoomWidth) +
-      GetVScrollWidthIfHidden(AMemo)
+    Result := GetMinimapWidth(AMemo) + GetVScrollWidthIfHidden(AMemo)
   else
     Result := 0;
 end;
