@@ -68,7 +68,7 @@ implementation
 uses
   Windows, ActiveX,
   Math,
-  ModernColors,
+  ModernColors, ScintEdit,
   IDE.HelperFunc;
 
 const
@@ -112,10 +112,10 @@ begin
   RevokeDragDrop(Handle);
 
   { No right blank margin, scrollbars or caret on the minimap }
-  Call(SCI_SETMARGINRIGHT, 0, 0);
-  Call(SCI_SETVSCROLLBAR, 0, 0);
-  Call(SCI_SETHSCROLLBAR, 0, 0);
-  Call(SCI_SETCARETSTYLE, CARETSTYLE_INVISIBLE, 0);
+  RightBlankMarginWidth := 0;
+  VerticalScrollBar := False;
+  HorizontalScrollBar := False;
+  CaretStyle := scsInvisible;
 
   { Regular cursor always }
   SetCursorID(SC_CURSORARROW);
@@ -123,33 +123,33 @@ begin
   { Grayscale anti-aliasing, because Windows' default ClearType gives the
     edges of characters a colored tint, which the contrast boost would make
     stronger }
-  Call(SCI_SETFONTQUALITY, SC_EFF_QUALITY_ANTIALIASED, 0);
+  FontQuality := sfqAntialiased;
 
   { Use the gutter for a single margin showing change history }
-  for var Margin := 0 to Call(SCI_GETMARGINS, 0, 0)-1 do
-    Call(SCI_SETMARGINWIDTHN, Margin, 0);
-  Call(SCI_SETMARGINTYPEN, mmChangeHistory, SC_MARGIN_BACK);
+  for var Margin := 0 to MarginCount-1 do
+    MarginWidth[Margin] := 0;
+  MarginType[mmChangeHistory] := smtBack;
   { Like VS Code, use 2 pixel wide change markers, not scaled for DPI }
   const ChangeHistoryWidth = 2 * 3; { SC_MARK_BAR shows a bar a third of its width }
-  Call(SCI_SETMARGINWIDTHN, mmChangeHistory, ChangeHistoryWidth);
+  MarginWidth[mmChangeHistory] := ChangeHistoryWidth;
   { Add a blank margin between the change history margin and the text.
     Together with the previous call, this ensures a change marker has 2 blank
     pixels before it and the rest after it, like VS Code. }
-  Call(SCI_SETMARGINLEFT, 0, MinimapGutterWidth - ChangeHistoryWidth);
+  LeftBlankMarginWidth := MinimapGutterWidth - ChangeHistoryWidth;
 
   { Show change history as markers, but leave enabling it to the memo, because
     that's document-level. Must come before SetDocPointer, else this would
     disable it for the memo's document. }
-  Call(SCI_SETCHANGEHISTORY, SC_CHANGE_HISTORY_MARKERS, 0);
+  ChangeHistoryDisplay := schMarkers;
 
   { Ensure the icon markers stay invisible now that the minimap has no margin
     for them. Without this Scintilla would display them as line markers instead. }
-  for var Marker := mmiFirst to mmiLast do
-    Call(SCI_MARKERDEFINE, Marker, SC_MARK_EMPTY);
+  for var Marker: TScintMarkerNumber := mmiFirst to mmiLast do
+    MarkerSymbol[Marker] := smsEmpty;
 
   { No change notifications or undo selection history, don't need them }
-  Call(SCI_SETMODEVENTMASK, 0, 0);
-  Call(SCI_SETUNDOSELECTIONHISTORY, SC_UNDO_SELECTION_HISTORY_DISABLED, 0);
+  ChangeNotifications := False;
+  UndoSelectionHistory := False;
 
   { Ensure document is shared }
   SetDocPointer;
@@ -247,8 +247,8 @@ begin
     Detect and fix using SCN_UPDATEUI. Comes before the paint so doesn't
     cause flicker. }
   if (N.nmhdr.code = SCN_UPDATEUI) and (N.updated and SC_UPDATE_H_SCROLL <> 0) and
-     (Call(SCI_GETXOFFSET, 0, 0) <> 0) then { Check because SCI_SETXOFFSET always repaints }
-    Call(SCI_SETXOFFSET, 0, 0); { Safe: queues another SCN_UPDATEUI but Scintilla then discards it on return }
+     (XOffset <> 0) then { Check because setting XOffset always repaints }
+    XOffset := 0; { Safe: queues another SCN_UPDATEUI but Scintilla then discards it on return }
   inherited;
 end;
 

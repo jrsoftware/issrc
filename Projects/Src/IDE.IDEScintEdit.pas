@@ -242,23 +242,23 @@ begin
   Call(SCI_SETADDITIONALSELECTIONTYPING, 1, 0);
   Call(SCI_SETMULTIPASTE, SC_MULTIPASTE_EACH, 0);
   Call(SCI_SETCOPYSEPARATOR, 0, LineEndingString);
-  Call(SCI_SETUNDOSELECTIONHISTORY, SC_UNDO_SELECTION_HISTORY_ENABLED, 0);
+  UndoSelectionHistory := True;
 
   AssignCmdKey('Z', [ssShift, ssCtrl], SCI_REDO);
   
-  Call(SCI_SETSCROLLWIDTH, 1024 * Call(SCI_TEXTWIDTH, 0, 'X'), 0);
+  Call(SCI_SETSCROLLWIDTH, 1024 * GetTextWidth(0, 'X'), 0);
 
-  Call(SCI_INDICSETSTYLE, minSquiggly, INDIC_SQUIGGLE); { Overwritten by TCompForm.SyncEditorOptions }
+  IndicatorStyle[minSquiggly] := sisSquiggle; { Overwritten by TCompForm.SyncEditorOptions }
   Call(SCI_INDICSETFORE, minSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
-  Call(SCI_INDICSETSTYLE, minPendingSquiggly, INDIC_HIDDEN);
+  IndicatorStyle[minPendingSquiggly] := sisHidden;
 
-  Call(SCI_INDICSETSTYLE, minWordAtCursorOccurrence, INDIC_STRAIGHTBOX);
+  IndicatorStyle[minWordAtCursorOccurrence] := sisStraightBox;
   Call(SCI_INDICSETFORE, minWordAtCursorOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETALPHA, minWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
   Call(SCI_INDICSETOUTLINEALPHA, minWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
   Call(SCI_INDICSETUNDER, minWordAtCursorOccurrence, 1);
 
-  Call(SCI_INDICSETSTYLE, minSelTextOccurrence, INDIC_STRAIGHTBOX);
+  IndicatorStyle[minSelTextOccurrence] := sisStraightBox;
   Call(SCI_INDICSETFORE, minSelTextOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETALPHA, minSelTextOccurrence, SC_ALPHA_OPAQUE);
   Call(SCI_INDICSETOUTLINEALPHA, minSelTextOccurrence, SC_ALPHA_OPAQUE);
@@ -271,7 +271,7 @@ begin
   Call(SCI_SETMARGINCURSORN, mmLineNumbers, SC_CURSORARROW);
 
   { Set up the gutter column with breakpoint etc symbols }
-  Call(SCI_SETMARGINTYPEN, mmIcons, SC_MARGIN_SYMBOL);
+  MarginType[mmIcons] := smtSymbol;
   Call(SCI_SETMARGINMASKN, mmIcons, mmiMask);
   Call(SCI_SETMARGINSENSITIVEN, mmIcons, 1); { Makes it send SCN_MARGIN(RIGHT)CLICK instead of selecting lines }
   Call(SCI_SETMARGINCURSORN, mmIcons, SC_CURSORARROW);
@@ -279,34 +279,34 @@ begin
   { Set up the gutter column with change history. Note: width of the column is
     set up by UpdateMarginsAndSquigglyAndCaretWidths. Also see
     https://scintilla.org/ChangeHistory.html }
-  Call(SCI_SETMARGINTYPEN, mmChangeHistory, SC_MARGIN_SYMBOL);
+  MarginType[mmChangeHistory] := smtSymbol;
   Call(SCI_SETMARGINMASKN, mmChangeHistory, SC_MASK_HISTORY);
   Call(SCI_SETMARGINCURSORN, mmChangeHistory, SC_CURSORARROW);
 
   { Set up the gutter column with folding markers. Note: width of the column is
     set up by UpdateMarginsAndSquigglyAndCaretWidths. }
-  Call(SCI_SETMARGINTYPEN, mmFolding, SC_MARGIN_SYMBOL);
+  MarginType[mmFolding] := smtSymbol;
   Call(SCI_SETMARGINMASKN, mmFolding, LPARAM(SC_MASK_FOLDERS));
   Call(SCI_SETMARGINCURSORN, mmFolding, SC_CURSORARROW);
   Call(SCI_SETMARGINSENSITIVEN, mmFolding, 1);
   Call(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_SHOW or SC_AUTOMATICFOLD_CLICK or SC_AUTOMATICFOLD_CHANGE, 0);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_ARROWDOWN);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_ARROW);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY);
+  MarkerSymbol[SC_MARKNUM_FOLDEROPEN] := smsArrowDown;
+  MarkerSymbol[SC_MARKNUM_FOLDER] := smsArrow;
+  MarkerSymbol[SC_MARKNUM_FOLDERSUB] := smsEmpty;
+  MarkerSymbol[SC_MARKNUM_FOLDERTAIL] := smsEmpty;
+  MarkerSymbol[SC_MARKNUM_FOLDEREND] := smsEmpty;
+  MarkerSymbol[SC_MARKNUM_FOLDEROPENMID] := smsEmpty;
+  MarkerSymbol[SC_MARKNUM_FOLDERMIDTAIL] := smsEmpty;
   FoldFlags := [{sffLevelNumbers, }sffLineAfterContracted]; { sffLevelNumbers can be used to debug fold levels}
 
   { Set up the line markers }
-  Call(SCI_MARKERDEFINE, mlmError, SC_MARK_BACKFORE);
+  MarkerSymbol[mlmError] := smsBackFore;
   Call(SCI_MARKERSETFORE, mlmError, clWhite);
   Call(SCI_MARKERSETBACK, mlmError, clMaroon);
-  Call(SCI_MARKERDEFINE, mlmBreakpointBad, SC_MARK_BACKFORE);
+  MarkerSymbol[mlmBreakpointBad] := smsBackFore;
   Call(SCI_MARKERSETFORE, mlmBreakpointBad, clLime);
   Call(SCI_MARKERSETBACK, mlmBreakpointBad, clOlive);
-  Call(SCI_MARKERDEFINE, mlmStep, SC_MARK_BACKFORE);
+  MarkerSymbol[mlmStep] := smsBackFore;
   Call(SCI_MARKERSETFORE, mlmStep, clWhite);
   Call(SCI_MARKERSETBACK, mlmStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
 end;
@@ -426,7 +426,7 @@ begin
       UpdateMarginsAndSquigglyAndCaretWidths else we set it to 0 now }
     if not FUseFolding then begin
       Call(SCI_FOLDALL, SC_FOLDACTION_EXPAND, 0);
-      Call(SCI_SETMARGINWIDTHN, 3, 0);
+      MarginWidth[mmFolding] := 0;
     end;
   end;
 end;
@@ -475,25 +475,24 @@ procedure TIDEScintEdit.UpdateWidthsAndSizes(const IconMarkersWidth,
   BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
   RightBlankMarginWidth, SquigglyWidth, CaretWidth, WhiteSpaceSize: Integer);
 begin
-  Call(SCI_SETMARGINWIDTHN, mmIcons, IconMarkersWidth);
+  MarginWidth[mmIcons] := IconMarkersWidth;
 
   var ChangeHistoryWidth: Integer;
   if ChangeHistory <> schDisabled then
     ChangeHistoryWidth := BaseChangeHistoryWidth
   else
     ChangeHistoryWidth := 0; { Current this is just the preprocessor output memo }
-  Call(SCI_SETMARGINWIDTHN, mmChangeHistory, ChangeHistoryWidth);
+  MarginWidth[mmChangeHistory] := ChangeHistoryWidth;
 
   var FolderMarkersWidth: Integer;
   if FUseFolding then
     FolderMarkersWidth := BaseFolderMarkersWidth
   else
     FolderMarkersWidth := 0;
-  Call(SCI_SETMARGINWIDTHN, mmFolding, FolderMarkersWidth);
+  MarginWidth[mmFolding] := FolderMarkersWidth;
 
-  { Note: the first parameter is unused so the value '0' doesn't mean anything below }
-  Call(SCI_SETMARGINLEFT, 0, LeftBlankMarginWidth);
-  Call(SCI_SETMARGINRIGHT, 0, RightBlankMarginWidth);
+  Self.LeftBlankMarginWidth := LeftBlankMarginWidth;
+  Self.RightBlankMarginWidth := RightBlankMarginWidth;
 
   Call(SCI_INDICSETSTROKEWIDTH, minSquiggly, SquigglyWidth);
 

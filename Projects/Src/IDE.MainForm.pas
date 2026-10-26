@@ -829,8 +829,8 @@ const
 
   LineStateGrowAmount = 4000;
 
-  { Minimap caret room width, at 96 dpi. A memo's right margin (as set by
-    SCI_SETMARGINRIGHT) contains, from left to right: the caret room, the
+  { Minimap caret room width, at 96 dpi. A memo's right margin (its
+    RightBlankMarginWidth) contains, from left to right: the caret room, the
     minimap, and the vertical scrollbar's space while the scrollbar is hidden. }
   MinimapCaretRoomWidth = 2;
 
@@ -2953,14 +2953,14 @@ end;
 
 procedure TMainForm.SyncEditorOptions;
 const
-  SquigglyStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_SQUIGGLE);
+  SquigglyStyles: array[Boolean] of TScintIndicatorStyle = (sisHidden, sisSquiggle);
   WhiteSpaceStyles: array[Boolean] of Integer = (SCWS_INVISIBLE, SCWS_VISIBLEALWAYS);
 var
   Memo: TIDEScintEdit;
 begin
   for Memo in FMemos do begin
     Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
-    Memo.Call(SCI_INDICSETSTYLE, minSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
+    Memo.IndicatorStyle[minSquiggly] := SquigglyStyles[FOptions.UnderlineErrors];
     Memo.Call(SCI_SETVIEWWS, WhiteSpaceStyles[FOptions.ShowWhiteSpace], 0);
 
     if FOptions.CursorPastEOL then
@@ -2991,7 +2991,7 @@ begin
   { Only view-level options, and no document-level ones: the minimap shares the
     active memo's document }
   FMinimap.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
-  FMinimap.Call(SCI_INDICSETSTYLE, minSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
+  FMinimap.IndicatorStyle[minSquiggly] := SquigglyStyles[FOptions.UnderlineErrors];
 end;
 
 procedure TMainForm.SyncInspectorOptions;
@@ -3789,14 +3789,14 @@ function TMainForm.GetMinimapWidth(const AMemo: TIDEScintEdit): Integer;
       widths, which GDI doesn't have. Currently GDI is used, so the repeat has
       no effect. }
     const RepeatCount = 256;
-    Result := Edit.Call(SCI_TEXTWIDTH, STYLE_DEFAULT,
+    Result := Edit.GetTextWidth(STYLE_DEFAULT,
       AnsiString(StringOfChar('n', RepeatCount))) / RepeatCount;
   end;
 
 begin
-  var RemainingWidth := AMemo.Width - AMemo.Call(SCI_GETMARGINLEFT, 0, 0);
-  for var Margin := 0 to AMemo.Call(SCI_GETMARGINS, 0, 0)-1 do
-    Dec(RemainingWidth, AMemo.Call(SCI_GETMARGINWIDTHN, Margin, 0));
+  var RemainingWidth := AMemo.Width - AMemo.LeftBlankMarginWidth;
+  for var Margin := 0 to AMemo.MarginCount-1 do
+    Dec(RemainingWidth, AMemo.MarginWidth[Margin]);
 
   { Always passes the vertical scrollbar's width, even while it's hidden:
     otherwise the reservation could show or hide it through rewrapping }
@@ -3823,11 +3823,12 @@ end;
 procedure TMainForm.UpdateMinimapReservation(const AMemo: TIDEScintEdit);
 begin
   { The check avoids rewrapping all text on every resize, also when only the
-    height changes: SCI_SETMARGINRIGHT always invalidates the layout, even if
-    the value is unchanged, and with word wrap on that rewraps all text }
+    height changes: setting RightBlankMarginWidth always invalidates the
+    layout, even if the value is unchanged, and with word wrap on that rewraps
+    all text }
   const Reservation = GetMinimapReservation(AMemo);
-  if AMemo.Call(SCI_GETMARGINRIGHT, 0, 0) <> Reservation then
-    AMemo.Call(SCI_SETMARGINRIGHT, 0, Reservation);
+  if AMemo.RightBlankMarginWidth <> Reservation then
+    AMemo.RightBlankMarginWidth := Reservation;
 end;
 
 procedure TMainForm.UpdateMinimapReservationsAndLayout;

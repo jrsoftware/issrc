@@ -22,6 +22,7 @@ const
 
 type
   TScintAutoCompleteOrder = (sacoPreSorted, sacoPerformSort, sacoCustom);
+  TScintCaretStyle = (scsInvisible, scsLine, scsBlock);
   TScintChangeHistory = (schDisabled, schMarkers, schIndicators);
   TScintCommand = type NativeInt;
   TScintEditAutoCompleteSelectionEvent = TNotifyEvent;
@@ -48,6 +49,7 @@ type
   TScintFoldFlag = (sffLineBeforeExpanded, sffLineBeforeContracted,
     sffLineAfterExpanded, sffLineAfterContracted, sffLevelNumbers, sffLineState);
   TScintFoldFlags = set of TScintFoldFlag;
+  TScintFontQuality = (sfqDefault, sfqNonAntialiased, sfqAntialiased, sfqLcdOptimized);
   TScintIndentationGuides = (sigNone, sigReal, sigLookForward, sigLookBoth);
   TScintKeyCode = type Word;
   TScintKeyDefinition = type Cardinal;
@@ -55,13 +57,26 @@ type
   TScintStyleByteIndicatorNumber = 0..1; { Could be increased to 0..StyleNumberUnusedBits-1 }
   TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
   TScintIndicatorNumber = INDICATOR_CONTAINER..INDICATOR_MAX;
+  TScintIndicatorStyle = (sisPlain, sisSquiggle, sisTT, sisDiagonal, sisStrike, sisHidden,
+    sisBox, sisRoundBox, sisStraightBox, sisDash, sisDots, sisSquiggleLow, sisDotBox,
+    sisSquigglePixmap, sisCompositionThick, sisCompositionThin, sisFullBox, sisTextFore,
+    sisPoint, sisPointCharacter, sisGradient, sisGradientCenter, sisPointTop);
   TScintLineEndings = (sleCRLF, sleCR, sleLF);
   TScintLineRange = record
     StartLine, EndLine: Integer;
   end;
   TScintLineState = type Integer;
+  TScintMarginType = (smtSymbol, smtNumber, smtBack, smtFore, smtText, smtRightText,
+    smtColor);
   TScintMarkerNumber = 0..31;
   TScintMarkerNumbers = set of TScintMarkerNumber;
+  TScintMarkerSymbol = (smsCircle, smsRoundRect, smsArrow, smsSmallRect, smsShortArrow,
+    smsEmpty, smsArrowDown, smsMinus, smsPlus, smsVLine, smsLCorner, smsTCorner, smsBoxPlus,
+    smsBoxPlusConnected, smsBoxMinus, smsBoxMinusConnected, smsLCornerCurve,
+    smsTCornerCurve, smsCirclePlus, smsCirclePlusConnected, smsCircleMinus,
+    smsCircleMinusConnected, smsBackground, smsDotDotDot, smsArrows, smsPixmap,
+    smsFullRect, smsLeftRect, smsAvailable, smsUnderline, smsRgbaImage, smsBookmark,
+    smsVerticalBookmark, smsBar, smsBackFore);
   TScintRange = record
     StartPos, EndPos: Integer;
     constructor Create(const AStartPos, AEndPos: Integer);
@@ -160,14 +175,24 @@ type
     function GetCaretLine: Integer;
     function GetCaretLineText: String;
     function GetCaretPosition: Integer;
+    function GetCaretStyle: TScintCaretStyle;
     function GetCaretVirtualSpace: Integer;
+    function GetChangeNotifications: Boolean;
     function GetDocumentPointer: Pointer;
+    function GetFontQuality: TScintFontQuality;
+    function GetHorizontalScrollBar: Boolean;
+    function GetIndicatorStyle(const IndicatorNumber: TScintIndicatorNumber): TScintIndicatorStyle;
     function GetInsertMode: Boolean;
+    function GetLeftBlankMarginWidth: Integer;
     function GetLineEndings: TScintLineEndings;
     function GetLineEndingString: TScintRawString;
     function GetLineHeight: Integer;
     function GetLinesInWindow: Integer;
     function GetMainSelText: String;
+    function GetMarginCount: Integer;
+    function GetMarginType(const Margin: Integer): TScintMarginType;
+    function GetMarginWidth(const Margin: Integer): Integer;
+    function GetMarkerSymbol(const Marker: TScintMarkerNumber): TScintMarkerSymbol;
     function GetModified: Boolean;
     function GetRawCaretLineText: TScintRawString;
     function GetRawMainSelText: TScintRawString;
@@ -175,6 +200,7 @@ type
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
     class function GetReplaceTargetMessage(const ReplaceMode: TScintReplaceMode): Cardinal; static;
+    function GetRightBlankMarginWidth: Integer;
     class function GetSearchFlags(const Options: TScintFindOptions): Integer; static;
     function GetSelection: TScintRange;
     function GetSelectionAnchorPosition(Selection: Integer): Integer;
@@ -186,7 +212,11 @@ type
     function GetSelectionMode: TScintSelectionMode;
     function GetSelectionStartPosition(Selection: Integer): Integer;
     function GetSelText: String;
+    function GetTabMinimumWidth: Integer;
     function GetTopLine: Integer;
+    function GetUndoSelectionHistory: Boolean;
+    function GetVerticalScrollBar: Boolean;
+    function GetXOffset: Integer;
     function GetZoom: Integer;
     procedure SetAcceptDroppedFiles(const Value: Boolean);
     procedure SetAutoCompleteFontName(const Value: String);
@@ -196,19 +226,31 @@ type
     procedure SetCaretLine(const Value: Integer);
     procedure SetCaretPosition(const Value: Integer);
     procedure SetCaretPositionWithSelectFromAnchor(const Value: Integer);
+    procedure SetCaretStyle(const Value: TScintCaretStyle);
     procedure SetCaretVirtualSpace(const Value: Integer);
     procedure SetChangeHistory(const Value: TScintChangeHistory);
+    procedure SetChangeHistoryDisplay(const Value: TScintChangeHistory);
+    procedure SetChangeNotifications(const Value: Boolean);
     procedure SetDocumentPointer(const Value: Pointer);
     procedure SetFillSelectionToEdge(const Value: Boolean);
     procedure SetFoldFlags(const Value: TScintFoldFlags);
+    procedure SetFontQuality(const Value: TScintFontQuality);
+    procedure SetHorizontalScrollBar(const Value: Boolean);
     procedure SetIndentationGuides(const Value: TScintIndentationGuides);
+    procedure SetIndicatorStyle(const IndicatorNumber: TScintIndicatorNumber;
+      const Value: TScintIndicatorStyle);
+    procedure SetLeftBlankMarginWidth(const Value: Integer);
     procedure SetLineNumbers(const Value: Boolean);
     procedure SetMainSelection(const Value: Integer);
     procedure SetMainSelText(const Value: String);
+    procedure SetMarginType(const Margin: Integer; const Value: TScintMarginType);
+    procedure SetMarginWidth(const Margin, Value: Integer);
+    procedure SetMarkerSymbol(const Marker: TScintMarkerNumber; const Value: TScintMarkerSymbol);
     procedure SetRawMainSelText(const Value: TScintRawString);
     procedure SetRawSelText(const Value: TScintRawString);
     procedure SetRawText(const Value: TScintRawString);
     procedure SetReadOnly(const Value: Boolean);
+    procedure SetRightBlankMarginWidth(const Value: Integer);
     procedure SetSelection(const Value: TScintRange);
     procedure SetSelectionAnchorPosition(Selection: Integer; const Value: Integer);
     procedure SetSelectionAnchorVirtualSpace(Selection: Integer;
@@ -219,12 +261,16 @@ type
     procedure SetSelectionMode(const Value: TScintSelectionMode);
     procedure SetSelText(const Value: String);
     procedure SetStyler(const Value: TScintCustomStyler);
+    procedure SetTabMinimumWidth(const Value: Integer);
     procedure SetTabWidth(const Value: Integer);
     procedure SetTopLine(const Value: Integer);
+    procedure SetUndoSelectionHistory(const Value: Boolean);
     procedure SetUseStyleAttributes(const Value: Boolean);
     procedure SetUseTabCharacter(const Value: Boolean);
+    procedure SetVerticalScrollBar(const Value: Boolean);
     procedure SetVirtualSpaceOptions(const Value: TScintVirtualSpaceOptions);
     procedure SetWordWrap(const Value: Boolean);
+    procedure SetXOffset(const Value: Integer);
     procedure SetZoom(const Value: Integer);
     procedure UpdateCodePage;
     procedure UpdateLineNumbersWidth;
@@ -340,6 +386,7 @@ type
     procedure GetSelections(const CaretAndAnchorList, VirtualSpacesList: TScintCaretAndAnchorList); overload;
     function GetStyleAtPosition(const Pos: Integer): TScintStyleNumber;
     function GetTextRange(const StartPos, EndPos: Integer): String;
+    function GetTextWidth(const StyleNumber: Integer; const S: TScintRawString): Integer;
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
     function GetWordEndPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
     function GetWordStartPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
@@ -410,11 +457,19 @@ type
     property CaretLineText: String read GetCaretLineText;
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
     property CaretPositionWithSelectFromAnchor: Integer write SetCaretPositionWithSelectFromAnchor;
+    property CaretStyle: TScintCaretStyle read GetCaretStyle write SetCaretStyle;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
+    property ChangeHistoryDisplay: TScintChangeHistory write SetChangeHistoryDisplay;
+    property ChangeNotifications: Boolean read GetChangeNotifications write SetChangeNotifications;
     property DocumentPointer: Pointer read GetDocumentPointer write SetDocumentPointer;
     property EffectiveCodePage: Word read FEffectiveCodePage;
     property FoldFlags: TScintFoldFlags write SetFoldFlags;
+    property FontQuality: TScintFontQuality read GetFontQuality write SetFontQuality;
+    property HorizontalScrollBar: Boolean read GetHorizontalScrollBar write SetHorizontalScrollBar;
+    property IndicatorStyle[const IndicatorNumber: TScintIndicatorNumber]: TScintIndicatorStyle
+      read GetIndicatorStyle write SetIndicatorStyle;
     property InsertMode: Boolean read GetInsertMode;
+    property LeftBlankMarginWidth: Integer read GetLeftBlankMarginWidth write SetLeftBlankMarginWidth;
     property LineEndings: TScintLineEndings read GetLineEndings;
     property LineEndingString: TScintRawString read GetLineEndingString;
     property LineHeight: Integer read GetLineHeight;
@@ -422,6 +477,11 @@ type
     property LinesInWindow: Integer read GetLinesInWindow;
     property MainSelection: Integer read GetMainSelection write SetMainSelection;
     property MainSelText: String read GetMainSelText write SetMainSelText;
+    property MarginCount: Integer read GetMarginCount;
+    property MarginType[const Margin: Integer]: TScintMarginType read GetMarginType write SetMarginType;
+    property MarginWidth[const Margin: Integer]: Integer read GetMarginWidth write SetMarginWidth;
+    property MarkerSymbol[const Marker: TScintMarkerNumber]: TScintMarkerSymbol read GetMarkerSymbol
+      write SetMarkerSymbol;
     property Modified: Boolean read GetModified;
     property RawCaretLineText: TScintRawString read GetRawCaretLineText;
     property RawMainSelText: TScintRawString read GetRawMainSelText write SetRawMainSelText;
@@ -429,6 +489,7 @@ type
     property RawText: TScintRawString read GetRawText write SetRawText;
     property RawTextLength: Integer read GetRawTextLength;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
+    property RightBlankMarginWidth: Integer read GetRightBlankMarginWidth write SetRightBlankMarginWidth;
     property Selection: TScintRange read GetSelection write SetSelection;
     property SelectionAnchorPosition[Selection: Integer]: Integer read GetSelectionAnchorPosition write SetSelectionAnchorPosition;
     property SelectionAnchorVirtualSpace[Selection: Integer]: Integer read GetSelectionAnchorVirtualSpace write SetSelectionAnchorVirtualSpace;
@@ -440,9 +501,13 @@ type
     property SelectionStartPosition[Selection: Integer]: Integer read GetSelectionStartPosition;
     property SelText: String read GetSelText write SetSelText;
     property Styler: TScintCustomStyler read FStyler write SetStyler;
+    property TabMinimumWidth: Integer read GetTabMinimumWidth write SetTabMinimumWidth;
     property Target: TScintRange read GetTarget;
     property TopLine: Integer read GetTopLine write SetTopLine;
+    property UndoSelectionHistory: Boolean read GetUndoSelectionHistory write SetUndoSelectionHistory;
+    property VerticalScrollBar: Boolean read GetVerticalScrollBar write SetVerticalScrollBar;
     property WordChars: AnsiString read FWordChars;
+    property XOffset: Integer read GetXOffset write SetXOffset;
   published
     property AcceptDroppedFiles: Boolean read FAcceptDroppedFiles write SetAcceptDroppedFiles
       default False;
@@ -600,7 +665,7 @@ type
 implementation
 
 uses
-  ShellAPI, RTLConsts, Generics.Defaults, Math, UITypes, GraphUtil;
+  ShellAPI, RTLConsts, Generics.Defaults, Math, UITypes, GraphUtil, ScintInt.InnoSetup;
 
 { TScintEdit }
 
@@ -974,7 +1039,7 @@ begin
     Error('CreateWnd: FDirectStatusFunction is nil');
   UpdateCodePage;
   Call(SCI_SETCOMMANDEVENTS, 0, 0);
-  Call(SCI_SETMODEVENTMASK, SC_MOD_INSERTTEXT or SC_MOD_DELETETEXT, 0);
+  SetChangeNotifications(True);
   Call(SCI_SETCARETPERIOD, GetCaretBlinkTime, 0);
   Call(SCI_SETSCROLLWIDTHTRACKING, 1, 0);
   { The default popup menu conflicts with the VCL's PopupMenu }
@@ -1142,9 +1207,25 @@ begin
   Result := Call(SCI_GETCURRENTPOS, 0, 0);
 end;
 
+function TScintEdit.GetCaretStyle: TScintCaretStyle;
+begin
+  case Call(SCI_GETCARETSTYLE, 0, 0) and CARETSTYLE_INS_MASK of
+    CARETSTYLE_INVISIBLE: Result := scsInvisible;
+    CARETSTYLE_LINE: Result := scsLine;
+    CARETSTYLE_BLOCK: Result := scsBlock;
+  else
+    raise GetErrorException('Unexpected SCI_GETCARETSTYLE result');
+  end;
+end;
+
 function TScintEdit.GetCaretVirtualSpace: Integer;
 begin
   Result := GetSelectionCaretVirtualSpace(GetMainSelection);
+end;
+
+function TScintEdit.GetChangeNotifications: Boolean;
+begin
+  Result := Call(SCI_GETMODEVENTMASK, 0, 0) <> 0;
 end;
 
 function TScintEdit.GetCharacterCount(const StartPos, EndPos: Integer): Integer;
@@ -1186,15 +1267,68 @@ begin
   Result := Pointer(SendMessage(Handle, SCI_GETDOCPOINTER, 0, 0));
 end;
 
+function TScintEdit.GetFontQuality: TScintFontQuality;
+begin
+  case Call(SCI_GETFONTQUALITY, 0, 0) of
+    SC_EFF_QUALITY_DEFAULT: Result := sfqDefault;
+    SC_EFF_QUALITY_NON_ANTIALIASED: Result := sfqNonAntialiased;
+    SC_EFF_QUALITY_ANTIALIASED: Result := sfqAntialiased;
+    SC_EFF_QUALITY_LCD_OPTIMIZED: Result := sfqLcdOptimized;
+  else
+    raise GetErrorException('Unexpected SCI_GETFONTQUALITY result');
+  end;
+end;
+
+function TScintEdit.GetHorizontalScrollBar: Boolean;
+begin
+  Result := Call(SCI_GETHSCROLLBAR, 0, 0) <> 0;
+end;
+
 function TScintEdit.GetIndicatorAtPosition(
   const IndicatorNumber: TScintIndicatorNumber; const Pos: Integer): Boolean;
 begin
   Result := Call(SCI_INDICATORVALUEAT, IndicatorNumber, Pos) <> 0;
 end;
 
+function TScintEdit.GetIndicatorStyle(const IndicatorNumber: TScintIndicatorNumber): TScintIndicatorStyle;
+begin
+  case Call(SCI_INDICGETSTYLE, IndicatorNumber, 0) of
+    INDIC_PLAIN: Result := sisPlain;
+    INDIC_SQUIGGLE: Result := sisSquiggle;
+    INDIC_TT: Result := sisTT;
+    INDIC_DIAGONAL: Result := sisDiagonal;
+    INDIC_STRIKE: Result := sisStrike;
+    INDIC_HIDDEN: Result := sisHidden;
+    INDIC_BOX: Result := sisBox;
+    INDIC_ROUNDBOX: Result := sisRoundBox;
+    INDIC_STRAIGHTBOX: Result := sisStraightBox;
+    INDIC_DASH: Result := sisDash;
+    INDIC_DOTS: Result := sisDots;
+    INDIC_SQUIGGLELOW: Result := sisSquiggleLow;
+    INDIC_DOTBOX: Result := sisDotBox;
+    INDIC_SQUIGGLEPIXMAP: Result := sisSquigglePixmap;
+    INDIC_COMPOSITIONTHICK: Result := sisCompositionThick;
+    INDIC_COMPOSITIONTHIN: Result := sisCompositionThin;
+    INDIC_FULLBOX: Result := sisFullBox;
+    INDIC_TEXTFORE: Result := sisTextFore;
+    INDIC_POINT: Result := sisPoint;
+    INDIC_POINTCHARACTER: Result := sisPointCharacter;
+    INDIC_GRADIENT: Result := sisGradient;
+    INDIC_GRADIENTCENTRE: Result := sisGradientCenter;
+    INDIC_POINT_TOP: Result := sisPointTop;
+  else
+    raise GetErrorException('Unexpected SCI_INDICGETSTYLE result');
+  end;
+end;
+
 function TScintEdit.GetInsertMode: Boolean;
 begin
   Result := Call(SCI_GETOVERTYPE, 0, 0) = 0;
+end;
+
+function TScintEdit.GetLeftBlankMarginWidth: Integer;
+begin
+  Result := Call(SCI_GETMARGINLEFT, 0, 0);
 end;
 
 function TScintEdit.GetLineEndings: TScintLineEndings;
@@ -1263,10 +1397,78 @@ begin
   Result := ConvertRawStringToString(GetRawMainSelText);
 end;
 
+function TScintEdit.GetMarginCount: Integer;
+begin
+  Result := Call(SCI_GETMARGINS, 0, 0);
+end;
+
+function TScintEdit.GetMarginType(const Margin: Integer): TScintMarginType;
+begin
+  case Call(SCI_GETMARGINTYPEN, Margin, 0) of
+    SC_MARGIN_SYMBOL: Result := smtSymbol;
+    SC_MARGIN_NUMBER: Result := smtNumber;
+    SC_MARGIN_BACK: Result := smtBack;
+    SC_MARGIN_FORE: Result := smtFore;
+    SC_MARGIN_TEXT: Result := smtText;
+    SC_MARGIN_RTEXT: Result := smtRightText;
+    SC_MARGIN_COLOUR: Result := smtColor;
+  else
+    raise GetErrorException('Unexpected SCI_GETMARGINTYPEN result');
+  end;
+end;
+
+function TScintEdit.GetMarginWidth(const Margin: Integer): Integer;
+begin
+  Result := Call(SCI_GETMARGINWIDTHN, Margin, 0);
+end;
+
 function TScintEdit.GetMarkers(const Line: Integer): TScintMarkerNumbers;
 begin
   FLines.CheckIndexRange(Line);
   Integer(Result) := Call(SCI_MARKERGET, Line, 0);
+end;
+
+function TScintEdit.GetMarkerSymbol(const Marker: TScintMarkerNumber): TScintMarkerSymbol;
+begin
+  case Call(SCI_MARKERSYMBOLDEFINED, Marker, 0) of
+    SC_MARK_CIRCLE: Result := smsCircle;
+    SC_MARK_ROUNDRECT: Result := smsRoundRect;
+    SC_MARK_ARROW: Result := smsArrow;
+    SC_MARK_SMALLRECT: Result := smsSmallRect;
+    SC_MARK_SHORTARROW: Result := smsShortArrow;
+    SC_MARK_EMPTY: Result := smsEmpty;
+    SC_MARK_ARROWDOWN: Result := smsArrowDown;
+    SC_MARK_MINUS: Result := smsMinus;
+    SC_MARK_PLUS: Result := smsPlus;
+    SC_MARK_VLINE: Result := smsVLine;
+    SC_MARK_LCORNER: Result := smsLCorner;
+    SC_MARK_TCORNER: Result := smsTCorner;
+    SC_MARK_BOXPLUS: Result := smsBoxPlus;
+    SC_MARK_BOXPLUSCONNECTED: Result := smsBoxPlusConnected;
+    SC_MARK_BOXMINUS: Result := smsBoxMinus;
+    SC_MARK_BOXMINUSCONNECTED: Result := smsBoxMinusConnected;
+    SC_MARK_LCORNERCURVE: Result := smsLCornerCurve;
+    SC_MARK_TCORNERCURVE: Result := smsTCornerCurve;
+    SC_MARK_CIRCLEPLUS: Result := smsCirclePlus;
+    SC_MARK_CIRCLEPLUSCONNECTED: Result := smsCirclePlusConnected;
+    SC_MARK_CIRCLEMINUS: Result := smsCircleMinus;
+    SC_MARK_CIRCLEMINUSCONNECTED: Result := smsCircleMinusConnected;
+    SC_MARK_BACKGROUND: Result := smsBackground;
+    SC_MARK_DOTDOTDOT: Result := smsDotDotDot;
+    SC_MARK_ARROWS: Result := smsArrows;
+    SC_MARK_PIXMAP: Result := smsPixmap;
+    SC_MARK_FULLRECT: Result := smsFullRect;
+    SC_MARK_LEFTRECT: Result := smsLeftRect;
+    SC_MARK_AVAILABLE: Result := smsAvailable;
+    SC_MARK_UNDERLINE: Result := smsUnderline;
+    SC_MARK_RGBAIMAGE: Result := smsRgbaImage;
+    SC_MARK_BOOKMARK: Result := smsBookmark;
+    SC_MARK_VERTICALBOOKMARK: Result := smsVerticalBookmark;
+    SC_MARK_BAR: Result := smsBar;
+    SC_MARK_BACKFORE: Result := smsBackFore;
+  else
+    raise GetErrorException('Unexpected SCI_MARKERSYMBOLDEFINED result');
+  end;
 end;
 
 function TScintEdit.GetModified: Boolean;
@@ -1424,6 +1626,11 @@ begin
   else
     raise GetErrorException('Unknown ReplaceMode');
   end;
+end;
+
+function TScintEdit.GetRightBlankMarginWidth: Integer;
+begin
+  Result := Call(SCI_GETMARGINRIGHT, 0, 0);
 end;
 
 class function TScintEdit.GetSearchFlags(const Options: TScintFindOptions): Integer;
@@ -1590,6 +1797,11 @@ begin
   Result := TScintStyleNumber(Call(SCI_GETSTYLEAT, Pos, 0));
 end;
 
+function TScintEdit.GetTabMinimumWidth: Integer;
+begin
+  Result := Call(SCI_GETTABMINIMUMWIDTH, 0, 0);
+end;
+
 function TScintEdit.GetTarget: TScintRange;
 begin
   Result.StartPos := Call(SCI_GETTARGETSTART, 0, 0);
@@ -1601,9 +1813,24 @@ begin
   Result := ConvertRawStringToString(GetRawTextRange(StartPos, EndPos));
 end;
 
+function TScintEdit.GetTextWidth(const StyleNumber: Integer; const S: TScintRawString): Integer;
+begin
+  Result := Call(SCI_TEXTWIDTH, StyleNumber, S);
+end;
+
 function TScintEdit.GetTopLine: Integer;
 begin
   Result := Call(SCI_GETFIRSTVISIBLELINE, 0, 0);
+end;
+
+function TScintEdit.GetUndoSelectionHistory: Boolean;
+begin
+  Result := Call(SCI_GETUNDOSELECTIONHISTORY, 0, 0) and SC_UNDO_SELECTION_HISTORY_ENABLED <> 0;
+end;
+
+function TScintEdit.GetVerticalScrollBar: Boolean;
+begin
+  Result := Call(SCI_GETVSCROLLBAR, 0, 0) <> 0;
 end;
 
 function TScintEdit.GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
@@ -1623,6 +1850,11 @@ function TScintEdit.GetWordStartPosition(const Pos: Integer;
   const OnlyWordChars: Boolean): Integer;
 begin
   Result := Call(SCI_WORDSTARTPOSITION, Pos, Ord(OnlyWordChars));
+end;
+
+function TScintEdit.GetXOffset: Integer;
+begin
+  Result := Call(SCI_GETXOFFSET, 0, 0);
 end;
 
 function TScintEdit.GetZoom: Integer;
@@ -1707,7 +1939,7 @@ begin
       end;
     SCN_MODIFIED:
       begin
-        { CreateWnd limits SCN_MODIFIED to INSERTTEXT and DELETETEXT }
+        { SetChangeNotifications limits SCN_MODIFIED to INSERTTEXT and DELETETEXT }
         if N.modificationType and SC_MOD_INSERTTEXT <> 0 then
           Change(True, Integer(N.position), Integer(N.length), Integer(N.linesAdded))
         else if N.modificationType and SC_MOD_DELETETEXT <> 0 then
@@ -2001,6 +2233,15 @@ begin
   Call(SCI_SETCURRENTPOS, Value, 0);
 end;
 
+procedure TScintEdit.SetCaretStyle(const Value: TScintCaretStyle);
+const
+  CaretStyles: array[TScintCaretStyle] of Integer = (CARETSTYLE_INVISIBLE,
+    CARETSTYLE_LINE, CARETSTYLE_BLOCK);
+begin
+  Call(SCI_SETCARETSTYLE, (Call(SCI_GETCARETSTYLE, 0, 0) and not CARETSTYLE_INS_MASK) or
+    CaretStyles[Value], 0);
+end;
+
 procedure TScintEdit.SetCaretVirtualSpace(const Value: Integer);
 { Also sets the anchor's virtual space! }
 var
@@ -2024,6 +2265,22 @@ begin
     FChangeHistory := Value;
     ApplyOptions;
   end;
+end;
+
+procedure TScintEdit.SetChangeHistoryDisplay(const Value: TScintChangeHistory);
+const
+  Flags: array[TScintChangeHistory] of Integer = (SC_CHANGE_HISTORY_DISABLED,
+    SC_CHANGE_HISTORY_MARKERS, SC_CHANGE_HISTORY_INDICATORS);
+begin
+  Call(SCI_SETCHANGEHISTORY, Flags[Value], 0);
+end;
+
+procedure TScintEdit.SetChangeNotifications(const Value: Boolean);
+begin
+  if Value then
+    Call(SCI_SETMODEVENTMASK, SC_MOD_INSERTTEXT or SC_MOD_DELETETEXT, 0)
+  else
+    Call(SCI_SETMODEVENTMASK, 0, 0);
 end;
 
 procedure TScintEdit.SetCodePage(const Value: Word);
@@ -2065,23 +2322,38 @@ procedure TScintEdit.SetDocumentPointer(const Value: Pointer);
   history: Undo, Redo, BeginUndoAction, EndUndoAction, ClearUndo and
   SetSavePoint.
 
-  View-level: AcceptDroppedFiles, AutoCompleteFontName, AutoCompleteFontSize,
-  Color, FillSelectionToEdge, FoldFlags, Font, IndentationGuides, InsertMode,
-  LineNumbers, MainSelection, Target, TopLine, UseStyleAttributes,
-  VirtualSpaceOptions, WordWrap, Zoom, and the Caret* and Selection*
-  properties. Also what AssignCmdKey, ClearCmdKey, EnsureLineVisible,
-  FoldLine, SetAutoComplete*, SetBraceBadHighlighting, SetBraceHighlighting,
-  SetCallTipHighlight and SetCursorID set.
+  View-level: AcceptDroppedFiles, AnchorPosition, AutoCompleteActive,
+  AutoCompleteFontName, AutoCompleteFontSize, CallTipActive,
+  ChangeNotifications, Color, FillSelectionToEdge, FoldFlags, Font,
+  FontQuality, HorizontalScrollBar, IndentationGuides, IndicatorStyle,
+  InsertMode, LeftBlankMarginWidth, LineHeight, LineNumbers, LinesInWindow,
+  MainSelection, MarkerSymbol, RightBlankMarginWidth, TabMinimumWidth, Target,
+  TopLine, UndoSelectionHistory, UseStyleAttributes, VerticalScrollBar,
+  VirtualSpaceOptions, WordWrap, XOffset, Zoom, and the Caret*, Margin* and
+  Selection* properties. Also what AddSelection, AssignCmdKey, BraceMatch,
+  CancelAutoComplete*, CancelCallTip, ChooseCaretX, ClearCmdKey,
+  EnsureLineVisible, EnsurePositionInViewVertically, FoldLine,
+  RemoveAdditionalSelections, ScrollCaretIntoView, Select*, SetAutoComplete*,
+  SetBraceBadHighlighting, SetBraceHighlighting, SetCallTipHighlight,
+  SetCursorID, SetEmptySelection*, SetSingleSelection, ShowAutoComplete,
+  ShowCallTip, ZoomIn and ZoomOut set, and what DPIChanged, SettingChange and
+  SysColorChange forward. And what GetDocLineFromVisibleLine,
+  GetPointFromPosition, GetPositionFromPoint, GetSelection*,
+  GetVisibleLineFromDocLine, IsPositionInViewVertically, MainSelTextEquals,
+  RawMainSelTextEquals, SelEmpty, SelNotEmpty and WordAtCaret* return, and
+  what GetTextWidth measures.
 
   Special:
   -AddMarker, DeleteMarker, GetMarkers, SetIndicators, ClearIndicators and
    GetIndicatorAtPosition are document-level, but GetMarkers also returns
    change history markers if this view shows change history as markers. The
-   appearance of markers and indicators, set with SCI_MARKERDEFINE and
-   SCI_INDICSET*, is view-level.
+   appearance of markers and indicators, such as MarkerSymbol and
+   IndicatorStyle, is view-level.
   -ChangeHistory: recording changes is document-level, showing them is
    view-level. A view starts showing them only at ClearUndo, which clears the
-   undo history of the document for all its views.
+   undo history of the document for all its views. ChangeHistoryDisplay shows
+   them without recording them, but also disables change history for the
+   current document.
   -Styler: its styling, line states and fold levels are document-level, its
    style attributes are view-level. Only one of the views does the styling,
    using its own Styler and ReportCaretPositionToStyler. Give all views the
@@ -2097,7 +2369,21 @@ procedure TScintEdit.SetDocumentPointer(const Value: Pointer);
   -Modified is document-level, except for ForceModifiedState, which is
    view-level.
   -OnChange and OnModifiedChange occur for each view, because changes to the
-   document notify all its views. }
+   document notify all its views. OnChange only while ChangeNotifications is
+   True.
+  -MainSelText, RawMainSelText, RawSelText and SelText read the selections of
+   this view, but setting them edits the document.
+  -View-level too, but without a TScintEdit member yet, so sent with Call:
+   SCI_AUTOC*, SCI_CALLTIP*, SCI_FOLDALL, SCI_LINESCROLL,
+   SCI_MARKERDEFINERGBAIMAGE, SCI_MARKERSETBACK, SCI_MARKERSETFORE,
+   SCI_REGISTERRGBAIMAGE, SCI_RESETALLCMDKEYS, SCI_RGBAIMAGESET*,
+   SCI_SETADDITIONALSELECTIONTYPING, SCI_SETAUTOMATICFOLD, SCI_SETCARETWIDTH,
+   SCI_SETCOPYSEPARATOR, SCI_SETELEMENTCOLOUR, SCI_SETFOLDMARGIN*,
+   SCI_SETMARGINCURSORN, SCI_SETMARGINMASKN, SCI_SETMARGINSENSITIVEN,
+   SCI_SETMOUSEMAPPING, SCI_SETMULTIPASTE, SCI_SETMULTIPLESELECTION,
+   SCI_SETSCROLLWIDTH, SCI_SETVIEWWS, SCI_SETWHITESPACESIZE,
+   SCI_TARGETWHOLEDOCUMENT, and the SCI_INDICSET* messages other than
+   SCI_INDICSETSTYLE. }
 begin
   { Add temporary reference, otherwise assigning the document of this view to
     itself could free the document }
@@ -2162,6 +2448,20 @@ begin
   end;
 end;
 
+procedure TScintEdit.SetFontQuality(const Value: TScintFontQuality);
+const
+  FontQualities: array[TScintFontQuality] of Integer = (SC_EFF_QUALITY_DEFAULT,
+    SC_EFF_QUALITY_NON_ANTIALIASED, SC_EFF_QUALITY_ANTIALIASED,
+    SC_EFF_QUALITY_LCD_OPTIMIZED);
+begin
+  Call(SCI_SETFONTQUALITY, FontQualities[Value], 0);
+end;
+
+procedure TScintEdit.SetHorizontalScrollBar(const Value: Boolean);
+begin
+  Call(SCI_SETHSCROLLBAR, Ord(Value), 0);
+end;
+
 procedure TScintEdit.SetIndicators(const StartPos, EndPos: Integer;
   const IndicatorNumber: TScintIndicatorNumber; const Value: Boolean);
 begin
@@ -2172,6 +2472,19 @@ begin
     Call(SCI_INDICATORFILLRANGE, StartPos, EndPos - StartPos);
   end else
     Call(SCI_INDICATORCLEARRANGE, StartPos, EndPos - StartPos);
+end;
+
+procedure TScintEdit.SetIndicatorStyle(const IndicatorNumber: TScintIndicatorNumber;
+  const Value: TScintIndicatorStyle);
+const
+  IndicatorStyles: array[TScintIndicatorStyle] of Integer = (INDIC_PLAIN,
+    INDIC_SQUIGGLE, INDIC_TT, INDIC_DIAGONAL, INDIC_STRIKE, INDIC_HIDDEN, INDIC_BOX,
+    INDIC_ROUNDBOX, INDIC_STRAIGHTBOX, INDIC_DASH, INDIC_DOTS, INDIC_SQUIGGLELOW,
+    INDIC_DOTBOX, INDIC_SQUIGGLEPIXMAP, INDIC_COMPOSITIONTHICK, INDIC_COMPOSITIONTHIN,
+    INDIC_FULLBOX, INDIC_TEXTFORE, INDIC_POINT, INDIC_POINTCHARACTER, INDIC_GRADIENT,
+    INDIC_GRADIENTCENTRE, INDIC_POINT_TOP);
+begin
+  Call(SCI_INDICSETSTYLE, IndicatorNumber, IndicatorStyles[Value]);
 end;
 
 procedure TScintEdit.SetLineIndentation(const Line, Indentation: Integer);
@@ -2186,6 +2499,11 @@ begin
     FIndentationGuides := Value;
     ApplyOptions;
   end;
+end;
+
+procedure TScintEdit.SetLeftBlankMarginWidth(const Value: Integer);
+begin
+  Call(SCI_SETMARGINLEFT, 0, Value);
 end;
 
 procedure TScintEdit.SetLineNumbers(const Value: Boolean);
@@ -2204,6 +2522,37 @@ end;
 procedure TScintEdit.SetMainSelText(const Value: String);
 begin
   SetRawMainSelText(ConvertStringToRawString(Value));
+end;
+
+procedure TScintEdit.SetMarginType(const Margin: Integer; const Value: TScintMarginType);
+const
+  MarginTypes: array[TScintMarginType] of Integer = (SC_MARGIN_SYMBOL,
+    SC_MARGIN_NUMBER, SC_MARGIN_BACK, SC_MARGIN_FORE, SC_MARGIN_TEXT,
+    SC_MARGIN_RTEXT, SC_MARGIN_COLOUR);
+begin
+  Call(SCI_SETMARGINTYPEN, Margin, MarginTypes[Value]);
+end;
+
+procedure TScintEdit.SetMarginWidth(const Margin, Value: Integer);
+begin
+  Call(SCI_SETMARGINWIDTHN, Margin, Value);
+end;
+
+procedure TScintEdit.SetMarkerSymbol(const Marker: TScintMarkerNumber;
+  const Value: TScintMarkerSymbol);
+const
+  MarkerSymbols: array[TScintMarkerSymbol] of Integer = (SC_MARK_CIRCLE,
+    SC_MARK_ROUNDRECT, SC_MARK_ARROW, SC_MARK_SMALLRECT, SC_MARK_SHORTARROW,
+    SC_MARK_EMPTY, SC_MARK_ARROWDOWN, SC_MARK_MINUS, SC_MARK_PLUS, SC_MARK_VLINE,
+    SC_MARK_LCORNER, SC_MARK_TCORNER, SC_MARK_BOXPLUS, SC_MARK_BOXPLUSCONNECTED,
+    SC_MARK_BOXMINUS, SC_MARK_BOXMINUSCONNECTED, SC_MARK_LCORNERCURVE,
+    SC_MARK_TCORNERCURVE, SC_MARK_CIRCLEPLUS, SC_MARK_CIRCLEPLUSCONNECTED,
+    SC_MARK_CIRCLEMINUS, SC_MARK_CIRCLEMINUSCONNECTED, SC_MARK_BACKGROUND,
+    SC_MARK_DOTDOTDOT, SC_MARK_ARROWS, SC_MARK_PIXMAP, SC_MARK_FULLRECT,
+    SC_MARK_LEFTRECT, SC_MARK_AVAILABLE, SC_MARK_UNDERLINE, SC_MARK_RGBAIMAGE,
+    SC_MARK_BOOKMARK, SC_MARK_VERTICALBOOKMARK, SC_MARK_BAR, SC_MARK_BACKFORE);
+begin
+  Call(SCI_MARKERDEFINE, Marker, MarkerSymbols[Value]);
 end;
 
 procedure TScintEdit.SetRawMainSelText(const Value: TScintRawString);
@@ -2230,6 +2579,11 @@ end;
 procedure TScintEdit.SetReadOnly(const Value: Boolean);
 begin
   Call(SCI_SETREADONLY, Ord(Value), 0);
+end;
+
+procedure TScintEdit.SetRightBlankMarginWidth(const Value: Integer);
+begin
+  Call(SCI_SETMARGINRIGHT, 0, Value);
 end;
 
 procedure TScintEdit.SetSavePoint;
@@ -2318,6 +2672,11 @@ begin
   end;
 end;
 
+procedure TScintEdit.SetTabMinimumWidth(const Value: Integer);
+begin
+  Call(SCI_SETTABMINIMUMWIDTH, Value, 0);
+end;
+
 procedure TScintEdit.SetTabWidth(const Value: Integer);
 begin
   if (FTabWidth <> Value) and (Value > 0) and (Value < 100) then begin
@@ -2337,6 +2696,14 @@ begin
   Call(SCI_SETFIRSTVISIBLELINE, Value, 0);
 end;
 
+procedure TScintEdit.SetUndoSelectionHistory(const Value: Boolean);
+begin
+  if Value then
+    Call(SCI_SETUNDOSELECTIONHISTORY, SC_UNDO_SELECTION_HISTORY_ENABLED, 0)
+  else
+    Call(SCI_SETUNDOSELECTIONHISTORY, SC_UNDO_SELECTION_HISTORY_DISABLED, 0);
+end;
+
 procedure TScintEdit.SetUseStyleAttributes(const Value: Boolean);
 begin
   if FUseStyleAttributes <> Value then begin
@@ -2351,6 +2718,11 @@ begin
     FUseTabCharacter := Value;
     ApplyOptions;
   end;
+end;
+
+procedure TScintEdit.SetVerticalScrollBar(const Value: Boolean);
+begin
+  Call(SCI_SETVSCROLLBAR, Ord(Value), 0);
 end;
 
 procedure TScintEdit.SetVirtualSpaceOptions(const Value: TScintVirtualSpaceOptions);
@@ -2373,6 +2745,11 @@ begin
     FWordWrap := Value;
     ApplyOptions;
   end;
+end;
+
+procedure TScintEdit.SetXOffset(const Value: Integer);
+begin
+  Call(SCI_SETXOFFSET, Value, 0);
 end;
 
 procedure TScintEdit.SetZoom(const Value: Integer);
@@ -2690,7 +3067,7 @@ begin
       end;
     end;
 
-    PixelWidth := 4 + Call(SCI_TEXTWIDTH, STYLE_LINENUMBER, AnsiString(Nines));
+    PixelWidth := 4 + GetTextWidth(STYLE_LINENUMBER, AnsiString(Nines));
   end else
     PixelWidth := 0;
   
