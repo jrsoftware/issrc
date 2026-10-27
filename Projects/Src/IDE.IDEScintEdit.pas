@@ -290,7 +290,7 @@ begin
   Call(SCI_SETMARGINMASKN, mmFolding, LPARAM(SC_MASK_FOLDERS));
   Call(SCI_SETMARGINCURSORN, mmFolding, SC_CURSORARROW);
   Call(SCI_SETMARGINSENSITIVEN, mmFolding, 1);
-  Call(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_SHOW or SC_AUTOMATICFOLD_CLICK or SC_AUTOMATICFOLD_CHANGE, 0);
+  AutomaticFold := [safShow, safClick, safChange];
   MarkerSymbol[SC_MARKNUM_FOLDEROPEN] := smsArrowDown;
   MarkerSymbol[SC_MARKNUM_FOLDER] := smsArrow;
   MarkerSymbol[SC_MARKNUM_FOLDERSUB] := smsEmpty;

@@ -22,6 +22,8 @@ const
 
 type
   TScintAutoCompleteOrder = (sacoPreSorted, sacoPerformSort, sacoCustom);
+  TScintAutomaticFoldOption = (safShow, safClick, safChange);
+  TScintAutomaticFoldOptions = set of TScintAutomaticFoldOption;
   TScintCaretStyle = (scsInvisible, scsLine, scsBlock);
   TScintChangeHistory = (schDisabled, schMarkers, schIndicators);
   TScintCommand = type NativeInt;
@@ -221,6 +223,7 @@ type
     procedure SetAcceptDroppedFiles(const Value: Boolean);
     procedure SetAutoCompleteFontName(const Value: String);
     procedure SetAutoCompleteFontSize(const Value: Integer);
+    procedure SetAutomaticFold(const Value: TScintAutomaticFoldOptions);
     procedure SetCodePage(const Value: Word);
     procedure SetCaretColumn(const Value: Integer);
     procedure SetCaretLine(const Value: Integer);
@@ -366,6 +369,7 @@ type
     function GetLineIndentation(const Line: Integer): Integer;
     function GetLineIndentPosition(const Line: Integer): Integer;
     function GetMarkers(const Line: Integer): TScintMarkerNumbers;
+    function GetNextContractedFoldHeader(const StartLine: Integer): Integer;
     function GetPointFromPosition(const Pos: Integer): TPoint;
     function GetPositionAfter(const Pos: Integer): Integer;
     function GetPositionBefore(const Pos: Integer): Integer;
@@ -391,6 +395,7 @@ type
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
     function GetWordEndPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
     function GetWordStartPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
+    procedure HideLines(const StartLine, EndLine: Integer);
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
     class function KeyCodeAndShiftToKeyDefinition(const KeyCode: TScintKeyCode;
       Shift: TShiftState): TScintKeyDefinition; static;
@@ -440,6 +445,7 @@ type
     procedure SetWordChars(const S: AnsiString);
     procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
     procedure ShowCallTip(const Pos: Integer; const Definition: AnsiString);
+    procedure ShowLines(const StartLine, EndLine: Integer);
     procedure StyleNeeded(const EndPos: Integer);
     procedure SysColorChange(const Message: TMessage);
     function TestRegularExpression(const S: String): Boolean;
@@ -452,6 +458,7 @@ type
     procedure ZoomOut;
     property AnchorPosition: Integer read GetAnchorPosition;
     property AutoCompleteActive: Boolean read GetAutoCompleteActive;
+    property AutomaticFold: TScintAutomaticFoldOptions write SetAutomaticFold;
     property CallTipActive: Boolean read GetCallTipActive;
     property CaretColumn: Integer read GetCaretColumn write SetCaretColumn;
     property CaretColumnExpandedForTabs: Integer read GetCaretColumnExpandedForTabs;
@@ -1483,6 +1490,14 @@ begin
   Result := FForceModified or (Call(SCI_GETMODIFY, 0, 0) <> 0);
 end;
 
+function TScintEdit.GetNextContractedFoldHeader(const StartLine: Integer): Integer;
+{ Returns the first contracted fold header from StartLine on, or -1 if there's
+  none. StartLine can be Lines.Count, which gives -1. }
+begin
+  FLines.CheckIndexRangePlusOne(StartLine);
+  Result := Call(SCI_CONTRACTEDFOLDNEXT, StartLine, 0);
+end;
+
 function TScintEdit.GetPointFromPosition(const Pos: Integer): TPoint;
 begin
   Result.X := Call(SCI_POINTXFROMPOSITION, 0, Pos);
@@ -1869,6 +1884,12 @@ begin
   Result := Call(SCI_GETZOOM, 0, 0);
 end;
 
+procedure TScintEdit.HideLines(const StartLine, EndLine: Integer);
+{ Does nothing if EndLine is before StartLine }
+begin
+  Call(SCI_HIDELINES, StartLine, EndLine);
+end;
+
 procedure TScintEdit.InitRawString(var S: TScintRawString; const Len: Integer);
 begin
   SetString(S, nil, Len);
@@ -2206,6 +2227,18 @@ begin
   Call(SCI_AUTOCSTOPS, 0, StopChars);
 end;
 
+procedure TScintEdit.SetAutomaticFold(const Value: TScintAutomaticFoldOptions);
+begin
+  var Flags := SC_AUTOMATICFOLD_NONE;
+  if safShow in Value then
+    Flags := Flags or SC_AUTOMATICFOLD_SHOW;
+  if safClick in Value then
+    Flags := Flags or SC_AUTOMATICFOLD_CLICK;
+  if safChange in Value then
+    Flags := Flags or SC_AUTOMATICFOLD_CHANGE;
+  Call(SCI_SETAUTOMATICFOLD, Flags, 0);
+end;
+
 procedure TScintEdit.SetBraceBadHighlighting(const Pos: Integer);
 begin
   Call(SCI_BRACEBADLIGHT, Pos, 0);
@@ -2335,7 +2368,7 @@ procedure TScintEdit.SetDocumentPointer(const Value: Pointer);
   SetSavePoint.
 
   View-level: AcceptDroppedFiles, AnchorPosition, AutoCompleteActive,
-  AutoCompleteFontName, AutoCompleteFontSize, CallTipActive,
+  AutoCompleteFontName, AutoCompleteFontSize, AutomaticFold, CallTipActive,
   ChangeNotifications, Color, FillSelectionToEdge, FoldFlags, Font,
   FontQuality, HorizontalScrollBar, IndentationGuides, IndicatorStyle,
   InsertMode, LeftBlankMarginWidth, LineHeight, LineNumbers, LinesInWindow,
@@ -2345,16 +2378,16 @@ procedure TScintEdit.SetDocumentPointer(const Value: Pointer);
   Caret*, Margin* and Selection* properties. Also what AddSelection,
   AssignCmdKey, BraceMatch, CancelAutoComplete*, CancelCallTip, ChooseCaretX,
   ClearCmdKey, EnsureLineVisible, EnsurePositionInViewVertically, FoldLine,
-  RemoveAdditionalSelections, RemoveSelection, ScrollCaretIntoView, Select*,
-  SetAutoComplete*, SetBraceBadHighlighting, SetBraceHighlighting,
+  HideLines, RemoveAdditionalSelections, RemoveSelection, ScrollCaretIntoView,
+  Select*, SetAutoComplete*, SetBraceBadHighlighting, SetBraceHighlighting,
   SetCallTipHighlight, SetCursorID, SetEmptySelection*, SetSingleSelection,
-  ShowAutoComplete, ShowCallTip, ZoomIn and ZoomOut set, and what DPIChanged,
-  SettingChange and SysColorChange forward. And what AllSelectionsEmpty,
-  GetDocLineFromVisibleLine, GetPointFromPosition, GetPositionFromPoint,
-  GetSelection*, GetVisibleLineFromDocLine, IsPositionInViewVertically,
-  MainSelTextEquals, RawMainSelTextEquals, SelEmpty, SelNotEmpty and
-  WordAtCaret* return, what FormatRange formats, and what GetTextWidth
-  measures.
+  ShowAutoComplete, ShowCallTip, ShowLines, ZoomIn and ZoomOut set, and what
+  DPIChanged, SettingChange and SysColorChange forward. And what
+  AllSelectionsEmpty, GetDocLineFromVisibleLine, GetNextContractedFoldHeader,
+  GetPointFromPosition, GetPositionFromPoint, GetSelection*,
+  GetVisibleLineFromDocLine, IsPositionInViewVertically, MainSelTextEquals,
+  RawMainSelTextEquals, SelEmpty, SelNotEmpty and WordAtCaret* return, what
+  FormatRange formats, and what GetTextWidth measures.
 
   Special:
   -AddMarker, DeleteMarker, GetMarkers, SetIndicators, ClearIndicators and
@@ -2389,7 +2422,7 @@ procedure TScintEdit.SetDocumentPointer(const Value: Pointer);
    SCI_AUTOC*, SCI_CALLTIP*, SCI_FOLDALL, SCI_LINESCROLL,
    SCI_MARKERDEFINERGBAIMAGE, SCI_MARKERSETBACK, SCI_MARKERSETFORE,
    SCI_REGISTERRGBAIMAGE, SCI_RESETALLCMDKEYS, SCI_RGBAIMAGESET*,
-   SCI_SETADDITIONALSELECTIONTYPING, SCI_SETAUTOMATICFOLD, SCI_SETCARETWIDTH,
+   SCI_SETADDITIONALSELECTIONTYPING, SCI_SETCARETWIDTH,
    SCI_SETCOPYSEPARATOR, SCI_SETELEMENTCOLOUR, SCI_SETFOLDMARGIN*,
    SCI_SETMARGINCURSORN, SCI_SETMARGINMASKN, SCI_SETMARGINSENSITIVEN,
    SCI_SETMOUSEMAPPING, SCI_SETMULTIPASTE, SCI_SETMULTIPLESELECTION,
@@ -2779,6 +2812,12 @@ procedure TScintEdit.ShowCallTip(const Pos: Integer;
   const Definition: AnsiString);
 begin
   Call(SCI_CALLTIPSHOW, Pos, Definition);
+end;
+
+procedure TScintEdit.ShowLines(const StartLine, EndLine: Integer);
+{ Does nothing if EndLine is before StartLine }
+begin
+  Call(SCI_SHOWLINES, StartLine, EndLine);
 end;
 
 procedure TScintEdit.StyleNeeded(const EndPos: Integer);
