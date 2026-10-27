@@ -160,6 +160,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Added new <tt>--no-recently-opened</tt> (<tt>-norecent</tt>) command-line option to keep the script file named on the command line out of the list of recently opened files.</li>
     <li>Pressing Esc while a bottom pane, such as <i>Compiler Output</i>, is focused returns focus to the editor.</li>
     <li><i>Find</i> and <i>Go to Line</i> now center the view and unfold sections.</li>
+    <li><i>Fix:</i> A folded section could unfold by itself after an edit on its first line or anywhere above it (broken since section folding was introduced in 6.4.0).</li>
   </ul>
   </li>
   <li>The <tt>[Setup]</tt> section directives which take a color now accept all standard web color names defined by CSS, such as <tt>orange</tt> and <tt>cornflowerblue</tt>, as well as the short <tt>#<i>rgb</i></tt> form.</li>

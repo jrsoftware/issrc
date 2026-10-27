@@ -2909,6 +2909,15 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
         Call(SCI_SETLINESTATE, I, FStyler.FLineState);
       var OldLevel := Call(SCI_GETFOLDLEVEL, I, 0);
       var NewLevel := FoldLevel;
+      { The span's last line keeps its header flag: removing it would expand the
+        line if it's contracted. Styling the line after it sets or removes the
+        flag, see below, so until then the flag can be outdated. The document's
+        last line has no line after it. A level change also removes it: Scintilla
+        then expands using the old level. Removing it later would expand using
+        the new level, which can leave lines hidden. }
+      if (I = LastLine) and (LastLine < Lines.Count - 1) and
+         ((OldLevel and SC_FOLDLEVELNUMBERMASK) = FoldLevel) then
+        NewLevel := NewLevel or (OldLevel and SC_FOLDLEVELHEADERFLAG);
       { Setting SC_FOLDLEVELWHITEFLAG on empty lines causes a problem: when
         Scintilla auto expands a contracted section (for example after removing ']'
         from a section header) all the empty lines stay invisible, even any which
@@ -2919,17 +2928,19 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
         Call(SCI_SETFOLDLEVEL, I, NewLevel);
     end;
 
-    { Retroactively set header on previous line if requested to do so. Must be
+    { Retroactively set or remove header on previous line. Must be
       *after* the loop above. Not sure why. Problem reproduction: move code above
       the loop, run it, open Debug.iss, change [Setup] to [Set up] and notice
       styling of the [Languages] section below it is now broken. If you turn on
       sffLevelNumbers you will also see that the first entry in that section got
       a header flag. }
 
-    if (FirstLine > 0) and EnableFoldHeaderOnPrevious then begin
+    if FirstLine > 0 then begin
       var PreviousLine := FirstLine-1;
       var OldLevel := Call(SCI_GETFOLDLEVEL, PreviousLine, 0);
-      var NewLevel := OldLevel or SC_FOLDLEVELHEADERFLAG;
+      var NewLevel := OldLevel and not SC_FOLDLEVELHEADERFLAG;
+      if EnableFoldHeaderOnPrevious then
+        NewLevel := NewLevel or SC_FOLDLEVELHEADERFLAG;
       if NewLevel <> OldLevel then
         Call(SCI_SETFOLDLEVEL, PreviousLine, NewLevel);
     end;
