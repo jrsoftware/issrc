@@ -43,10 +43,12 @@ type
       FMemo: TIDEScintEdit;
       procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
       procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+      procedure GetDocLineRangeInView(out FirstLine, LastLine: Integer);
       function GetMemoLineFromMinimapLine(const MinimapLine: Integer): Integer;
       function GetMinimapLayout: TMinimapLayout;
+      class function GetNextShownLine(const Edit: TIDEScintEdit;
+        const StartLine: Integer): Integer; static;
       function GetSliderRect(const MinimapLayout: TMinimapLayout): TRect;
-      procedure GetVisibleDocLines(out FirstLine, LastLine: Integer);
       procedure SetDocPointer;
       procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
       procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
@@ -59,6 +61,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure SetMemo(const AMemo: TIDEScintEdit);
+    procedure SyncFolding;
     procedure SyncScrollPosition;
     procedure SyncSelections;
     procedure UpdateFont(const AFont: TFont);
@@ -131,6 +134,9 @@ begin
     is a column or more, so tabs would be wider than in the memo }
   TabMinimumWidth := 0;
 
+  { Turn automatic folding back off: SyncFolding handles it }
+  AutomaticFold := [];
+
   { Use the gutter for a single margin showing change history }
   for var Margin := 0 to MarginCount-1 do
     MarginWidth[Margin] := 0;
@@ -166,6 +172,14 @@ begin
 
   { Ensure document is shared }
   SetDocPointer;
+end;
+
+procedure TMinimap.GetDocLineRangeInView(out FirstLine, LastLine: Integer);
+{ From the top line through the line below the last fully shown one, hidden
+  lines included. That line is usually partly shown. }
+begin
+  FirstLine := GetDocLineFromVisibleLine(TopLine);
+  LastLine := Min(GetDocLineFromVisibleLine(TopLine + LinesInWindow), Lines.Count-1);
 end;
 
 function TMinimap.GetMemoLineFromMinimapLine(const MinimapLine: Integer): Integer;
@@ -205,6 +219,18 @@ begin
     Result.ViewportStartLine;
 end;
 
+class function TMinimap.GetNextShownLine(const Edit: TIDEScintEdit;
+  const StartLine: Integer): Integer;
+{ Returns Edit's first shown line from StartLine on, or Edit.Lines.Count if
+  there's none }
+begin
+  const VisibleLine = Edit.GetVisibleLineFromDocLine(StartLine);
+  if VisibleLine < Edit.GetVisibleLineFromDocLine(Edit.Lines.Count) then
+    Result := Edit.GetDocLineFromVisibleLine(VisibleLine)
+  else { GetDocLineFromVisibleLine would return the last line }
+    Result := Edit.Lines.Count;
+end;
+
 function TMinimap.GetSliderRect(const MinimapLayout: TMinimapLayout): TRect;
 begin
   { Like VS Code's with editor.scrollBeyondLastLine off, there's no slider
@@ -219,13 +245,6 @@ begin
     Exit(TRect.Empty);
   Result := Bounds(0, (MinimapLayout.ViewportStartLine - TopLine) * LineHeight, ClientWidth,
     MinimapLayout.ViewportLineCount * LineHeight);
-end;
-
-procedure TMinimap.GetVisibleDocLines(out FirstLine, LastLine: Integer);
-{ Includes the partial bottom line }
-begin
-  FirstLine := GetDocLineFromVisibleLine(TopLine);
-  LastLine := Min(GetDocLineFromVisibleLine(TopLine + LinesInWindow), Lines.Count-1);
 end;
 
 procedure TMinimap.MouseMove(Shift: TShiftState; X, Y: Integer);
@@ -276,6 +295,7 @@ procedure TMinimap.SetDocPointer;
 begin
   if (FMemo <> nil) and HandleAllocated then begin
     DocumentPointer := FMemo.DocumentPointer;
+    SyncFolding; { Setting DocumentPointer resets the fold state }
     SyncScrollPosition;
     SyncSelections; { Uses the scroll position }
   end;
@@ -294,6 +314,26 @@ begin
       FMemo.FreeNotification(Self);
   end;
   SetDocPointer;
+end;
+
+procedure TMinimap.SyncFolding;
+begin
+  if (FMemo = nil) or not HandleAllocated then
+    Exit;
+
+  { Determine the hidden lines from the lines the memo shows, not from the
+    fold levels, because the memo may have folded with other levels: its
+    styler sets them lazily. Assumes the memo hides only lines right after a
+    contracted header, which holds for every way the IDE folds. }
+
+  ShowLines(0, Lines.Count-1);
+
+  var Header := FMemo.GetNextContractedFoldHeader(0);
+  while Header >= 0 do begin
+    const NextShownLine = GetNextShownLine(FMemo, Header + 1);
+    HideLines(Header + 1, NextShownLine - 1);
+    Header := FMemo.GetNextContractedFoldHeader(NextShownLine);
+  end;
 end;
 
 procedure TMinimap.SyncScrollPosition;
@@ -320,6 +360,14 @@ begin
 end;
 
 procedure TMinimap.SyncSelections;
+
+  function IsWithinHiddenLines(const StartPosition, EndPosition: Integer): Boolean;
+  begin
+    { Lines are hidden if they take no visible lines }
+    Result := GetVisibleLineFromDocLine(GetLineFromPosition(StartPosition)) =
+      GetVisibleLineFromDocLine(GetLineFromPosition(EndPosition) + 1);
+  end;
+
 begin
   if (FMemo = nil) or not HandleAllocated then
     Exit;
@@ -335,14 +383,14 @@ begin
 
   { Adding thousands of selections takes noticeable time, so after the first
     ones this only copies those the minimap shows. Limitation: when the minimap
-    then shows other lines, such as when it scrolls, grows, or is shown, the
-    selections it didn't copy stay missing until the memo's selections or
-    content change. }
+    then shows other lines, such as when it scrolls, grows, unfolds, or is
+    shown, the selections it didn't copy stay missing until the memo's
+    selections or content change. }
   const AlwaysCopiedSelectionCount = 1000;
-  var FirstVisibleLine, LastVisibleLine: Integer;
-  GetVisibleDocLines(FirstVisibleLine, LastVisibleLine);
-  const FirstVisiblePosition = GetPositionFromLine(FirstVisibleLine);
-  const LastVisiblePosition = GetLineEndPosition(LastVisibleLine);
+  var FirstLineInView, LastLineInView: Integer;
+  GetDocLineRangeInView(FirstLineInView, LastLineInView);
+  const FirstPositionInView = GetPositionFromLine(FirstLineInView);
+  const LastPositionInView = GetLineEndPosition(LastLineInView);
 
   { Updates the minimap's selections in place and adds or removes them only at
     the end: rebuilding them would take quadratic time, because adding a
@@ -356,10 +404,13 @@ begin
     const AnchorVirtualSpace = FMemo.SelectionAnchorVirtualSpace[MemoSelection];
     if (CaretPosition = AnchorPosition) and (CaretVirtualSpace = AnchorVirtualSpace) then
       Continue;
-    if (MinimapSelection >= AlwaysCopiedSelectionCount) and
-       ((Min(CaretPosition, AnchorPosition) > LastVisiblePosition) or
-        (Max(CaretPosition, AnchorPosition) < FirstVisiblePosition)) then
-      Continue;
+    if MinimapSelection >= AlwaysCopiedSelectionCount then begin
+      const StartPosition = Min(CaretPosition, AnchorPosition);
+      const EndPosition = Max(CaretPosition, AnchorPosition);
+      if (StartPosition > LastPositionInView) or (EndPosition < FirstPositionInView) or
+         IsWithinHiddenLines(StartPosition, EndPosition) then
+        Continue;
+    end;
     if MinimapSelection = SelectionCount then begin
       AddSelection(CaretPosition, AnchorPosition);
       { Adding removes the selections it trims to empty, so the new one can be
@@ -505,7 +556,7 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
     const MinimapLineHeight = LineHeight;
 
     var FirstLine, LastLine: Integer;
-    GetVisibleDocLines(FirstLine, LastLine);
+    GetDocLineRangeInView(FirstLine, LastLine);
 
     var LineHasSelectionHighlight: TArray<Boolean>;
     SetLength(LineHasSelectionHighlight, LastLine - FirstLine + 1);
@@ -518,7 +569,8 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
 
     var SelectionLineRects, SquigglyLineRects, OccurrenceLineRects: TArray<TRect>;
 
-    for var Line := FirstLine to LastLine do begin
+    var Line := FirstLine;
+    while Line <= LastLine do begin
       { Like VS Code, a selection's highlight wins over an error's, and an
         error's over an occurrence's. VS Code also hides them on a
         selection's last line, which includes a caret's line. We don't. }
@@ -529,6 +581,8 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
       else if LineHasIndicator(minWordAtCursorOccurrence, Line) or
               LineHasIndicator(minSelTextOccurrence, Line) then
         OccurrenceLineRects := OccurrenceLineRects + [GetLineRect(Line, MinimapLineHeight)];
+
+      Line := GetNextShownLine(Self, Line + 1);
     end;
 
     DrawAlphaRects(DC, SelectionLineRects, Theme.Colors[tcSelBack],

@@ -5524,9 +5524,12 @@ begin
   { Scintilla sends OnUpdateUI before the minimap repaints, so syncing now
     keeps it from first painting at its old position. MemoPainted catches the
     rest. }
-  if FMinimap.Visible and (Sender = FActiveMemo) and
-     (Updated * [suContent, suVScroll] <> []) then
-    FMinimap.SyncScrollPosition;
+  if FMinimap.Visible and (Sender = FActiveMemo) then begin
+    if suFolding in Updated then
+      FMinimap.SyncFolding;
+    if Updated * [suContent, suVScroll, suFolding] <> [] then
+      FMinimap.SyncScrollPosition;
+  end;
 
   if Updated * [suContent, suSelection] = [] then
     Exit;
@@ -5562,10 +5565,9 @@ end;
 
 procedure TMainForm.MemoPainted(Sender: TObject);
 begin
-  { Folding, unfolding, and lazy rewrapping send no OnUpdateUI unless the top
-    line changes. In Scintilla's Editor.cxx, only ContainerNeedsUpdate makes it
-    send one: FoldLine, FoldExpand, and FoldAll never call it, and WrapLines
-    calls it only through SetTopLine, when the top line changes.
+  { Lazy rewrapping sends no OnUpdateUI unless the top line changes. In
+    Scintilla's Editor.cxx, only ContainerNeedsUpdate makes it send one, and
+    WrapLines calls it only through SetTopLine, when the top line changes.
     This also runs on every caret blink, so SyncScrollPosition must stay cheap! }
   if FMinimap.Visible and (Sender = FActiveMemo) then
     FMinimap.SyncScrollPosition;
