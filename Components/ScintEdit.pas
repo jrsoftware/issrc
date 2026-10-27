@@ -629,7 +629,7 @@ type
     function CurCharIn(const Chars: TScintRawCharSet): Boolean;
     function CurCharIs(const C: AnsiChar): Boolean;
     procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
-      var Level: Integer; var Header, EnableHeaderOnPrevious: Boolean); virtual; abstract;
+      var Level: Integer; var EnableHeaderOnPrevious: Boolean); virtual; abstract;
     procedure GetStyleAttributes(const Style: Integer;
       var Attributes: TScintStyleAttributes); virtual; abstract;
     function LineTextSpans(const S: TScintRawString): Boolean; virtual;
@@ -2895,13 +2895,11 @@ procedure TScintEdit.StyleNeeded(const EndPos: Integer);
 
     var LineState := FStyler.LineState;
     var FoldLevel: Integer;
-    var FoldHeader, EnableFoldHeaderOnPrevious: Boolean;
+    var EnableFoldHeaderOnPrevious: Boolean;
 
-    FStyler.GetFoldLevel(LineState, PreviousLineState, FoldLevel, FoldHeader, EnableFoldHeaderOnPrevious);
+    FStyler.GetFoldLevel(LineState, PreviousLineState, FoldLevel, EnableFoldHeaderOnPrevious);
 
     Inc(FoldLevel, SC_FOLDLEVELBASE);
-    if FoldHeader then
-      FoldLevel := FoldLevel or SC_FOLDLEVELHEADERFLAG;
 
     { Apply line state and fold level }
 
