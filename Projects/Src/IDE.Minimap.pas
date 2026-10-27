@@ -479,15 +479,25 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
     Result := (RunEndPos > LineStartPos) and (RunEndPos < LineEndPos);
   end;
 
+  function GetLineRect(const Line, MinimapLineHeight: Integer): TRect;
+  begin
+    const LineTop = (GetVisibleLineFromDocLine(Line) - TopLine) * MinimapLineHeight;
+    const LineBottom = (GetVisibleLineFromDocLine(Line + 1) - TopLine) * MinimapLineHeight;
+    Result := Rect(MinimapGutterWidth, LineTop, ClientWidth, LineBottom);
+  end;
+
   procedure DrawLineHighlights(const DC: HDC);
-  { Like VS Code's _renderDecorationsLineHighlights, highlights each line with
-    an error or an occurrence over the full width, gutter excluded. Unlike
-    VS Code, draws the highlights over the boxes and the selection instead of
-    under them. }
+  { Like VS Code's _renderSelectionLineHighlights and
+    _renderDecorationsLineHighlights, highlights each line of a selection
+    except its last, and each line with an error or an occurrence, over the
+    full width, gutter excluded. Unlike VS Code, draws the highlights over the
+    boxes and the selection instead of under them. }
   const
-    { VS Code draws a line highlight in the color of its box at half its alpha.
-      These alphas are half those the boxes in UpdateTheme have after the
-      contrast boost. }
+    { VS Code draws a line highlight in the color of its box or selection at
+      half its alpha. These alphas are half those the boxes in UpdateTheme and
+      the minimap selection colors in ModernColors have after the contrast
+      boost. }
+    SelectionLineHighlightAlphas: array[TThemeType] of Byte = (115, 115, 115);
     SquigglyLineHighlightAlphas: array[TThemeType] of Byte = (128, 84, 96);
     OccurrenceLineHighlightAlphas: array[TThemeType] of Byte = (59, 59, 59);
   begin
@@ -496,23 +506,33 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
 
     var FirstLine, LastLine: Integer;
     GetVisibleDocLines(FirstLine, LastLine);
-    var SquigglyLineRects, OccurrenceLineRects: TArray<TRect>;
 
-    for var Line := FirstLine to LastLine do begin
-      { Like VS Code, an error's highlight wins over an occurrence's }
-      const HasSquiggly = ShowSquiggly and LineHasIndicator(minSquiggly, Line);
-      if HasSquiggly or LineHasIndicator(minWordAtCursorOccurrence, Line) or
-         LineHasIndicator(minSelTextOccurrence, Line) then begin
-        const LineTop = (GetVisibleLineFromDocLine(Line) - TopLine) * MinimapLineHeight;
-        const LineBottom = (GetVisibleLineFromDocLine(Line + 1) - TopLine) * MinimapLineHeight;
-        const LineRect = Rect(MinimapGutterWidth, LineTop, ClientWidth, LineBottom);
-        if HasSquiggly then
-          SquigglyLineRects := SquigglyLineRects + [LineRect]
-        else
-          OccurrenceLineRects := OccurrenceLineRects + [LineRect];
-      end;
+    var LineHasSelectionHighlight: TArray<Boolean>;
+    SetLength(LineHasSelectionHighlight, LastLine - FirstLine + 1);
+    for var Selection := 0 to SelectionCount-1 do begin
+      const SelectionStartLine = GetLineFromPosition(SelectionStartPosition[Selection]);
+      const SelectionEndLine = GetLineFromPosition(SelectionEndPosition[Selection]);
+      for var Line := Max(SelectionStartLine, FirstLine) to Min(SelectionEndLine-1, LastLine) do
+        LineHasSelectionHighlight[Line - FirstLine] := True;
     end;
 
+    var SelectionLineRects, SquigglyLineRects, OccurrenceLineRects: TArray<TRect>;
+
+    for var Line := FirstLine to LastLine do begin
+      { Like VS Code, a selection's highlight wins over an error's, and an
+        error's over an occurrence's. VS Code also hides them on a
+        selection's last line, which includes a caret's line. We don't. }
+      if LineHasSelectionHighlight[Line - FirstLine] then
+        SelectionLineRects := SelectionLineRects + [GetLineRect(Line, MinimapLineHeight)]
+      else if ShowSquiggly and LineHasIndicator(minSquiggly, Line) then
+        SquigglyLineRects := SquigglyLineRects + [GetLineRect(Line, MinimapLineHeight)]
+      else if LineHasIndicator(minWordAtCursorOccurrence, Line) or
+              LineHasIndicator(minSelTextOccurrence, Line) then
+        OccurrenceLineRects := OccurrenceLineRects + [GetLineRect(Line, MinimapLineHeight)];
+    end;
+
+    DrawAlphaRects(DC, SelectionLineRects, Theme.Colors[tcSelBack],
+      SelectionLineHighlightAlphas[Theme.Typ]);
     DrawAlphaRects(DC, SquigglyLineRects, Theme.Colors[tcRed],
       SquigglyLineHighlightAlphas[Theme.Typ]);
     DrawAlphaRects(DC, OccurrenceLineRects, Theme.Colors[tcMinimapOccurrenceBack],
