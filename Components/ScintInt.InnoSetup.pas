@@ -2,7 +2,7 @@ unit ScintInt.InnoSetup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -24,6 +24,7 @@ const
   SC_MOUSEMAPPING_VSCODE_WINDOWS = 1;
   SCI_SETMOUSEMAPPING = 3030;
   SCI_GETMOUSEMAPPING = 3031;
+  SC_UPDATE_FOLDING = $40;
 
 implementation
 

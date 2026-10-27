@@ -41,7 +41,7 @@ type
     var Info: TScintHintInfo) of object;
   TScintEditMarginClickEvent = procedure(Sender: TObject; MarginNumber: Integer;
     Line: Integer) of object;
-  TScintEditUpdate = (suContent, suSelection, suVScroll, suHScroll, suText, suLineCount);
+  TScintEditUpdate = (suContent, suSelection, suVScroll, suHScroll, suText, suLineCount, suFolding);
   TScintEditUpdates = set of TScintEditUpdate;
   TScintEditUpdateUIEvent = procedure(Sender: TObject; Updated: TScintEditUpdates) of object;
   TScintFindOption = (sfoMatchCase, sfoWholeWord, sfoRegEx);
