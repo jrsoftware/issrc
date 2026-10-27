@@ -389,6 +389,8 @@ end;
 
 procedure TMinimap.UpdateTheme;
 const
+  { When changing these, also recompute the line highlight alphas in
+    DrawLineHighlights in WMPaint }
   SquigglyAlphas: array[TThemeType] of Byte = (171, 217, 128);
   OccurrenceAlphas: array[TThemeType] of Byte = (42, 162, 42);
 begin
@@ -463,6 +465,60 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
     end;
   end;
 
+  function LineHasIndicator(const IndicatorNumber: TScintIndicatorNumber;
+    const Line: Integer): Boolean;
+  begin
+    const LineStartPos = GetPositionFromLine(Line);
+    const LineEndPos = GetLineEndPosition(Line);
+    if GetIndicatorAtPosition(IndicatorNumber, LineStartPos) then
+      Exit(True);
+    const RunEndPos = Call(SCI_INDICATOREND, IndicatorNumber, LineStartPos);
+    { If the run without the indicator ends within the line, the run after it
+      has the indicator. SCI_INDICATOREND returns 0 if no character has the
+      indicator. }
+    Result := (RunEndPos > LineStartPos) and (RunEndPos < LineEndPos);
+  end;
+
+  procedure DrawLineHighlights(const DC: HDC);
+  { Like VS Code's _renderDecorationsLineHighlights, highlights each line with
+    an error or an occurrence over the full width, gutter excluded. Unlike
+    VS Code, draws the highlights over the boxes and the selection instead of
+    under them. }
+  const
+    { VS Code draws a line highlight in the color of its box at half its alpha.
+      These alphas are half those the boxes in UpdateTheme have after the
+      contrast boost. }
+    SquigglyLineHighlightAlphas: array[TThemeType] of Byte = (128, 84, 96);
+    OccurrenceLineHighlightAlphas: array[TThemeType] of Byte = (59, 59, 59);
+  begin
+    const ShowSquiggly = IndicatorStyle[minSquiggly] <> sisHidden;
+    const MinimapLineHeight = LineHeight;
+
+    var FirstLine, LastLine: Integer;
+    GetVisibleDocLines(FirstLine, LastLine);
+    var SquigglyLineRects, OccurrenceLineRects: TArray<TRect>;
+
+    for var Line := FirstLine to LastLine do begin
+      { Like VS Code, an error's highlight wins over an occurrence's }
+      const HasSquiggly = ShowSquiggly and LineHasIndicator(minSquiggly, Line);
+      if HasSquiggly or LineHasIndicator(minWordAtCursorOccurrence, Line) or
+         LineHasIndicator(minSelTextOccurrence, Line) then begin
+        const LineTop = (GetVisibleLineFromDocLine(Line) - TopLine) * MinimapLineHeight;
+        const LineBottom = (GetVisibleLineFromDocLine(Line + 1) - TopLine) * MinimapLineHeight;
+        const LineRect = Rect(MinimapGutterWidth, LineTop, ClientWidth, LineBottom);
+        if HasSquiggly then
+          SquigglyLineRects := SquigglyLineRects + [LineRect]
+        else
+          OccurrenceLineRects := OccurrenceLineRects + [LineRect];
+      end;
+    end;
+
+    DrawAlphaRects(DC, SquigglyLineRects, Theme.Colors[tcRed],
+      SquigglyLineHighlightAlphas[Theme.Typ]);
+    DrawAlphaRects(DC, OccurrenceLineRects, Theme.Colors[tcMinimapOccurrenceBack],
+      OccurrenceLineHighlightAlphas[Theme.Typ]);
+  end;
+
   procedure DrawSlider(const DC: HDC; const SliderRect: TRect);
   const
     { These give the colors of VS Code's slider }
@@ -506,8 +562,11 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
             Color, ContrastBoosts[(Theme <> nil) and Theme.Dark]);
           { ^ Color could be the wrong background for lines with a line marker and
               for text with an indicator, but the effect is negligible }
-          if (FHovering or FDrag.Dragging) and (FMemo <> nil) and (Theme <> nil) then
-            DrawSlider(MemoryDC, GetSliderRect(GetMinimapLayout));
+          if (FMemo <> nil) and (Theme <> nil) then begin
+            DrawLineHighlights(MemoryDC);
+            if FHovering or FDrag.Dragging then
+              DrawSlider(MemoryDC, GetSliderRect(GetMinimapLayout));
+          end;
           Result := BitBlt(DC, 0, 0, BitmapWidth, BitmapHeight, MemoryDC, 0, 0, SRCCOPY);
         finally
           SelectObject(MemoryDC, OldBitmap);
