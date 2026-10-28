@@ -39,6 +39,7 @@ type
     var
       FDrag: TMinimapLayoutDrag;
       FHovering, FHoveringSlider: Boolean;
+      FLastLineCount: Integer;
       FLastSliderRect: TRect;
       FMemo: TIDEScintEdit;
       procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
@@ -72,7 +73,7 @@ implementation
 
 uses
   Windows, ActiveX,
-  Math,
+  Math, UITypes,
   ModernColors, ScintEdit,
   IDE.HelperFunc;
 
@@ -185,10 +186,19 @@ end;
 function TMinimap.GetMemoLineFromMinimapLine(const MinimapLine: Integer): Integer;
 begin
   { MinimapLine is below the last line when clicking below the end of the
-    document. GetDocLineFromVisibleLine then returns a document line that
-    doesn't exist, so we clamp. }
-  const DocLine = Min(GetDocLineFromVisibleLine(MinimapLine), Lines.Count-1);
-  Result := FMemo.GetVisibleLineFromDocLine(DocLine);
+    document, so we clamp }
+  const ClampedMinimapLine = Min(MinimapLine, GetVisibleLineFromDocLine(Lines.Count) - 1);
+  const DocLine = GetDocLineFromVisibleLine(ClampedMinimapLine);
+  const MinimapDocLineStart = GetVisibleLineFromDocLine(DocLine);
+  const MinimapDocLineDisplayLineCount = GetVisibleLineFromDocLine(DocLine + 1) - MinimapDocLineStart;
+  const MemoDocLineStart = FMemo.GetVisibleLineFromDocLine(DocLine);
+  const MemoDocLineDisplayLineCount = FMemo.GetVisibleLineFromDocLine(DocLine + 1) - MemoDocLineStart;
+  { Keeps the display line within a wrapped line. The minimap can wrap a line
+    into more display lines than the memo, such as while its column cap limits
+    its width, so scales the index, rounding down to stay within the line. }
+  const DisplayLineIndex = ClampedMinimapLine - MinimapDocLineStart;
+  Result := MemoDocLineStart + Integer(Int64(DisplayLineIndex) * MemoDocLineDisplayLineCount div
+    MinimapDocLineDisplayLineCount);
   { ^ Result can be off while the memo still has lines Scintilla hasn't
       wrapped yet, such as right after a resize with word wrap on.
       EnsureLineVisible would wrap them first, but it also unfolds. }
@@ -258,9 +268,7 @@ begin
     { When the slider is back where it was at the start of the drag, use
       StartMemoTopLine to restore the top line, instead of using
       GetMemoLineFromMinimapLine. This makes it able to restore the second
-      line of a wrapped line as the top line. Limitation: when the last line
-      wraps into more lines than the memo can show, the drag stops at the
-      start of that line. }
+      line of a wrapped line as the top line. }
     if NewViewportStartLine = FDrag.StartMinimapLayout.ViewportStartLine then
       FMemo.TopLine := FDrag.StartMemoTopLine
     else
@@ -342,6 +350,7 @@ begin
     Exit;
 
   const MinimapLayout = GetMinimapLayout;
+  FLastLineCount := MinimapLayout.LineCount;
   TopLine := CalculateMinimapTopLine(MinimapLayout.LineCount, MinimapLayout.MinimapLinesFitting,
     MinimapLayout.ViewportStartLine, MinimapLayout.ViewportLineCount);
 
@@ -436,6 +445,7 @@ procedure TMinimap.UpdateFont(const AFont: TFont);
 begin
   Font.Assign(AFont);
   Font.Size := MinimapFontSize;
+  Font.Style := Font.Style - [fsItalic]; { See CalculateMinimapWidths }
 end;
 
 procedure TMinimap.UpdateTheme;
@@ -479,6 +489,17 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
   procedure PrintClient(const DC: HDC);
   begin
     CallWindowProc(DefWndProc, Handle, WM_PRINTCLIENT, WPARAM(DC), PRF_CLIENT);
+  end;
+
+  procedure SyncScrollPositionIfLineCountChanged;
+  begin
+    { Only for lazy rewrapping, which changes the line count without notifying.
+      Also see TMainForm.MemoPainted. Syncing to a memo scroll the memo hasn't
+      painted yet would queue another paint of the minimap, which Windows does
+      first because the minimap is above the memo, so during a slider drag the
+      memo would seldom paint. }
+    if GetVisibleLineFromDocLine(Lines.Count) <> FLastLineCount then
+      SyncScrollPosition;
   end;
 
   procedure DrawAlphaRects(const DC: HDC; const Rects: array of TRect;
@@ -630,7 +651,14 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
       try
         const OldBitmap = SelectObject(MemoryDC, Bitmap);
         try
+          SyncScrollPositionIfLineCountChanged;
           PrintClient(MemoryDC);
+          { A lazy rewrap during that paint changes the line count too, and if
+            the resync then moves TopLine, we should paint once more }
+          const PaintedTopLine = TopLine;
+          SyncScrollPositionIfLineCountChanged;
+          if TopLine <> PaintedTopLine then
+            PrintClient(MemoryDC);
           GdiFlush; { See CreateDIBSection's documentation }
           BoostTextContrast(pvBits, BitmapWidth, BitmapHeight, MinimapGutterWidth,
             Color, ContrastBoosts[(Theme <> nil) and Theme.Dark]);

@@ -21,6 +21,17 @@ uses
 type
   TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
   TKeyMappingType = (kmtDelphi, kmtVisualStudio);
+  TMinimapWidths = record
+    MinimapWidth: Integer;
+    BlankWidth: Integer;
+    { ^ Width the memo reserves but leaves blank, between its text and the
+        minimap: one pixel more to the text would give it another column, and
+        the minimap's text area is already the narrowest that holds the memo's
+        columns. Equals at most a minimap character's width rounded up, so 0
+        or 1 below 200% scaling, plus 2 with an italic memo font. Always 0
+        while MinimapMaxColumn limits the minimap's width, because the memo's
+        text then gets all the rest. }
+  end;
 
 const
   IDELanguageTags: array [TIDELanguage] of String =
@@ -90,9 +101,10 @@ function GetSetupDirectiveDefaultValue(const DirectiveName: String): String;
 function FindSetupDirectiveValue(const DirectiveName: String): String;
 function FindSetupDirectiveValueAsBoolean(const DirectiveName: String): Boolean;
 function AnyInputDown: Boolean;
-function CalculateMinimapWidth(const RemainingWidth, VerticalScrollbarWidth: Integer;
+function CalculateMinimapWidths(const RemainingWidth, VerticalScrollbarWidth: Integer;
   const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
-  const MinimapMaxColumn, MinimapGutterWidth: Integer): Integer;
+  const EditorFontItalic: Boolean;
+  const MinimapMaxColumn, MinimapGutterWidth: Integer): TMinimapWidths;
 function CalculateMinimapTopLine(const LineCount, MinimapLinesFitting,
   ViewportStartLine, ViewportLineCount: Integer): Integer;
 function CalculateMinimapViewportStartLineFromDelta(const LineCount, MinimapLinesFitting,
@@ -1036,19 +1048,62 @@ begin
   Result := False;
 end;
 
-function CalculateMinimapWidth(const RemainingWidth, VerticalScrollbarWidth: Integer;
+function CalculateMinimapWidths(const RemainingWidth, VerticalScrollbarWidth: Integer;
   const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
-  const MinimapMaxColumn, MinimapGutterWidth: Integer): Integer;
-{ RemainingWidth should be the editor's whole width, vertical scrollbar
-  included, minus its gutter }
+  const EditorFontItalic: Boolean;
+  const MinimapMaxColumn, MinimapGutterWidth: Integer): TMinimapWidths;
+{ RemainingWidth should be the memo's whole width, vertical scrollbar
+  included, minus its gutter. The minimap's font shouldn't be italic, see
+  below. }
+
+  function GetNarrowestTextAreaWidth(const ColumnCount: Integer; const CharWidth: Double): Integer;
+  begin
+    { Scintilla wraps a character unless it ends before the text area's edge,
+      see LineLayout::WrapLine }
+    Result := Floor(ColumnCount * CharWidth) + 1;
+  end;
+
 begin
-  { VS Code's formula, see minimapWidth in
-    EditorLayoutInfoComputer._computeMinimapLayout }
+  { Like VS Code, makes the minimap's text hold the memo's columns, see
+    viewportColumn in the comment above minimapWidth in
+    EditorLayoutInfoComputer._computeMinimapLayout. Unlike VS Code, it
+    includes the minimap gutter in the equations and follows Scintilla's
+    wrapping, so the memo and the minimap hold exactly the same columns. It
+    also leaves no room for the caret: Scintilla can't draw it outside the
+    text area. }
+  const AvailableWidth = RemainingWidth - VerticalScrollbarWidth - MinimapGutterWidth;
+  { Scintilla adds 2 unscaled pixels to the end of a line that ends in italic
+    text (lastSegItalicsOffset in EditView::LayoutLine), so with an italic
+    font the memo's text area gets them extra. Else the last display line of
+    a wrapped line holds fewer columns in the memo. In the minimap they would
+    be 2 columns, so its font shouldn't be italic. Limitation: with an italic
+    font and memo characters narrower than 3 pixels, the last display line of
+    a wrapped line still holds fewer columns in the memo. }
+  const EditorLastSegmentItalicsOffset = IfThen(EditorFontItalic, 2, 0);
+  { The most columns for which both text areas fit. Starts from a lower bound:
+    with fractional character widths, rounding the narrowest widths down can
+    leave room for more. }
+  var ViewportColumn := Max(0, Floor((AvailableWidth - 2 - EditorLastSegmentItalicsOffset) /
+    (EditorTypicalHalfwidthCharWidth + MinimapCharWidth)));
+  while GetNarrowestTextAreaWidth(ViewportColumn + 1, EditorTypicalHalfwidthCharWidth) +
+        EditorLastSegmentItalicsOffset +
+        GetNarrowestTextAreaWidth(ViewportColumn + 1, MinimapCharWidth) <= AvailableWidth do
+    Inc(ViewportColumn);
+
   const MinimapMaxWidth = Floor(MinimapMaxColumn * MinimapCharWidth);
-  const CaretRoomWidth = 0; { VS Code uses 2, but Scintilla can't draw the caret outside its text area }
-  Result := Min(MinimapMaxWidth, Max(0, Floor((RemainingWidth -
-    VerticalScrollbarWidth - CaretRoomWidth) * MinimapCharWidth /
-    (EditorTypicalHalfwidthCharWidth + MinimapCharWidth))) + MinimapGutterWidth);
+  const MinimapTextAreaWidth = GetNarrowestTextAreaWidth(ViewportColumn, MinimapCharWidth);
+  if MinimapGutterWidth + MinimapTextAreaWidth <= MinimapMaxWidth then begin
+    Result.MinimapWidth := MinimapGutterWidth + MinimapTextAreaWidth;
+    { The memo's text area gets the rest, but at most what holds
+      ViewportColumn columns }
+    const EditorWidestTextAreaWidth = Floor((ViewportColumn + 1) * EditorTypicalHalfwidthCharWidth);
+    Result.BlankWidth := Max(0, AvailableWidth - MinimapTextAreaWidth - EditorWidestTextAreaWidth);
+  end else begin
+    { While MinimapMaxColumn limits the minimap's width, the minimap holds
+      fewer columns than the memo, so it wraps earlier }
+    Result.MinimapWidth := MinimapMaxWidth;
+    Result.BlankWidth := 0;
+  end;
 end;
 
 function CalculateMinimapTopLine(const LineCount, MinimapLinesFitting,

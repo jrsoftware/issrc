@@ -610,7 +610,7 @@ type
     function GetMainFilename: String;
     function GetMainBaseDir: String;
     function GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
-    function GetMinimapWidth(const AMemo: TIDEScintEdit): Integer;
+    function GetMinimapWidths(const AMemo: TIDEScintEdit): TMinimapWidths;
     function GetSignTools: TStringList;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
@@ -2990,6 +2990,9 @@ begin
     active memo's document }
   FMinimap.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
   FMinimap.IndicatorStyle[minSquiggly] := MinimapSquigglyStyles[FOptions.UnderlineErrors]; { Over the text by default, like VS Code }
+  { Not WordWrap: setting it sets document-level options too, see the comment
+    of TScintEdit.SetDocumentPointer }
+  FMinimap.Call(SCI_SETWRAPMODE, Ord(FOptions.WordWrap), 0);
 end;
 
 procedure TMainForm.SyncInspectorOptions;
@@ -3777,7 +3780,7 @@ begin
     Result := 0;
 end;
 
-function TMainForm.GetMinimapWidth(const AMemo: TIDEScintEdit): Integer;
+function TMainForm.GetMinimapWidths(const AMemo: TIDEScintEdit): TMinimapWidths;
 
   function GetTypicalHalfwidthCharWidth(const Edit: TScintEdit): Double;
   begin
@@ -3798,9 +3801,9 @@ begin
 
   { Always passes the vertical scrollbar's width, even while it's hidden:
     otherwise the reservation could show or hide it through rewrapping }
-  Result := CalculateMinimapWidth(RemainingWidth, AMemo.GetSystemMetrics(SM_CXVSCROLL),
+  Result := CalculateMinimapWidths(RemainingWidth, AMemo.GetSystemMetrics(SM_CXVSCROLL),
     GetTypicalHalfwidthCharWidth(AMemo), GetTypicalHalfwidthCharWidth(FMinimap),
-    MinimapMaxColumn, MinimapGutterWidth);
+    fsItalic in AMemo.Font.Style, MinimapMaxColumn, MinimapGutterWidth);
 end;
 
 function TMainForm.GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
@@ -3811,9 +3814,11 @@ function TMainForm.GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
   the same when the scrollbar shows or hides, so word wrap never rewraps the
   text, which could show or hide the scrollbar again. }
 begin
-  if (FMinimap <> nil) and FMinimap.Visible then
-    Result := GetMinimapWidth(AMemo) + GetVScrollWidthIfHidden(AMemo)
-  else
+  if (FMinimap <> nil) and FMinimap.Visible then begin
+    const MinimapWidths = GetMinimapWidths(AMemo);
+    Result := MinimapWidths.MinimapWidth + MinimapWidths.BlankWidth +
+      GetVScrollWidthIfHidden(AMemo);
+  end else
     Result := 0;
 end;
 
@@ -3838,7 +3843,7 @@ end;
 procedure TMainForm.UpdateMinimapLayout;
 begin
   if (FMinimap <> nil) and FMinimap.Visible then begin
-    const MinimapWidth = GetMinimapWidth(FActiveMemo);
+    const MinimapWidth = GetMinimapWidths(FActiveMemo).MinimapWidth;
     FMinimap.SetBounds(FActiveMemo.Left + FActiveMemo.ClientWidth -
       GetVScrollWidthIfHidden(FActiveMemo) - MinimapWidth, FActiveMemo.Top,
         MinimapWidth, FActiveMemo.ClientHeight);
@@ -5523,10 +5528,11 @@ procedure TMainForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
   end;
 
 begin
-  { Scintilla sends OnUpdateUI before the minimap repaints, so syncing now
-    keeps it from first painting at its old position. MemoPainted catches the
-    rest. }
   if FMinimap.Visible and (Sender = FActiveMemo) then begin
+    { Syncing now keeps the minimap from first painting at its old position,
+      except after a scroll or fold alone: Scintilla reports those only when
+      the memo paints, which can be after the minimap's paint. MemoPainted
+      catches the rest. }
     if suFolding in Updated then
       FMinimap.SyncFolding;
     if Updated * [suContent, suVScroll, suFolding] <> [] then
