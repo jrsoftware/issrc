@@ -832,7 +832,9 @@ const
   { VS Code's default for its editor.minimap.maxColumn setting, see
     'maxColumn: 120' in src/vs/editor/common/config/editorOptions.ts. Note:
     Column is VS Code's term for one minimap character, so the minimap, its
-    gutter included, is at most this many characters wide. }
+    gutter included, is at most this many characters wide. VS Code added it to
+    stop the minimap from getting too wide on wide windows, see
+    https://github.com/microsoft/vscode/issues/20931. }
   MinimapMaxColumn = 120;
 
 procedure SaveBooleanOption(const OptionName: String; const Value: Boolean);
