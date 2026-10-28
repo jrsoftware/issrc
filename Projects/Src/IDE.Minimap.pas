@@ -14,7 +14,7 @@ interface
 uses
   Messages,
   Types, Classes, Graphics, Controls,
-  ScintInt,
+  ScintInt, ScintEdit,
   IDE.IDEScintEdit;
 
 const
@@ -25,7 +25,7 @@ const
       it, for consistency, and to avoid complications. }
 
 type
-  TMinimap = class(TIDEScintEdit)
+  TMinimap = class(TIDEScintEditBase)
   private
     type
       TDisplayLines = record
@@ -48,12 +48,12 @@ type
       FMemo: TIDEScintEdit;
       procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
       procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
-      class function GetDisplayLines(const Edit: TIDEScintEdit;
+      class function GetDisplayLines(const Edit: TScintEdit;
         const DocLine: Integer): TDisplayLines; static;
       procedure GetDocLineRangeInView(out FirstLine, LastLine: Integer);
       function GetMemoLineFromMinimapLine(const MinimapLine: Integer): Integer;
       function GetMinimapLayout: TMinimapLayout;
-      class function GetNextShownLine(const Edit: TIDEScintEdit;
+      class function GetNextShownLine(const Edit: TScintEdit;
         const StartLine: Integer): Integer; static;
       function GetSliderRect(const MinimapLayout: TMinimapLayout): TRect;
       function IsSliderShown: Boolean;
@@ -74,7 +74,7 @@ type
     procedure SyncScrollPosition;
     procedure SyncSelections;
     procedure UpdateFont(const AFont: TFont);
-    procedure UpdateTheme;
+    procedure UpdateThemeColorsAndStyleAttributes; override;
     property AlwaysShowSlider: Boolean read FAlwaysShowSlider write SetAlwaysShowSlider;
   end;
 
@@ -83,7 +83,7 @@ implementation
 uses
   Windows, ActiveX,
   Math, UITypes,
-  ModernColors, ScintEdit,
+  ModernColors,
   IDE.HelperFunc;
 
 const
@@ -144,13 +144,11 @@ begin
     is a column or more, so tabs would be wider than in the memo }
   TabMinimumWidth := 0;
 
-  { Turn automatic folding back off: SyncFolding handles it }
-  AutomaticFold := [];
-
   { Use the gutter for a single margin showing change history }
   for var Margin := 0 to MarginCount-1 do
     MarginWidth[Margin] := 0;
   MarginType[mmChangeHistory] := smtBack;
+  Call(SCI_SETMARGINMASKN, mmChangeHistory, SC_MASK_HISTORY);
   { Like VS Code, use 2 pixel wide change markers, not scaled for DPI }
   const ChangeHistoryWidth = 2 * 3; { SC_MARK_BAR shows a bar a third of its width }
   MarginWidth[mmChangeHistory] := ChangeHistoryWidth;
@@ -176,15 +174,14 @@ begin
     Call(SCI_INDICSETUNDER, Indicator, 0); { Over the text, like VS Code }
   end;
 
-  { No change notifications or undo selection history, don't need them }
+  { No change notifications, don't need them }
   ChangeNotifications := False;
-  UndoSelectionHistory := False;
 
   { Ensure document is shared }
   SetDocPointer;
 end;
 
-class function TMinimap.GetDisplayLines(const Edit: TIDEScintEdit;
+class function TMinimap.GetDisplayLines(const Edit: TScintEdit;
   const DocLine: Integer): TDisplayLines;
 { Count is 0 if Edit hides DocLine }
 begin
@@ -252,7 +249,7 @@ begin
     Result.ViewportStartLine;
 end;
 
-class function TMinimap.GetNextShownLine(const Edit: TIDEScintEdit;
+class function TMinimap.GetNextShownLine(const Edit: TScintEdit;
   const StartLine: Integer): Integer;
 { Returns Edit's first shown line from StartLine on, or Edit.Lines.Count if
   there's none }
@@ -494,14 +491,14 @@ begin
   Font.Style := Font.Style - [fsItalic]; { See CalculateMinimapWidths }
 end;
 
-procedure TMinimap.UpdateTheme;
+procedure TMinimap.UpdateThemeColorsAndStyleAttributes;
 const
   { When changing these, also recompute the line highlight alphas in
     DrawLineHighlights in WMPaint }
   SquigglyAlphas: array[TThemeType] of Byte = (171, 217, 128);
   OccurrenceAlphas: array[TThemeType] of Byte = (42, 162, 42);
 begin
-  UpdateThemeColorsAndStyleAttributes;
+  inherited;
   if Theme <> nil then begin
     const SquigglyAlpha = SquigglyAlphas[Theme.Typ];
     Call(SCI_INDICSETALPHA, minSquiggly, SquigglyAlpha);
@@ -612,9 +609,9 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
     boxes and the selection instead of under them. }
   const
     { VS Code draws a line highlight in the color of its box or selection at
-      half its alpha. These alphas are half those the boxes in UpdateTheme and
-      the minimap selection colors in ModernColors have after the contrast
-      boost. }
+      half its alpha. These alphas are half those the boxes in
+      UpdateThemeColorsAndStyleAttributes and the minimap selection colors in
+      ModernColors have after the contrast boost. }
     SelectionLineHighlightAlphas: array[TThemeType] of Byte = (115, 115, 115);
     SquigglyLineHighlightAlphas: array[TThemeType] of Byte = (128, 84, 96);
     OccurrenceLineHighlightAlphas: array[TThemeType] of Byte = (59, 59, 59);

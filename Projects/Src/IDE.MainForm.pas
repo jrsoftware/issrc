@@ -6839,7 +6839,7 @@ begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlWindowTheme(Memo, FTheme.Dark);
   end;
-  FMinimap.UpdateTheme;
+  FMinimap.UpdateThemeColorsAndStyleAttributes;
   SetListBoxWindowTheme(CompilerOutputList);
   SetListBoxWindowTheme(DebugOutputList);
   SetListBoxWindowTheme(DebugCallStackList);
