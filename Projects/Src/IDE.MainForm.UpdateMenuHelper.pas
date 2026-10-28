@@ -35,6 +35,7 @@ type
     procedure UpdateBreakPointsMenu(const Menu: TMenuItem);
     procedure UpdateTargetMenuItems;
     procedure UpdateInspectorPopupMenu(const Menu: TMenuItem);
+    procedure UpdateMinimapPopupMenu(const Menu: TMenuItem);
     { Private }
     procedure _UpdateMenuBitmapsIfNeeded;
     procedure _ApplyMenuBitmapsAndNewShortCutText(const ParentMenuItem: TMenuItem);
@@ -575,6 +576,13 @@ begin
   PInspectorQuoteNewDirectiveValues.Checked := FOptions.InspectorQuoteNewDirectiveValues;
   PInspectorQuoteNewParameterValues.Visible := ShowingParameterSectionEntry;
   PInspectorQuoteNewParameterValues.Checked := FOptions.InspectorQuoteNewParameterValues;
+
+  _ApplyMenuBitmapsAndNewShortCutText(Menu);
+end;
+
+procedure TMainFormUpdateMenuHelper.UpdateMinimapPopupMenu(const Menu: TMenuItem);
+begin
+  PMinimapAlwaysShowSlider.Checked := FOptions.MinimapAlwaysShowSlider;
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;

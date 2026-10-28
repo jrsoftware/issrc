@@ -939,6 +939,15 @@ object MainForm: TMainForm
           OnClick = PInspectorHelpClick
         end
       end
+      object MinimapPopupMenu: TMenuItem
+        Caption = 'MinimapPopupMenu'
+        Visible = False
+        OnClick = MinimapPopupMenuClick
+        object PMinimapAlwaysShowSlider: TMenuItem
+          Caption = 'Always show slider'
+          OnClick = PMinimapAlwaysShowSliderClick
+        end
+      end
     end
     object BMenu: TMenuItem
       Caption = '&Build'

@@ -154,6 +154,7 @@ type
     InspectorFollowCaret: Boolean;
     InspectorQuoteNewParameterValues: Boolean;
     InspectorQuoteNewDirectiveValues: Boolean;
+    MinimapAlwaysShowSlider: Boolean;
   end;
 
   TMainForm = class(TUIStateForm)
@@ -368,6 +369,8 @@ type
     VNavigatorFocusAndSelect: TMenuItem;
     N28: TMenuItem;
     VMinimap: TMenuItem;
+    MinimapPopupMenu: TMenuItem;
+    PMinimapAlwaysShowSlider: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -527,6 +530,8 @@ type
     procedure VNavigatorFocusClick(Sender: TObject);
     procedure NavigatorPanelResizeOrCaretInCodeSectionChange(Sender: TObject);
     procedure VMinimapClick(Sender: TObject);
+    procedure MinimapPopupMenuClick(Sender: TObject);
+    procedure PMinimapAlwaysShowSliderClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -667,6 +672,7 @@ type
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
     procedure SyncInspectorOptions;
+    procedure SyncMinimapOptions;
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TIDEScintEdit;
     procedure ToggleBreakPoint(Line: Integer);
     procedure Uncloak;
@@ -1032,6 +1038,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       TScintEdit.SetStyler. }
     FMinimap.Theme := FTheme;
     FMinimap.StyleName := 'Windows';
+    FMinimap.PopupMenu := TMainFormPopupMenu.Create(Self, MinimapPopupMenu);
     FMinimap.Visible := False;
     FMinimap.Parent := MemoPanel;
     FMinimap.UpdateFont(FMainMemo.Font);
@@ -1094,6 +1101,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       { FOptions.InspectorShowAllKnownDirectives and InspectorFollowCaret already loaded }
       FOptions.InspectorQuoteNewParameterValues := Ini.ReadBool('Options', 'InspectorQuoteNewParameterValues', True);
       FOptions.InspectorQuoteNewDirectiveValues := Ini.ReadBool('Options', 'InspectorQuoteNewDirectiveValues', False);
+      FOptions.MinimapAlwaysShowSlider := Ini.ReadBool('Options', 'MinimapAlwaysShowSlider', False);
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', 10);
       FMainMemo.Font.Charset := TFontCharSet(Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset));
@@ -1198,6 +1206,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       SetNavigatorVisible(Ini.ReadBool('Options', 'ShowNavigator', True));
 
       { Minimap visibility }
+      SyncMinimapOptions;
       SetMinimapVisible(Ini.ReadBool('Options', 'ShowMinimap', True));
 
       { Inspector widths and visibility }
@@ -3006,6 +3015,11 @@ begin
   FInspector.QuoteNewParameterValues := FOptions.InspectorQuoteNewParameterValues;
 end;
 
+procedure TMainForm.SyncMinimapOptions;
+begin
+  FMinimap.AlwaysShowSlider := FOptions.MinimapAlwaysShowSlider;
+end;
+
 procedure TMainForm.FMenuClick(Sender: TObject);
 begin
   UpdateFileMenu(Sender as TMenuItem);
@@ -3769,6 +3783,18 @@ end;
 procedure TMainForm.VMinimapClick(Sender: TObject);
 begin
   SetMinimapVisible(not FMinimap.Visible);
+end;
+
+procedure TMainForm.MinimapPopupMenuClick(Sender: TObject);
+begin
+  UpdateMinimapPopupMenu(Sender as TMenuItem);
+end;
+
+procedure TMainForm.PMinimapAlwaysShowSliderClick(Sender: TObject);
+begin
+  FOptions.MinimapAlwaysShowSlider := not FOptions.MinimapAlwaysShowSlider;
+  SyncMinimapOptions;
+  SaveBooleanOption('MinimapAlwaysShowSlider', FOptions.MinimapAlwaysShowSlider);
 end;
 
 function GetVScrollWidthIfHidden(const Memo: TScintEdit): Integer;

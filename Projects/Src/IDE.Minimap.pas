@@ -40,6 +40,7 @@ type
         StartMemoTopLine, StartY: Integer;
       end;
     var
+      FAlwaysShowSlider: Boolean;
       FDrag: TMinimapLayoutDrag;
       FHovering, FHoveringSlider: Boolean;
       FLastLineCount: Integer;
@@ -55,6 +56,8 @@ type
       class function GetNextShownLine(const Edit: TIDEScintEdit;
         const StartLine: Integer): Integer; static;
       function GetSliderRect(const MinimapLayout: TMinimapLayout): TRect;
+      function IsSliderShown: Boolean;
+      procedure SetAlwaysShowSlider(const Value: Boolean);
       procedure SetDocPointer;
       procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
       procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
@@ -72,6 +75,7 @@ type
     procedure SyncSelections;
     procedure UpdateFont(const AFont: TFont);
     procedure UpdateTheme;
+    property AlwaysShowSlider: Boolean read FAlwaysShowSlider write SetAlwaysShowSlider;
   end;
 
 implementation
@@ -276,6 +280,11 @@ begin
     MinimapLayout.ViewportLineCount * LineHeight);
 end;
 
+function TMinimap.IsSliderShown: Boolean;
+begin
+  Result := FAlwaysShowSlider or FHovering or FDrag.Dragging;
+end;
+
 procedure TMinimap.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
@@ -317,6 +326,14 @@ begin
      (XOffset <> 0) then { Check because setting XOffset always repaints }
     XOffset := 0; { Safe: queues another SCN_UPDATEUI but Scintilla then discards it on return }
   inherited;
+end;
+
+procedure TMinimap.SetAlwaysShowSlider(const Value: Boolean);
+begin
+  if FAlwaysShowSlider <> Value then begin
+    FAlwaysShowSlider := Value;
+    Invalidate;
+  end;
 end;
 
 procedure TMinimap.SetDocPointer;
@@ -392,7 +409,7 @@ begin
       var CursorPos: TPoint;
       FHoveringSlider := GetCursorPos(CursorPos) and PtInRect(SliderRect, ScreenToClient(CursorPos));
     end;
-    if FHovering or FDrag.Dragging then
+    if IsSliderShown then
       Invalidate;
   end;
 end;
@@ -695,7 +712,7 @@ procedure TMinimap.WMPaint(var Message: TWMPaint);
               for text with an indicator, but the effect is negligible }
           if (FMemo <> nil) and (Theme <> nil) then begin
             DrawLineHighlights(MemoryDC);
-            if FHovering or FDrag.Dragging then
+            if IsSliderShown then
               DrawSlider(MemoryDC, GetSliderRect(GetMinimapLayout));
           end;
           Result := BitBlt(DC, 0, 0, BitmapWidth, BitmapHeight, MemoryDC, 0, 0, SRCCOPY);
@@ -753,7 +770,7 @@ begin
     WM_LBUTTONUP:
       if FDrag.Dragging then
         MouseCapture := False;
-    WM_RBUTTONDOWN, WM_RBUTTONDBLCLK, WM_RBUTTONUP,
+    WM_RBUTTONDOWN, WM_RBUTTONDBLCLK,
     WM_MBUTTONDOWN, WM_MBUTTONDBLCLK, WM_MBUTTONUP,
     WM_VSCROLL, WM_HSCROLL:
       ;
