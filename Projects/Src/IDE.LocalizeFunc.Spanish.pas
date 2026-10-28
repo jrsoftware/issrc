@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  SpanishIDETranslations: array [0..1013] of TTranslationPair = (
+  SpanishIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Uso de la línea de comandos:'),
     (English: 'Examples:'; Localized: 'Ejemplos:'),
     (English: 'script file'; Localized: 'archivo de script'),
@@ -394,6 +394,8 @@ const
     (English: 'Quote new directive values'; Localized: 'Poner entre comillas los nuevos valores de directivas'),
     (English: 'Quote new parameter values'; Localized: 'Poner entre comillas los nuevos valores de parámetros'),
     (English: '&Help'; Localized: 'Ay&uda'),
+    (English: 'Always show slider'; Localized: 'Mostrar siempre el control deslizante'),
+    (English: 'Show on left'; Localized: 'Mostrar a la izquierda'),
     (English: '&Build'; Localized: '&Compilación'),
     (English: '&Compile'; Localized: '&Compilar'),
     (English: 'S&top Compile'; Localized: 'De&tener compilación'),
@@ -488,6 +490,7 @@ const
     (English: 'Ke&ys:'; Localized: '&Teclas:'),
     (English: 'Show whitespace'; Localized: 'Mostrar espacios en blanco'),
     (English: 'Smart Home key'; Localized: 'Tecla Inicio inteligente'),
+    (English: ' Minimap '; Localized: ' Minimapa '),
     (English: '&Associate .%1 files with this compiler'; Localized: '&Asociar los archivos .%1 con este compilador'),
     (English: '&Windows registry file (.%1) to import:'; Localized: 'Archivo de registro de &Windows (.%1) a importar:'),
     (English: 'B&rowse...'; Localized: '&Examinar...'),

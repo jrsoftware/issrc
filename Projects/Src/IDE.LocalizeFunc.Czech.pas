@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..1013] of TTranslationPair = (
+  CzechIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -394,6 +394,8 @@ const
     (English: 'Quote new directive values'; Localized: 'Uzavírat nové hodnoty direktiv do uvozovek'),
     (English: 'Quote new parameter values'; Localized: 'Uzavírat nové hodnoty parametrů do uvozovek'),
     (English: '&Help'; Localized: 'Nápo&věda'),
+    (English: 'Always show slider'; Localized: 'Vždy zobrazovat posuvník'),
+    (English: 'Show on left'; Localized: 'Zobrazovat vlevo'),
     (English: '&Build'; Localized: 'S&estavení'),
     (English: '&Compile'; Localized: '&Kompilovat'),
     (English: 'S&top Compile'; Localized: '&Zastavit kompilaci'),
@@ -488,6 +490,7 @@ const
     (English: 'Ke&ys:'; Localized: 'Kláves&y:'),
     (English: 'Show whitespace'; Localized: 'Zobrazit prázdné znaky'),
     (English: 'Smart Home key'; Localized: 'Chytrá klávesa Home'),
+    (English: ' Minimap '; Localized: ' Minimapa '),
     (English: '&Associate .%1 files with this compiler'; Localized: '&Přidružit soubory .%1 k tomuto kompilátoru'),
     (English: '&Windows registry file (.%1) to import:'; Localized: 'Soubor registru &Windows (.%1) k importu:'),
     (English: 'B&rowse...'; Localized: 'P&rocházet...'),

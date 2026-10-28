@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..1013] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -394,6 +394,8 @@ const
     (English: 'Quote new directive values'; Localized: 'ディレクティブの新しい値を引用符で囲む'),
     (English: 'Quote new parameter values'; Localized: 'パラメーターの新しい値を引用符で囲む'),
     (English: '&Help'; Localized: 'ヘルプ(&H)'),
+    (English: 'Always show slider'; Localized: 'スライダーを常に表示'),
+    (English: 'Show on left'; Localized: '左側に表示'),
     (English: '&Build'; Localized: 'ビルド(&B)'),
     (English: '&Compile'; Localized: 'コンパイル(&C)'),
     (English: 'S&top Compile'; Localized: 'コンパイルの停止(&T)'),
@@ -488,6 +490,7 @@ const
     (English: 'Ke&ys:'; Localized: 'キー(&Y):'),
     (English: 'Show whitespace'; Localized: '空白文字を表示'),
     (English: 'Smart Home key'; Localized: 'スマート Home キー'),
+    (English: ' Minimap '; Localized: ' ミニマップ '),
     (English: '&Associate .%1 files with this compiler'; Localized: '.%1 ファイルをこのコンパイラーに関連付ける(&A)'),
     (English: '&Windows registry file (.%1) to import:'; Localized: 'インポートする Windows レジストリファイル (.%1)(&W):'),
     (English: 'B&rowse...'; Localized: '参照(&R)...'),

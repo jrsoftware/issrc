@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ChineseSimplifiedIDETranslations: array [0..1013] of TTranslationPair = (
+  ChineseSimplifiedIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '命令行用法：'),
     (English: 'Examples:'; Localized: '示例：'),
     (English: 'script file'; Localized: '脚本文件'),
@@ -394,6 +394,8 @@ const
     (English: 'Quote new directive values'; Localized: '将新的指令值用引号括起来'),
     (English: 'Quote new parameter values'; Localized: '将新的参数值用引号括起来'),
     (English: '&Help'; Localized: '帮助(&H)'),
+    (English: 'Always show slider'; Localized: '始终显示滑块'),
+    (English: 'Show on left'; Localized: '在左侧显示'),
     (English: '&Build'; Localized: '生成(&B)'),
     (English: '&Compile'; Localized: '编译(&C)'),
     (English: 'S&top Compile'; Localized: '停止编译(&T)'),
@@ -488,6 +490,7 @@ const
     (English: 'Ke&ys:'; Localized: '按键(&Y)：'),
     (English: 'Show whitespace'; Localized: '显示空白字符'),
     (English: 'Smart Home key'; Localized: '智能 Home 键'),
+    (English: ' Minimap '; Localized: ' 缩略图 '),
     (English: '&Associate .%1 files with this compiler'; Localized: '将 .%1 文件与此编译器建立关联(&A)'),
     (English: '&Windows registry file (.%1) to import:'; Localized: '要导入的 Windows 注册表文件 (.%1)(&W)：'),
     (English: 'B&rowse...'; Localized: '浏览(&R)...'),

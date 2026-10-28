@@ -4897,6 +4897,8 @@ begin
     OptionsForm.InspectorFollowCaretCheck.Checked := FOptions.InspectorFollowCaret;
     OptionsForm.InspectorQuoteNewDirectiveValuesCheck.Checked := FOptions.InspectorQuoteNewDirectiveValues;
     OptionsForm.InspectorQuoteNewParameterValuesCheck.Checked := FOptions.InspectorQuoteNewParameterValues;
+    OptionsForm.MinimapAlwaysShowSliderCheck.Checked := FOptions.MinimapAlwaysShowSlider;
+    OptionsForm.MinimapShowOnLeftCheck.Checked := FOptions.MinimapShowOnLeft;
 
     const SaveLanguage = FOptions.Language;
 
@@ -4942,6 +4944,8 @@ begin
     FOptions.InspectorFollowCaret := OptionsForm.InspectorFollowCaretCheck.Checked;
     FOptions.InspectorQuoteNewDirectiveValues := OptionsForm.InspectorQuoteNewDirectiveValuesCheck.Checked;
     FOptions.InspectorQuoteNewParameterValues := OptionsForm.InspectorQuoteNewParameterValuesCheck.Checked;
+    FOptions.MinimapAlwaysShowSlider := OptionsForm.MinimapAlwaysShowSliderCheck.Checked;
+    FOptions.MinimapShowOnLeft := OptionsForm.MinimapShowOnLeftCheck.Checked;
 
     UpdateCaption;
     UpdatePreprocMemos;
@@ -4960,6 +4964,7 @@ begin
     UpdateKeyMapping;
     UpdateTheme;
     SyncInspectorOptions;
+    SyncMinimapOptions;
 
     { Save new options }
     Ini := TConfigIniFile.Create;
@@ -5006,6 +5011,8 @@ begin
       Ini.WriteBool('Options', 'InspectorFollowCaret', FOptions.InspectorFollowCaret);
       Ini.WriteBool('Options', 'InspectorQuoteNewParameterValues', FOptions.InspectorQuoteNewParameterValues);
       Ini.WriteBool('Options', 'InspectorQuoteNewDirectiveValues', FOptions.InspectorQuoteNewDirectiveValues);
+      Ini.WriteBool('Options', 'MinimapAlwaysShowSlider', FOptions.MinimapAlwaysShowSlider);
+      Ini.WriteBool('Options', 'MinimapShowOnLeft', FOptions.MinimapShowOnLeft);
     finally
       Ini.Free;
     end;

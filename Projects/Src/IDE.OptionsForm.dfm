@@ -238,7 +238,7 @@ object OptionsForm: TOptionsForm
     Left = 340
     Top = 8
     Width = 321
-    Height = 405
+    Height = 400
     Caption = ' Editor '
     TabOrder = 2
     object AutoAutoCompleteCheck: TCheckBox
@@ -442,6 +442,32 @@ object OptionsForm: TOptionsForm
       TabOrder = 7
     end
   end
+  object GroupBox4: TNewGroupBox
+    Left = 340
+    Top = 416
+    Width = 321
+    Height = 68
+    Caption = ' Minimap '
+    TabOrder = 3
+    object MinimapAlwaysShowSliderCheck: TCheckBox
+      Left = 8
+      Top = 20
+      Width = 305
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Always show slider'
+      TabOrder = 0
+    end
+    object MinimapShowOnLeftCheck: TCheckBox
+      Left = 8
+      Top = 40
+      Width = 305
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Show on left'
+      TabOrder = 1
+    end
+  end
   object OKButton: TButton
     Left = 500
     Top = 496
@@ -451,7 +477,7 @@ object OptionsForm: TOptionsForm
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 3
+    TabOrder = 4
   end
   object CancelButton: TButton
     Left = 580
@@ -462,7 +488,7 @@ object OptionsForm: TOptionsForm
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 4
+    TabOrder = 5
   end
   object AssocButton: TButton
     Left = 16
@@ -471,7 +497,7 @@ object OptionsForm: TOptionsForm
     Height = 23
     Anchors = [akLeft, akBottom]
     Caption = '&Associate .%1 files with this compiler'
-    TabOrder = 5
+    TabOrder = 6
     OnClick = AssocButtonClick
   end
   object FontDialog: TFontDialog
