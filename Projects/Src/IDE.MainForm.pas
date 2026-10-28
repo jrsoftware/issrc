@@ -155,6 +155,7 @@ type
     InspectorQuoteNewParameterValues: Boolean;
     InspectorQuoteNewDirectiveValues: Boolean;
     MinimapAlwaysShowSlider: Boolean;
+    MinimapShowOnLeft: Boolean;
   end;
 
   TMainForm = class(TUIStateForm)
@@ -371,6 +372,7 @@ type
     VMinimap: TMenuItem;
     MinimapPopupMenu: TMenuItem;
     PMinimapAlwaysShowSlider: TMenuItem;
+    PMinimapShowOnLeft: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -532,6 +534,7 @@ type
     procedure VMinimapClick(Sender: TObject);
     procedure MinimapPopupMenuClick(Sender: TObject);
     procedure PMinimapAlwaysShowSliderClick(Sender: TObject);
+    procedure PMinimapShowOnLeftClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -614,7 +617,6 @@ type
     function GetBorderStyle: TFormBorderStyle;
     function GetMainFilename: String;
     function GetMainBaseDir: String;
-    function GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
     function GetMinimapWidths(const AMemo: TIDEScintEdit): TMinimapWidths;
     function GetSignTools: TStringList;
     procedure Go(const AStepMode: TStepMode);
@@ -907,6 +909,8 @@ end;
 function TMainForm.InitializeMemoBase(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
 begin
   Memo.Align := alClient;
+  Memo.Margins.SetBounds(0, 0, 0, 0);
+  Memo.AlignWithMargins := True; { See UpdateMinimapReservation }
   Memo.Font.Name := GetPreferredMemoFont; { Default font only, see ReadConfig }
   Memo.Font.Size := 10;
   Memo.ShowHint := True;
@@ -1102,6 +1106,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       FOptions.InspectorQuoteNewParameterValues := Ini.ReadBool('Options', 'InspectorQuoteNewParameterValues', True);
       FOptions.InspectorQuoteNewDirectiveValues := Ini.ReadBool('Options', 'InspectorQuoteNewDirectiveValues', False);
       FOptions.MinimapAlwaysShowSlider := Ini.ReadBool('Options', 'MinimapAlwaysShowSlider', False);
+      FOptions.MinimapShowOnLeft := Ini.ReadBool('Options', 'MinimapShowOnLeft', False);
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', 10);
       FMainMemo.Font.Charset := TFontCharSet(Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset));
@@ -3797,6 +3802,13 @@ begin
   SaveBooleanOption('MinimapAlwaysShowSlider', FOptions.MinimapAlwaysShowSlider);
 end;
 
+procedure TMainForm.PMinimapShowOnLeftClick(Sender: TObject);
+begin
+  FOptions.MinimapShowOnLeft := not FOptions.MinimapShowOnLeft;
+  UpdateMinimapReservationsAndLayout;
+  SaveBooleanOption('MinimapShowOnLeft', FOptions.MinimapShowOnLeft);
+end;
+
 function GetVScrollWidthIfHidden(const Memo: TScintEdit): Integer;
 begin
   { See the explanation in GetMinimapReservation below }
@@ -3821,42 +3833,56 @@ function TMainForm.GetMinimapWidths(const AMemo: TIDEScintEdit): TMinimapWidths;
   end;
 
 begin
-  var RemainingWidth := AMemo.Width - AMemo.LeftBlankMarginWidth;
+  var MemoAndMinimapWidth: Integer;
+  if FOptions.MinimapShowOnLeft then
+    MemoAndMinimapWidth := MemoPanel.ClientWidth { Minimap and memo are side-by-side }
+  else
+    MemoAndMinimapWidth := AMemo.Width; { Minimap is inside memo }
+
+  var MemoGutterWidth := AMemo.LeftBlankMarginWidth;
   for var Margin := 0 to AMemo.MarginCount-1 do
-    Dec(RemainingWidth, AMemo.MarginWidth[Margin]);
+    Inc(MemoGutterWidth, AMemo.MarginWidth[Margin]);
 
   { Always passes the vertical scrollbar's width, even while it's hidden:
     otherwise the reservation could show or hide it through rewrapping }
-  Result := CalculateMinimapWidths(RemainingWidth, AMemo.GetSystemMetrics(SM_CXVSCROLL),
-    GetTypicalHalfwidthCharWidth(AMemo), GetTypicalHalfwidthCharWidth(FMinimap),
-    fsItalic in AMemo.Font.Style, MinimapMaxColumn, MinimapGutterWidth);
-end;
-
-function TMainForm.GetMinimapReservation(const AMemo: TIDEScintEdit): Integer;
-{ Returns the width AMemo should reserve right of its text, inside its client area.
-  A shown vertical scrollbar already makes the client area smaller, so the
-  reservation leaves it out. A hidden one leaves its space to the client area,
-  so then the reservation includes that space. This keeps the memo's text width
-  the same when the scrollbar shows or hides, so word wrap never rewraps the
-  text, which could show or hide the scrollbar again. }
-begin
-  if (FMinimap <> nil) and FMinimap.Visible then begin
-    const MinimapWidths = GetMinimapWidths(AMemo);
-    Result := MinimapWidths.MinimapWidth + MinimapWidths.BlankWidth +
-      GetVScrollWidthIfHidden(AMemo);
-  end else
-    Result := 0;
+  Result := CalculateMinimapWidths(MemoAndMinimapWidth, MemoGutterWidth,
+    AMemo.GetSystemMetrics(SM_CXVSCROLL), GetTypicalHalfwidthCharWidth(AMemo),
+    GetTypicalHalfwidthCharWidth(FMinimap), fsItalic in AMemo.Font.Style, MinimapMaxColumn,
+    MinimapGutterWidth);
 end;
 
 procedure TMainForm.UpdateMinimapReservation(const AMemo: TIDEScintEdit);
+
+  function GetMinimapReservation(const MinimapWidths: TMinimapWidths): Integer;
+  { Returns the width AMemo should reserve right of its text, inside its client area.
+    A shown vertical scrollbar already makes the client area smaller, so the
+    reservation leaves it out. A hidden one leaves its space to the client area,
+    so then the reservation includes that space. This keeps the memo's text width
+    the same when the scrollbar shows or hides, so word wrap never rewraps the
+    text, which could show or hide the scrollbar again. }
+  begin
+    Result := MinimapWidths.BlankWidth + GetVScrollWidthIfHidden(AMemo);
+    if not FOptions.MinimapShowOnLeft then
+      Inc(Result, MinimapWidths.MinimapWidth);
+  end;
+
 begin
-  { The check avoids rewrapping all text on every resize, also when only the
-    height changes: setting RightBlankMarginWidth always invalidates the
-    layout, even if the value is unchanged, and with word wrap on that rewraps
-    all text }
-  const Reservation = GetMinimapReservation(AMemo);
+  var Reservation := 0;
+  var LeftMargin := 0;
+  if (FMinimap <> nil) and FMinimap.Visible then begin
+    const MinimapWidths = GetMinimapWidths(AMemo);
+    Reservation := GetMinimapReservation(MinimapWidths);
+    if FOptions.MinimapShowOnLeft then
+      LeftMargin := MinimapWidths.MinimapWidth; { See below: VCL margin, not Scintilla }
+  end;
+
+  { The check avoids rewrapping all text when it's not needed, like when only
+    the height changes: setting RightBlankMarginWidth always invalidates the
+    layout, and with word wrap on that rewraps all text }
   if AMemo.RightBlankMarginWidth <> Reservation then
-    AMemo.RightBlankMarginWidth := Reservation;
+    AMemo.RightBlankMarginWidth := Reservation; { Scintilla margin }
+
+  AMemo.Margins.Left := TMarginSize(LeftMargin);
 end;
 
 procedure TMainForm.UpdateMinimapReservationsAndLayout;
@@ -3870,9 +3896,13 @@ procedure TMainForm.UpdateMinimapLayout;
 begin
   if (FMinimap <> nil) and FMinimap.Visible then begin
     const MinimapWidth = GetMinimapWidths(FActiveMemo).MinimapWidth;
-    FMinimap.SetBounds(FActiveMemo.Left + FActiveMemo.ClientWidth -
-      GetVScrollWidthIfHidden(FActiveMemo) - MinimapWidth, FActiveMemo.Top,
-        MinimapWidth, FActiveMemo.ClientHeight);
+    if FOptions.MinimapShowOnLeft then
+      FMinimap.SetBounds(FActiveMemo.Left - MinimapWidth, FActiveMemo.Top,
+        MinimapWidth, FActiveMemo.Height)
+    else
+      FMinimap.SetBounds(FActiveMemo.Left + FActiveMemo.ClientWidth -
+        GetVScrollWidthIfHidden(FActiveMemo) - MinimapWidth, FActiveMemo.Top,
+          MinimapWidth, FActiveMemo.ClientHeight);
     FMinimap.SyncScrollPosition;
   end;
 end;
@@ -4231,7 +4261,8 @@ begin
   if NewActiveMemo <> FActiveMemo then begin
     if InspectorPanel.Visible then
       FInspector.ForceFinishEdit; { See SetInspectorVisible }
-    NewActiveMemo.Visible := True;
+    UpdateMinimapReservation(NewActiveMemo); { Can be outdated: hidden memos aren't aligned }
+    NewActiveMemo.Visible := True; { Aligns it and drops realign requests made meanwhile }
     var OldActiveMemo := FActiveMemo;
     FActiveMemo := NewActiveMemo;
     ActiveControl := NewActiveMemo;

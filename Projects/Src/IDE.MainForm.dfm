@@ -947,6 +947,10 @@ object MainForm: TMainForm
           Caption = 'Always show slider'
           OnClick = PMinimapAlwaysShowSliderClick
         end
+        object PMinimapShowOnLeft: TMenuItem
+          Caption = 'Show on left'
+          OnClick = PMinimapShowOnLeftClick
+        end
       end
     end
     object BMenu: TMenuItem

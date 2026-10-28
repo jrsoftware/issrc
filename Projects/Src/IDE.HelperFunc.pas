@@ -24,13 +24,13 @@ type
   TMinimapWidths = record
     MinimapWidth: Integer;
     BlankWidth: Integer;
-    { ^ Width the memo reserves but leaves blank, between its text and the
-        minimap: one pixel more to the text would give it another column, and
-        the minimap's text area is already the narrowest that holds the memo's
-        columns. Equals at most a minimap character's width rounded up, so 0
-        or 1 below 200% scaling, plus 2 with an italic memo font. Always 0
-        while MinimapMaxColumn limits the minimap's width, because the memo's
-        text then gets all the rest. }
+    { ^ Width the memo reserves but leaves blank, right of its text: one pixel
+        more to the text would give it another column, and the minimap's text
+        area is already the narrowest that holds the memo's columns. Equals at
+        most a minimap character's width rounded up, so 0 or 1 below 200%
+        scaling, plus 2 with an italic memo font. Always 0 while
+        MinimapMaxColumn limits the minimap's width, because the memo's text
+        then gets all the rest. }
   end;
 
 const
@@ -101,7 +101,8 @@ function GetSetupDirectiveDefaultValue(const DirectiveName: String): String;
 function FindSetupDirectiveValue(const DirectiveName: String): String;
 function FindSetupDirectiveValueAsBoolean(const DirectiveName: String): Boolean;
 function AnyInputDown: Boolean;
-function CalculateMinimapWidths(const RemainingWidth, VerticalScrollbarWidth: Integer;
+function CalculateMinimapWidths(const MemoAndMinimapWidth, MemoGutterWidth,
+  VerticalScrollbarWidth: Integer;
   const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
   const EditorFontItalic: Boolean;
   const MinimapMaxColumn, MinimapGutterWidth: Integer): TMinimapWidths;
@@ -1048,13 +1049,12 @@ begin
   Result := False;
 end;
 
-function CalculateMinimapWidths(const RemainingWidth, VerticalScrollbarWidth: Integer;
+function CalculateMinimapWidths(const MemoAndMinimapWidth, MemoGutterWidth,
+  VerticalScrollbarWidth: Integer;
   const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
   const EditorFontItalic: Boolean;
   const MinimapMaxColumn, MinimapGutterWidth: Integer): TMinimapWidths;
-{ RemainingWidth should be the memo's whole width, vertical scrollbar
-  included, minus its gutter. The minimap's font shouldn't be italic, see
-  below. }
+{ The minimap's font shouldn't be italic, see below }
 
   function GetNarrowestTextAreaWidth(const ColumnCount: Integer; const CharWidth: Double): Integer;
   begin
@@ -1071,7 +1071,8 @@ begin
     wrapping, so the memo and the minimap hold exactly the same columns. It
     also leaves no room for the caret: Scintilla can't draw it outside the
     text area. }
-  const AvailableWidth = RemainingWidth - VerticalScrollbarWidth - MinimapGutterWidth;
+  const AvailableWidth = MemoAndMinimapWidth - MemoGutterWidth - VerticalScrollbarWidth -
+    MinimapGutterWidth;
   { Scintilla adds 2 unscaled pixels to the end of a line that ends in italic
     text (lastSegItalicsOffset in EditView::LayoutLine), so with an italic
     font the memo's text area gets them extra. Else the last display line of

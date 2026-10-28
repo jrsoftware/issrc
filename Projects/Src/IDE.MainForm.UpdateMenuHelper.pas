@@ -583,6 +583,7 @@ end;
 procedure TMainFormUpdateMenuHelper.UpdateMinimapPopupMenu(const Menu: TMenuItem);
 begin
   PMinimapAlwaysShowSlider.Checked := FOptions.MinimapAlwaysShowSlider;
+  PMinimapShowOnLeft.Checked := FOptions.MinimapShowOnLeft;
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;

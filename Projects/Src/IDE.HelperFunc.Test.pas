@@ -175,15 +175,17 @@ end;
 
 procedure TestCalculateMinimapWidths;
 const
+  MemoGutterWidth = 50;
   VerticalScrollbarWidth = 17;
   MinimapMaxColumn = 120;
   MinimapGutterWidth = 8;
 
-  procedure Check(const RemainingWidth: Integer; const EditorCharWidth, MinimapCharWidth: Double;
+  procedure Check(const MemoAndMinimapWidth: Integer; const EditorCharWidth, MinimapCharWidth: Double;
     const ExpectedMinimapWidth, ExpectedBlankWidth: Integer; const EditorFontItalic: Boolean = False);
   begin
-    const MinimapWidths = CalculateMinimapWidths(RemainingWidth, VerticalScrollbarWidth,
-      EditorCharWidth, MinimapCharWidth, EditorFontItalic, MinimapMaxColumn, MinimapGutterWidth);
+    const MinimapWidths = CalculateMinimapWidths(MemoAndMinimapWidth, MemoGutterWidth,
+      VerticalScrollbarWidth, EditorCharWidth, MinimapCharWidth, EditorFontItalic, MinimapMaxColumn,
+      MinimapGutterWidth);
     Assert(MinimapWidths.MinimapWidth = ExpectedMinimapWidth);
     Assert(MinimapWidths.BlankWidth = ExpectedBlankWidth);
   end;
@@ -199,10 +201,11 @@ const
   begin
     { Scintilla adds this to the end of a line that ends in italic text }
     const LastSegmentItalicsOffset = IfThen(EditorFontItalic, 2, 0);
-    for var RemainingWidth := 50 to 800 do begin
-      const MinimapWidths = CalculateMinimapWidths(RemainingWidth, VerticalScrollbarWidth,
-        EditorCharWidth, MinimapCharWidth, EditorFontItalic, MinimapMaxColumn, MinimapGutterWidth);
-      const EditorTextAreaWidth = RemainingWidth - VerticalScrollbarWidth -
+    for var MemoAndMinimapWidth := MemoGutterWidth + 50 to MemoGutterWidth + 800 do begin
+      const MinimapWidths = CalculateMinimapWidths(MemoAndMinimapWidth, MemoGutterWidth,
+        VerticalScrollbarWidth, EditorCharWidth, MinimapCharWidth, EditorFontItalic, MinimapMaxColumn,
+        MinimapGutterWidth);
+      const EditorTextAreaWidth = MemoAndMinimapWidth - MemoGutterWidth - VerticalScrollbarWidth -
         MinimapWidths.MinimapWidth - MinimapWidths.BlankWidth;
       const MinimapTextAreaWidth = MinimapWidths.MinimapWidth - MinimapGutterWidth;
       const ColumnCount = GetColumnCount(MinimapTextAreaWidth, MinimapCharWidth);
@@ -212,7 +215,8 @@ const
       Assert(GetColumnCount(EditorTextAreaWidth - LastSegmentItalicsOffset, EditorCharWidth) = ColumnCount);
       { No more columns would fit }
       Assert(Floor((ColumnCount + 1) * EditorCharWidth) + Floor((ColumnCount + 1) * MinimapCharWidth) + 2 +
-        LastSegmentItalicsOffset > RemainingWidth - VerticalScrollbarWidth - MinimapGutterWidth);
+        LastSegmentItalicsOffset > MemoAndMinimapWidth - MemoGutterWidth - VerticalScrollbarWidth -
+        MinimapGutterWidth);
       { The minimap's text area is the narrowest that holds the columns, and
         the memo's text area gets all the width it can use }
       Assert(GetColumnCount(MinimapTextAreaWidth - 1, MinimapCharWidth) < ColumnCount);
@@ -224,48 +228,48 @@ const
   end;
 
 begin
-  { 918 - 17 - 8 = 893 pixels hold 99 columns in the memo and the minimap:
-    99 * 8 + 1 = 793 for the memo and 99 + 1 = 100 for the minimap }
-  Check(918, 8, 1, 108, 0);
+  { 968 - 50 - 17 - 8 = 893 pixels hold 99 columns in the memo and the
+    minimap: 99 * 8 + 1 = 793 for the memo and 99 + 1 = 100 for the minimap }
+  Check(968, 8, 1, 108, 0);
 
   { 901 pixels don't hold 100 columns, and 800 pixels are the most that hold
     the memo's 99, so 1 pixel stays blank }
-  Check(926, 8, 1, 108, 1);
+  Check(976, 8, 1, 108, 1);
 
-  { A gutter wider than a memo column: 817 - 25 = 792 pixels hold 98 columns,
-    98 * 7 + 1 = 687 and 98 + 1 = 99, and the memo gets 792 - 99 = 693, the
-    most that hold 98 }
-  Check(817, 7, 1, 107, 0);
+  { A minimap gutter wider than a memo column: 867 - 75 = 792 pixels hold 98
+    columns, 98 * 7 + 1 = 687 and 98 + 1 = 99, and the memo gets
+    792 - 99 = 693, the most that hold 98 }
+  Check(867, 7, 1, 107, 0);
 
-  { Wider minimap characters: 927 - 25 = 902 pixels hold 50 columns,
+  { Wider minimap characters: 977 - 75 = 902 pixels hold 50 columns,
     50 * 16 + 1 = 801 and 50 * 2 + 1 = 101 }
-  Check(927, 16, 2, 109, 0);
+  Check(977, 16, 2, 109, 0);
 
-  { Fractional character widths: 125 - 25 = 100 pixels hold 11 columns,
+  { Fractional character widths: 175 - 75 = 100 pixels hold 11 columns,
     Floor(11 * 7.5) + 1 = 83 and Floor(11 * 1.5) + 1 = 17, although
     11 * (7.5 + 1.5) + 2 is 101 }
-  Check(125, 7.5, 1.5, 25, 0);
+  Check(175, 7.5, 1.5, 25, 0);
 
   { The cap is 120, minimap gutter included: 112 pixels hold 111 columns, and
     112 columns would need 113. While the cap limits the minimap's width, the
     memo gets the rest. }
-  Check(1026, 8, 1, 120, 0);
-  Check(1035, 8, 1, 120, 0);
-  Check(2017, 8, 1, 120, 0);
+  Check(1076, 8, 1, 120, 0);
+  Check(1085, 8, 1, 120, 0);
+  Check(2067, 8, 1, 120, 0);
 
   { A fractional minimap character width floors the cap: Floor(120 * 1.9375) = 232 }
-  Check(4017, 8, 1.9375, 232, 0);
+  Check(4067, 8, 1.9375, 232, 0);
 
   { An italic memo font needs 2 more pixels for the last display line of a
     wrapped line, so 893 pixels hold only 98 columns: 98 * 8 + 1 + 2 = 787 for
     the memo and 98 + 1 = 99 for the minimap. The memo gets 792, the most that
     hold 98, so 2 pixels stay blank. }
-  Check(918, 8, 1, 107, 2, True);
+  Check(968, 8, 1, 107, 2, True);
 
   { Without room for any column, the minimap gets its gutter and the narrowest
     text area for 0 columns, 1 pixel }
-  Check(25, 8, 1, 9, 0);
-  Check(15, 8, 1, 9, 0);
+  Check(75, 8, 1, 9, 0);
+  Check(65, 8, 1, 9, 0);
 
   for var EditorFontItalic := False to True do begin
     CheckWidthsBelowCap(7, 1, EditorFontItalic);
