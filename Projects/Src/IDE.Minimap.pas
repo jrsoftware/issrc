@@ -28,6 +28,9 @@ type
   TMinimap = class(TIDEScintEdit)
   private
     type
+      TDisplayLines = record
+        Start, Count: Integer;
+      end;
       TMinimapLayout = record
         LineCount, MinimapLinesFitting, ViewportStartLine, ViewportLineCount: Integer;
       end;
@@ -44,6 +47,8 @@ type
       FMemo: TIDEScintEdit;
       procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
       procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+      class function GetDisplayLines(const Edit: TIDEScintEdit;
+        const DocLine: Integer): TDisplayLines; static;
       procedure GetDocLineRangeInView(out FirstLine, LastLine: Integer);
       function GetMemoLineFromMinimapLine(const MinimapLine: Integer): Integer;
       function GetMinimapLayout: TMinimapLayout;
@@ -175,6 +180,14 @@ begin
   SetDocPointer;
 end;
 
+class function TMinimap.GetDisplayLines(const Edit: TIDEScintEdit;
+  const DocLine: Integer): TDisplayLines;
+{ Count is 0 if Edit hides DocLine }
+begin
+  Result.Start := Edit.GetVisibleLineFromDocLine(DocLine);
+  Result.Count := Edit.GetVisibleLineFromDocLine(DocLine + 1) - Result.Start;
+end;
+
 procedure TMinimap.GetDocLineRangeInView(out FirstLine, LastLine: Integer);
 { From the top line through the line below the last fully shown one, hidden
   lines included. That line is usually partly shown. }
@@ -189,43 +202,49 @@ begin
     document, so we clamp }
   const ClampedMinimapLine = Min(MinimapLine, GetVisibleLineFromDocLine(Lines.Count) - 1);
   const DocLine = GetDocLineFromVisibleLine(ClampedMinimapLine);
-  const MinimapDocLineStart = GetVisibleLineFromDocLine(DocLine);
-  const MinimapDocLineDisplayLineCount = GetVisibleLineFromDocLine(DocLine + 1) - MinimapDocLineStart;
-  const MemoDocLineStart = FMemo.GetVisibleLineFromDocLine(DocLine);
-  const MemoDocLineDisplayLineCount = FMemo.GetVisibleLineFromDocLine(DocLine + 1) - MemoDocLineStart;
+  const MinimapDocLineDisplayLines = GetDisplayLines(Self, DocLine);
+  const MemoDocLineDisplayLines = GetDisplayLines(FMemo, DocLine);
   { Keeps the display line within a wrapped line. The minimap can wrap a line
     into more display lines than the memo, such as while its column cap limits
     its width, so scales the index, rounding down to stay within the line. }
-  const DisplayLineIndex = ClampedMinimapLine - MinimapDocLineStart;
-  Result := MemoDocLineStart + Integer(Int64(DisplayLineIndex) * MemoDocLineDisplayLineCount div
-    MinimapDocLineDisplayLineCount);
+  const DisplayLineIndex = ClampedMinimapLine - MinimapDocLineDisplayLines.Start;
+  Result := MemoDocLineDisplayLines.Start + Integer(Int64(DisplayLineIndex) *
+    MemoDocLineDisplayLines.Count div MinimapDocLineDisplayLines.Count);
   { ^ Result can be off while the memo still has lines Scintilla hasn't
       wrapped yet, such as right after a resize with word wrap on.
       EnsureLineVisible would wrap them first, but it also unfolds. }
 end;
 
 function TMinimap.GetMinimapLayout: TMinimapLayout;
-begin
-  { When nothing changed, such as on a caret blink, each Scintilla call below
-    just reads stored values, except GetDocLineFromVisibleLine, which does a
-    binary search over the document lines when the memo folds or wraps. Even
-    with 100,000 lines, this routine was measured to only take about 8
-    microseconds. }
 
+  function GetMinimapLineFromMemoLine(const MemoLine: Integer): Integer;
+  { Returns the minimap line that MemoLine's start maps to, or the minimap's
+    line count if MemoLine is past the memo's last line }
+  begin
+    if MemoLine >= FMemo.GetVisibleLineFromDocLine(FMemo.Lines.Count) then
+      Exit(GetVisibleLineFromDocLine(Lines.Count));
+    { Wrapping and folding are per view, so the memo's visible lines can differ
+      from the minimap's: convert through the document line they share }
+    const DocLine = FMemo.GetDocLineFromVisibleLine(MemoLine);
+    const MemoDocLineDisplayLines = GetDisplayLines(FMemo, DocLine);
+    const MinimapDocLineDisplayLines = GetDisplayLines(Self, DocLine);
+    { Scales the display line's index within its wrapped line like
+      GetMemoLineFromMinimapLine does, but the other way. Rounds up, so that
+      both undo each other where possible. }
+    const DisplayLineIndex = MemoLine - MemoDocLineDisplayLines.Start;
+    Result := MinimapDocLineDisplayLines.Start + Integer((Int64(DisplayLineIndex) *
+      MinimapDocLineDisplayLines.Count + MemoDocLineDisplayLines.Count - 1) div
+      MemoDocLineDisplayLines.Count);
+  end;
+
+begin
   Result.LineCount := GetVisibleLineFromDocLine(Lines.Count);
   Result.MinimapLinesFitting := LinesInWindow;
 
-  const MemoTopLine = FMemo.TopLine;
-  const MemoLastDocLine = FMemo.Lines.Count-1;
-  { Wrapping and folding are per view, so the memo's visible lines can differ
-    from the minimap's: convert through the document lines they share }
-  const MemoFirstVisibleDocLine = FMemo.GetDocLineFromVisibleLine(MemoTopLine);
-  const MemoLastFullyVisibleDocLine = Min(FMemo.GetDocLineFromVisibleLine(MemoTopLine +
-    FMemo.LinesInWindow - 1), MemoLastDocLine);
-
   { The viewport is the slider: the minimap's lines of what the memo shows }
-  Result.ViewportStartLine := GetVisibleLineFromDocLine(MemoFirstVisibleDocLine);
-  Result.ViewportLineCount := GetVisibleLineFromDocLine(MemoLastFullyVisibleDocLine + 1) -
+  const MemoTopLine = FMemo.TopLine;
+  Result.ViewportStartLine := GetMinimapLineFromMemoLine(MemoTopLine);
+  Result.ViewportLineCount := GetMinimapLineFromMemoLine(MemoTopLine + FMemo.LinesInWindow) -
     Result.ViewportStartLine;
 end;
 
@@ -246,9 +265,9 @@ begin
   { Like VS Code's with editor.scrollBeyondLastLine off, there's no slider
     while it can't move, such as while the memo shows the whole document. See
     maxMinimapSliderTop and sliderNeeded in the static create method of class
-    MinimapLayout. Limitation: ViewportLineCount counts whole document lines,
-    so with word wrap on, the slider can disappear and reappear while the memo
-    scrolls through a short document with long wrapped lines. }
+    MinimapLayout. Limitation: while the minimap wraps the last line into fewer
+    display lines than the memo, the slider can still disappear at the start of
+    a short document's scroll range. }
   const MaxMinimapSliderTop = Min(MinimapLayout.LineCount, MinimapLayout.MinimapLinesFitting) -
     MinimapLayout.ViewportLineCount; { Also see CalculateMinimapViewportStartLineFromDelta }
   if MaxMinimapSliderTop <= 0 then
@@ -267,8 +286,9 @@ begin
       (Y - FDrag.StartY) / LineHeight);
     { When the slider is back where it was at the start of the drag, use
       StartMemoTopLine to restore the top line, instead of using
-      GetMemoLineFromMinimapLine. This makes it able to restore the second
-      line of a wrapped line as the top line. }
+      GetMemoLineFromMinimapLine. This makes it able to restore the top line
+      also when the minimap and the memo wrap its document line into different
+      numbers of display lines. }
     if NewViewportStartLine = FDrag.StartMinimapLayout.ViewportStartLine then
       FMemo.TopLine := FDrag.StartMemoTopLine
     else
@@ -346,6 +366,15 @@ end;
 
 procedure TMinimap.SyncScrollPosition;
 begin
+  { Runs on every caret blink, see TMainForm.MemoPainted. When nothing changed,
+    each Scintilla call it makes, also through GetMinimapLayout and
+    GetSliderRect, just reads stored values, setting TopLine included because
+    it's the current one. The exception is GetDocLineFromVisibleLine, which
+    does a binary search over the document lines when the memo folds or wraps.
+    The rest is arithmetic and ClientWidth, which calls GetClientRect, unlike
+    Scintilla, which caches its client rectangle. Even with 100,000 lines,
+    this routine was measured to only take about 17 microseconds. }
+
   if (FMemo = nil) or not HandleAllocated or not Visible then
     Exit;
 

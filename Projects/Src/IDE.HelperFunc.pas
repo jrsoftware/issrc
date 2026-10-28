@@ -1138,8 +1138,8 @@ begin
     ViewportStartLine count minimap lines. }
   const DesiredViewportStartLine = ViewportStartLine + Delta / ComputedSliderRatio;
   { Clamp to the minimap's lines: like VS Code's editor, the memo clamps its
-    own scroll position, so a drag reaches the memo's end exactly, also with
-    word wrap on, where ViewportLineCount changes while the memo scrolls }
+    own scroll position, so a drag reaches the memo's end exactly, also where
+    ViewportLineCount changes while the memo scrolls }
   const ClampedViewportStartLine = Min(Max(DesiredViewportStartLine, 0), LineCount - 1);
   Result := Floor(ClampedViewportStartLine + 0.5); { Rounds halves up, like VS Code's Math.round }
 end;

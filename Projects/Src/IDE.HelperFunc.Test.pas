@@ -298,8 +298,8 @@ begin
   Assert(CalculateMinimapTopLine(3000050, 1000, 2400000, 50) = 2399240);
 
   { Scrolling down one line at a time never moves the top line up, also while
-    ViewportLineCount shrinks, as when a long wrapped line comes into view at
-    the memo's bottom }
+    ViewportLineCount shrinks, as when the minimap wraps the line at the
+    memo's bottom into fewer display lines than the memo }
   var Previous := 0;
   for var ViewportStartLine := 0 to 999 do begin
     const ViewportLineCount = Max(1, 50 - ViewportStartLine);
