@@ -104,7 +104,7 @@ function AnyInputDown: Boolean;
 function CalculateMinimapWidths(const MemoAndMinimapWidth, MemoGutterWidth,
   VerticalScrollbarWidth: Integer;
   const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
-  const EditorFontItalic: Boolean;
+  const EditorFontItalic, WordWrap: Boolean;
   const MinimapMaxColumn, MinimapGutterWidth: Integer): TMinimapWidths;
 function CalculateMinimapTopLine(const LineCount, MinimapLinesFitting,
   ViewportStartLine, ViewportLineCount: Integer): Integer;
@@ -1052,7 +1052,7 @@ end;
 function CalculateMinimapWidths(const MemoAndMinimapWidth, MemoGutterWidth,
   VerticalScrollbarWidth: Integer;
   const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
-  const EditorFontItalic: Boolean;
+  const EditorFontItalic, WordWrap: Boolean;
   const MinimapMaxColumn, MinimapGutterWidth: Integer): TMinimapWidths;
 { The minimap's font shouldn't be italic, see below }
 
@@ -1093,15 +1093,23 @@ begin
 
   const MinimapMaxWidth = Floor(MinimapMaxColumn * MinimapCharWidth);
   const MinimapTextAreaWidth = GetNarrowestTextAreaWidth(ViewportColumn, MinimapCharWidth);
-  if MinimapGutterWidth + MinimapTextAreaWidth <= MinimapMaxWidth then begin
+  { Unlike VS Code, ignores MinimapMaxColumn with word wrap on. VS Code's
+    minimap doesn't wrap: it shows the memo's display lines, already wrapped
+    at the memo's column count, and cuts each off at the minimap's edge.
+    Scintilla can't do that: it wraps the minimap's lines itself, at the
+    minimap's edge, so the minimap would wrap long lines into more display
+    lines than the memo. The minimap would then no longer look like the memo,
+    the slider would change size while the memo scrolls, and the slider would
+    drift away from the mouse pointer during a drag. }
+  if WordWrap or (MinimapGutterWidth + MinimapTextAreaWidth <= MinimapMaxWidth) then begin
     Result.MinimapWidth := MinimapGutterWidth + MinimapTextAreaWidth;
     { The memo's text area gets the rest, but at most what holds
       ViewportColumn columns }
     const EditorWidestTextAreaWidth = Floor((ViewportColumn + 1) * EditorTypicalHalfwidthCharWidth);
     Result.BlankWidth := Max(0, AvailableWidth - MinimapTextAreaWidth - EditorWidestTextAreaWidth);
   end else begin
-    { While MinimapMaxColumn limits the minimap's width, the minimap holds
-      fewer columns than the memo, so it wraps earlier }
+    { While MinimapMaxColumn limits the minimap's width, the minimap shows
+      fewer columns than the memo }
     Result.MinimapWidth := MinimapMaxWidth;
     Result.BlankWidth := 0;
   end;

@@ -842,7 +842,9 @@ const
     Column is VS Code's term for one minimap character, so the minimap, its
     gutter included, is at most this many characters wide. VS Code added it to
     stop the minimap from getting too wide on wide windows, see
-    https://github.com/microsoft/vscode/issues/20931. }
+    https://github.com/microsoft/vscode/issues/20931. Unlike VS Code, ignored
+    with word wrap on, see CalculateMinimapWidths. The minimap can then get as
+    wide as the memo's text, when the memo is zoomed far out. }
   MinimapMaxColumn = 120;
 
 procedure SaveBooleanOption(const OptionName: String; const Value: Boolean);
@@ -3659,6 +3661,7 @@ procedure TMainForm.VWordWrapClick(Sender: TObject);
 begin
   FOptions.WordWrap := not FOptions.WordWrap;
   SyncEditorOptions;
+  UpdateMinimapReservationsAndLayout; { See CalculateMinimapWidths }
   SaveBooleanOption('WordWrap', FOptions.WordWrap);
 end;
 
@@ -3847,8 +3850,8 @@ begin
     otherwise the reservation could show or hide it through rewrapping }
   Result := CalculateMinimapWidths(MemoAndMinimapWidth, MemoGutterWidth,
     AMemo.GetSystemMetrics(SM_CXVSCROLL), GetTypicalHalfwidthCharWidth(AMemo),
-    GetTypicalHalfwidthCharWidth(FMinimap), fsItalic in AMemo.Font.Style, MinimapMaxColumn,
-    MinimapGutterWidth);
+    GetTypicalHalfwidthCharWidth(FMinimap), fsItalic in AMemo.Font.Style, FOptions.WordWrap,
+    MinimapMaxColumn, MinimapGutterWidth);
 end;
 
 procedure TMainForm.UpdateMinimapReservation(const AMemo: TIDEScintEdit);

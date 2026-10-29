@@ -206,8 +206,9 @@ begin
   const MinimapDocLineDisplayLines = GetDisplayLines(Self, DocLine);
   const MemoDocLineDisplayLines = GetDisplayLines(FMemo, DocLine);
   { Keeps the display line within a wrapped line. The minimap can wrap a line
-    into more display lines than the memo, such as while its column cap limits
-    its width, so scales the index, rounding down to stay within the line. }
+    into a different number of display lines than the memo, such as with a
+    proportional font, so scales the index, rounding down to stay within the
+    line. }
   const DisplayLineIndex = ClampedMinimapLine - MinimapDocLineDisplayLines.Start;
   Result := MemoDocLineDisplayLines.Start + Integer(Int64(DisplayLineIndex) *
     MemoDocLineDisplayLines.Count div MinimapDocLineDisplayLines.Count);
