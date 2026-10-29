@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  SpanishIDETranslations: array [0..1012] of TTranslationPair = (
+  SpanishIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Uso de la línea de comandos:'),
     (English: 'Examples:'; Localized: 'Ejemplos:'),
     (English: 'script file'; Localized: 'archivo de script'),
@@ -371,6 +371,7 @@ const
     (English: '&Reset'; Localized: '&Restablecer'),
     (English: '&Toolbar'; Localized: 'Barra de &herramientas'),
     (English: 'Na&vigator'; Localized: '&Navegador'),
+    (English: '&Minimap'; Localized: '&Minimapa'),
     (English: '&Inspector'; Localized: '&Inspector'),
     (English: 'St&atus Bar'; Localized: 'Barra de &estado'),
     (English: '&Next Tab'; Localized: 'Pestaña &siguiente'),
@@ -380,10 +381,10 @@ const
     (English: 'Reopen &All Tabs'; Localized: 'Reabrir t&odas las pestañas'),
     (English: 'C&lose Current Tab'; Localized: '&Cerrar la pestaña actual'),
     (English: 'Focus Navi&gator'; Localized: 'En&focar el Navegador'),
-    (English: 'Focus And &Select Navigator'; Localized: 'Enfocar y se&leccionar el Navegador'),
+    (English: 'Focus And &Select Navigator'; Localized: 'Enfocar y seleccionar el Na&vegador'),
     (English: '&Compiler Output'; Localized: 'Salida del &compilador'),
     (English: '&Debug Output'; Localized: 'Salida de &depuración'),
-    (English: 'D&ebug Call Stack'; Localized: 'Pila de lla&madas de depuración'),
+    (English: 'D&ebug Call Stack'; Localized: 'Pila de &llamadas de depuración'),
     (English: '&Find Results'; Localized: 'Resultados de la &búsqueda'),
     (English: '&Hide Bottom Pane'; Localized: 'Ocul&tar panel inferior'),
     (English: '&Word Wrap'; Localized: 'Aj&uste de palabra'),
@@ -393,6 +394,8 @@ const
     (English: 'Quote new directive values'; Localized: 'Poner entre comillas los nuevos valores de directivas'),
     (English: 'Quote new parameter values'; Localized: 'Poner entre comillas los nuevos valores de parámetros'),
     (English: '&Help'; Localized: 'Ay&uda'),
+    (English: 'Always show slider'; Localized: 'Mostrar siempre el control deslizante'),
+    (English: 'Show on left'; Localized: 'Mostrar a la izquierda'),
     (English: '&Build'; Localized: '&Compilación'),
     (English: '&Compile'; Localized: '&Compilar'),
     (English: 'S&top Compile'; Localized: 'De&tener compilación'),
@@ -487,6 +490,7 @@ const
     (English: 'Ke&ys:'; Localized: '&Teclas:'),
     (English: 'Show whitespace'; Localized: 'Mostrar espacios en blanco'),
     (English: 'Smart Home key'; Localized: 'Tecla Inicio inteligente'),
+    (English: ' Minimap '; Localized: ' Minimapa '),
     (English: '&Associate .%1 files with this compiler'; Localized: '&Asociar los archivos .%1 con este compilador'),
     (English: '&Windows registry file (.%1) to import:'; Localized: 'Archivo de registro de &Windows (.%1) a importar:'),
     (English: 'B&rowse...'; Localized: '&Examinar...'),

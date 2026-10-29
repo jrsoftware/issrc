@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ItalianIDETranslations: array [0..1012] of TTranslationPair = (
+  ItalianIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Uso della riga di comando:'),
     (English: 'Examples:'; Localized: 'Esempi:'),
     (English: 'script file'; Localized: 'file di script'),
@@ -372,6 +372,7 @@ const
     (English: '&Reset'; Localized: '&Reimposta'),
     (English: '&Toolbar'; Localized: '&Barra degli strumenti'),
     (English: 'Na&vigator'; Localized: '&Navigatore'),
+    (English: '&Minimap'; Localized: '&Minimappa'),
     (English: '&Inspector'; Localized: '&Ispettore'),
     (English: 'St&atus Bar'; Localized: 'Barra di s&tato'),
     (English: '&Next Tab'; Localized: '&Scheda successiva'),
@@ -394,6 +395,8 @@ const
     (English: 'Quote new directive values'; Localized: 'Racchiudi tra virgolette i nuovi valori delle direttive'),
     (English: 'Quote new parameter values'; Localized: 'Racchiudi tra virgolette i nuovi valori dei parametri'),
     (English: '&Help'; Localized: '&Guida'),
+    (English: 'Always show slider'; Localized: 'Mostra sempre il dispositivo di scorrimento'),
+    (English: 'Show on left'; Localized: 'Mostra a sinistra'),
     (English: '&Build'; Localized: '&Compilazione'),
     (English: '&Compile'; Localized: '&Compila'),
     (English: 'S&top Compile'; Localized: '&Interrompi compilazione'),
@@ -488,6 +491,7 @@ const
     (English: 'Ke&ys:'; Localized: 'Ta&sti:'),
     (English: 'Show whitespace'; Localized: 'Mostra spazi vuoti'),
     (English: 'Smart Home key'; Localized: 'Tasto Home intelligente'),
+    (English: ' Minimap '; Localized: ' Minimappa '),
     (English: '&Associate .%1 files with this compiler'; Localized: 'Associa i file .%1 a &questo compilatore'),
     (English: '&Windows registry file (.%1) to import:'; Localized: 'File di registro di &Windows (.%1) da importare:'),
     (English: 'B&rowse...'; Localized: '&Sfoglia...'),

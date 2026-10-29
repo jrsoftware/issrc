@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  ChineseTraditionalIDETranslations: array [0..1012] of TTranslationPair = (
+  ChineseTraditionalIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '命令列用法：'),
     (English: 'Examples:'; Localized: '範例：'),
     (English: 'script file'; Localized: '指令碼檔案'),
@@ -371,6 +371,7 @@ const
     (English: '&Reset'; Localized: '重設(&R)'),
     (English: '&Toolbar'; Localized: '工具列(&T)'),
     (English: 'Na&vigator'; Localized: '導覽器(&V)'),
+    (English: '&Minimap'; Localized: '縮圖(&M)'),
     (English: '&Inspector'; Localized: '檢查器(&I)'),
     (English: 'St&atus Bar'; Localized: '狀態列(&A)'),
     (English: '&Next Tab'; Localized: '下一個索引標籤(&N)'),
@@ -393,6 +394,8 @@ const
     (English: 'Quote new directive values'; Localized: '以引號括住新的指示詞值'),
     (English: 'Quote new parameter values'; Localized: '以引號括住新的參數值'),
     (English: '&Help'; Localized: '說明(&H)'),
+    (English: 'Always show slider'; Localized: '一律顯示滑桿'),
+    (English: 'Show on left'; Localized: '在左側顯示'),
     (English: '&Build'; Localized: '建置(&B)'),
     (English: '&Compile'; Localized: '編譯(&C)'),
     (English: 'S&top Compile'; Localized: '停止編譯(&T)'),
@@ -487,6 +490,7 @@ const
     (English: 'Ke&ys:'; Localized: '按鍵(&Y)：'),
     (English: 'Show whitespace'; Localized: '顯示空白字元'),
     (English: 'Smart Home key'; Localized: '智慧 Home 鍵'),
+    (English: ' Minimap '; Localized: ' 縮圖 '),
     (English: '&Associate .%1 files with this compiler'; Localized: '將 .%1 檔案與此編譯器產生關聯(&A)'),
     (English: '&Windows registry file (.%1) to import:'; Localized: '要匯入的 Windows 登錄檔 (.%1)(&W)：'),
     (English: 'B&rowse...'; Localized: '瀏覽(&R)...'),

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..1012] of TTranslationPair = (
+  DutchIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -371,6 +371,7 @@ const
     (English: '&Reset'; Localized: '&Herstellen'),
     (English: '&Toolbar'; Localized: '&Werkbalk'),
     (English: 'Na&vigator'; Localized: '&Navigator'),
+    (English: '&Minimap'; Localized: 'Minima&p'),
     (English: '&Inspector'; Localized: '&Inspector'),
     (English: 'St&atus Bar'; Localized: '&Statusbalk'),
     (English: '&Next Tab'; Localized: '&Volgend tabblad'),
@@ -393,6 +394,8 @@ const
     (English: 'Quote new directive values'; Localized: 'Nieuwe directiefwaarden in aanhalingstekens zetten'),
     (English: 'Quote new parameter values'; Localized: 'Nieuwe parameterwaarden in aanhalingstekens zetten'),
     (English: '&Help'; Localized: '&Help'),
+    (English: 'Always show slider'; Localized: 'Schuifregelaar altijd tonen'),
+    (English: 'Show on left'; Localized: 'Aan de linkerkant tonen'),
     (English: '&Build'; Localized: 'B&ouwen'),
     (English: '&Compile'; Localized: '&Compileren'),
     (English: 'S&top Compile'; Localized: 'Compileren s&toppen'),
@@ -487,6 +490,7 @@ const
     (English: 'Ke&ys:'; Localized: 'Toet&sen:'),
     (English: 'Show whitespace'; Localized: 'Witruimte tonen'),
     (English: 'Smart Home key'; Localized: 'Slimme Home-toets'),
+    (English: ' Minimap '; Localized: ' Minimap '),
     (English: '&Associate .%1 files with this compiler'; Localized: '.%1-bestanden &aan deze compiler koppelen'),
     (English: '&Windows registry file (.%1) to import:'; Localized: '&Windows-registerbestand (.%1) om te importeren:'),
     (English: 'B&rowse...'; Localized: 'Bladere&n...'),

@@ -35,6 +35,7 @@ type
     procedure UpdateBreakPointsMenu(const Menu: TMenuItem);
     procedure UpdateTargetMenuItems;
     procedure UpdateInspectorPopupMenu(const Menu: TMenuItem);
+    procedure UpdateMinimapPopupMenu(const Menu: TMenuItem);
     { Private }
     procedure _UpdateMenuBitmapsIfNeeded;
     procedure _ApplyMenuBitmapsAndNewShortCutText(const ParentMenuItem: TMenuItem);
@@ -57,8 +58,8 @@ procedure TMainFormUpdateMenuHelper._UpdateMenuBitmapsIfNeeded;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageIndex: Integer); overload;
   begin
     var pvBits: Pointer;
-    var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
-    var OldBitmap := SelectObject(DC, Bitmap);
+    const Bitmap = CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    const OldBitmap = SelectObject(DC, Bitmap);
     if ImageList_Draw(ImageList.Handle, ImageIndex, DC, 0, 0, ILD_TRANSPARENT) then begin
       MenuBitmaps.Add(MenuItem, Bitmap);
       SelectObject(DC, OldBitmap); { Make sure the bitmap can be deleted later }
@@ -575,6 +576,14 @@ begin
   PInspectorQuoteNewDirectiveValues.Checked := FOptions.InspectorQuoteNewDirectiveValues;
   PInspectorQuoteNewParameterValues.Visible := ShowingParameterSectionEntry;
   PInspectorQuoteNewParameterValues.Checked := FOptions.InspectorQuoteNewParameterValues;
+
+  _ApplyMenuBitmapsAndNewShortCutText(Menu);
+end;
+
+procedure TMainFormUpdateMenuHelper.UpdateMinimapPopupMenu(const Menu: TMenuItem);
+begin
+  PMinimapAlwaysShowSlider.Checked := FOptions.MinimapAlwaysShowSlider;
+  PMinimapShowOnLeft.Checked := FOptions.MinimapShowOnLeft;
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;

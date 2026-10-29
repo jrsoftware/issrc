@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..1012] of TTranslationPair = (
+  GermanIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -371,6 +371,7 @@ const
     (English: '&Reset'; Localized: '&Zurücksetzen'),
     (English: '&Toolbar'; Localized: 'S&ymbolleiste'),
     (English: 'Na&vigator'; Localized: 'Navi&gator'),
+    (English: '&Minimap'; Localized: 'Minima&p'),
     (English: '&Inspector'; Localized: '&Inspektor'),
     (English: 'St&atus Bar'; Localized: '&Statusleiste'),
     (English: '&Next Tab'; Localized: '&Nächste Registerkarte'),
@@ -393,6 +394,8 @@ const
     (English: 'Quote new directive values'; Localized: 'Neue Direktivenwerte in Anführungszeichen setzen'),
     (English: 'Quote new parameter values'; Localized: 'Neue Parameterwerte in Anführungszeichen setzen'),
     (English: '&Help'; Localized: '&Hilfe'),
+    (English: 'Always show slider'; Localized: 'Schieberegler immer anzeigen'),
+    (English: 'Show on left'; Localized: 'Auf der linken Seite anzeigen'),
     (English: '&Build'; Localized: '&Erstellen'),
     (English: '&Compile'; Localized: '&Kompilieren'),
     (English: 'S&top Compile'; Localized: 'Kompilierung s&toppen'),
@@ -487,6 +490,7 @@ const
     (English: 'Ke&ys:'; Localized: 'Taste&n:'),
     (English: 'Show whitespace'; Localized: 'Leerzeichen anzeigen'),
     (English: 'Smart Home key'; Localized: 'Intelligente Pos1-Taste'),
+    (English: ' Minimap '; Localized: ' Minimap '),
     (English: '&Associate .%1 files with this compiler'; Localized: '.%1-D&ateien diesem Compiler zuordnen'),
     (English: '&Windows registry file (.%1) to import:'; Localized: '&Windows-Registry-Datei (.%1) zum Importieren:'),
     (English: 'B&rowse...'; Localized: 'Du&rchsuchen...'),

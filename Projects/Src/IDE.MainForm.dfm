@@ -782,6 +782,10 @@ object MainForm: TMainForm
         Caption = 'Na&vigator'
         OnClick = VNavigatorClick
       end
+      object VMinimap: TMenuItem
+        Caption = '&Minimap'
+        OnClick = VMinimapClick
+      end
       object VInspector: TMenuItem
         Caption = '&Inspector'
         OnClick = VInspectorClick
@@ -933,6 +937,19 @@ object MainForm: TMainForm
         object PInspectorHelp: TMenuItem
           Caption = '&Help'
           OnClick = PInspectorHelpClick
+        end
+      end
+      object MinimapPopupMenu: TMenuItem
+        Caption = 'MinimapPopupMenu'
+        Visible = False
+        OnClick = MinimapPopupMenuClick
+        object PMinimapAlwaysShowSlider: TMenuItem
+          Caption = 'Always show slider'
+          OnClick = PMinimapAlwaysShowSliderClick
+        end
+        object PMinimapShowOnLeft: TMenuItem
+          Caption = 'Show on left'
+          OnClick = PMinimapShowOnLeftClick
         end
       end
     end

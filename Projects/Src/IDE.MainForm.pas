@@ -28,7 +28,7 @@ uses
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
   Shared.DebugStruct, Shared.CompilerInt.Struct, Shared.ConfigIniFile, NewUxTheme, ImageList, ImgList, ToolWin,
-  IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.Navigator, IDE.LiveScriptObjectFactory,
+  IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.Navigator, IDE.Minimap, IDE.LiveScriptObjectFactory,
   VirtualImageList, BaseImageCollection, BitmapButton, NewStaticText;
 
 const
@@ -154,6 +154,8 @@ type
     InspectorFollowCaret: Boolean;
     InspectorQuoteNewParameterValues: Boolean;
     InspectorQuoteNewDirectiveValues: Boolean;
+    MinimapAlwaysShowSlider: Boolean;
+    MinimapShowOnLeft: Boolean;
   end;
 
   TMainForm = class(TUIStateForm)
@@ -367,6 +369,10 @@ type
     VNavigatorFocus: TMenuItem;
     VNavigatorFocusAndSelect: TMenuItem;
     N28: TMenuItem;
+    VMinimap: TMenuItem;
+    MinimapPopupMenu: TMenuItem;
+    PMinimapAlwaysShowSlider: TMenuItem;
+    PMinimapShowOnLeft: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -525,6 +531,10 @@ type
     procedure VNavigatorClick(Sender: TObject);
     procedure VNavigatorFocusClick(Sender: TObject);
     procedure NavigatorPanelResizeOrCaretInCodeSectionChange(Sender: TObject);
+    procedure VMinimapClick(Sender: TObject);
+    procedure MinimapPopupMenuClick(Sender: TObject);
+    procedure PMinimapAlwaysShowSliderClick(Sender: TObject);
+    procedure PMinimapShowOnLeftClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -578,6 +588,7 @@ type
     FAllowUpdateInspectorPanelWidth: Boolean;
     FInAppOnActivate: Boolean;
     FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
+    FMinimap: TMinimap;
     procedure AppOnActivate(Sender: TObject);
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -606,6 +617,7 @@ type
     function GetBorderStyle: TFormBorderStyle;
     function GetMainFilename: String;
     function GetMainBaseDir: String;
+    function GetMinimapWidths(const AMemo: TIDEScintEdit): TMinimapWidths;
     function GetSignTools: TStringList;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
@@ -628,6 +640,8 @@ type
     procedure MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
+    procedure MemoPainted(Sender: TObject);
+    procedure MemoResizeOrLineNumbersWidthChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
     class procedure MessageBoxCallback(const Flags: Cardinal; const After: Boolean;
@@ -648,6 +662,7 @@ type
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
     procedure SetInspectorActiveFactory;
     procedure SetInspectorVisible(const AVisible: Boolean);
+    procedure SetMinimapVisible(const AVisible: Boolean);
     procedure NavigatorComboBoxItemsChanged(Sender: TObject;
       const AComboBox: TComboBox);
     procedure SetNavigatorActiveFactory;
@@ -659,6 +674,7 @@ type
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
     procedure SyncInspectorOptions;
+    procedure SyncMinimapOptions;
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TIDEScintEdit;
     procedure ToggleBreakPoint(Line: Integer);
     procedure Uncloak;
@@ -678,6 +694,9 @@ type
     procedure UpdateMarginsAndAutoCompleteIcons;
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
+    procedure UpdateMinimapLayout;
+    procedure UpdateMinimapReservation(const AMemo: TIDEScintEdit);
+    procedure UpdateMinimapReservationsAndLayout;
     procedure UpdateModifiedStatusPanel;
     procedure UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
@@ -818,6 +837,16 @@ const
 
   LineStateGrowAmount = 4000;
 
+  { VS Code's default for its editor.minimap.maxColumn setting, see
+    'maxColumn: 120' in src/vs/editor/common/config/editorOptions.ts. Note:
+    Column is VS Code's term for one minimap character, so the minimap, its
+    gutter included, is at most this many characters wide. VS Code added it to
+    stop the minimap from getting too wide on wide windows, see
+    https://github.com/microsoft/vscode/issues/20931. Unlike VS Code, ignored
+    with word wrap on, see CalculateMinimapWidths. The minimap can then get as
+    wide as the memo's text, when the memo is zoomed far out. }
+  MinimapMaxColumn = 120;
+
 procedure SaveBooleanOption(const OptionName: String; const Value: Boolean);
 begin
   const Ini = TConfigIniFile.Create;
@@ -882,6 +911,8 @@ end;
 function TMainForm.InitializeMemoBase(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
 begin
   Memo.Align := alClient;
+  Memo.Margins.SetBounds(0, 0, 0, 0);
+  Memo.AlignWithMargins := True; { See UpdateMinimapReservation }
   Memo.Font.Name := GetPreferredMemoFont; { Default font only, see ReadConfig }
   Memo.Font.Size := 10;
   Memo.ShowHint := True;
@@ -893,9 +924,12 @@ begin
   Memo.OnHintShow := MemoHintShow;
   Memo.OnKeyDown := MemoKeyDown;
   Memo.OnKeyPress := MemoKeyPress;
+  Memo.OnLineNumbersWidthChange := MemoResizeOrLineNumbersWidthChange;
   Memo.OnMarginClick := MemoMarginClick;
   Memo.OnMarginRightClick := MemoMarginRightClick;
   Memo.OnModifiedChange := MemoModifiedChange;
+  Memo.OnPainted := MemoPainted;
+  Memo.OnResize := MemoResizeOrLineNumbersWidthChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
   Memo.Parent := MemoPanel;
@@ -1001,6 +1035,23 @@ constructor TMainForm.Create(AOwner: TComponent);
       NavigatorPanelResizeOrCaretInCodeSectionChange, NavigatorComboBoxItemsChanged);
   end;
 
+  procedure CreateMinimap;
+  begin
+    FMinimap := TMinimap.Create(Self);
+    FMinimap.Styler := FMemosStyler;
+    { ^ Must come before the minimap has a window: otherwise this assignment
+      clears the styling of the shared document, affecting the memo. See
+      TScintEdit.SetStyler. }
+    FMinimap.Theme := FTheme;
+    FMinimap.StyleName := 'Windows';
+    FMinimap.PopupMenu := TMainFormPopupMenu.Create(Self, MinimapPopupMenu);
+    FMinimap.Visible := False;
+    FMinimap.Parent := MemoPanel;
+    FMinimap.UpdateFont(FMainMemo.Font);
+    { ^ After setting Parent, whose rescaling of the font can round its size }
+    FMinimap.SetMemo(FActiveMemo);
+  end;
+
   procedure ReadAndApplyConfig;
   var
     Ini: TConfigIniFile;
@@ -1012,7 +1063,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Menu check boxes state }
       ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
-      { ShowNavigator and ShowInspector done below }
+      { ShowNavigator, ShowMinimap, and ShowInspector done below }
       FOptions.LowPriorityDuringCompile := Ini.ReadBool('Options', 'LowPriorityDuringCompile', False);
 
       { Configuration options - does not read ThemeType, see ReadAndUpdateTheme instead }
@@ -1056,6 +1107,8 @@ constructor TMainForm.Create(AOwner: TComponent);
       { FOptions.InspectorShowAllKnownDirectives and InspectorFollowCaret already loaded }
       FOptions.InspectorQuoteNewParameterValues := Ini.ReadBool('Options', 'InspectorQuoteNewParameterValues', True);
       FOptions.InspectorQuoteNewDirectiveValues := Ini.ReadBool('Options', 'InspectorQuoteNewDirectiveValues', False);
+      FOptions.MinimapAlwaysShowSlider := Ini.ReadBool('Options', 'MinimapAlwaysShowSlider', False);
+      FOptions.MinimapShowOnLeft := Ini.ReadBool('Options', 'MinimapShowOnLeft', False);
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', 10);
       FMainMemo.Font.Charset := TFontCharSet(Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset));
@@ -1069,6 +1122,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       for Memo in FMemos do
         if Memo <> FMainMemo then
           Memo.Font := FMainMemo.Font;
+      FMinimap.UpdateFont(FMainMemo.Font);
 
       { UpdatePanel visibility }
       const BannerGreen = $ABE3AB; { MGreen with HSL lightness changed from 40% to 78% }
@@ -1157,6 +1211,10 @@ constructor TMainForm.Create(AOwner: TComponent);
       StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
         (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(OutputTabSet.Height)));
       SetNavigatorVisible(Ini.ReadBool('Options', 'ShowNavigator', True));
+
+      { Minimap visibility }
+      SyncMinimapOptions;
+      SetMinimapVisible(Ini.ReadBool('Options', 'ShowMinimap', True));
 
       { Inspector widths and visibility }
       SyncInspectorOptions;
@@ -1326,6 +1384,9 @@ begin
   TWinControlMSAANameHook.Create(NavigatorComboBox2, NavigatorComboBox2.Hint);
   CreateNavigator; { Also hooks and must be after previous calls }
 
+  CreateMinimap;
+  TWinControlMSAANameHook.Create(FMinimap, RemoveAccelChar(VMinimap.Caption));
+
   FMemosStyler.Theme := FTheme;
 
   MemosTabSet.PopupMenu := TMainFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
@@ -1425,6 +1486,7 @@ destructor TMainForm.Destroy;
       Ini.WriteBool('Options', 'ShowToolbar', ToolbarPanel.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
       Ini.WriteBool('Options', 'ShowNavigator', NavigatorPanel.Visible);
+      Ini.WriteBool('Options', 'ShowMinimap', FMinimap.Visible);
       Ini.WriteBool('Options', 'ShowInspector', InspectorPanel.Visible);
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
@@ -1568,6 +1630,7 @@ procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
 begin
   UpdateImages;
   UpdateMarginsAndAutoCompleteIcons;
+  FMinimap.UpdateFont(FMainMemo.Font); { VCL rescaled the font for the new DPI, which can round its size, so reapply }
   UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateAddedLinesScrollWidth(CompilerOutputList, alpNone, 0);
@@ -2903,14 +2966,15 @@ end;
 
 procedure TMainForm.SyncEditorOptions;
 const
-  SquigglyStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_SQUIGGLE);
+  SquigglyStyles: array[Boolean] of TScintIndicatorStyle = (sisHidden, sisSquiggle);
+  MinimapSquigglyStyles: array[Boolean] of TScintIndicatorStyle = (sisHidden, sisFullBox); { Also see TMinimap.CreateWnd for occurrence boxes }
   WhiteSpaceStyles: array[Boolean] of Integer = (SCWS_INVISIBLE, SCWS_VISIBLEALWAYS);
 var
   Memo: TIDEScintEdit;
 begin
   for Memo in FMemos do begin
     Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
-    Memo.Call(SCI_INDICSETSTYLE, minSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
+    Memo.IndicatorStyle[minSquiggly] := SquigglyStyles[FOptions.UnderlineErrors];
     Memo.Call(SCI_SETVIEWWS, WhiteSpaceStyles[FOptions.ShowWhiteSpace], 0);
 
     if FOptions.CursorPastEOL then
@@ -2937,6 +3001,14 @@ begin
 
     Memo.LineNumbers := FOptions.GutterLineNumbers;
   end;
+
+  { Only view-level options, and no document-level ones: the minimap shares the
+    active memo's document }
+  FMinimap.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
+  FMinimap.IndicatorStyle[minSquiggly] := MinimapSquigglyStyles[FOptions.UnderlineErrors]; { Over the text by default, like VS Code }
+  { Not WordWrap: setting it sets document-level options too, see the comment
+    of TScintEdit.SetDocumentPointer }
+  FMinimap.Call(SCI_SETWRAPMODE, Ord(FOptions.WordWrap), 0);
 end;
 
 procedure TMainForm.SyncInspectorOptions;
@@ -2948,6 +3020,11 @@ begin
   FInspector.FollowCaret := FOptions.InspectorFollowCaret;
   FInspector.QuoteNewDirectiveValues := FOptions.InspectorQuoteNewDirectiveValues;
   FInspector.QuoteNewParameterValues := FOptions.InspectorQuoteNewParameterValues;
+end;
+
+procedure TMainForm.SyncMinimapOptions;
+begin
+  FMinimap.AlwaysShowSlider := FOptions.MinimapAlwaysShowSlider;
 end;
 
 procedure TMainForm.FMenuClick(Sender: TObject);
@@ -3584,6 +3661,7 @@ procedure TMainForm.VWordWrapClick(Sender: TObject);
 begin
   FOptions.WordWrap := not FOptions.WordWrap;
   SyncEditorOptions;
+  UpdateMinimapReservationsAndLayout; { See CalculateMinimapWidths }
   SaveBooleanOption('WordWrap', FOptions.WordWrap);
 end;
 
@@ -3690,6 +3768,146 @@ end;
 procedure TMainForm.VNavigatorClick(Sender: TObject);
 begin
   SetNavigatorVisible(not NavigatorPanel.Visible);
+end;
+
+procedure TMainForm.SetMinimapVisible(const AVisible: Boolean);
+begin
+  if FMinimap.Visible <> AVisible then begin
+    { Showing or hiding the minimap changes the width of the memos' text. See
+      SetInspectorVisible for why this keeps the caret in view only with word
+      wrap on. }
+    const KeepCaretInView = FOptions.WordWrap and
+      FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
+    if AVisible then
+      FMinimap.SetMemo(FActiveMemo);
+    FMinimap.Visible := AVisible;
+    UpdateMinimapReservationsAndLayout;
+    if KeepCaretInView then
+      FActiveMemo.ScrollCaretIntoView;
+  end;
+  VMinimap.Checked := AVisible;
+end;
+
+procedure TMainForm.VMinimapClick(Sender: TObject);
+begin
+  SetMinimapVisible(not FMinimap.Visible);
+end;
+
+procedure TMainForm.MinimapPopupMenuClick(Sender: TObject);
+begin
+  UpdateMinimapPopupMenu(Sender as TMenuItem);
+end;
+
+procedure TMainForm.PMinimapAlwaysShowSliderClick(Sender: TObject);
+begin
+  FOptions.MinimapAlwaysShowSlider := not FOptions.MinimapAlwaysShowSlider;
+  SyncMinimapOptions;
+  SaveBooleanOption('MinimapAlwaysShowSlider', FOptions.MinimapAlwaysShowSlider);
+end;
+
+procedure TMainForm.PMinimapShowOnLeftClick(Sender: TObject);
+begin
+  FOptions.MinimapShowOnLeft := not FOptions.MinimapShowOnLeft;
+  UpdateMinimapReservationsAndLayout;
+  SaveBooleanOption('MinimapShowOnLeft', FOptions.MinimapShowOnLeft);
+end;
+
+function GetVScrollWidthIfHidden(const Memo: TScintEdit): Integer;
+begin
+  { See the explanation in GetMinimapReservation below }
+  if GetWindowLong(Memo.Handle, GWL_STYLE) and WS_VSCROLL = 0 then
+    Result := Memo.GetSystemMetrics(SM_CXVSCROLL)
+  else
+    Result := 0;
+end;
+
+function TMainForm.GetMinimapWidths(const AMemo: TIDEScintEdit): TMinimapWidths;
+
+  function GetTypicalHalfwidthCharWidth(const Edit: TScintEdit): Double;
+  begin
+    { Like VS Code, measures 'n' repeated 256 times, see
+      FontMeasurementsImpl._actualReadFontInfo, and DomCharWidthReader._render
+      and _readFromDomElements. This only matters for fractional character
+      widths, which GDI doesn't have. Currently GDI is used, so the repeat has
+      no effect. }
+    const RepeatCount = 256;
+    Result := Edit.GetTextWidth(STYLE_DEFAULT,
+      AnsiString(StringOfChar('n', RepeatCount))) / RepeatCount;
+  end;
+
+begin
+  var MemoAndMinimapWidth: Integer;
+  if FOptions.MinimapShowOnLeft then
+    MemoAndMinimapWidth := MemoPanel.ClientWidth { Minimap and memo are side-by-side }
+  else
+    MemoAndMinimapWidth := AMemo.Width; { Minimap is inside memo }
+
+  var MemoGutterWidth := AMemo.LeftBlankMarginWidth;
+  for var Margin := 0 to AMemo.MarginCount-1 do
+    Inc(MemoGutterWidth, AMemo.MarginWidth[Margin]);
+
+  { Always passes the vertical scrollbar's width, even while it's hidden:
+    otherwise the reservation could show or hide it through rewrapping }
+  Result := CalculateMinimapWidths(MemoAndMinimapWidth, MemoGutterWidth,
+    AMemo.GetSystemMetrics(SM_CXVSCROLL), GetTypicalHalfwidthCharWidth(AMemo),
+    GetTypicalHalfwidthCharWidth(FMinimap), fsItalic in AMemo.Font.Style, FOptions.WordWrap,
+    MinimapMaxColumn, MinimapGutterWidth);
+end;
+
+procedure TMainForm.UpdateMinimapReservation(const AMemo: TIDEScintEdit);
+
+  function GetMinimapReservation(const MinimapWidths: TMinimapWidths): Integer;
+  { Returns the width AMemo should reserve right of its text, inside its client area.
+    A shown vertical scrollbar already makes the client area smaller, so the
+    reservation leaves it out. A hidden one leaves its space to the client area,
+    so then the reservation includes that space. This keeps the memo's text width
+    the same when the scrollbar shows or hides, so word wrap never rewraps the
+    text, which could show or hide the scrollbar again. }
+  begin
+    Result := MinimapWidths.BlankWidth + GetVScrollWidthIfHidden(AMemo);
+    if not FOptions.MinimapShowOnLeft then
+      Inc(Result, MinimapWidths.MinimapWidth);
+  end;
+
+begin
+  var Reservation := 0;
+  var LeftMargin := 0;
+  if (FMinimap <> nil) and FMinimap.Visible then begin
+    const MinimapWidths = GetMinimapWidths(AMemo);
+    Reservation := GetMinimapReservation(MinimapWidths);
+    if FOptions.MinimapShowOnLeft then
+      LeftMargin := MinimapWidths.MinimapWidth; { See below: VCL margin, not Scintilla }
+  end;
+
+  { The check avoids rewrapping all text when it's not needed, like when only
+    the height changes: setting RightBlankMarginWidth always invalidates the
+    layout, and with word wrap on that rewraps all text }
+  if AMemo.RightBlankMarginWidth <> Reservation then
+    AMemo.RightBlankMarginWidth := Reservation; { Scintilla margin }
+
+  AMemo.Margins.Left := TMarginSize(LeftMargin);
+end;
+
+procedure TMainForm.UpdateMinimapReservationsAndLayout;
+begin
+  for var Memo in FMemos do
+    UpdateMinimapReservation(Memo);
+  UpdateMinimapLayout;
+end;
+
+procedure TMainForm.UpdateMinimapLayout;
+begin
+  if (FMinimap <> nil) and FMinimap.Visible then begin
+    const MinimapWidth = GetMinimapWidths(FActiveMemo).MinimapWidth;
+    if FOptions.MinimapShowOnLeft then
+      FMinimap.SetBounds(FActiveMemo.Left - MinimapWidth, FActiveMemo.Top,
+        MinimapWidth, FActiveMemo.Height)
+    else
+      FMinimap.SetBounds(FActiveMemo.Left + FActiveMemo.ClientWidth -
+        GetVScrollWidthIfHidden(FActiveMemo) - MinimapWidth, FActiveMemo.Top,
+          MinimapWidth, FActiveMemo.ClientHeight);
+    FMinimap.SyncScrollPosition;
+  end;
 end;
 
 procedure TMainForm.FocusNavigator(const AOpenDropDown: Boolean);
@@ -4029,6 +4247,7 @@ begin
   inherited;
   for var Memo in FMemos do
     Memo.SysColorChange(Message);
+  FMinimap.SysColorChange(Message);
 end;
 
 procedure TMainForm.MemosTabSetPopupMenuClick(Sender: TObject);
@@ -4045,7 +4264,8 @@ begin
   if NewActiveMemo <> FActiveMemo then begin
     if InspectorPanel.Visible then
       FInspector.ForceFinishEdit; { See SetInspectorVisible }
-    NewActiveMemo.Visible := True;
+    UpdateMinimapReservation(NewActiveMemo); { Can be outdated: hidden memos aren't aligned }
+    NewActiveMemo.Visible := True; { Aligns it and drops realign requests made meanwhile }
     var OldActiveMemo := FActiveMemo;
     FActiveMemo := NewActiveMemo;
     ActiveControl := NewActiveMemo;
@@ -4062,6 +4282,9 @@ begin
       SetInspectorActiveFactory;
     if NavigatorPanel.Visible then
       SetNavigatorActiveFactory;
+    if FMinimap.Visible then
+      FMinimap.SetMemo(FActiveMemo);
+    UpdateMinimapLayout;
   end;
 end;
 
@@ -4449,8 +4672,8 @@ type
   begin
     { Prepare a bitmap and select it }
     var pvBits: Pointer;
-    var Bitmap := CreateDIBSection(DC, BitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
-    var OldBitmap := SelectObject(DC, Bitmap);
+    const Bitmap = CreateDIBSection(DC, BitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    const OldBitmap = SelectObject(DC, Bitmap);
 
     { Fill the entire bitmap to avoid any alpha so we don't have to worry about
       whether will be premultiplied or not (it was in tests) when Scintilla wants
@@ -4543,9 +4766,10 @@ begin
 end;
 
 procedure TMainForm.UpdateMarginsAndSquigglyAndCaretWidths;
-{ Update the width of our two margins. Note: the width of the line numbers
-  margin is fully handled by TScintEdit. Should be called at startup and after
-  DPI change. }
+{ Update the widths of the memos' margins, including the minimap reservations,
+  and the minimap layout. Note: the width of the line numbers margin is fully
+  handled by TScintEdit. Should be called at startup, after DPI change, and
+  after options change. }
 begin
   var IconMarkersWidth := ToCurrentPPI(18); { 3 pixel margin on both sides of the icon }
   var BaseChangeHistoryWidth := ToCurrentPPI(6); { 6 = 2 pixel bar with 2 pixel margin on both sides because: "SC_MARK_BAR ... takes ... 1/3 of the margin width" }
@@ -4555,9 +4779,13 @@ begin
   var CaretWidth := ToCurrentPPI(2);
   var WhiteSpaceSize := CaretWidth;
 
-  for var Memo in FMemos do
+  for var Memo in FMemos do begin
     Memo.UpdateWidthsAndSizes(IconMarkersWidth, BaseChangeHistoryWidth, FolderMarkersWidth,
       LeftBlankMarginWidth, 0, SquigglyWidth, CaretWidth, WhiteSpaceSize);
+    UpdateMinimapReservation(Memo); { Depends on the margin widths set above }
+  end;
+
+  UpdateMinimapLayout;
 end;
 
 procedure TMainForm.StatusSplitPanelMouseMove(Sender: TObject;
@@ -4672,6 +4900,8 @@ begin
     OptionsForm.InspectorFollowCaretCheck.Checked := FOptions.InspectorFollowCaret;
     OptionsForm.InspectorQuoteNewDirectiveValuesCheck.Checked := FOptions.InspectorQuoteNewDirectiveValues;
     OptionsForm.InspectorQuoteNewParameterValuesCheck.Checked := FOptions.InspectorQuoteNewParameterValues;
+    OptionsForm.MinimapAlwaysShowSliderCheck.Checked := FOptions.MinimapAlwaysShowSlider;
+    OptionsForm.MinimapShowOnLeftCheck.Checked := FOptions.MinimapShowOnLeft;
 
     const SaveLanguage = FOptions.Language;
 
@@ -4717,6 +4947,8 @@ begin
     FOptions.InspectorFollowCaret := OptionsForm.InspectorFollowCaretCheck.Checked;
     FOptions.InspectorQuoteNewDirectiveValues := OptionsForm.InspectorQuoteNewDirectiveValuesCheck.Checked;
     FOptions.InspectorQuoteNewParameterValues := OptionsForm.InspectorQuoteNewParameterValuesCheck.Checked;
+    FOptions.MinimapAlwaysShowSlider := OptionsForm.MinimapAlwaysShowSliderCheck.Checked;
+    FOptions.MinimapShowOnLeft := OptionsForm.MinimapShowOnLeftCheck.Checked;
 
     UpdateCaption;
     UpdatePreprocMemos;
@@ -4727,6 +4959,7 @@ begin
       Memo.CaretLine := Memo.CaretLine;
       Memo.Font.Assign(OptionsForm.FontPanel.Font);
     end;
+    FMinimap.UpdateFont(OptionsForm.FontPanel.Font);
     SyncEditorOptions;
     UpdateMarginsAndSquigglyAndCaretWidths;
     UpdateNewMainFileButtons;
@@ -4734,6 +4967,7 @@ begin
     UpdateKeyMapping;
     UpdateTheme;
     SyncInspectorOptions;
+    SyncMinimapOptions;
 
     { Save new options }
     Ini := TConfigIniFile.Create;
@@ -4780,6 +5014,8 @@ begin
       Ini.WriteBool('Options', 'InspectorFollowCaret', FOptions.InspectorFollowCaret);
       Ini.WriteBool('Options', 'InspectorQuoteNewParameterValues', FOptions.InspectorQuoteNewParameterValues);
       Ini.WriteBool('Options', 'InspectorQuoteNewDirectiveValues', FOptions.InspectorQuoteNewDirectiveValues);
+      Ini.WriteBool('Options', 'MinimapAlwaysShowSlider', FOptions.MinimapAlwaysShowSlider);
+      Ini.WriteBool('Options', 'MinimapShowOnLeft', FOptions.MinimapShowOnLeft);
     finally
       Ini.Free;
     end;
@@ -5359,6 +5595,17 @@ procedure TMainForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
   end;
 
 begin
+  if FMinimap.Visible and (Sender = FActiveMemo) then begin
+    { Syncing now keeps the minimap from first painting at its old position,
+      except after a scroll or fold alone: Scintilla reports those only when
+      the memo paints, which can be after the minimap's paint. MemoPainted
+      catches the rest. }
+    if suFolding in Updated then
+      FMinimap.SyncFolding;
+    if Updated * [suContent, suVScroll, suFolding] <> [] then
+      FMinimap.SyncScrollPosition;
+  end;
+
   if Updated * [suContent, suSelection] = [] then
     Exit;
 
@@ -5381,12 +5628,24 @@ begin
     FInspector.UpdateFromCaret;
   if NavigatorPanel.Visible and (Memo = FActiveMemo) then
     FNavigator.UpdateFromCaret;
+  if FMinimap.Visible and (Memo = FActiveMemo) then
+    FMinimap.SyncSelections;
 end;
 
 procedure TMainForm.MemoModifiedChange(Sender: TObject);
 begin
   if Sender = FActiveMemo then
     UpdateModifiedStatusPanel;
+end;
+
+procedure TMainForm.MemoPainted(Sender: TObject);
+begin
+  { Lazy rewrapping sends no OnUpdateUI unless the top line changes. In
+    Scintilla's Editor.cxx, only ContainerNeedsUpdate makes it send one, and
+    WrapLines calls it only through SetTopLine, when the top line changes.
+    This also runs on every caret blink, so SyncScrollPosition must stay cheap! }
+  if FMinimap.Visible and (Sender = FActiveMemo) then
+    FMinimap.SyncScrollPosition;
 end;
 
 procedure TMainForm.MemoCallTipArrowClick(Sender: TObject;
@@ -5846,7 +6105,18 @@ begin
     finally
       FSynchingZoom := False;
     end;
+    UpdateMinimapReservationsAndLayout;
   end;
+end;
+
+procedure TMainForm.MemoResizeOrLineNumbersWidthChange(Sender: TObject);
+begin
+  { Also runs when the vertical scrollbar shows or hides, which changes the
+    reservation }
+  const Memo = Sender as TIDEScintEdit;
+  UpdateMinimapReservation(Memo);
+  if Memo = FActiveMemo then
+    UpdateMinimapLayout;
 end;
 
 procedure TMainForm.StatusBarResize(Sender: TObject);
@@ -6004,6 +6274,7 @@ begin
   inherited;
   for var Memo in FMemos do
     Memo.DPIChanged(Message);
+  FMinimap.DPIChanged(Message);
 end;
 
 procedure TMainForm.WMDebuggerException(var Message: TMessage);
@@ -6519,6 +6790,7 @@ begin
     The following components (and any children) ignore the active style because
     their StyleName is set to 'Windows' always, either by the .dfm or by code:
     - FMemos
+    - FMinimap
     - ToolbarPanel
     - UpdatePanel
     - StatusSplitPanel
@@ -6570,6 +6842,7 @@ begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlWindowTheme(Memo, FTheme.Dark);
   end;
+  FMinimap.UpdateThemeColorsAndStyleAttributes;
   SetListBoxWindowTheme(CompilerOutputList);
   SetListBoxWindowTheme(DebugOutputList);
   SetListBoxWindowTheme(DebugCallStackList);
@@ -7310,6 +7583,7 @@ begin
   end;
   for var Memo in FMemos do
     Memo.SettingChange(Message);
+  FMinimap.SettingChange(Message);
 end;
 
 procedure TMainForm.WMThemeChanged(var Message: TMessage);
