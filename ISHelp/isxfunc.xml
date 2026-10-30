@@ -2118,7 +2118,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <key>function</key> <evt>InitializeSetup</evt>: Boolean;
 <key>begin</key>
   <key>try</key>
-    DownloadTemporaryFile(<str>'https://jrsoftware.org/download.php/is.exe?dontcount=1'</str>, <str>'innosetup-latest.exe'</str>, <str>''</str>, @OnDownloadProgress);
+    DownloadTemporaryFile(<str>'https://files.jrsoftware.org/is/misc/ISSigTool.exe'</str>, <str>'ISSigTool-latest.exe'</str>, <str>''</str>, @OnDownloadProgress);
     DownloadTemporaryFile(<str>'https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1'</str>, <str>'ISCrypt.dll'</str>, <str>'2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc'</str>, @OnDownloadProgress);
     Result := True;
   <key>except</key>
@@ -2152,7 +2152,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <key>begin</key>
   <key>try</key>
     DownloadTemporaryFileWithISSigVerify(
-      <str>'https://jrsoftware.org/download.php/myprog-extrareadmes.7z'</str>, <str>''</str>,
+      <str>'https://files.jrsoftware.org/is/misc/myprog-extrareadmes-01.7z'</str>, <str>''</str>,
       <str>'myprog-extrareadmes.7z'</str>, <key>nil</key>, <key>nil</key>);
     Result := True;
   <key>except</key>
