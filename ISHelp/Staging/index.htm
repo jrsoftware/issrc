@@ -35,6 +35,37 @@ window.addEventListener("message", (event) => {
 });
 
 --></script>
+<script type="text/javascript"><!--
+
+// A separate script block, so a syntax error here can't break the contents sync
+
+window.addEventListener("DOMContentLoaded", () => {
+  // The browser restores the topic the visitor was reading
+  if (performance.getEntriesByType("navigation")[0]?.type === "back_forward") {
+    return;
+  }
+
+  const queryParams = new URLSearchParams(window.location.search);
+
+  let topic = queryParams.get("topic");
+  if (topic === null || !/^[a-z0-9_\-]+$/.test(topic)) {
+    topic = "whatisinnosetup";
+  }
+
+  let topicUrl = "topic_" + topic + ".htm";
+
+  const anchor = queryParams.get("anchor");
+  if (anchor !== null && /^[a-zA-Z0-9_\-.]+$/.test(anchor)) {
+    topicUrl += "#" + anchor;
+  }
+
+  const bodyFrame = document.getElementsByName("bodyframe")[0];
+  if (bodyFrame.getAttribute("src") !== topicUrl) {
+    bodyFrame.setAttribute("src", topicUrl);
+  }
+});
+
+--></script>
 </head>
 <frameset cols="272, *">
   <frame name="contentsframe" title="Contents/Index" src="contents.htm" onload="contentsframe_loaded();" />
