@@ -401,7 +401,7 @@ begin
           'Instructs Setup to attempt restarting applications, or prevents it from doing so.' + SNewLine +
           '/REDIRECTIONGUARD, /NOREDIRECTIONGUARD' + SNewLine +
           'Instructs Setup to attempt enabling RedirectionGuard, or prevents it from doing so.' + SNewLine2 +
-          'For more detailed information, please visit https://jrsoftware.org/ishelp/index.php?topic=setupcmdline';
+          'For more detailed information, please visit https://jrsoftware.org/ishelp/?topic=setupcmdline';
 
   MsgBox(Help, MB_OK or MB_ICONSTOP);
 end;
