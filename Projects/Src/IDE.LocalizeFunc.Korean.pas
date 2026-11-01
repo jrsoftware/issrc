@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  KoreanIDETranslations: array [0..1012] of TTranslationPair = (
+  KoreanIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: '명령줄 사용법:'),
     (English: 'Examples:'; Localized: '사용 예:'),
     (English: 'script file'; Localized: '스크립트 파일'),
@@ -371,6 +371,7 @@ const
     (English: '&Reset'; Localized: '다시 설정(&R)'),
     (English: '&Toolbar'; Localized: '도구 모음(&T)'),
     (English: 'Na&vigator'; Localized: '탐색기(&V)'),
+    (English: '&Minimap'; Localized: '미니맵(&M)'),
     (English: '&Inspector'; Localized: '검사기(&I)'),
     (English: 'St&atus Bar'; Localized: '상태 표시줄(&A)'),
     (English: '&Next Tab'; Localized: '다음 탭(&N)'),
@@ -393,6 +394,8 @@ const
     (English: 'Quote new directive values'; Localized: '새 지시문 값을 따옴표로 묶기'),
     (English: 'Quote new parameter values'; Localized: '새 매개 변수 값을 따옴표로 묶기'),
     (English: '&Help'; Localized: '도움말(&H)'),
+    (English: 'Always show slider'; Localized: '슬라이더 항상 표시'),
+    (English: 'Show on left'; Localized: '왼쪽에 표시'),
     (English: '&Build'; Localized: '빌드(&B)'),
     (English: '&Compile'; Localized: '컴파일(&C)'),
     (English: 'S&top Compile'; Localized: '컴파일 중지(&T)'),
@@ -487,6 +490,7 @@ const
     (English: 'Ke&ys:'; Localized: '키(&Y):'),
     (English: 'Show whitespace'; Localized: '공백 표시'),
     (English: 'Smart Home key'; Localized: '스마트 Home 키'),
+    (English: ' Minimap '; Localized: ' 미니맵 '),
     (English: '&Associate .%1 files with this compiler'; Localized: '.%1 파일을 이 컴파일러에 연결(&A)'),
     (English: '&Windows registry file (.%1) to import:'; Localized: '가져올 Windows 레지스트리 파일 (.%1)(&W):'),
     (English: 'B&rowse...'; Localized: '찾아보기(&R)...'),

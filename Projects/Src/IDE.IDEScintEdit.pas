@@ -24,12 +24,14 @@ const
 
   { Memo marker icon and line marker numbers }
   mmiHasEntry = 0;        { grey dot }
+  mmiFirst = mmiHasEntry;
   mmiEntryProcessed = 1;  { green dot }
   mmiBreakpoint = 2;      { stop sign }
   mmiBreakpointGood = 3;  { stop sign + check }
   mmiBreakpointBad = 4;   { stop sign + X }
   mmiStep = 5;            { blue arrow }
   mmiBreakpointStep = 6;  { blue arrow on top of a stop sign + check }
+  mmiLast = mmiBreakpointStep;
   mmiMask = $7F;
 
   mlmError = 10;          { maroon line highlight }
@@ -68,7 +70,18 @@ type
     ccUnfoldLine, ccFoldLine, ccToggleLinesComment, ccAddCursorUp,
     ccAddCursorDown, ccBraceMatch, ccAddCursorsToLineEnds);
 
-  TIDEScintEdit = class(TScintEdit)
+  TIDEScintEditBase = class(TScintEdit)
+  private
+    FTheme: TTheme;
+  protected
+    procedure CreateWnd; override;
+  public
+    property Theme: TTheme read FTheme write FTheme;
+    procedure SetSelectionBackColor(const Color: TColor);
+    procedure UpdateThemeColorsAndStyleAttributes; virtual;
+  end;
+
+  TIDEScintEdit = class(TIDEScintEditBase)
   private
     type
       TIDEScintComplexCommands = TDictionary<TShortCut, TIDEScintComplexCommand>;
@@ -79,7 +92,6 @@ type
       FComplexCommands: TIDEScintComplexCommands;
       FComplexCommandsReversed: TIDEScintComplexCommandsReversed;
       FUseFolding: Boolean;
-      FTheme: TTheme;
       FOpeningFile: Boolean;
       FUsed: Boolean; { The IDE only shows 1 memo at a time so can't use .Visible to check if a memo is used }
       FIndicatorCount: array[TIDEScintIndicatorNumber] of Integer;
@@ -96,7 +108,6 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    property Theme: TTheme read FTheme write FTheme;
     property OpeningFile: Boolean read FOpeningFile write FOpeningFile;
     property Used: Boolean read FUsed write FUsed;
     function GetComplexCommand(const ShortCut: TShortCut): TIDEScintComplexCommand;
@@ -107,7 +118,7 @@ type
     procedure UpdateWidthsAndSizes(const IconMarkersWidth,
       BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
       RightBlankMarginWidth, SquigglyWidth, CaretWidth, WhiteSpaceSize: Integer);
-    procedure UpdateThemeColorsAndStyleAttributes;
+    procedure UpdateThemeColorsAndStyleAttributes; override;
   published
     property KeyMappingType: TIDEScintKeyMappingType read FKeyMappingType write SetKeyMappingType default kmtDefault;
     property SmartHome: Boolean read FSmartHome write SetSmartHome default True;
@@ -183,7 +194,58 @@ implementation
 
 uses
   SysUtils, SHA256, ScintInt.InnoSetup;
-  
+
+{ TIDEScintEditBase }
+
+procedure TIDEScintEditBase.CreateWnd;
+begin
+  inherited;
+
+  IndicatorStyle[minPendingSquiggly] := sisHidden;
+
+  { Set up the line markers }
+  MarkerSymbol[mlmError] := smsBackFore;
+  Call(SCI_MARKERSETFORE, mlmError, clWhite);
+  Call(SCI_MARKERSETBACK, mlmError, clMaroon);
+  MarkerSymbol[mlmBreakpointBad] := smsBackFore;
+  Call(SCI_MARKERSETFORE, mlmBreakpointBad, clLime);
+  Call(SCI_MARKERSETBACK, mlmBreakpointBad, clOlive);
+  MarkerSymbol[mlmStep] := smsBackFore;
+  Call(SCI_MARKERSETFORE, mlmStep, clWhite);
+  Call(SCI_MARKERSETBACK, mlmStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
+end;
+
+procedure TIDEScintEditBase.SetSelectionBackColor(const Color: TColor);
+begin
+  Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_BACK, Color);
+  Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_ADDITIONAL_BACK, Color);
+  Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_SECONDARY_BACK, Color);
+  Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, Color);
+  Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, Color);
+end;
+
+procedure TIDEScintEditBase.UpdateThemeColorsAndStyleAttributes;
+begin
+  if FTheme <> nil then begin { Always True at the moment }
+    Font.Color := FTheme.Colors[tcFore];
+    Color := FTheme.Colors[tcBack];
+
+    Call(SCI_INDICSETFORE, minSquiggly, FTheme.Colors[tcRed]);
+
+    Call(SCI_MARKERSETBACK, mlmStep, FTheme.Colors[tcBlue]);
+
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]); { To reproduce: open a file, press enter, save, undo }
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]);
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_SAVED, FTheme.Colors[tcGreen]);
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_SAVED, FTheme.Colors[tcGreen]);
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_MODIFIED, FTheme.Colors[tcReallyOrange]);
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_MODIFIED, FTheme.Colors[tcReallyOrange]);
+    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]); { To reproduce: open a file, press space, press backspace, save, press enter, save, undo }
+    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]);
+  end;
+  UpdateStyleAttributes;
+end;
+
 { TIDEScintEdit }
 
 constructor TIDEScintEdit.Create(AOwner: TComponent);
@@ -240,23 +302,22 @@ begin
   Call(SCI_SETADDITIONALSELECTIONTYPING, 1, 0);
   Call(SCI_SETMULTIPASTE, SC_MULTIPASTE_EACH, 0);
   Call(SCI_SETCOPYSEPARATOR, 0, LineEndingString);
-  Call(SCI_SETUNDOSELECTIONHISTORY, SC_UNDO_SELECTION_HISTORY_ENABLED, 0);
+  UndoSelectionHistory := True;
 
   AssignCmdKey('Z', [ssShift, ssCtrl], SCI_REDO);
   
-  Call(SCI_SETSCROLLWIDTH, 1024 * Call(SCI_TEXTWIDTH, 0, 'X'), 0);
+  Call(SCI_SETSCROLLWIDTH, 1024 * GetTextWidth(0, 'X'), 0);
 
-  Call(SCI_INDICSETSTYLE, minSquiggly, INDIC_SQUIGGLE); { Overwritten by TCompForm.SyncEditorOptions }
+  IndicatorStyle[minSquiggly] := sisSquiggle; { Overwritten by TMainForm.SyncEditorOptions }
   Call(SCI_INDICSETFORE, minSquiggly, clRed); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
-  Call(SCI_INDICSETSTYLE, minPendingSquiggly, INDIC_HIDDEN);
 
-  Call(SCI_INDICSETSTYLE, minWordAtCursorOccurrence, INDIC_STRAIGHTBOX);
+  IndicatorStyle[minWordAtCursorOccurrence] := sisStraightBox;
   Call(SCI_INDICSETFORE, minWordAtCursorOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETALPHA, minWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
   Call(SCI_INDICSETOUTLINEALPHA, minWordAtCursorOccurrence, SC_ALPHA_OPAQUE);
   Call(SCI_INDICSETUNDER, minWordAtCursorOccurrence, 1);
 
-  Call(SCI_INDICSETSTYLE, minSelTextOccurrence, INDIC_STRAIGHTBOX);
+  IndicatorStyle[minSelTextOccurrence] := sisStraightBox;
   Call(SCI_INDICSETFORE, minSelTextOccurrence, clSilver); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
   Call(SCI_INDICSETALPHA, minSelTextOccurrence, SC_ALPHA_OPAQUE);
   Call(SCI_INDICSETOUTLINEALPHA, minSelTextOccurrence, SC_ALPHA_OPAQUE);
@@ -269,7 +330,7 @@ begin
   Call(SCI_SETMARGINCURSORN, mmLineNumbers, SC_CURSORARROW);
 
   { Set up the gutter column with breakpoint etc symbols }
-  Call(SCI_SETMARGINTYPEN, mmIcons, SC_MARGIN_SYMBOL);
+  MarginType[mmIcons] := smtSymbol;
   Call(SCI_SETMARGINMASKN, mmIcons, mmiMask);
   Call(SCI_SETMARGINSENSITIVEN, mmIcons, 1); { Makes it send SCN_MARGIN(RIGHT)CLICK instead of selecting lines }
   Call(SCI_SETMARGINCURSORN, mmIcons, SC_CURSORARROW);
@@ -277,36 +338,25 @@ begin
   { Set up the gutter column with change history. Note: width of the column is
     set up by UpdateMarginsAndSquigglyAndCaretWidths. Also see
     https://scintilla.org/ChangeHistory.html }
-  Call(SCI_SETMARGINTYPEN, mmChangeHistory, SC_MARGIN_SYMBOL);
+  MarginType[mmChangeHistory] := smtSymbol;
   Call(SCI_SETMARGINMASKN, mmChangeHistory, SC_MASK_HISTORY);
   Call(SCI_SETMARGINCURSORN, mmChangeHistory, SC_CURSORARROW);
 
   { Set up the gutter column with folding markers. Note: width of the column is
     set up by UpdateMarginsAndSquigglyAndCaretWidths. }
-  Call(SCI_SETMARGINTYPEN, mmFolding, SC_MARGIN_SYMBOL);
+  MarginType[mmFolding] := smtSymbol;
   Call(SCI_SETMARGINMASKN, mmFolding, LPARAM(SC_MASK_FOLDERS));
   Call(SCI_SETMARGINCURSORN, mmFolding, SC_CURSORARROW);
   Call(SCI_SETMARGINSENSITIVEN, mmFolding, 1);
-  Call(SCI_SETAUTOMATICFOLD, SC_AUTOMATICFOLD_SHOW or SC_AUTOMATICFOLD_CLICK or SC_AUTOMATICFOLD_CHANGE, 0);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPEN, SC_MARK_ARROWDOWN);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDER, SC_MARK_ARROW);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEREND, SC_MARK_EMPTY);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDEROPENMID, SC_MARK_EMPTY);
-  Call(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERMIDTAIL, SC_MARK_EMPTY);
+  AutomaticFold := [safShow, safClick, safChange];
+  MarkerSymbol[SC_MARKNUM_FOLDEROPEN] := smsArrowDown;
+  MarkerSymbol[SC_MARKNUM_FOLDER] := smsArrow;
+  MarkerSymbol[SC_MARKNUM_FOLDERSUB] := smsEmpty;
+  MarkerSymbol[SC_MARKNUM_FOLDERTAIL] := smsEmpty;
+  MarkerSymbol[SC_MARKNUM_FOLDEREND] := smsEmpty;
+  MarkerSymbol[SC_MARKNUM_FOLDEROPENMID] := smsEmpty;
+  MarkerSymbol[SC_MARKNUM_FOLDERMIDTAIL] := smsEmpty;
   FoldFlags := [{sffLevelNumbers, }sffLineAfterContracted]; { sffLevelNumbers can be used to debug fold levels}
-
-  { Set up the line markers }
-  Call(SCI_MARKERDEFINE, mlmError, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mlmError, clWhite);
-  Call(SCI_MARKERSETBACK, mlmError, clMaroon);
-  Call(SCI_MARKERDEFINE, mlmBreakpointBad, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mlmBreakpointBad, clLime);
-  Call(SCI_MARKERSETBACK, mlmBreakpointBad, clOlive);
-  Call(SCI_MARKERDEFINE, mlmStep, SC_MARK_BACKFORE);
-  Call(SCI_MARKERSETFORE, mlmStep, clWhite);
-  Call(SCI_MARKERSETBACK, mlmStep, clBlue); { May be overwritten by UpdateThemeColorsAndStyleAttributes }
 end;
 
 procedure TIDEScintEdit.AddComplexCommand(const ShortCut: TShortCut;
@@ -424,7 +474,7 @@ begin
       UpdateMarginsAndSquigglyAndCaretWidths else we set it to 0 now }
     if not FUseFolding then begin
       Call(SCI_FOLDALL, SC_FOLDACTION_EXPAND, 0);
-      Call(SCI_SETMARGINWIDTHN, 3, 0);
+      MarginWidth[mmFolding] := 0;
     end;
   end;
 end;
@@ -473,25 +523,24 @@ procedure TIDEScintEdit.UpdateWidthsAndSizes(const IconMarkersWidth,
   BaseChangeHistoryWidth, BaseFolderMarkersWidth, LeftBlankMarginWidth,
   RightBlankMarginWidth, SquigglyWidth, CaretWidth, WhiteSpaceSize: Integer);
 begin
-  Call(SCI_SETMARGINWIDTHN, mmIcons, IconMarkersWidth);
+  MarginWidth[mmIcons] := IconMarkersWidth;
 
   var ChangeHistoryWidth: Integer;
   if ChangeHistory <> schDisabled then
     ChangeHistoryWidth := BaseChangeHistoryWidth
   else
     ChangeHistoryWidth := 0; { Current this is just the preprocessor output memo }
-  Call(SCI_SETMARGINWIDTHN, mmChangeHistory, ChangeHistoryWidth);
+  MarginWidth[mmChangeHistory] := ChangeHistoryWidth;
 
   var FolderMarkersWidth: Integer;
   if FUseFolding then
     FolderMarkersWidth := BaseFolderMarkersWidth
   else
     FolderMarkersWidth := 0;
-  Call(SCI_SETMARGINWIDTHN, mmFolding, FolderMarkersWidth);
+  MarginWidth[mmFolding] := FolderMarkersWidth;
 
-  { Note: the first parameter is unused so the value '0' doesn't mean anything below }
-  Call(SCI_SETMARGINLEFT, 0, LeftBlankMarginWidth);
-  Call(SCI_SETMARGINRIGHT, 0, RightBlankMarginWidth);
+  Self.LeftBlankMarginWidth := LeftBlankMarginWidth;
+  Self.RightBlankMarginWidth := RightBlankMarginWidth;
 
   Call(SCI_INDICSETSTROKEWIDTH, minSquiggly, SquigglyWidth);
 
@@ -503,9 +552,6 @@ end;
 procedure TIDEScintEdit.UpdateThemeColorsAndStyleAttributes;
 begin
   if FTheme <> nil then begin { Always True at the moment }
-    Font.Color := FTheme.Colors[tcFore];
-    Color := FTheme.Colors[tcBack];
-
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST, FTheme.Colors[tcFore] or (SC_ALPHA_OPAQUE shl 24));
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_LIST_BACK, FTheme.Colors[tcIntelliBack] or (SC_ALPHA_OPAQUE shl 24));
     var Options := Call(SCI_AUTOCGETOPTIONS, 0, 0);
@@ -519,12 +565,7 @@ begin
     Call(SCI_CALLTIPSETBACK, FTheme.Colors[tcIntelliBack], 0);
     Call(SCI_CALLTIPSETFOREHLT, FTheme.Colors[tcBlue], 0);
 
-    var SelBackColor := FTheme.Colors[tcSelBack];
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_BACK, SelBackColor);
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_ADDITIONAL_BACK, SelBackColor);
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_SECONDARY_BACK, SelBackColor);
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_BACK, SelBackColor);
-    Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_SELECTION_INACTIVE_ADDITIONAL_BACK, SelBackColor);
+    SetSelectionBackColor(FTheme.Colors[tcSelBack]);
 
     Call(SCI_SETELEMENTCOLOUR, SC_ELEMENT_WHITE_SPACE, FTheme.Colors[tcIndentGuideFore] or (SC_ALPHA_OPAQUE shl 24));
 
@@ -532,22 +573,10 @@ begin
     Call(SCI_SETFOLDMARGINCOLOUR, Ord(True), FTheme.Colors[tcBack]);
     Call(SCI_SETFOLDMARGINHICOLOUR, Ord(True), FTheme.Colors[tcBack]);
 
-    Call(SCI_INDICSETFORE, minSquiggly, FTheme.Colors[tcRed]);
     Call(SCI_INDICSETFORE, minWordAtCursorOccurrence, FTheme.Colors[tcWordAtCursorOccurrenceBack]);
     Call(SCI_INDICSETFORE, minSelTextOccurrence, FTheme.Colors[tcSelTextOccurrenceBack]);
-
-    Call(SCI_MARKERSETBACK, mlmStep, FTheme.Colors[tcBlue]);
-    
-    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]); { To reproduce: open a file, press enter, save, undo }
-    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_ORIGIN, FTheme.Colors[tcBlue]);
-    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_SAVED, FTheme.Colors[tcGreen]);
-    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_SAVED, FTheme.Colors[tcGreen]);
-    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_MODIFIED, FTheme.Colors[tcReallyOrange]);
-    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_MODIFIED, FTheme.Colors[tcReallyOrange]);
-    Call(SCI_MARKERSETFORE, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]); { To reproduce: open a file, press space, press backspace, save, press enter, save, undo }
-    Call(SCI_MARKERSETBACK, SC_MARKNUM_HISTORY_REVERTED_TO_MODIFIED, FTheme.Colors[tcTeal]);
   end;
-  UpdateStyleAttributes;
+  inherited;
 end;
 
 { TIDEScintFileEdit }

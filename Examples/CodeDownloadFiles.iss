@@ -16,10 +16,10 @@ OutputDir=userdocs:Inno Setup Examples Output
 ArchiveExtraction=auto
 
 [ISSigKeys]
-Name: mykey; RuntimeID: def02; \
-  KeyID:   "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; \
-  PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
-  PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
+Name: mykey; RuntimeID: def01; \
+  KeyID:   "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"; \
+  PublicX: "e3e943066aff8f28d2219fd71c9ffff4c8d1aa26bc4225434be67180ab5e242d"; \
+  PublicY: "e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650"
 
 [Files]
 ; Place any regular files here
@@ -27,7 +27,7 @@ Source: "MyProg.exe"; DestDir: "{app}"
 Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 ; These files will be downloaded
-Source: "{tmp}\innosetup-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion
+Source: "{tmp}\ISSigTool-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion
 Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; Flags: external extractarchive recursesubdirs ignoreversion
 Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: external ignoreversion
 
@@ -46,7 +46,7 @@ begin
   
   // To allow all keys you can also just pass nil instead of this list to AddWithISSigVerify 
   AllowedKeysRuntimeIDs := TStringList.Create;
-  AllowedKeysRuntimeIDs.Add('def02');
+  AllowedKeysRuntimeIDs.Add('def01');
 end;
 
 procedure DeinitializeSetup;
@@ -63,10 +63,10 @@ begin
     DownloadPage.Clear;
     // Use AddEx or AddExWithISSigVerify to specify a username and password
     DownloadPage.AddWithISSigVerify(
-      'https://jrsoftware.org/download.php/is.exe?dontcount=1', '',
-      'innosetup-latest.exe', AllowedKeysRuntimeIDs);
+      'https://files.jrsoftware.org/is/misc/ISSigTool.exe', '',
+      'ISSigTool-latest.exe', AllowedKeysRuntimeIDs);
     DownloadPage.AddWithISSigVerify(
-      'https://jrsoftware.org/download.php/myprog-extrareadmes.7z', '',
+      'https://files.jrsoftware.org/is/misc/myprog-extrareadmes-01.7z', '',
       'MyProg-ExtraReadmes.7z', AllowedKeysRuntimeIDs);
     DownloadPage.Add(
       'https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1',

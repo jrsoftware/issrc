@@ -72,6 +72,9 @@ type
     InspectorFollowCaretCheck: TCheckBox;
     InspectorQuoteNewDirectiveValuesCheck: TCheckBox;
     InspectorQuoteNewParameterValuesCheck: TCheckBox;
+    GroupBox4: TNewGroupBox;
+    MinimapAlwaysShowSliderCheck: TCheckBox;
+    MinimapShowOnLeftCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -114,6 +117,8 @@ begin
     GroupBox2.Width := GroupBox2.Width + ExtraWidth;
     GroupBox3.Left := GroupBox3.Left + ExtraWidth;
     GroupBox3.Width := GroupBox3.Width + ExtraWidth;
+    GroupBox4.Left := GroupBox4.Left + ExtraWidth;
+    GroupBox4.Width := GroupBox4.Width + ExtraWidth;
     ClientWidth := ClientWidth + 2*ExtraWidth;
   end;
 

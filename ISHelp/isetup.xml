@@ -138,13 +138,13 @@
 
 <li>Installation of <link topic="filessection">files</link>:<br/>
 The installer has the ability to compare file version info, replace in-use files, use shared file counting, register DLL/OCX's and type libraries, install fonts, download and verify files, and extract archives.<br/>
-Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. Also includes support for extended-length paths.</li>
+Includes integrated support for zlib (zip), bzip2, Zstandard (zstd), and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. Also includes support for extended-length paths.</li>
 
 <li>Creation of <link topic="iconssection">shortcuts</link> anywhere, including in the Start menu and on the desktop.</li>
 
 <li>Creation of <link topic="registrysection">registry</link> and <tt><link topic="inisection">.ini</link></tt> file entries.</li>
 
-<li><link topic="runsection">Running</link> other programs before, during or after install.</li>
+<li><link topic="runsection">Running</link> other programs before, during, or after install.</li>
 
 <li>Support for <link topic="languagessection">multilingual</link> installs, including right-to-left language support.</li>
 

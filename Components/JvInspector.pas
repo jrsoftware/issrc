@@ -466,8 +466,8 @@ begin
     R := Rect;
     if uState and DFCS_PUSHED <> 0 then begin
       { Not all VCL Styles have an actual image for this, and will just show a
-        regular checkbox. This includes our dark theme (Windows11 Modern Dark).
-        In TSeButtonObject.Draw variable FState is correctly set to ssPressed,
+        regular checkbox. This includes 'Windows11 Modern Dark'. In
+        TSeButtonObject.Draw variable FState is correctly set to ssPressed,
         but FBitmapPressed.Assigned is False. }
       ComboBox := tcDropDownButtonPressed
     end else

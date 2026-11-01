@@ -53,7 +53,7 @@ type
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
-      var Level: Integer; var Header, EnableHeaderOnPrevious: Boolean); override;
+      var Level: Integer; var EnableHeaderOnPrevious: Boolean); override;
     procedure GetStyleAttributes(const Style: Integer;
       var Attributes: TScintStyleAttributes); override;
     function LineTextSpans(const S: TScintRawString): Boolean; override;
@@ -131,7 +131,7 @@ begin
 end;
 
 procedure TInnoSetupStyler.GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
-      var Level: Integer; var Header, EnableHeaderOnPrevious: Boolean);
+      var Level: Integer; var EnableHeaderOnPrevious: Boolean);
 begin
   { Set folding per section. Lines outside of a section (=lines at the start of
     the document and section tags and section end tags and lines after section
@@ -141,11 +141,9 @@ begin
   var Section := TInnoSetupStyler.GetSectionFromLineState(LineState, False);
   if Section = scNone then begin
     Level := 0;
-    Header := False; { Might be set to True via EnableHeaderOnPrevious below when we know about next line }
     EnableHeaderOnPrevious := False;
   end else begin
     Level := 1;
-    Header := False;
     var PreviousSection := TInnoSetupStyler.GetSectionFromLineState(PreviousLineState, False);
     if Section = scCodeBlock then begin
       Inc(Level);

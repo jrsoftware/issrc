@@ -21,6 +21,17 @@ uses
 type
   TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
   TKeyMappingType = (kmtDelphi, kmtVisualStudio);
+  TMinimapWidths = record
+    MinimapWidth: Integer;
+    BlankWidth: Integer;
+    { ^ Width the memo reserves but leaves blank, right of its text: one pixel
+        more to the text would give it another column, and the minimap's text
+        area is already the narrowest that holds the memo's columns. Equals at
+        most a minimap character's width rounded up, so 0 or 1 below 200%
+        scaling, plus 2 with an italic memo font. Always 0 while
+        MinimapMaxColumn limits the minimap's width, because the memo's text
+        then gets all the rest. }
+  end;
 
 const
   IDELanguageTags: array [TIDELanguage] of String =
@@ -90,11 +101,22 @@ function GetSetupDirectiveDefaultValue(const DirectiveName: String): String;
 function FindSetupDirectiveValue(const DirectiveName: String): String;
 function FindSetupDirectiveValueAsBoolean(const DirectiveName: String): Boolean;
 function AnyInputDown: Boolean;
+function CalculateMinimapWidths(const MemoAndMinimapWidth, MemoGutterWidth,
+  VerticalScrollbarWidth: Integer;
+  const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
+  const EditorFontItalic, WordWrap: Boolean;
+  const MinimapMaxColumn, MinimapGutterWidth: Integer): TMinimapWidths;
+function CalculateMinimapTopLine(const LineCount, MinimapLinesFitting,
+  ViewportStartLine, ViewportLineCount: Integer): Integer;
+function CalculateMinimapViewportStartLineFromDelta(const LineCount, MinimapLinesFitting,
+  ViewportStartLine, ViewportLineCount: Integer; const Delta: Double): Integer;
+procedure BoostTextContrast(const pvBits: PRGBQuad; const BitmapWidth, BitmapHeight, Left: Integer;
+  const BackgroundColor: TColor; const ContrastBoost: Double);
 
 implementation
 
 uses
-  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, StrUtils,
+  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, StrUtils, Math,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
   IDE.HtmlHelpFunc, IDE.MainForm, IDE.Messages, IDE.ScriptModel.Metadata;
 
@@ -1025,6 +1047,180 @@ begin
     if (GetAsyncKeyState(Key) < 0) and (MapVirtualKey(Key, MAPVK_VK_TO_VSC) <> 0) then
       Exit(True);
   Result := False;
+end;
+
+function CalculateMinimapWidths(const MemoAndMinimapWidth, MemoGutterWidth,
+  VerticalScrollbarWidth: Integer;
+  const EditorTypicalHalfwidthCharWidth, MinimapCharWidth: Double;
+  const EditorFontItalic, WordWrap: Boolean;
+  const MinimapMaxColumn, MinimapGutterWidth: Integer): TMinimapWidths;
+{ The minimap's font shouldn't be italic, see below }
+
+  function GetNarrowestTextAreaWidth(const ColumnCount: Integer; const CharWidth: Double): Integer;
+  begin
+    { Scintilla wraps a character unless it ends before the text area's edge,
+      see LineLayout::WrapLine }
+    Result := Floor(ColumnCount * CharWidth) + 1;
+  end;
+
+begin
+  { Like VS Code, makes the minimap's text hold the memo's columns, see
+    viewportColumn in the comment above minimapWidth in
+    EditorLayoutInfoComputer._computeMinimapLayout. Unlike VS Code, it
+    includes the minimap gutter in the equations and follows Scintilla's
+    wrapping, so the memo and the minimap hold exactly the same columns. It
+    also leaves no room for the caret: Scintilla can't draw it outside the
+    text area. }
+  const AvailableWidth = MemoAndMinimapWidth - MemoGutterWidth - VerticalScrollbarWidth -
+    MinimapGutterWidth;
+  { Scintilla adds 2 unscaled pixels to the end of a line that ends in italic
+    text (lastSegItalicsOffset in EditView::LayoutLine), so with an italic
+    font the memo's text area gets them extra. Else the last display line of
+    a wrapped line holds fewer columns in the memo. In the minimap they would
+    be 2 columns, so its font shouldn't be italic. Limitation: with an italic
+    font and memo characters narrower than 3 pixels, the last display line of
+    a wrapped line still holds fewer columns in the memo. }
+  const EditorLastSegmentItalicsOffset = IfThen(EditorFontItalic, 2, 0);
+  { The most columns for which both text areas fit. Starts from a lower bound:
+    with fractional character widths, rounding the narrowest widths down can
+    leave room for more. }
+  var ViewportColumn := Max(0, Floor((AvailableWidth - 2 - EditorLastSegmentItalicsOffset) /
+    (EditorTypicalHalfwidthCharWidth + MinimapCharWidth)));
+  while GetNarrowestTextAreaWidth(ViewportColumn + 1, EditorTypicalHalfwidthCharWidth) +
+        EditorLastSegmentItalicsOffset +
+        GetNarrowestTextAreaWidth(ViewportColumn + 1, MinimapCharWidth) <= AvailableWidth do
+    Inc(ViewportColumn);
+
+  const MinimapMaxWidth = Floor(MinimapMaxColumn * MinimapCharWidth);
+  const MinimapTextAreaWidth = GetNarrowestTextAreaWidth(ViewportColumn, MinimapCharWidth);
+  { Unlike VS Code, ignores MinimapMaxColumn with word wrap on. VS Code's
+    minimap doesn't wrap: it shows the memo's display lines, already wrapped
+    at the memo's column count, and cuts each off at the minimap's edge.
+    Scintilla can't do that: it wraps the minimap's lines itself, at the
+    minimap's edge, so the minimap would wrap long lines into more display
+    lines than the memo. The minimap would then no longer look like the memo,
+    the slider would change size while the memo scrolls, and the slider would
+    drift away from the mouse pointer during a drag. }
+  if WordWrap or (MinimapGutterWidth + MinimapTextAreaWidth <= MinimapMaxWidth) then begin
+    Result.MinimapWidth := MinimapGutterWidth + MinimapTextAreaWidth;
+    { The memo's text area gets the rest, but at most what holds
+      ViewportColumn columns }
+    const EditorWidestTextAreaWidth = Floor((ViewportColumn + 1) * EditorTypicalHalfwidthCharWidth);
+    Result.BlankWidth := Max(0, AvailableWidth - MinimapTextAreaWidth - EditorWidestTextAreaWidth);
+  end else begin
+    { While MinimapMaxColumn limits the minimap's width, the minimap shows
+      fewer columns than the memo }
+    Result.MinimapWidth := MinimapMaxWidth;
+    Result.BlankWidth := 0;
+  end;
+end;
+
+function CalculateMinimapTopLine(const LineCount, MinimapLinesFitting,
+  ViewportStartLine, ViewportLineCount: Integer): Integer;
+begin
+  { VS Code's sliderTop and startLineNumber with editor.scrollBeyondLastLine
+    off, see the static create method of class MinimapLayout. VS Code's
+    sliderTop counts pixels, SliderTop counts minimap lines. The slider moves
+    like a scrollbar thumb: from 0 to MinimapLinesFitting - ViewportLineCount
+    while the memo scrolls from its top to its end. }
+  if (LineCount <= MinimapLinesFitting) or (LineCount <= ViewportLineCount) then
+    Exit(0);
+  const SliderTop = Int64(ViewportStartLine) * (MinimapLinesFitting - ViewportLineCount) /
+    (LineCount - ViewportLineCount);
+  Result := Floor(ViewportStartLine - SliderTop); { = startLineNumber }
+end;
+
+function CalculateMinimapViewportStartLineFromDelta(const LineCount, MinimapLinesFitting,
+  ViewportStartLine, ViewportLineCount: Integer; const Delta: Double): Integer;
+{ The layout values and Delta should be from the start of the drag, not from
+  the previous mouse move }
+begin
+  { VS Code's maxMinimapSliderTop and computedSliderRatio with
+    editor.scrollBeyondLastLine off, see the static create method of class
+    MinimapLayout }
+  const MaxMinimapSliderTop = Min(LineCount, MinimapLinesFitting) - ViewportLineCount; { Also see TMinimap.GetSliderRect }
+  if MaxMinimapSliderTop <= 0 then
+    Exit(ViewportStartLine); { The slider can't move }
+  const ComputedSliderRatio = MaxMinimapSliderTop / (LineCount - ViewportLineCount);
+  { VS Code's getDesiredScrollTopFromDelta. ViewportStartLine is VS Code's
+    scrollTop. VS Code's delta and scrollTop count pixels, Delta and
+    ViewportStartLine count minimap lines. }
+  const DesiredViewportStartLine = ViewportStartLine + Delta / ComputedSliderRatio;
+  { Clamp to the minimap's lines: like VS Code's editor, the memo clamps its
+    own scroll position, so a drag reaches the memo's end exactly, also where
+    ViewportLineCount changes while the memo scrolls }
+  const ClampedViewportStartLine = Min(Max(DesiredViewportStartLine, 0), LineCount - 1);
+  Result := Floor(ClampedViewportStartLine + 0.5); { Rounds halves up, like VS Code's Math.round }
+end;
+
+procedure BoostTextContrast(const pvBits: PRGBQuad; const BitmapWidth, BitmapHeight, Left: Integer;
+  const BackgroundColor: TColor; const ContrastBoost: Double);
+{ Makes the faint pixels of anti-aliased text on BackgroundColor stronger, or
+  with a negative ContrastBoost, weaker. A ContrastBoost of -1 or lower isn't
+  allowed. Pixels left of Left stay as they are. }
+
+  function NormalizedDistance(const Difference, Background: Integer): Integer;
+  { Returns 0 to 255 }
+  begin
+    if Difference > 0 then
+      Result := Difference * 255 div (255 - Background)
+    else if Difference < 0 then
+      Result := -Difference * 255 div Background
+    else
+      Result := 0;
+  end;
+
+  function Boosted(const Background, Difference: Integer; const Factor: Single): Byte;
+  begin
+    const Channel = Background + Integer(Round(Difference * Factor));
+    Result := Byte(Min(Max(Channel, 0), 255));
+  end;
+
+var
+  Factors: array[1..255] of Single;
+begin
+  { Uses DirectWrite's contrast enhancement curve s*(k+1)/(s*k+1), as
+    reimplemented by Windows Terminal in DWrite_EnhanceContrast, with
+    ContrastBoost as k. s is how far a pixel is from the background, from 0
+    (the background) to 1 (as far as a color can get), measured on its
+    farthest channel. This curve works well because:
+    1. The background stays as it is
+    2. Fully colored pixels, such as line backgrounds, stay as they are
+    3. A stronger pixel stays stronger than a weaker one, so the soft edges of
+       characters stay soft
+    4. A positive k never makes a pixel weaker, and a negative k never makes
+       it stronger
+    5. The faintest pixels change most: they get about k+1 times as strong
+    The polynomial ease-out curve 1-(1-s)^k works well too, see d3-ease's
+    easePolyOut.exponent(k) at d3js.org/d3-ease }
+  for var I := Low(Factors) to High(Factors) do
+    Factors[I] := (ContrastBoost + 1) / (I / 255 * ContrastBoost + 1);
+
+  const Background = COLORREF(ColorToRGB(BackgroundColor));
+  const BackgroundBlue = Integer(GetBValue(Background));
+  const BackgroundGreen = Integer(GetGValue(Background));
+  const BackgroundRed = Integer(GetRValue(Background));
+
+  for var Y := 0 to BitmapHeight-1 do begin
+    var pvPixel := pvBits;
+    Inc(pvPixel, Y * BitmapWidth + Left);
+    for var X := Left to BitmapWidth-1 do begin
+      const DifferenceBlue = pvPixel.rgbBlue - BackgroundBlue;
+      const DifferenceGreen = pvPixel.rgbGreen - BackgroundGreen;
+      const DifferenceRed = pvPixel.rgbRed - BackgroundRed;
+      const DistanceBlue = NormalizedDistance(DifferenceBlue, BackgroundBlue);
+      const DistanceGreen = NormalizedDistance(DifferenceGreen, BackgroundGreen);
+      const DistanceRed = NormalizedDistance(DifferenceRed, BackgroundRed);
+      const Distance = Max(DistanceBlue, Max(DistanceGreen, DistanceRed));
+      if Distance > 0 then begin
+        const Factor = Factors[Distance];
+        pvPixel.rgbBlue := Boosted(BackgroundBlue, DifferenceBlue, Factor);
+        pvPixel.rgbGreen := Boosted(BackgroundGreen, DifferenceGreen, Factor);
+        pvPixel.rgbRed := Boosted(BackgroundRed, DifferenceRed, Factor);
+      end;
+      Inc(pvPixel);
+    end;
+  end;
 end;
 
 initialization

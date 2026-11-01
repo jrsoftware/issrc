@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  FrenchIDETranslations: array [0..1012] of TTranslationPair = (
+  FrenchIDETranslations: array [0..1016] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Utilisation en ligne de commande :'),
     (English: 'Examples:'; Localized: 'Exemples :'),
     (English: 'script file'; Localized: 'fichier de script'),
@@ -371,6 +371,7 @@ const
     (English: '&Reset'; Localized: 'Ré&initialiser'),
     (English: '&Toolbar'; Localized: '&Barre d''outils'),
     (English: 'Na&vigator'; Localized: '&Navigateur'),
+    (English: '&Minimap'; Localized: 'Minim&ap'),
     (English: '&Inspector'; Localized: '&Inspecteur'),
     (English: 'St&atus Bar'; Localized: 'Barre d''é&tat'),
     (English: '&Next Tab'; Localized: 'Onglet &suivant'),
@@ -393,6 +394,8 @@ const
     (English: 'Quote new directive values'; Localized: 'Placer les nouvelles valeurs de directive entre guillemets'),
     (English: 'Quote new parameter values'; Localized: 'Placer les nouvelles valeurs de paramètre entre guillemets'),
     (English: '&Help'; Localized: 'Ai&de'),
+    (English: 'Always show slider'; Localized: 'Toujours afficher le curseur de la minimap'),
+    (English: 'Show on left'; Localized: 'Afficher à gauche'),
     (English: '&Build'; Localized: '&Génération'),
     (English: '&Compile'; Localized: '&Compiler'),
     (English: 'S&top Compile'; Localized: 'Arrê&ter la compilation'),
@@ -487,6 +490,7 @@ const
     (English: 'Ke&ys:'; Localized: 'T&ouches :'),
     (English: 'Show whitespace'; Localized: 'Afficher les espaces blancs'),
     (English: 'Smart Home key'; Localized: 'Touche Origine intelligente'),
+    (English: ' Minimap '; Localized: ' Minimap '),
     (English: '&Associate .%1 files with this compiler'; Localized: '&Associer les fichiers .%1 à ce compilateur'),
     (English: '&Windows registry file (.%1) to import:'; Localized: 'Fichier de registre &Windows (.%1) à importer :'),
     (English: 'B&rowse...'; Localized: 'Pa&rcourir...'),
