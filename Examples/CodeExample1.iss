@@ -122,7 +122,7 @@ begin
   Log('CurPageChanged(' + IntToStr(CurPageID) + ') called');
   case CurPageID of
     wpWelcome:
-      MsgBox('CurPageChanged:' #13#13 'Welcome to the [Code] scripting demo. This demo will show you some possibilities of the scripting support.' #13#13 'The scripting engine used is RemObjects Pascal Script by Carlo Kok. See http://www.remobjects.com/ps for more information.', mbInformation, MB_OK);
+      MsgBox('CurPageChanged:' #13#13 'Welcome to the [Code] scripting demo. This demo will show you some possibilities of the scripting support.' #13#13 'The scripting engine used is a modified version of Carlo Kok''s RemObjects Pascal Script. See http://www.remobjects.com/ps for more information.', mbInformation, MB_OK);
     wpFinished:
       MsgBox('CurPageChanged:' #13#13 'Welcome to final page of this demo. Click Finish to exit.', mbInformation, MB_OK);
   end;

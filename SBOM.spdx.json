@@ -120,17 +120,18 @@
       "comment": "Optional feature; used by ISCmplr only."
     },
     {
-      "name": "RemObjects Pascal Script",
+      "name": "RemObjects Pascal Script (Inno Setup version)",
       "SPDXID": "SPDXRef-RemObjects-Pascal-Script",
-      "downloadLocation": "https://github.com/remobjects/pascalscript/tree/stable",
+      "downloadLocation": "https://github.com/jrsoftware/issrc/tree/main/Components/UniPs",
       "filesAnalyzed": false,
       "licenseConcluded": "LicenseRef-RemObjects-Pascal-Script",
       "licenseDeclared": "LicenseRef-RemObjects-Pascal-Script",
       "copyrightText": "Copyright (C) 2000-2014 by Carlo Kok and RemObjects Software, LLC",
-      "supplier": "Organization: RemObjects Software, LLC",
-      "versionInfo": "NOASSERTION",
-      "comment": "Optional feature; source is included in Components/UniPs and the required upstream revision is recorded in Components/UniPs/rev.txt.",
-      "sourceInfo": "Source path: Components/UniPs; upstream revision: Components/UniPs/rev.txt."
+      "originator": "Organization: RemObjects Software, LLC",
+      "supplier": "Organization: JRSoftware",
+      "versionInfo": "7.2.0-dev",
+      "comment": "Optional feature; source is included in Components/UniPs and is maintained as part of Inno Setup.",
+      "sourceInfo": "Source path: Components/UniPs; forked from https://github.com/remobjects/pascalscript at stable branch commit 246a51fd8ec18e011178dbcf14022709289a9b0d."
     },
     {
       "name": "LZMA SDK",
