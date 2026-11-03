@@ -700,6 +700,20 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
 <key>end</key>;</pre></example>
       </function>
       <function>
+        <name>IsDotNetRuntimeInstalled</name>
+        <prototype>function IsDotNetRuntimeInstalled(const Runtime: String; const MinVersion: Int64; const Architecture: TSetupProcessorArchitecture): Boolean;</prototype>
+        <description><p>Returns <tt>True</tt> if a .NET (formerly .NET Core) shared runtime with the specified name, for example <tt>Microsoft.NETCore.App</tt>, <tt>Microsoft.AspNetCore.App</tt> or <tt>Microsoft.WindowsDesktop.App</tt>, is installed for the specified architecture with the same major version as <tt>MinVersion</tt> and a version greater than or equal to <tt>MinVersion</tt>. A newer major version does not count because applications do not roll forward to it by default.</p>
+<p><tt>MinVersion</tt> is a packed version, as returned by <isxfunc>PackVersionComponents</isxfunc>.</p>
+<p><tt>Architecture</tt> must be <tt>paX86</tt>, <tt>paX64</tt> or <tt>paArm64</tt>. Otherwise the function returns <tt>False</tt>.</p>
+<p>Prerelease runtimes and version directories without the runtime's <tt>.deps.json</tt> file are ignored. The runtimes are looked up in the same install location as used by the .NET host, so runtimes extracted to other directories are not found.</p></description>
+        <example><pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>begin</key>
+  Result := IsDotNetRuntimeInstalled(<str>'Microsoft.WindowsDesktop.App'</str>, PackVersionComponents(<num>8</num>, <num>0</num>, <num>0</num>, <num>0</num>), paX64); <com>//Returns True if .NET Desktop Runtime 8.0 (x64) is installed</com>
+  <key>if</key> <key>not</key> Result <key>then</key>
+    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), [<str>'.NET Desktop Runtime (x64)'</str>, <str>'8.0'</str>]), mbCriticalError, MB_OK, IDOK);
+<key>end</key>;</pre></example>
+      </function>
+      <function>
         <name>IsMsiProductInstalled</name>
         <prototype>function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;</prototype>
         <description><p>Returns <tt>True</tt> if a MSI product with the specified <tt>UpgradeCode</tt> and <tt>PackedMinVersion</tt> is installed.</p>
