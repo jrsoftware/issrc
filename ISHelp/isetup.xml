@@ -6136,7 +6136,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <tr><td>175%</td><td>403x772</td></tr>
 <tr><td>200%</td><td>430x824</td></tr>
 <tr><td>225%</td><td>498x953</td></tr>
-<tr><td>250%</td><td>534x1022</td></tr>
+<tr><td>250%</td><td>551x1055</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is not specified, a single built-in 240x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
@@ -6241,7 +6241,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <tr><td>175%</td><td>1193x864</td></tr>
 <tr><td>200%</td><td>1272x922</td></tr>
 <tr><td>225%</td><td>1471x1066</td></tr>
-<tr><td>250%</td><td>1630x1148</td></tr>
+<tr><td>250%</td><td>1630x1181</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is set to a blank value, no background image will be used.</p>
