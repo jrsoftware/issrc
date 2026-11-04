@@ -3307,7 +3307,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
 <tt>Text</tt> specifies the message to display.<br />
 <tt>Typ</tt> specifies which icon to display in the task dialog. If set to <tt>mbConfirmation</tt>, no icon will be displayed.<br />
 <tt>Buttons</tt> specifies which buttons to include in the task dialog.<br />
-<tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note. If <tt>Buttons</tt> is set to <tt>MB_OKCANCEL</tt>, <tt>MB_YESNOCANCEL</tt>, or <tt>MB_RETRYCANCEL</tt>, specifying a label for the Cancel button as the last element in the array is optional.<br />
+<tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline (<tt>#10</tt>), then the first string specifies the button label and the second string specifies the button note. Don't use <tt>#13#10</tt> as the separator, because the <tt>#13</tt> adds an empty line to the button label. If <tt>Buttons</tt> is set to <tt>MB_OKCANCEL</tt>, <tt>MB_YESNOCANCEL</tt>, or <tt>MB_RETRYCANCEL</tt>, specifying a label for the Cancel button as the last element in the array is optional.<br />
 <tt>ShieldButton</tt> specifies which button to display a shield icon on. If set to 0, no shield icon will be displayed.</p>
 <p>Returns an <tt>ID*</tt> constant indicating the button the user clicked. If the function fails, it returns 0 or raises an exception (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
         <remarks><p><tt>TMsgBoxType</tt> is defined as:</p>
@@ -3321,7 +3321,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
   <key>case</key> TaskDialogMsgBox(<str>'Choose A or B'</str>,
                         <str>'You can choose A or B.'</str>,
                         mbInformation,
-                        MB_YESNOCANCEL, [<str>'I choose &amp;A'#13#10'A will be chosen.'</str>, <str>'I choose &amp;B'#13#10'B will be chosen.'</str>],
+                        MB_YESNOCANCEL, [<str>'I choose &amp;A'#10'A will be chosen.'</str>, <str>'I choose &amp;B'#10'B will be chosen.'</str>],
                         IDYES) <key>of</key>
     IDYES: MsgBox(<str>'You chose A.'</str>, mbInformation, MB_OK);
     IDNO: MsgBox(<str>'You chose B.'</str>, mbInformation, MB_OK);
