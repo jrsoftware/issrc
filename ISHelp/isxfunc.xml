@@ -711,7 +711,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
 <key>begin</key>
   Result := IsDotNetRuntimeInstalled(<str>'Microsoft.WindowsDesktop.App'</str>, PackVersionComponents(<num>8</num>, <num>0</num>, <num>0</num>, <num>0</num>), paX64); <com>//Returns True if .NET Desktop Runtime 8.0 (x64) is installed</com>
   <key>if</key> <key>not</key> Result <key>then</key>
-    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), [<str>'.NET Desktop Runtime (x64)'</str>, <str>'8.0'</str>]), mbCriticalError, MB_OK, IDOK);
+    SuppressibleMsgBox(<str>'This program requires .NET Desktop Runtime 8.0 (x64).'</str>, mbCriticalError, MB_OK, IDOK);
 <key>end</key>;</pre></example>
         <seealso><p><isxfunc>IsDotNetInstalled</isxfunc><br />
 <isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
