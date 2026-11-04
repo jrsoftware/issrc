@@ -57,12 +57,12 @@ type
 function GetDotNetInstallRoot(const RegView: TRegView): String;
 function GetDotNetVersionInstallRoot(const RegView: TRegView; const Version: TDotNetBaseVersion): String;
 function IsDotNetInstalled(const RegView: TRegView; const MinVersion: TDotNetVersion; const MinServicePack: DWORD): Boolean;
-function IsDotNetRuntimeInstalled(const Runtime: String; const MinVersion: Int64; const Architecture: TSetupProcessorArchitecture): Boolean;
+function IsDotNetRuntimeInstalled(const Runtime: String; const PackedMinVersion: Int64; const Architecture: TSetupProcessorArchitecture): Boolean;
 
 implementation
 
 uses
-  Setup.InstFunc, Setup.MainFunc, Shared.VerInfoFunc, PathFunc;
+  PathFunc, Shared.VerInfoFunc, Setup.InstFunc, Setup.MainFunc;
 
 var
   DotNetRoot: array [TRegView] of String;
@@ -284,17 +284,11 @@ end;
 
 { IsDotNetRuntimeInstalled }
 
-function IsDotNetRuntimeInstalled(const Runtime: String; const MinVersion: Int64; const Architecture: TSetupProcessorArchitecture): Boolean;
-var
-  ArchName, InstallDir, RuntimeDir, Name: String;
-  K: HKEY;
-  H: THandle;
-  FindData: TWin32FindData;
-  VersionNumbers: TFileVersionNumbers;
-  Version: Int64;
+function IsDotNetRuntimeInstalled(const Runtime: String; const PackedMinVersion: Int64; const Architecture: TSetupProcessorArchitecture): Boolean;
 begin
   Result := False;
 
+  var ArchName: String;
   case Architecture of
     paX86: ArchName := 'x86';
     paX64: ArchName := 'x64';
@@ -309,7 +303,8 @@ begin
 
   // Same lookup as the .NET host: the registered install location, which is always in the 32-bit
   // view, else the default location. See https://github.com/dotnet/designs/blob/main/accepted/2020/install-locations.md
-  InstallDir := '';
+  var InstallDir := '';
+  var K: HKEY;
   if RegOpenKeyExView(rv32Bit, HKEY_LOCAL_MACHINE, PChar('SOFTWARE\dotnet\Setup\InstalledVersions\' + ArchName),
      0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
     if not RegQueryStringValue(K, 'InstallLocation', InstallDir) or not PathIsRooted(InstallDir) then
@@ -319,29 +314,30 @@ begin
   if InstallDir = '' then begin
     if Architecture = paX86 then
       InstallDir := AddBackslash(ProgramFiles32Dir) + 'dotnet'
-    else if IsWin64 then begin
+    else begin
       InstallDir := AddBackslash(ProgramFiles64Dir) + 'dotnet';
       // x64 .NET installs into a subdirectory on Arm64 Windows
       if (Architecture = paX64) and (ProcessorArchitecture = paArm64) then
         InstallDir := InstallDir + '\x64';
-    end else
-      Exit;
+    end;
   end;
 
   // Each version is a subdirectory such as shared\Microsoft.NETCore.App\8.0.0
-  RuntimeDir := AddBackslash(InstallDir) + 'shared\' + Runtime + '\';
-  H := FindFirstFile(PChar(RuntimeDir + '*'), FindData);
+  const RuntimeDir = AddBackslash(InstallDir) + 'shared\' + Runtime + '\';
+  var FindData: TWin32FindData;
+  const H = FindFirstFile(PChar(RuntimeDir + '*'), FindData);
   if H <> INVALID_HANDLE_VALUE then begin
     try
       repeat
-        Name := FindData.cFileName;
+        const Name: String = FindData.cFileName;
+        var VersionNumbers: TFileVersionNumbers;
         // Prerelease versions such as 10.0.0-rc.1.25451.107 are skipped
         if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY <> 0) and (Name <> '.') and (Name <> '..') and
            (Pos('-', Name) = 0) and StrToVersionNumbers(Name, VersionNumbers) then begin
-          Version := VersionNumbersToInt64(VersionNumbers);
+          const Version = VersionNumbersToInt64(VersionNumbers);
           // Apps only roll forward to a runtime with the same major version. Like the .NET host,
           // ignore a directory without .deps.json, which could be left over from an uninstall.
-          if (Version shr 48 = MinVersion shr 48) and (Version >= MinVersion) and
+          if (Version shr 48 = PackedMinVersion shr 48) and (Version >= PackedMinVersion) and
              NewFileExists(RuntimeDir + Name + '\' + Runtime + '.deps.json') then
             Exit(True);
         end;
