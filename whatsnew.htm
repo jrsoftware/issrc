@@ -70,7 +70,6 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Added new <tt>[Setup]</tt> section directive <tt>ZstdNumThreads</tt> to enable multi-threaded compression. Doing so has almost no effect on the compression ratio, unlike multi-threading for <tt>lzma2</tt> which has a negative effect.<br/>
         At level 20, the compiler lowers the compressor's default job size from 128 MB to 32 MB. This reduces memory use and allows compression to be aborted in a timely manner.<br/>
         Levels 21 and 22 cannot be combined with this directive, because at those levels compression cannot be aborted in a timely manner.</li>
-    <li>Thanks to Amy Spark for their work on this, contributed via <a href="https://github.com/jrsoftware/issrc">GitHub</a>.</li>
   </ul>
   </li>
   <li>Added a new <i>Navigator</i> bar above the Compiler IDE editor. It shows the section and the <tt>[Code]</tt> routine the cursor is in as two breadcrumb combo boxes, allowing you to go to the section or routine.
@@ -187,6 +186,8 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <li>Removed support for the undocumented <tt>PrivilegesRequired</tt> value <tt>poweruser</tt>, the undocumented <tt>Permissions</tt> identifier <tt>powerusers</tt>, and undocumented support function <tt>IsPowerUserLoggedOn</tt>.</li>
   <li>Other minor improvements and fixes.</li>
 </ul>
+
+<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Amy Spark, jwfx, and Dom Gries for their contributions.</p>
 
 </details>
 <details>
