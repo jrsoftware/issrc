@@ -107,6 +107,7 @@ type
     procedure WMVScroll(var Message: TWMVScroll); message WM_VSCROLL;
   protected
     FAccObjectInstance: TObject;
+    procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure CreateWnd; override;
     procedure MeasureItem(Index: Integer; var Height: Integer); override;
     procedure DrawItem(Index: Integer; Rect: TRect; State: TOwnerDrawState);
@@ -321,6 +322,13 @@ begin
   end;
 end;
 
+procedure TNewCheckListBox.ChangeScale(M, D: Integer; isDpiChange: Boolean);
+begin
+  inherited;
+  if isDpiChange and HandleAllocated then
+    UpdateThemeData(True, True);
+end;
+
 procedure TNewCheckListBox.CreateWindowHandle(const Params: TCreateParams);
 begin
   inherited CreateWindowHandle(Params);
@@ -468,6 +476,8 @@ procedure TNewCheckListBox.CMFontChanged(var Message: TMessage);
 begin
   inherited;
   Canvas.Font := Font;
+  if HandleAllocated then
+    RemeasureAllItems;
 end;
 
 procedure LineDDAProc(X, Y: Integer; Canvas: TCanvas); stdcall;
