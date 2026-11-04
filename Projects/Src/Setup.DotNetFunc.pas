@@ -301,11 +301,11 @@ function IsDotNetRuntimeInstalled(const Runtime: String; const PackedMinVersion:
     Result := True;
   end;
 
-  procedure RaiseUnlessNotFoundError(const FunctionName: String);
+  function GetLastErrorUnlessNotFound: DWORD;
   begin
-    const ErrorCode = GetLastError;
-    if (ErrorCode <> ERROR_FILE_NOT_FOUND) and (ErrorCode <> ERROR_PATH_NOT_FOUND) then
-      Win32ErrorMsgEx(FunctionName, ErrorCode);
+    Result := GetLastError;
+    if (Result = ERROR_FILE_NOT_FOUND) or (Result = ERROR_PATH_NOT_FOUND) then
+      Result := 0;
   end;
 
 begin
@@ -350,9 +350,12 @@ begin
   var FindData: TWin32FindData;
   const H = FindFirstFile(PChar(RuntimeDir + '*'), FindData);
   if H = INVALID_HANDLE_VALUE then begin
-    RaiseUnlessNotFoundError('FindFirstFile');
+    const ErrorCode = GetLastErrorUnlessNotFound;
+    if ErrorCode <> 0 then
+      Win32ErrorMsgEx('FindFirstFile', ErrorCode);
     Exit;
   end;
+  var DepsLastError: DWORD := 0;
   try
     repeat
       const Name: String = FindData.cFileName;
@@ -368,9 +371,11 @@ begin
         // ignore a directory without .deps.json, which could be left over from an uninstall.
         if (Version shr 48 = PackedMinVersion shr 48) and (Version >= PackedMinVersion) then begin
           const Attr = GetFileAttributes(PChar(RuntimeDir + Name + '\' + Runtime + '.deps.json'));
-          if Attr = INVALID_FILE_ATTRIBUTES then
-            RaiseUnlessNotFoundError('GetFileAttributes')
-          else if Attr and FILE_ATTRIBUTE_DIRECTORY = 0 then
+          if Attr = INVALID_FILE_ATTRIBUTES then begin
+            // Don't raise yet: a later version can still match
+            if DepsLastError = 0 then
+              DepsLastError := GetLastErrorUnlessNotFound;
+          end else if Attr and FILE_ATTRIBUTE_DIRECTORY = 0 then
             Exit(True);
         end;
       end;
@@ -380,6 +385,8 @@ begin
   finally
     Windows.FindClose(H);
   end;
+  if DepsLastError <> 0 then
+    Win32ErrorMsgEx('GetFileAttributes', DepsLastError);
 end;
 
 end.
