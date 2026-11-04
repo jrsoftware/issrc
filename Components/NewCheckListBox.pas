@@ -90,6 +90,7 @@ type
     procedure HandleScroll;
     procedure InvalidateCheck(Index: Integer);
     function RemeasureItem(Index: Integer): Integer;
+    procedure RemeasureAllItems;
     procedure RemeasureItemAndUpdate(Index: Integer);
     procedure Toggle(Index: Integer);
     procedure UpdateScrollRange;
@@ -249,16 +250,6 @@ constructor TNewCheckListBox.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  with TBitmap.Create do begin
-    try
-      Handle := LoadBitmap(0, PChar(OBM_CHECKBOXES));
-      FCheckWidth := Width div 4;
-      FCheckHeight := Height div 3;
-    finally
-      Free;
-    end;
-  end;
-
   FStateList := TList.Create;
   FMinItemHeight := 16;
   FOffset := 4;
@@ -282,6 +273,37 @@ begin
 end;
 
 procedure TNewCheckListBox.UpdateThemeData(const Close, Open: Boolean);
+
+  procedure UpdateCheckSize;
+  { Don't use the LoadBitmap(0, OBM_CHECKBOXES) size. It returns the size for the first monitor's
+    DPI, but we need the size for the DPI the list is drawn at. Note: when testing LoadBitmap, sign
+    out and in again after changing the DPI, otherwise it returns stale info. }
+  begin
+    var Size: TSize;
+    var GotSize := False;
+    const LStyle = StyleServices(Self);
+    const DC = GetDC(Handle);
+    try
+      if LStyle.Enabled and not LStyle.IsSystemStyle and not FDisableStyledButtons then
+        GotSize := LStyle.GetElementSize(DC, LStyle.GetElementDetails(tbCheckBoxUncheckedNormal), esActual, Size, CurrentPPI) and
+          (Size.cx > 0) and (Size.cy > 0);
+      if not GotSize and (FThemeData <> 0) then
+        GotSize := GetThemePartSize(FThemeData, DC, BP_CHECKBOX, CBS_UNCHECKEDNORMAL, nil, TS_TRUE, Size) = S_OK;
+    finally
+      ReleaseDC(Handle, DC);
+    end;
+    if not GotSize then begin
+      Size.cx := MulDiv(13, CurrentPPI, 96);
+      Size.cy := Size.cx;
+    end;
+    if (Size.cx <> FCheckWidth) or (Size.cy <> FCheckHeight) then begin
+      FCheckWidth := Size.cx;
+      FCheckHeight := Size.cy;
+      RemeasureAllItems;
+      Invalidate;
+    end;
+  end;
+
 begin
   if Close then begin
     if FThemeData <> 0 then begin
@@ -295,6 +317,7 @@ begin
       FThemeData := OpenThemeData(Handle, 'Button')
     else
       FThemeData := 0;
+    UpdateCheckSize;
   end;
 end;
 
@@ -487,6 +510,13 @@ begin
   Result := ItemHeight;
   MeasureItem(Index, Result);
   SendMessage(Handle, LB_SETITEMHEIGHT, Index, Result);
+end;
+
+procedure TNewCheckListBox.RemeasureAllItems;
+begin
+  for var I := Items.Count-1 downto 0 do
+    RemeasureItem(I);
+  UpdateScrollRange;
 end;
 
 procedure TNewCheckListBox.UpdateScrollRange;
@@ -1466,9 +1496,7 @@ procedure TNewCheckListBox.SetOffset(AnOffset: Integer);
 begin
   if FOffset <> AnOffset then begin
     FOffset := AnOffset;
-    for var I := Items.Count-1 downto 0 do
-      RemeasureItem(I);
-    UpdateScrollRange;
+    RemeasureAllItems;
     Invalidate;
   end;
 end;
@@ -1718,15 +1746,11 @@ begin
 end;
 
 procedure TNewCheckListBox.WMSize(var Message: TWMSize);
-var
-  I: Integer;
 begin
   inherited;
   { When the scroll bar appears/disappears, the client width changes and we
     must recalculate the height of the items }
-  for I := Items.Count-1 downto 0 do
-    RemeasureItem(I);
-  UpdateScrollRange;
+  RemeasureAllItems;
 end;
 
 procedure TNewCheckListBox.WMThemeChanged(var Message: TMessage);

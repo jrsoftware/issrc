@@ -110,6 +110,8 @@ type
     ecBodyTextColor
   );
 
+  TElementSize = (esMinimum, esActual, esStretch);
+
   TCustomStyleEngine = class
     public
       class procedure RegisterStyleHook(ControlClass: TClass; StyleHookClass: TStyleHookClass); static;
@@ -128,6 +130,8 @@ type
       function GetElementColor(Details: TThemedElementDetails; ElementColor: TElementColor; out Color: TColor): Boolean;
       function GetElementDetails(Detail: TThemedButton): TThemedElementDetails; overload;
       function GetElementDetails(Detail: TThemedCheckListBox): TThemedElementDetails; overload;
+      function GetElementSize(DC: HDC; Details: TThemedElementDetails;
+        ElementSize: TElementSize; out Size: TSize; DPI: Integer = 0): Boolean;
       function GetStyleColor(Color: TStyleColor): TColor;
       function GetStyleFontColor(Font: TStyleFont): TColor;
       function GetSystemColor(Color: TColor): TColor;
@@ -232,6 +236,12 @@ end;
 function TCustomStyleServices.GetElementDetails(Detail: TThemedButton): TThemedElementDetails;
 begin
   Result := nil;
+end;
+
+function TCustomStyleServices.GetElementSize(DC: HDC; Details: TThemedElementDetails;
+  ElementSize: TElementSize; out Size: TSize; DPI: Integer = 0): Boolean;
+begin
+  Result := False;
 end;
 
 function TCustomStyleServices.GetStyleColor(Color: TStyleColor): TColor;
