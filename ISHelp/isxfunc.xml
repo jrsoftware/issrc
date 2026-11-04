@@ -707,6 +707,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
 <p><tt>PackedMinVersion</tt> is a packed version, as returned by <isxfunc>PackVersionComponents</isxfunc>.</p>
 <p><tt>Architecture</tt> must be <tt>paX86</tt>, <tt>paX64</tt>, or <tt>paArm64</tt>. If it isn't, or if the user's system doesn't support the specified architecture, the function returns <tt>False</tt>.</p>
 <p>Prerelease runtimes and version directories without the runtime's <tt>.deps.json</tt> file are ignored. Only the global installation is checked, so private installations and environment variables such as <tt>DOTNET_ROOT</tt> are ignored.</p>
+<p>An exception will be raised if an error occurs.</p></description>
         <example><pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
 <key>begin</key>
   Result := IsDotNetRuntimeInstalled(<str>'Microsoft.WindowsDesktop.App'</str>, PackVersionComponents(<num>8</num>, <num>0</num>, <num>0</num>, <num>0</num>), paX64); <com>//Returns True if .NET Desktop Runtime 8.0 (x64) is installed</com>

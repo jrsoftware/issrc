@@ -285,6 +285,29 @@ end;
 { IsDotNetRuntimeInstalled }
 
 function IsDotNetRuntimeInstalled(const Runtime: String; const PackedMinVersion: Int64; const Architecture: TSetupProcessorArchitecture): Boolean;
+
+  function IsReleaseVersionName(const Name: String): Boolean;
+  begin
+    const Parts = Name.Split(['.']);
+    if Length(Parts) <> 3 then
+      Exit(False);
+    for var Part in Parts do begin
+      if (Part = '') or ((Part[1] = '0') and (Length(Part) > 1)) then
+        Exit(False);
+      for var C in Part do
+        if not CharInSet(C, ['0'..'9']) then
+          Exit(False);
+    end;
+    Result := True;
+  end;
+
+  procedure RaiseUnlessNotFoundError(const FunctionName: String);
+  begin
+    const ErrorCode = GetLastError;
+    if (ErrorCode <> ERROR_FILE_NOT_FOUND) and (ErrorCode <> ERROR_PATH_NOT_FOUND) then
+      Win32ErrorMsgEx(FunctionName, ErrorCode);
+  end;
+
 begin
   Result := False;
 
@@ -301,8 +324,8 @@ begin
   if not (Architecture in MachineTypesSupportedBySystem) then
     Exit;
 
-  // Same lookup as the .NET host: the registered install location, which is always in the 32-bit
-  // view, else the default location. See https://github.com/dotnet/designs/blob/main/accepted/2020/install-locations.md
+  // Same global install location lookup as the .NET host: the registered install location, which is
+  // always in the 32-bit view, else the default location. See https://github.com/dotnet/designs/blob/main/accepted/2020/install-locations.md
   var InstallDir := '';
   var K: HKEY;
   if RegOpenKeyExView(rv32Bit, HKEY_LOCAL_MACHINE, PChar('SOFTWARE\dotnet\Setup\InstalledVersions\' + ArchName),
@@ -326,25 +349,36 @@ begin
   const RuntimeDir = AddBackslash(InstallDir) + 'shared\' + Runtime + '\';
   var FindData: TWin32FindData;
   const H = FindFirstFile(PChar(RuntimeDir + '*'), FindData);
-  if H <> INVALID_HANDLE_VALUE then begin
-    try
-      repeat
-        const Name: String = FindData.cFileName;
-        var VersionNumbers: TFileVersionNumbers;
-        // Prerelease versions such as 10.0.0-rc.1.25451.107 are skipped
-        if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY <> 0) and (Name <> '.') and (Name <> '..') and
-           (Pos('-', Name) = 0) and StrToVersionNumbers(Name, VersionNumbers) then begin
-          const Version = VersionNumbersToInt64(VersionNumbers);
-          // Apps only roll forward to a runtime with the same major version. Like the .NET host,
-          // ignore a directory without .deps.json, which could be left over from an uninstall.
-          if (Version shr 48 = PackedMinVersion shr 48) and (Version >= PackedMinVersion) and
-             NewFileExists(RuntimeDir + Name + '\' + Runtime + '.deps.json') then
+  if H = INVALID_HANDLE_VALUE then begin
+    RaiseUnlessNotFoundError('FindFirstFile');
+    Exit;
+  end;
+  try
+    repeat
+      const Name: String = FindData.cFileName;
+      // Ignore build metadata such as +vendor.1
+      const NumericName = Copy(Name, 1, Pos('+', Name + '+') - 1);
+      var VersionNumbers: TFileVersionNumbers;
+      // Like the .NET host, reject names such as 8.0.0.0. Unlike the host, also skip prerelease versions
+      // such as 10.0.0-rc.1.25451.107, even as a fallback.
+      if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY <> 0) and IsReleaseVersionName(NumericName) and
+         StrToVersionNumbers(NumericName, VersionNumbers) then begin
+        const Version = VersionNumbersToInt64(VersionNumbers);
+        // Apps only roll forward to a runtime with the same major version. Like the .NET host,
+        // ignore a directory without .deps.json, which could be left over from an uninstall.
+        if (Version shr 48 = PackedMinVersion shr 48) and (Version >= PackedMinVersion) then begin
+          const Attr = GetFileAttributes(PChar(RuntimeDir + Name + '\' + Runtime + '.deps.json'));
+          if Attr = INVALID_FILE_ATTRIBUTES then
+            RaiseUnlessNotFoundError('GetFileAttributes')
+          else if Attr and FILE_ATTRIBUTE_DIRECTORY = 0 then
             Exit(True);
         end;
-      until not FindNextFile(H, FindData);
-    finally
-      Windows.FindClose(H);
-    end;
+      end;
+    until not FindNextFile(H, FindData);
+    if GetLastError <> ERROR_NO_MORE_FILES then
+      Win32ErrorMsg('FindNextFile');
+  finally
+    Windows.FindClose(H);
   end;
 end;
 
