@@ -1506,8 +1506,10 @@ procedure TNewCheckListBox.SetOffset(AnOffset: Integer);
 begin
   if FOffset <> AnOffset then begin
     FOffset := AnOffset;
-    RemeasureAllItems;
-    Invalidate;
+    if HandleAllocated then begin
+      RemeasureAllItems;
+      Invalidate;
+    end;
   end;
 end;
 
