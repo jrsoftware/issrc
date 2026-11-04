@@ -303,6 +303,10 @@ begin
     Exit;
   end;
 
+  // Like the .NET host, no default location for Arm64 on x64 Windows: skip architectures the system can't run
+  if not (Architecture in MachineTypesSupportedBySystem) then
+    Exit;
+
   // Same lookup as the .NET host: the registered install location, which is always in the 32-bit
   // view, else the default location. See https://github.com/dotnet/designs/blob/main/accepted/2020/install-locations.md
   InstallDir := '';
