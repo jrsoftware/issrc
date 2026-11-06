@@ -16,7 +16,7 @@ procedure LogFmt(const S: String; const Args: array of const);
 procedure LogWithErrorCode(const S: String; const ErrorCode: Cardinal);
 procedure LogWithLastError(const S: String);
 procedure StartLogging(const Prefix: String);
-procedure StartLoggingWithFixedFilename(const Filename: String);
+procedure StartLoggingWithFixedFilename(const Filename: String; const Append: Boolean = False);
 function GetLogFileName: String;
 function GetLogActive: Boolean; { Returns True if logging was started or when debugging from the IDE }
 
@@ -110,11 +110,13 @@ begin
   LogLogOpened;
 end;
 
-procedure StartLoggingWithFixedFilename(const Filename: String);
+procedure StartLoggingWithFixedFilename(const Filename: String; const Append: Boolean);
+const
+  CreateDispositions: array[Boolean] of TFileCreateDisposition = (fdCreateAlways, fdOpenAlways);
 begin
   if Assigned(LogFile) then
     Exit;  { logging was already started }
-  LogFile := TTextFileWriter.Create(Filename, fdCreateAlways, faWrite, fsRead);
+  LogFile := TTextFileWriter.Create(Filename, CreateDispositions[Append], faWrite, fsRead);
   LogFileName := FileName;
   LogLogOpened;
 end;
