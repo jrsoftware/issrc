@@ -50,6 +50,12 @@ window.addEventListener("DOMContentLoaded", () => {
   let topic = queryParams.get("topic");
   if (topic === null || !/^[a-z0-9_\-]+$/.test(topic)) {
     topic = "whatisinnosetup";
+  } else {
+    // Googlebot follows the redirect in topic.js to this page, so name the topic page as canonical here too
+    const canonicalLink = document.createElement("link");
+    canonicalLink.rel = "canonical";
+    canonicalLink.href = "https://jrsoftware.org/ishelp/topic_" + topic + ".htm";
+    document.head.append(canonicalLink);
   }
 
   let topicUrl = "topic_" + topic + ".htm";
