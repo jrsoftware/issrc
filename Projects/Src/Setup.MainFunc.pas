@@ -2813,6 +2813,7 @@ var
       if TPngImage.CanLoadFromStream(MemStream) then
         Result := TPngImage.Create
       else begin
+        RemoveEmbeddedColorProfileFromBitmap(MemStream.Memory, MemStream.Size);
         Result := TBitmap.Create;
         TBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
       end;

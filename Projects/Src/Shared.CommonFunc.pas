@@ -216,6 +216,8 @@ function CreateInheritableNulDevice(const DesiredAccess: DWORD): THandle;
 function NewStringToColor(const S: string): TColor;
 function NewTryStringToColor(const S: String; var Color: TColor): Boolean;
 function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData): Boolean;
+procedure RemoveEmbeddedColorProfileFromBitmap(const BitmapFileData: Pointer;
+  const BitmapFileSize: Int64);
 
 implementation
 
@@ -1969,6 +1971,27 @@ begin
   Result := CreateFile('\\.\NUL', DesiredAccess,
     FILE_SHARE_READ or FILE_SHARE_WRITE, @SecurityAttributes,
     OPEN_EXISTING, 0, 0);
+end;
+
+procedure RemoveEmbeddedColorProfileFromBitmap(const BitmapFileData: Pointer;
+  const BitmapFileSize: Int64);
+{ Removes the reference to an embedded color profile from the header of a BMP
+  file. Works around a VCL bug: TBitmap.LoadFromStream passes CreateDIBSection
+  a buffer without the profile, so CreateDIBSection reads past the end of that
+  buffer and can crash. }
+begin
+  if BitmapFileSize < SizeOf(TBitmapFileHeader) + SizeOf(TBitmapV5Header) then
+    Exit;
+  if PBitmapFileHeader(BitmapFileData).bfType <> $4D42 then { 'BM' }
+    Exit;
+  const PROFILE_EMBEDDED = $4D424544; { 'MBED' }
+  const LCS_sRGB = $73524742; { 'sRGB' }
+  const Header = PBitmapV5Header(PByte(BitmapFileData) + SizeOf(TBitmapFileHeader));
+  if (Header.bV5Size >= SizeOf(TBitmapV5Header)) and (Header.bV5CSType = PROFILE_EMBEDDED) then begin
+    Header.bV5CSType := LCS_sRGB;
+    Header.bV5ProfileData := 0;
+    Header.bV5ProfileSize := 0;
+  end;
 end;
 
 { TSimpleLock }
