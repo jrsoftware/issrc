@@ -318,7 +318,7 @@ StatusExtractFiles=Fayllar chiqarib olinmoqda...
 StatusDownloadFiles=Fayllar yuklab olinmoqda...
 StatusCreateIcons=Yorliqlar yaratilmoqda...
 StatusCreateIniEntries=INI yozuvlari yaratilmoqda...
-StatusCreateRegistryEntries=Registr yozuvlari yaratilmoqda...
+StatusCreateRegistryEntries=Reyestr yozuvlari yaratilmoqda...
 StatusRegisterFiles=Fayllar roʻyxatdan oʻtkazilmoqda...
 StatusSavingUninstall=Oʻchirish maʼlumotlari saqlanmoqda...
 StatusRunProgram=Oʻrnatish yakunlanmoqda...
@@ -333,9 +333,9 @@ ErrorFunctionFailedWithMessage=%1 bajarilmadi; kod %2.%n%3
 ErrorExecutingProgram=Faylni ishga tushirib boʻlmadi:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Registr kalitini ochishda xato:%n%1\%2
-ErrorRegCreateKey=Registr kalitini yaratishda xato:%n%1\%2
-ErrorRegWriteKey=Registr kalitiga yozishda xato:%n%1\%2
+ErrorRegOpenKey=Reyestr kalitini ochishda xato:%n%1\%2
+ErrorRegCreateKey=Reyestr kalitini yaratishda xato:%n%1\%2
+ErrorRegWriteKey=Reyestr kalitiga yozishda xato:%n%1\%2
 
 ; *** INI errors
 ErrorIniEntry="%1" faylida INI yozuvini yaratishda xato.
@@ -400,7 +400,7 @@ UninstallNotFound="%1" fayli mavjud emas. Oʻchirib boʻlmaydi.
 UninstallOpenError="%1" faylini ochib boʻlmadi. Oʻchirib boʻlmaydi
 UninstallUnsupportedVer="%1" oʻchirish jurnali fayli Oʻchirish dasturining ushbu versiyasi tanimaydigan formatda. Oʻchirib boʻlmaydi
 UninstallUnknownEntry=Oʻchirish jurnalida nomaʼlum yozuv (%1) uchradi
-ConfirmUninstall=%1 va uning barcha komponentlarini butunlay oʻchirib tashlamoqchimisiz?
+ConfirmUninstall=%1 va uning barcha komponentlarini haqiqatan ham butunlay oʻchirib tashlamoqchimisiz?
 UninstallOnlyOnWin64=Bu oʻrnatilgan dasturni faqat 64 bitli Windowsda oʻchirish mumkin.
 OnlyAdminCanUninstall=Bu oʻrnatilgan dasturni faqat administrator huquqlariga ega foydalanuvchi oʻchira oladi.
 UninstallStatusLabel=Iltimos, %1 kompyuteringizdan oʻchirilguncha kuting.
