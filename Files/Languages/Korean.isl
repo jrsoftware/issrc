@@ -11,28 +11,37 @@
 ;   https://jrsoftware.org/files/istrans/
 ;
 ; 참고: 이 텍스트를 번역할 때:
-; 모든 번역은 동일한 의미로 역번역되어야 합니다.
+; - 모든 번역은 다시 번역했을 때 동일한 의미가 되어야 합니다.
 ; - 개인의 취향에 맞게 메시지의 의미를 추가하거나 변경하지 마세요.
 ; - 문장을 추가하거나 삭제하거나 문장 내에 정보를 추가하거나 생략하지 마세요.
 ; - 이 단어들을 제거하지 마세요: all, only, automatically, now, later, may, must, not.
-; - 메시지 끝에 마침표 (.)나 콜론 (:) 또는 말줄임표 (...)을 추가하지 마세요.
+; - 원래 없었던 메시지 끝에 마침표 (.), 콜론 (:), 또는 줄임표 (...)를 추가하지 마세요.
+;   예외: 일본어나 중국어처럼 고유한 마침표 문자가 있는 언어의 경우, 필요에 따라 메시지 끝에
+;   추가할 수 있습니다.
 ; - 메시지 끝에서 마침표, 콜론, 말줄임표 또는 물음표를 제거하지 마세요.
+;   예외: 태국어와 라오어의 경우, 끝에 오는 마침표와 물음표를 제거합니다.
 ; - 마침표를 콜론 (:)으로 대체하지 마세요. '...'를 '…'로 대체하는 것은 허용됩니다.
-; - 자리 표시자 (%1, %2 등)를 추가하거나 제거하지 마세요. 순서 변경은 허용됩니다.
-; - 줄 바꿈 (%n)을 추가하거나 제거하지 마세요.
+; - 숫자 자리 표시자 (%1, %2 등)를 추가하거나 제거하지 마세요. 순서를 변경하는 것은 허용됩니다.
+; - 이름이 지정된 자리 표시자 ([name], [name/ver] 등)를 추가하거나 제거하지 마세요. 서로 대체하지 마세요.
+; - 줄바꿈 (%n)을 추가하거나 제거하지 마세요.
 ; - 단축키 (&)를 추가하거나 충돌을 일으키지 마세요. 단축키를 다른 문자로 이동할 수 없는 경우에만 제거하세요.
 ; - [CustomMessages] 섹션에 새 사용자 지정 메시지를 추가하지 마세요.
+; - 이와 같은 주석을 번역하지 마세요.
 ; - AboutSetupNote를 비워두세요.
 ; 시작하기 전에 이러한 반복되는 각 용어를 어떻게 번역할지 결정하세요:
 ; - Setup, Uninstall (프로그램), uninstall (동사), Cannot uninstall,
 ;   program, application, component, task,
-;   shortcut, Start menu, folder, directory, drive,
+;   shortcut, Start menu, folder, directory, path, location, drive,
 ;   existing file, source file, registry, INI entries, README,
 ;   computer, Windows, version, administrator, all users, current user,
 ;   Downloading files, Extracting files, aborted, corrupted, close (applications), restart,
 ;   Select action, try again, anyway, at least,
 ;   그리고 버튼 문구인 OK, Cancel, Yes, No, Next, Back, Install, Browse, Finish.
-; 번역에서 이 섹션을 삭제하는 것은 허용되지만, 이를 무시하지 마세요.
+; - 확실하지 않을 때는 다음의 Microsoft 용어 검색을 사용하세요. 다음에서:
+;   https://msit.powerbi.com/view?r=eyJrIjoiODJmYjU4Y2YtM2M0ZC00YzYxLWE1YTktNzFjYmYxNTAxNjQ0IiwidCI6IjcyZjk4OGJmLTg2ZjEtNDFhZi05MWFiLTJkN2NkMDExZGI0NyIsImMiOjV9
+; - 또한 Microsoft의 현지화 스타일 가이드를 사용하여 언어를 지정하세요. 다음에서:
+;   https://learn.microsoft.com/en-us/globalization/reference/microsoft-style-guides
+; 번역본에서 이 부분을 제거하는 것은 허용되지만, 이를 무시해서는 안 됩니다.
 
 [LangOptions]
 ; 다음 세 항목은 매우 중요합니다. 도움말 파일의
