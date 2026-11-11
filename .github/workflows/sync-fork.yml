@@ -15,7 +15,7 @@ jobs:
         run: |
           status=0
           gh repo sync $REPOSITORY -b $BRANCH_NAME || status=$?
-          gh repo sync $REPOSITORY -b vnext || status=$?
+          gh repo sync $REPOSITORY -b vnext || true
           exit $status
         env:
           GITHUB_TOKEN: ${{ secrets.ISSRC_BUILD_ENV_SYNC_TOKEN }}
