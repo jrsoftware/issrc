@@ -67,6 +67,8 @@ End a version's changes with one of:
 - "Other minor improvements and fixes."
 - "Documentation improvements."
 
+Other one-off descriptions are acceptable.
+
 ## Security section intro
 
 When there is a security improvements section:

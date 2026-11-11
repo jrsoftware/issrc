@@ -14,7 +14,8 @@ unit Shared.CommonFunc;
 interface
 
 uses
-  Windows, SysUtils, Classes;
+  Windows, SysUtils, Classes, UITypes,
+  Shared.Struct;
 
 type
   TSimpleLock = record
@@ -110,12 +111,16 @@ const
 
   RegViews64Bit = [{$IFDEF WIN64} rvDefault, {$ENDIF} rv64Bit];
 
+  clWindow = TColors.SysWindow;
+  clNone = TColors.SysNone;
+
 function NewFileExists(const Name: String): Boolean;
 function DirExists(const Name: String): Boolean;
 function FileOrDirExists(const Name: String): Boolean;
 function IsDirectoryAndNotReparsePoint(const Name: String): Boolean;
 function GetLastWriteTimeOfFile(const Filename: String;
   LastWriteTime: PFileTime): Boolean;
+function GetSizeOfFile(const Filename: String; out Size: Int64): Boolean;
 function GetIniString(const Section, Key: String; Default: String; const Filename: String): String;
 function GetIniInt(const Section, Key: String; const Default, Min, Max: Longint; const Filename: String): Longint;
 function GetIniBool(const Section, Key: String; const Default: Boolean; const Filename: String): Boolean;
@@ -142,6 +147,7 @@ function GetTempDir: String;
 function StringChange(var S: String; const FromStr, ToStr: String): Integer;
 function StringChangeEx(var S: String; const FromStr, ToStr: String;
   const SupportDBCS: Boolean): Integer;
+function ExtractStr(var S: String; const Separator: Char): String;
 function AdjustLength(var S: String; const Res: Cardinal): Boolean;
 function ConvertConstPercentStr(var S: String): Boolean;
 function ConvertPercentStr(var S: String): Boolean;
@@ -163,7 +169,6 @@ function GetShellFolderPath(const FolderID: Integer): String; overload;
 function GetShellFolderPath(const FolderID: Integer; out Path: String): HRESULT; overload;
 function GetCurrentUserSid: String;
 function IsAdminLoggedOn: Boolean;
-function IsPowerUserLoggedOn: Boolean;
 function FontExists(const FaceName: String): Boolean;
 function GetUILanguage: LANGID;
 function RemoveAccelChar(const S: String;
@@ -208,11 +213,17 @@ function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
 function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
 function SetWindowCloaked(const Wnd: HWND; const Cloaked: Boolean): Boolean;
 function CreateInheritableNulDevice(const DesiredAccess: DWORD): THandle;
+function NewStringToColor(const S: string): TColor;
+function NewTryStringToColor(const S: String; var Color: TColor): Boolean;
+function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData): Boolean;
+procedure RemoveEmbeddedColorProfileFromBitmap(const BitmapFileData: Pointer;
+  const BitmapFileSize: Int64);
 
 implementation
 
 uses
   DwmApi,
+  UIConsts,
   PathFunc, UnsignedFunc,
   Shared.FileClass;
 
@@ -265,6 +276,9 @@ end;
 
 function GetLastWriteTimeOfFile(const Filename: String;
   LastWriteTime: PFileTime): Boolean;
+{ Returns True if the specified file exists and sets LastWriteTime^ to its last
+  write time. Follows symbolic links. Like NewFileExists, does not allow
+  wildcards. Does not require read access. }
 var
   H: THandle;
 begin
@@ -275,6 +289,19 @@ begin
     CloseHandle(H);
   end
   else
+    Result := False;
+end;
+
+function GetSizeOfFile(const Filename: String; out Size: Int64): Boolean;
+{ Returns True if the specified file exists and sets Size to its size. Otherwise
+  like GetLastWriteTimeOfFile above. }
+begin
+  const H = CreateFile(PChar(Filename), 0, FILE_SHARE_READ or FILE_SHARE_WRITE,
+    nil, OPEN_EXISTING, 0, 0);
+  if H <> INVALID_HANDLE_VALUE then begin
+    Result := GetFileSizeEx(H, Size);
+    CloseHandle(H);
+  end else
     Result := False;
 end;
 
@@ -855,6 +882,16 @@ begin
   Result := StringChange(S, FromStr, ToStr);
 end;
 
+function ExtractStr(var S: String; const Separator: Char): String;
+begin
+  repeat
+    var I := PathPos(Separator, S);
+    if I = 0 then I := Length(S)+1;
+    Result := Trim(Copy(S, 1, I-1));
+    S := Trim(Copy(S, I+1, Maxint));
+  until (Result <> '') or (S = '');
+end;
+
 function AdjustLength(var S: String; const Res: Cardinal): Boolean;
 { Returns True if successful. Returns False if buffer wasn't large enough,
   and called AdjustLength to resize it. }
@@ -1127,96 +1164,88 @@ begin
   end;
 end;
 
-function IsMemberOfGroup(const DomainAliasRid: DWORD): Boolean;
-{ Returns True if the logged-on user is a member of the specified local
-  group. }
-const
-  SECURITY_NT_AUTHORITY: TSIDIdentifierAuthority =
-    (Value: (0, 0, 0, 0, 0, 5));
-  SECURITY_BUILTIN_DOMAIN_RID = $00000020;
-  SE_GROUP_ENABLED           = $00000004;
-  SE_GROUP_USE_FOR_DENY_ONLY = $00000010;
-var
-  Sid: PSID;
-  CheckTokenMembership: function(TokenHandle: THandle; SidToCheck: PSID;
-    var IsMember: BOOL): BOOL; stdcall;
-  IsMember: BOOL;
-  Token: THandle;
-  GroupInfoSize: DWORD;
-  GroupInfo: PTokenGroups;
-begin
-  Result := False;
-
-  if not AllocateAndInitializeSid(SECURITY_NT_AUTHORITY, 2,
-     SECURITY_BUILTIN_DOMAIN_RID, DomainAliasRid,
-     0, 0, 0, 0, 0, 0, Sid) then
-    Exit;
-  try
-    { Use CheckTokenMembership if available. MSDN states:
-      "The CheckTokenMembership function should be used with Windows 2000 and
-      later to determine whether a specified SID is present and enabled in an
-      access token. This function eliminates potential misinterpretations of
-      the active group membership if changes to access tokens are made in
-      future releases." }
-    CheckTokenMembership := GetProcAddress(GetModuleHandle(advapi32),
-      'CheckTokenMembership');
-    if Assigned(CheckTokenMembership) then begin
-      if CheckTokenMembership(0, Sid, IsMember) then
-        Result := IsMember;
-    end
-    else begin { Should never happen }
-      GroupInfo := nil;
-      if not OpenThreadToken(GetCurrentThread, TOKEN_QUERY, True, Token) then begin
-        if GetLastError <> ERROR_NO_TOKEN then
-          Exit;
-        if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, Token) then
-          Exit;
-      end;
-      try
-        GroupInfoSize := 0;
-        if not GetTokenInformation(Token, TokenGroups, nil, 0, GroupInfoSize) and
-           (GetLastError <> ERROR_INSUFFICIENT_BUFFER) then
-          Exit;
-
-        GetMem(GroupInfo, GroupInfoSize);
-        if not GetTokenInformation(Token, TokenGroups, GroupInfo,
-           GroupInfoSize, GroupInfoSize) then
-          Exit;
-
-        for var I := 0 to GroupInfo.GroupCount-1 do begin
-          if EqualSid(Sid, GroupInfo.Groups[I].Sid) and
-             (GroupInfo.Groups[I].Attributes and (SE_GROUP_ENABLED or
-              SE_GROUP_USE_FOR_DENY_ONLY) = SE_GROUP_ENABLED) then begin
-            Result := True;
-            Break;
-          end;
-        end;
-      finally
-        FreeMem(GroupInfo);
-        CloseHandle(Token);
-      end;
-    end;
-  finally
-    FreeSid(Sid);
-  end;
-end;
-
 function IsAdminLoggedOn: Boolean;
 { Returns True if the logged-on user is a member of the Administrators local
   group. }
+
+  function IsMemberOfGroup(const DomainAliasRid: DWORD): Boolean;
+  { Returns True if the logged-on user is a member of the specified local
+    group. }
+  const
+    SECURITY_NT_AUTHORITY: TSIDIdentifierAuthority =
+      (Value: (0, 0, 0, 0, 0, 5));
+    SECURITY_BUILTIN_DOMAIN_RID = $00000020;
+    SE_GROUP_ENABLED           = $00000004;
+    SE_GROUP_USE_FOR_DENY_ONLY = $00000010;
+  var
+    Sid: PSID;
+    CheckTokenMembership: function(TokenHandle: THandle; SidToCheck: PSID;
+      var IsMember: BOOL): BOOL; stdcall;
+    IsMember: BOOL;
+    Token: THandle;
+    GroupInfoSize: DWORD;
+    GroupInfo: PTokenGroups;
+  begin
+    Result := False;
+
+    if not AllocateAndInitializeSid(SECURITY_NT_AUTHORITY, 2,
+       SECURITY_BUILTIN_DOMAIN_RID, DomainAliasRid,
+       0, 0, 0, 0, 0, 0, Sid) then
+      Exit;
+    try
+      { Use CheckTokenMembership if available. MSDN states:
+        "The CheckTokenMembership function should be used with Windows 2000 and
+        later to determine whether a specified SID is present and enabled in an
+        access token. This function eliminates potential misinterpretations of
+        the active group membership if changes to access tokens are made in
+        future releases." }
+      CheckTokenMembership := GetProcAddress(GetModuleHandle(advapi32),
+        'CheckTokenMembership');
+      if Assigned(CheckTokenMembership) then begin
+        if CheckTokenMembership(0, Sid, IsMember) then
+          Result := IsMember;
+      end
+      else begin { Should never happen }
+        GroupInfo := nil;
+        if not OpenThreadToken(GetCurrentThread, TOKEN_QUERY, True, Token) then begin
+          if GetLastError <> ERROR_NO_TOKEN then
+            Exit;
+          if not OpenProcessToken(GetCurrentProcess, TOKEN_QUERY, Token) then
+            Exit;
+        end;
+        try
+          GroupInfoSize := 0;
+          if not GetTokenInformation(Token, TokenGroups, nil, 0, GroupInfoSize) and
+             (GetLastError <> ERROR_INSUFFICIENT_BUFFER) then
+            Exit;
+
+          GetMem(GroupInfo, GroupInfoSize);
+          if not GetTokenInformation(Token, TokenGroups, GroupInfo,
+             GroupInfoSize, GroupInfoSize) then
+            Exit;
+
+          for var I := 0 to GroupInfo.GroupCount-1 do begin
+            if EqualSid(Sid, GroupInfo.Groups[I].Sid) and
+               (GroupInfo.Groups[I].Attributes and (SE_GROUP_ENABLED or
+                SE_GROUP_USE_FOR_DENY_ONLY) = SE_GROUP_ENABLED) then begin
+              Result := True;
+              Break;
+            end;
+          end;
+        finally
+          FreeMem(GroupInfo);
+          CloseHandle(Token);
+        end;
+      end;
+    finally
+      FreeSid(Sid);
+    end;
+  end;
+
 const
   DOMAIN_ALIAS_RID_ADMINS = $00000220;
 begin
   Result := IsMemberOfGroup(DOMAIN_ALIAS_RID_ADMINS);
-end;
-
-function IsPowerUserLoggedOn: Boolean;
-{ Returns True if the logged-on user is a member of the Power Users local
-  group. }
-const
-  DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
-begin
-  Result := IsMemberOfGroup(DOMAIN_ALIAS_RID_POWER_USERS);
 end;
 
 function FontExistsCallback(const lplf: TLogFont; const lptm: TTextMetric;
@@ -1944,6 +1973,27 @@ begin
     OPEN_EXISTING, 0, 0);
 end;
 
+procedure RemoveEmbeddedColorProfileFromBitmap(const BitmapFileData: Pointer;
+  const BitmapFileSize: Int64);
+{ Removes the reference to an embedded color profile from the header of a BMP
+  file. Works around a VCL bug: TBitmap.LoadFromStream passes CreateDIBSection
+  a buffer without the profile, so CreateDIBSection reads past the end of that
+  buffer and can crash. }
+begin
+  if BitmapFileSize < SizeOf(TBitmapFileHeader) + SizeOf(TBitmapV5Header) then
+    Exit;
+  if PBitmapFileHeader(BitmapFileData).bfType <> $4D42 then { 'BM' }
+    Exit;
+  const PROFILE_EMBEDDED = $4D424544; { 'MBED' }
+  const LCS_sRGB = $73524742; { 'sRGB' }
+  const Header = PBitmapV5Header(PByte(BitmapFileData) + SizeOf(TBitmapFileHeader));
+  if (Header.bV5Size >= SizeOf(TBitmapV5Header)) and (Header.bV5CSType = PROFILE_EMBEDDED) then begin
+    Header.bV5CSType := LCS_sRGB;
+    Header.bV5ProfileData := 0;
+    Header.bV5ProfileSize := 0;
+  end;
+end;
+
 { TSimpleLock }
 
 class function TSimpleLock.Create: TSimpleLock;
@@ -2319,6 +2369,117 @@ begin
   DoRead(FStdOut, LastRead);
   if FMode = omCapture then
     DoRead(FStdErr, LastRead);
+end;
+
+function NewStringToColor(const S: string): TColor;
+{ Returns the color specified by S.
+  Differences from Delphi's StringToColor:
+  - Also accepts color names without the 'cl' prefix
+  - Knows every CSS color name: clSkyBlue is the web color instead of the
+    legacy VCL one, and clRebeccaPurple is added
+  - Rejects clDefault, which isn't an actual color but a VCL placeholder
+  Do note: requires Delphi 12 for the support of the #rrggbb and #rgb formats,
+  the web color names, and the clLtGray and clDkGray names }
+begin
+  var Ident := S;
+  if not PathStartsWith(Ident, 'cl') then
+    Ident := 'cl' + Ident;
+  if SameText(Ident, 'clSkyBlue') then
+    Exit(TColors.Skyblue); { StringToColor would return TColors.LegacySkyBlue }
+  if SameText(Ident, 'clRebeccaPurple') then
+    Exit($993366);  { StringToColor would raise an exception }
+  if not IdentToColor(Ident, Integer(Result)) then
+    Result := StringToColor(S);
+  if Result = TColors.SysDefault then
+    raise EConvertError.CreateFmt('''%s'' is not a valid color value', [S]);
+end;
+
+function NewTryStringToColor(const S: String; var Color: TColor): Boolean;
+begin
+  try
+    Color := NewStringToColor(S);
+    Result := True;
+  except
+    on EConvertError do
+      Result := False;
+  end;
+end;
+
+function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData): Boolean;
+
+  procedure Split(const Str: String; var Ver: TSetupVersionDataVersion;
+    var ServicePack: Word);
+  var
+    I, J: Integer;
+    Z, B: String;
+    HasBuild: Boolean;
+  begin
+    Cardinal(Ver) := 0;
+    ServicePack := 0;
+    Z := Lowercase(Str);
+    I := Pos('sp', Z);
+    if I <> 0 then begin
+      J := StrToInt(Copy(Z, I+2, Maxint));
+      if (J < Low(Byte)) or (J > High(Byte)) then
+        Abort;
+      ServicePack := Word(J shl 8);
+      { ^ Shift left 8 bits because we're setting the "major" service pack
+        version number. This parser doesn't currently accept "minor" service
+        pack version numbers. }
+      SetLength(Z, I-1);
+    end;
+    I := Pos('.', Z);
+    if I = Length(Z) then Abort;
+    if I <> 0 then begin
+      J := StrToInt(Copy(Z, 1, I-1));
+      if (J < 0) or (J > 127) then
+        Abort;
+      Ver.Major := Byte(J);
+      Z := Copy(Z, I+1, Maxint);
+      I := Pos('.', Z);
+      HasBuild := I <> 0;
+      if not HasBuild then
+        I := Length(Z)+1;
+      B := Copy(Z, I+1, Maxint);
+      Z := Copy(Z, 1, I-1);
+      J := StrToInt(Z);
+      if (J < 0) or (J > 99) then Abort;
+      Ver.Minor := Byte(J);
+      if HasBuild then begin
+        J := StrToInt(B);
+        if (J < Low(Ver.Build)) or (J > High(Ver.Build)) then
+          Abort;
+        Ver.Build := Word(J);
+      end;
+    end
+    else begin  { no minor version specified }
+      J := StrToInt(Z);
+      if (J < 0) or (J > 127) then
+        Abort;
+      Ver.Major := Byte(J);
+    end;
+  end;
+var
+  I: Integer;
+  SP: Word;
+begin
+  try
+    VerData.WinVersion := 0;
+    I := Pos(',', S);
+    if I <> 0 then begin
+      Split(Trim(Copy(S, 1, I-1)),
+        TSetupVersionDataVersion(VerData.WinVersion), SP);
+      if SP <> 0 then Abort;  { only NT has service packs }
+    end;
+    Split(Trim(Copy(S, I+1, Maxint)),
+      TSetupVersionDataVersion(VerData.NTVersion), VerData.NTServicePack);
+    Result := True;
+  except
+    if (ExceptObject is EAbort) or (ExceptObject is EConvertError) then
+      Result := False
+    else
+      raise;
+  end;
 end;
 
 end.

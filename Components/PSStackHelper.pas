@@ -78,6 +78,8 @@ begin
     Result := NewTPSVariantRecordIFC(Items[ItemNo], FieldNo)
   else
     Result := NewTPSVariantIFC(Items[ItemNo], True);
+  { Clear first because PSDynArraySetLength doesn't unshare the array when the length doesn't change }
+  PSDynArraySetLength(Pointer(Result.Dta^), Result.aType, 0);
   PSDynArraySetLength(Pointer(Result.Dta^), Result.aType, N);
 end;
 

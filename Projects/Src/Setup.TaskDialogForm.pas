@@ -23,7 +23,7 @@ const
   TD_TASKFORM_HELP_ICON = MAKEINTRESOURCEW(Word(-100));
 
 type
-  TCopyFormat = (cfTaskDialog, cfMessageBox);
+  TDialogKind = (dkTaskDialog, dkMessageBox);
 
   TTaskDialogForm = class(TSetupForm)
     BottomPanel: TPanel;
@@ -49,7 +49,7 @@ type
     FCommonButtons: array of TNewButton;
     FCommonButtonFlags: array of Cardinal;
     FMainButtons: array of TNewButton;
-    FCopyFormat: TCopyFormat;
+    FDialogKind: TDialogKind;
     procedure Finish(const DefCommonButton: Integer);
     procedure UpdateCommonButtons(const CommonButtons: Cardinal; const ShieldButton: Integer);
     procedure UpdateIcon(const Icon: PChar);
@@ -58,20 +58,22 @@ type
     procedure UpdateMainButtonsAndBorderIcons(const CommonButtons: Cardinal;
       const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
     procedure UpdateVerificationText(const VerificationText: String);
+    procedure WMClose(var Message: TWMClose); message WM_CLOSE;
   public
-    constructor Create(AOwner: TComponent; const ACopyFormat: TCopyFormat; const ASetForeground: Boolean); reintroduce;
+    constructor Create(AOwner: TComponent; const ADialogKind: TDialogKind; const ASetForeground: Boolean); reintroduce;
   end;
 
 function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
   const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: Cardinal;
-  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat;
+  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const DialogKind: TDialogKind;
   const SetForeground: Boolean): Integer;
 
 implementation
 
 uses
   CommCtrl, Clipbrd, Themes, ShellAPI,
+  UnsignedFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc, Shared.CommonFunc.Vcl,
   SetupLdrAndSetup.Messages, Setup.MainFunc;
 
@@ -80,16 +82,15 @@ uses
 function TaskDialogForm(const Instruction, Text, Caption: String; const Icon: PChar;
   const CommonButtons: Cardinal; const ButtonLabels: array of String; const ButtonIDs: array of Integer;
   const DefCommonButton, ShieldButton: Integer; const TriggerMessageBoxCallbackFuncFlags: Cardinal;
-  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const CopyFormat: TCopyFormat;
+  const VerificationText: String; const pfVerificationFlagChecked: PBOOL; const DialogKind: TDialogKind;
   const SetForeground: Boolean): Integer;
 begin
-  const Form = TTaskDialogForm.Create(nil, CopyFormat, SetForeground);
+  const Form = TTaskDialogForm.Create(nil, DialogKind, SetForeground);
   try
     Form.Caption := Caption;
     Form.UpdateInstructionAndText(Instruction, Text);
     Form.UpdateIcon(Icon);
     Form.UpdateCommonButtons(CommonButtons, ShieldButton);
-    Form.UpdateVerificationText(VerificationText);
 
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
@@ -97,6 +98,7 @@ begin
       Form.InstructionText.AdjustHeight;
     if Form.TextText.Visible then
       Form.TextText.AdjustHeight;
+    Form.UpdateVerificationText(VerificationText);
     Form.UpdateMainButtonsAndBorderIcons(CommonButtons, ButtonLabels, ButtonIDs, ShieldButton);
     Form.UpdateHeight;
 
@@ -117,14 +119,14 @@ end;
 
 { TTaskDialogForm }
 
-constructor TTaskDialogForm.Create(AOwner: TComponent; const ACopyFormat: TCopyFormat; const ASetForeground: Boolean);
+constructor TTaskDialogForm.Create(AOwner: TComponent; const ADialogKind: TDialogKind; const ASetForeground: Boolean);
 begin
   inherited Create(AOwner);
 
   FCommonButtons := [OkButton, YesButton, NoButton, RetryButton, CancelButton];
   FCommonButtonFlags := [TDCBF_OK_BUTTON, TDCBF_YES_BUTTON, TDCBF_NO_BUTTON, TDCBF_RETRY_BUTTON, TDCBF_CANCEL_BUTTON];
   FMainButtons := [MainButton1, MainButton2, MainButton3];
-  FCopyFormat := ACopyFormat;
+  FDialogKind := ADialogKind;
   SetForeground := ASetForeground;
 
   if not CustomWizardBackground or (SetupHeader.WizardBackColor = clWindow) then begin
@@ -156,6 +158,7 @@ begin
   BottomStackPanel.Spacing := PadX;
   BottomStackPanel.Padding.Right := PadX; { Also see Finish }
   VerificationCheck.Left := PadX;
+  VerificationCheck.Width := VerificationCheck.Width - 2*PadX;
 
   OkButton.Caption := SetupMessages[msgButtonOK];
   YesButton.Caption := SetupMessages[msgButtonYes];
@@ -326,6 +329,14 @@ begin
     end;
   end;
 
+  if (FDialogKind = dkMessageBox) and (CommonButtons = TDCBF_OK_BUTTON) then begin
+    { Same as MessageBox: Escape and the close button choose OK if it is the only button.
+      Also see WMClose. Note that TaskDialog ignores Escape in this situation, because we
+      don't use TDF_ALLOW_DIALOG_CANCELLATION. }
+    OkButton.Cancel := True;
+    HaveCancel := True;
+  end;
+
   if not HaveCancel and (CommonButtons and TDCBF_CANCEL_BUTTON = 0) then begin
     const SystemMenu = GetSystemMenu(Handle, False);
     if SystemMenu <> 0 then
@@ -334,11 +345,60 @@ begin
 end;
 
 procedure TTaskDialogForm.UpdateVerificationText(const VerificationText: String);
+
+  function CalculateWordWrapExtraHeight(const Control: TNewCheckBox): Integer;
+  begin
+    { Measures the text like TCheckBoxStyleHook.Paint }
+    const DC = GetDC(0);
+    try
+      const LStyle = StyleServices(Control);
+      const LPPI = Control.CurrentPPI;
+
+      const LRect = System.Classes.Rect(0, 0, 20, 20);
+      const ElementSize = esActual;
+      var BoxSize: TSize;
+      if not LStyle.GetElementSize(DC, LStyle.GetElementDetails(tbCheckBoxCheckedNormal),
+         LRect, ElementSize, BoxSize, LPPI) then begin
+        BoxSize.cx := 13;
+        BoxSize.cy := 13;
+      end;
+
+      SelectObject(DC, Control.Font.Handle);
+
+      var R := Rect(0, 0, Control.Width - BoxSize.cx - 10, Control.Height);
+      const LCaption = Control.Caption;
+      DrawText(DC, PChar(LCaption), Length(LCaption), R,
+        UDrawTextBiDiModeFlags(Control, DT_CALCRECT or DT_EXPANDTABS or DT_WORDBREAK));
+
+      var RSingleLine := Rect(0, 0, Control.Width - BoxSize.cx - 10, Control.Height);
+      DrawText(DC, PChar(LCaption), Length(LCaption), RSingleLine,
+        UDrawTextBiDiModeFlags(Control, DT_CALCRECT or DT_EXPANDTABS or DT_SINGLELINE));
+
+      Result := R.Height - RSingleLine.Height;
+    finally
+      ReleaseDC(0, DC);
+    end;
+  end;
+
 begin
-  if VerificationText <> '' then
-    VerificationCheck.Caption := VerificationText
-  else
+  if VerificationText <> '' then begin
+    VerificationCheck.Caption := VerificationText;
+    const ExtraHeight = CalculateWordWrapExtraHeight(VerificationCheck);
+    if ExtraHeight > 0 then begin
+      VerificationCheck.Height := VerificationCheck.Height + ExtraHeight;
+      BottomPanel2.Height := BottomPanel2.Height + ExtraHeight;
+    end;
+  end else
     BottomPanel2.Visible := False;
+end;
+
+procedure TTaskDialogForm.WMClose(var Message: TWMClose);
+begin
+  { Close would return mrCancel }
+  if OkButton.Cancel then
+    ModalResult := OkButton.ModalResult
+  else
+    inherited;
 end;
 
 procedure TTaskDialogForm.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -363,7 +423,7 @@ begin
       const SLine = '---------------------------';
       const SLineAndNewLine = SLine + SNewLine;
 
-      const MessageBoxFormat = FCopyFormat = cfMessageBox;
+      const MessageBoxFormat = FDialogKind = dkMessageBox;
 
       if MessageBoxFormat then
         SB.Append(SLine)

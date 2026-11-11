@@ -34,7 +34,7 @@ uses
   Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.DebugStruct,
   Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor,
-  Compiler.ExeUpdateFunc;
+  Compiler.ExeUpdateFunc, Compression.Zstd;
 
 type
   EISCompileError = class(Exception);
@@ -74,7 +74,7 @@ type
 
   TCodeParameterKind = (cpkCheck, cpkDirectiveCheck, cpkInstall, cpkOnLog);
 
-  TPrecompiledFile = (pfSetup, pfSetupCustomStyle, pfSetupLdr, pfIs7z, pfIsbunzip, pfIsunzlib, pfIslzma);
+  TPrecompiledFile = (pfSetup, pfSetupCustomStyle, pfSetupLdr, pfIs7z, pfIsbunzip, pfIsunzlib, pfIslzma, pfIsunzstd);
   TPrecompiledFiles = set of TPrecompiledFile;
 
   TWizardImages = TObjectList<TCustomMemoryStream>;
@@ -136,6 +136,7 @@ type
     CompressMethod: TSetupCompressMethod;
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
+    ZstdCompressProps: TZstdCompressorProps;
     UseSolidCompression: Boolean;
     ArchiveExtraction, MinArchiveExtraction: TArchiveExtraction;
     DontMergeDuplicateFiles: Boolean;
@@ -202,8 +203,10 @@ type
     class procedure AbortCompileParamError(const Msg, ParamName: String); static;
     class procedure ApplyNewEntryBitness(var Bitness: TSetupEntryBitness;
       const NewBitness: TSetupEntryBitness); static;
-    function PrependDirName(const Filename, Dir: String): String;
-    function PrependSourceDirName(const Filename: String): String;
+    function PrependDirName(const Filename, Dir: String;
+      const IsFilesEntrySourceParameter: Boolean = False): String;
+    function PrependSourceDirName(const Filename: String;
+      const IsFilesEntrySourceParameter: Boolean = False): String;
     procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData;
       const IgnoreCallbackResult: Boolean = False);
     procedure EnumIniSection(const EnumProc: TEnumIniSectionProc;
@@ -248,6 +251,7 @@ type
     procedure InitLZMADLL;
     procedure InitPreprocessor;
     procedure InitZipDLL;
+    procedure InitZstdDLL;
     procedure PopulateLanguageEntryData;
     procedure ProcessMinVersionParameter(const ParamValue: TParamValue;
       var AMinVersion: TSetupVersionData);
@@ -287,7 +291,7 @@ type
     procedure CompileCode;
     function FilenameToFileIndex(const AFileName: String): Integer;
     procedure ReadTextFile(const Filename: String; const LangIndex: Integer; var Text: AnsiString);
-    procedure SeparateDirective(const Line: PChar; var Key, Value: String);
+    procedure SeparateDirective(const Line: PChar; var KeyName, Value: String);
     procedure SetLineToSetupDirective(const Directive: TSetupSectionDirective);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
     procedure Sign(AExeFilename: String);
@@ -380,7 +384,7 @@ type
   end;
 
 var
-  ZipInitialized, BzipInitialized, LZMAInitialized: Boolean;
+  ZipInitialized, BzipInitialized, LZMAInitialized, ZstdInitialized: Boolean;
   PreprocessorInitialized: Boolean;
   PreprocessScriptProc: TPreprocessScriptProc;
 
@@ -398,18 +402,6 @@ const
   DefaultTypeEntryNames: array[0..2] of PChar = ('full', 'compact', 'custom');
 
   DefaultKDFIterations = 220000;
-
-function ExtractStr(var S: String; const Separator: Char): String;
-var
-  I: Integer;
-begin
-  repeat
-    I := PathPos(Separator, S);
-    if I = 0 then I := Length(S)+1;
-    Result := Trim(Copy(S, 1, I-1));
-    S := Trim(Copy(S, I+1, Maxint));
-  until (Result <> '') or (S = '');
-end;
 
 { TISSigKeyEntryExtraInfo }
 
@@ -625,34 +617,15 @@ begin
   PreprocessorInitialized := True;
 end;
 
-procedure TSetupCompiler.InitZipDLL;
-begin
-  if ZipInitialized then
-    Exit;
-  const DllName = {$IFDEF WIN64} 'iszlib-x64.dll' {$ELSE} 'iszlib.dll' {$ENDIF};
-  const Filename = CompilerDir + DllName;
-  const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
-  if not ZlibInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in ' + DllName);
-  ZipInitialized := True;
-end;
+type
+  TInitCompressFunctions = function(Module: HMODULE): Boolean;
 
-procedure TSetupCompiler.InitBzipDLL;
-begin
-  if BzipInitialized then
-    Exit;
-  const DllName = {$IFDEF WIN64} 'isbzip-x64.dll' {$ELSE} 'isbzip.dll' {$ENDIF};
-  const Filename = CompilerDir + DllName;
-  const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
-  if not BZInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in ' + DllName);
-  BzipInitialized := True;
-end;
-
-procedure TSetupCompiler.InitLZMADLL;
+procedure InitCompressionDLL(const CompilerDir, BaseName: String;
+  const HasArm64ECDll: Boolean; var Initialized: Boolean;
+  const Init: TInitCompressFunctions);
 
   {$IFDEF WIN64}
-  
+
   function IsArm64: Boolean;
   const
     IMAGE_FILE_MACHINE_ARM64 = $AA64;
@@ -681,34 +654,54 @@ procedure TSetupCompiler.InitLZMADLL;
 
     Result := False;
   end;
-  
+
   {$ENDIF}
 
 begin
-  if LZMAInitialized then
+  if Initialized then
     Exit;
   var Filename: String;
   {$IFDEF WIN64}
   var DllName: String;
-  if IsArm64 then begin
+  if HasArm64ECDll and IsArm64 then begin
     { We can use an Arm64EC DLL from our x64 EXE, for better performance }
-    DllName := 'islzma-Arm64EC.dll';
+    DllName := 'is' + BaseName + '-Arm64EC.dll';
     const Arm64Filename = CompilerDir + DllName;
     if NewFileExists(Arm64Filename) then { Allow it to be deleted, for easy performance comparison }
       Filename := Arm64Filename;
   end;
   if Filename = '' then begin
-    DllName := 'islzma-x64.dll';
+    DllName := 'is' + BaseName + '-x64.dll';
     Filename := CompilerDir + DllName;
   end;
   {$ELSE}
-  const DllName = 'islzma.dll';
+  const DllName = 'is' + BaseName + '.dll';
   Filename := CompilerDir + DllName;
   {$ENDIF};
   const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
-  if not LZMAInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in ' + DllName);
-  LZMAInitialized := True;
+  if not Init(M) then
+    TSetupCompiler.AbortCompile('Failed to get address of functions in ' + DllName);
+  Initialized := True;
+end;
+
+procedure TSetupCompiler.InitZipDLL;
+begin
+  InitCompressionDLL(CompilerDir, 'zlib', False, ZipInitialized, ZlibInitCompressFunctions);
+end;
+
+procedure TSetupCompiler.InitBzipDLL;
+begin
+  InitCompressionDLL(CompilerDir, 'bzip', False, BzipInitialized, BZInitCompressFunctions);
+end;
+
+procedure TSetupCompiler.InitLZMADLL;
+begin
+  InitCompressionDLL(CompilerDir, 'lzma', True, LZMAInitialized, LZMAInitCompressFunctions);
+end;
+
+procedure TSetupCompiler.InitZstdDLL;
+begin
+  InitCompressionDLL(CompilerDir, 'zstd', True, ZstdInitialized, ZstdInitCompressFunctions);
 end;
 
 function TSetupCompiler.GetBytesCompressedSoFar: Int64;
@@ -1525,11 +1518,13 @@ begin
   end;
 end;
 
-function TSetupCompiler.PrependDirName(const Filename, Dir: String): String;
+function TSetupCompiler.PrependDirName(const Filename, Dir: String;
+  const IsFilesEntrySourceParameter: Boolean): String;
 { Filename and/or Dir are allowed to be empty:
   - If Filename is empty, an empty string is returned.
   - If Dir is empty, any prefix on Filename (like "compiler:") is expanded,
-    but if there is no prefix then Filename is returned unchanged. }
+    but if there is no prefix then Filename is returned unchanged.
+  Also see ScriptPathExpand in IDE.Inspector.pas. }
 
   function GetShellFolderPathCached(const FolderID: Integer;
     var CachedDir: String): String;
@@ -1544,6 +1539,14 @@ function TSetupCompiler.PrependDirName(const Filename, Dir: String): String;
       CachedDir := S;
     end;
     Result := CachedDir;
+  end;
+
+  procedure AbortIfConstantWithParam(const S: String);
+  begin
+    for var ConstantWithParam in ConstantsWithParam do
+      if ConstantWithParam = S then
+        AbortCompileFmt(SCompilerUnknownFilenamePrefixSuggestExternal,
+          ['Source', S, 'external']);
   end;
 
 const
@@ -1567,15 +1570,22 @@ begin
       Result := GetShellFolderPathCached(CSIDL_PERSONAL, CachedUserDocsDir) +
         Copy(Filename, P+1, Maxint)
     else begin
-      AbortCompileFmt(SCompilerUnknownFilenamePrefix, [Copy(Filename, 1, P)]);
+      { If called for a [Files] entry's Source Parameter that means flag external
+        is off. Before showing the regular message, check if the user tried using
+        a prefix which is known (like '{code:') but requires using external, and
+        if so, show a much clearer message. }
+      if IsFilesEntrySourceParameter and (Prefix <> '') and (Prefix[1] = '{') then
+        AbortIfConstantWithParam(Copy(Prefix, 2, MaxInt));
+      AbortCompileFmt(SCompilerUnknownFilenamePrefix, [Prefix]);
       Result := Filename;  { avoid warning }
     end;
   end;
 end;
 
-function TSetupCompiler.PrependSourceDirName(const Filename: String): String;
+function TSetupCompiler.PrependSourceDirName(const Filename: String;
+  const IsFilesEntrySourceParameter: Boolean): String;
 begin
-  Result := PrependDirName(Filename, SourceDir);
+  Result := PrependDirName(Filename, SourceDir, IsFilesEntrySourceParameter);
 end;
 
 procedure TSetupCompiler.RenamedConstantCallback(const Cnst, CnstRenamed: String);
@@ -1880,6 +1890,7 @@ begin
               AbortCompileFmt(SCompilerBadEnvConst, [Cnst]);
             goto 1;
           end;
+          { Same list of prefixes as in ConstantsWithParam }
           if Copy(Cnst, 1, 4) = 'reg:' then begin
             if not CheckRegConst(Cnst) then
               AbortCompileFmt(SCompilerBadRegConst, [Cnst]);
@@ -2317,9 +2328,8 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
     DOMAIN_ALIAS_RID_ADMINS = $00000220;
     DOMAIN_ALIAS_RID_USERS = $00000221;
     DOMAIN_ALIAS_RID_GUESTS = $00000222;
-    DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
     DOMAIN_ALIAS_RID_IIS_IUSRS = $00000238;
-    KnownSids: array[0..10] of TKnownSid = (
+    KnownSids: array[0..9] of TKnownSid = (
       (Name: 'admins';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 2;
@@ -2348,10 +2358,6 @@ procedure TSetupCompiler.ProcessPermissionsParameter(ParamData: String;
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 1;
              SubAuth: (SECURITY_NETWORK_SERVICE_RID, 0))),
-      (Name: 'powerusers';
-       Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
-             SubAuthCount: 2;
-             SubAuth: (SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_POWER_USERS))),
       (Name: 'service';
        Sid: (Authority: (Value: (0, 0, 0, 0, 0, SECURITY_NT_AUTHORITY));
              SubAuthCount: 1;
@@ -2485,20 +2491,20 @@ end;
 
 { Note: result Value may include leading/trailing whitespaces if it was quoted! }
 procedure TSetupCompiler.SeparateDirective(const Line: PChar;
-  var Key, Value: String);
+  var KeyName, Value: String);
 var
   P: PChar;
 begin
-  Key := '';
+  KeyName := '';
   Value := '';
   P := Line;
   SkipWhitespace(P);
   if P^ <> #0 then begin
-    Key := ExtractWords(P, '=');
-    if Key = '' then
+    KeyName := ExtractWords(P, '=');
+    if KeyName = '' then
       AbortCompile(SCompilerDirectiveNameMissing);
     if P^ <> '=' then
-      AbortCompileFmt(SCompilerDirectiveHasNoValue, [Key]);
+      AbortCompileFmt(SCompilerDirectiveHasNoValue, [KeyName]);
     Inc(P);
     SkipWhitespace(P);
     Value := ExtractWords(P, #0);
@@ -2710,7 +2716,7 @@ var
   function StrToPrecompiledFiles(S: String): TPrecompiledFiles;
   const
     PrecompiledFiles: array of PChar = ['setup', 'setupcustomstyle', 'setupldr',
-      'is7z', 'isbunzip', 'isunzlib', 'islzma'];
+      'is7z', 'isbunzip', 'isunzlib', 'islzma', 'isunzstd'];
   begin
     Result := [];
     while True do
@@ -2724,6 +2730,7 @@ var
         4: Include(Result, pfIsbunzip);
         5: Include(Result, pfIsunzlib);
         6: Include(Result, pfIslzma);
+        7: Include(Result, pfIsunzstd);
       end;
   end;
 
@@ -2973,6 +2980,10 @@ begin
           CompressMethod := cmLZMA2;
           CompressLevel := clLZMAMax;
         end
+        else if Value = 'zstd' then begin
+          CompressMethod := cmZstd;
+          CompressLevel := 19;
+        end
         else if Copy(Value, 1, 4) = 'zip/' then begin
           I := StrToIntDef(Copy(Value, 5, Maxint), -1);
           if (I < 1) or (I > 9) then
@@ -2997,6 +3008,13 @@ begin
           if not LZMAGetLevel(Copy(Value, 7, Maxint), I) then
             Invalid;
           CompressMethod := cmLZMA2;
+          CompressLevel := I;
+        end
+        else if Copy(Value, 1, 5) = 'zstd/' then begin
+          I := StrToIntDef(Copy(Value, 6, Maxint), -1);
+          if (I < 1) or (I > 22) then
+            Invalid;
+          CompressMethod := cmZstd;
           CompressLevel := I;
         end
         else
@@ -3268,8 +3286,6 @@ begin
     ssPrivilegesRequired: begin
         if CompareText(Value, 'none') = 0 then
           SetupHeader.PrivilegesRequired := prNone
-        else if CompareText(Value, 'poweruser') = 0 then
-          SetupHeader.PrivilegesRequired := prPowerUser
         else if CompareText(Value, 'admin') = 0 then
           SetupHeader.PrivilegesRequired := prAdmin
         else if CompareText(Value, 'lowest') = 0 then
@@ -3526,14 +3542,14 @@ begin
       end;
     ssWizardBackColor: begin
         try
-          SetupHeader.WizardBackColor := StringToColor(Value);
+          SetupHeader.WizardBackColor := NewStringToColor(Value);
         except
           Invalid;
         end;
       end;
     ssWizardBackColorDynamicDark: begin
         try
-          SetupHeader.WizardBackColorDynamicDark := StringToColor(Value);
+          SetupHeader.WizardBackColorDynamicDark := NewStringToColor(Value);
         except
           Invalid;
         end;
@@ -3559,28 +3575,28 @@ begin
     end;
     ssWizardImageBackColor: begin
         try
-          SetupHeader.WizardImageBackColor := StringToColor(Value);
+          SetupHeader.WizardImageBackColor := NewStringToColor(Value);
         except
           Invalid;
         end;
       end;
     ssWizardImageBackColorDynamicDark: begin
         try
-          SetupHeader.WizardImageBackColorDynamicDark := StringToColor(Value);
+          SetupHeader.WizardImageBackColorDynamicDark := NewStringToColor(Value);
         except
           Invalid;
         end;
       end;
     ssWizardSmallImageBackColor: begin
         try
-          SetupHeader.WizardSmallImageBackColor := StringToColor(Value);
+          SetupHeader.WizardSmallImageBackColor := NewStringToColor(Value);
         except
           Invalid;
         end;
       end;
     ssWizardSmallImageBackColorDynamicDark: begin
         try
-          SetupHeader.WizardSmallImageBackColorDynamicDark := StringToColor(Value);
+          SetupHeader.WizardSmallImageBackColorDynamicDark := NewStringToColor(Value);
         except
           Invalid;
         end;
@@ -3621,6 +3637,15 @@ begin
       end;
     ssWizardStyleFileDynamicDark: begin
         WizardStyleFileDynamicDark := Value;
+      end;
+    ssZstdNumThreads: begin
+        I := StrToIntRange(Value, -1, 64);
+        if I = 0 then
+          Invalid
+        else if I = -1 then  { undocumented value for testing }
+          ZstdCompressProps.NumWorkers := 1
+        else if I <> 1 then
+          ZstdCompressProps.NumWorkers := I;
       end;
   end;
 end;
@@ -4439,8 +4464,6 @@ begin
       ProcessMinVersionParameter(Values[paMinVersion], MinVersion);
       ProcessOnlyBelowVersionParameter(Values[paOnlyBelowVersion], OnlyBelowVersion);
 
-      if Pos('"', IconName) <> 0 then
-        AbortCompileParamError(SCompilerParamNoQuotes2, ParamIconsName);
       if PathPos('\', IconName) = 0 then
         AbortCompile(SCompilerIconsNamePathNotSpecified);
 
@@ -4602,7 +4625,7 @@ const
     'deletekey', 'deletevalue', 'noerror', 'dontcreatekey');
   AccessMasks: array[0..2] of TNameAndAccessMask = (
     (Name: 'full'; Mask: $F003F),
-    (Name: 'modify'; Mask: $3001F), { <- same access that Power Users get by default on HKLM\SOFTWARE }
+    (Name: 'modify'; Mask: $3001F),
     (Name: 'read'; Mask: $20019));
 
   function ConvertBinaryString(const S: String): String;
@@ -6012,7 +6035,7 @@ begin
           { Convert to super form because "recursesubdirs" could potentially
             produce paths longer than MAX_PATH. This also calls PathExpand on
             the path, which helps MergeDuplicateFiles. }
-          SourceWildcard := PathConvertNormalToSuper(PrependSourceDirName(SourceWildcard));
+          SourceWildcard := PathConvertNormalToSuper(PrependSourceDirName(SourceWildcard, True));
           SourceIsWildcard := IsWildcard(SourceWildcard);
         end;
         if (ADestName <> '') and (SourceIsWildcard or (not (foDownload in Options) and (foExtractArchive in Options))) then
@@ -7476,7 +7499,7 @@ var
       WriteWizardImages(WizardImagesDynamicDark, W, WizardImages);
       WriteWizardImages(WizardSmallImagesDynamicDark, W, WizardSmallImages);
       WriteWizardImages(WizardBackImagesDynamicDark, W, WizardBackImages);
-      if SetupHeader.CompressMethod in [cmZip, cmBzip] then
+      if SetupHeader.CompressMethod in [cmZip, cmBzip, cmZstd] then
         WriteStream(DecompressorDLL, W);
       if SevenZipDLL <> nil then
         WriteStream(SevenZipDLL, W);
@@ -7658,6 +7681,10 @@ var
             end;
           cmLZMA2: begin
               Result := TLZMA2Compressor;
+            end;
+          cmZstd: begin
+              InitZstdDLL;
+              Result := TZSTDCompressor;
             end;
         else
           AbortCompile('GetCompressorClass: Unknown CompressMethod');
@@ -7847,8 +7874,12 @@ var
           { Start a new chunk if needed }
           if not CH.ChunkStarted then begin
             ChunkCompressed := (floChunkCompressed in FL.Flags);
-            CH.NewChunk(GetCompressorClass(ChunkCompressed), CompressLevel,
-              CompressProps, floChunkEncrypted in FL.Flags, CryptKey);
+            const CompressorClass = GetCompressorClass(ChunkCompressed);
+            var CompressorProps: TCompressorProps := CompressProps;
+            if CompressorClass.InheritsFrom(TZstdCompressor) then
+              CompressorProps := ZstdCompressProps;
+            CH.NewChunk(CompressorClass, CompressLevel, CompressorProps,
+              floChunkEncrypted in FL.Flags, CryptKey);
           end;
 
           FL.FirstSlice := CH.ChunkFirstSlice;
@@ -8296,7 +8327,6 @@ var
   SetupMemoryFile: TMemoryFile;
   AppNameHasConsts, AppVersionHasConsts, AppPublisherHasConsts,
     AppCopyrightHasConsts, AppIdHasConsts, Uninstallable: Boolean;
-  PrivilegesRequiredValue: String;
   GetActiveProcessorGroupCountFunc: function: WORD; stdcall;
 begin
   { Sanity check: A single TSetupCompiler instance cannot be used to do
@@ -8344,6 +8374,7 @@ begin
     end;
     InternalCompressProps := TLZMACompressorProps.Create;
     CompressProps := TLZMACompressorProps.Create;
+    ZstdCompressProps := TZstdCompressorProps.Create;
     GetActiveProcessorGroupCountFunc := GetProcAddress(GetModuleHandle(kernel32),
       'GetActiveProcessorGroupCount');
     if Assigned(GetActiveProcessorGroupCountFunc) then begin
@@ -8423,6 +8454,13 @@ begin
     CallIdleProc;
 
     { Verify settings set in [Setup] section }
+    if CompressMethod = cmZstd then begin
+      if (ZstdCompressProps.NumWorkers <> 0) and (CompressLevel > 20) then begin
+        { Not allowed because aborting takes too long }
+        SetLineToSetupDirective(ssZstdNumThreads);
+        AbortCompile(SCompilerMustNotUseZstdNumThreads);
+      end;
+    end;
     if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin
       if SetupArchitecture = sa32bit then
         SetupLdrArchitecture := sla32bit
@@ -9005,14 +9043,9 @@ begin
     CallIdleProc;
 
     if UsedUserAreasWarning and (UsedUserAreas.Count > 0) and
-       (SetupHeader.PrivilegesRequired in [prPowerUser, prAdmin]) then begin
-      if SetupHeader.PrivilegesRequired = prPowerUser then
-        PrivilegesRequiredValue := 'poweruser'
-      else
-        PrivilegesRequiredValue := 'admin';
+       (SetupHeader.PrivilegesRequired = prAdmin) then
       WarningsList.Add(Format(SCompilerUsedUserAreasWarning, ['Setup',
-        'PrivilegesRequired', PrivilegesRequiredValue, UsedUserAreas.CommaText]));
-    end;
+        'PrivilegesRequired', 'admin', UsedUserAreas.CommaText]));
 
     var DllNameExtension: String;
     if SetupArchitecture = sa64bit then
@@ -9035,6 +9068,12 @@ begin
           AddStatus(Format(SCompilerStatusReadingFile, [DllName]));
           DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + DllName,
             not(pfIsbunzip in DisablePrecompiledFileVerifications), OnCheckedTrust);
+        end;
+      cmZstd: begin
+          const DllName = Format('isunzstd%s.dll', [DllNameExtension]);
+          AddStatus(Format(SCompilerStatusReadingFile, [DllName]));
+          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + DllName,
+            not(pfIsunzstd in DisablePrecompiledFileVerifications), OnCheckedTrust);
         end;
     end;
 
@@ -9292,6 +9331,7 @@ begin
     ClearPreLangDataList;
     ClearScriptFiles;
     ClearLineInfoList(CodeText);
+    FreeAndNil(ZstdCompressProps);
     FreeAndNil(CompressProps);
     FreeAndNil(InternalCompressProps);
   end;

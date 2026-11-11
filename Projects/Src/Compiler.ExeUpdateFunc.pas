@@ -856,6 +856,14 @@ type
     Result := GroupIconDir;
   end;
 
+  function GetWindowsModernDarkStyleName(const M: HMODULE): PChar;
+  begin
+    { Which one is present depends on the .dproj, see README.md }
+    Result := 'WINDOWSMODERNDARKSE';
+    if FindResource(M, Result, 'VCLSTYLE') = 0 then
+      Result := 'WINDOWSMODERNDARK';
+  end;
+
   function HandleBuiltinStyle(const M: HMODULE; const StyleFileName: String; var Vsf: Pointer; var VsfSize: Cardinal; const Dark: Boolean): Boolean;
   begin
     { Also see DeleteResource calls below }
@@ -867,7 +875,7 @@ type
         StyleName := 'WINDOWSPOLARLIGHT';
     end else if SameText(StyleFileName, 'builtin:windows11') then begin
       if Dark then
-        StyleName := 'WINDOWSMODERNDARK'
+        StyleName := GetWindowsModernDarkStyleName(M)
       else
         StyleName := 'WINDOWSMODERNLIGHT';
     end else if SameText(StyleFileName, 'builtin:slate') then
@@ -1029,21 +1037,22 @@ begin
             end;
 
             { See if we need to keep the built-in dark style }
+            const WindowsModernDarkStyleName = GetWindowsModernDarkStyleName(M);
             if (Vsf = nil) and (WizardDarkStyle = wdsDark) then begin
               TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
               { Forced dark without a custom style: make the built-in dark style the regular one }
-              RenameResource(H, M, 'VCLSTYLE', 'WINDOWSMODERNDARK', 'MYSTYLE1');
+              RenameResource(H, M, 'VCLSTYLE', WindowsModernDarkStyleName, 'MYSTYLE1');
             end else if (VsfDynamicDark = nil) and (WizardDarkStyle = wdsDynamic) then begin
               TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
               { Dynamic without a custom dark style: make the built-in dark style the dark one }
-              RenameResource(H, M, 'VCLSTYLE', 'WINDOWSMODERNDARK', 'MYSTYLE1_DARK');
+              RenameResource(H, M, 'VCLSTYLE', WindowsModernDarkStyleName, 'MYSTYLE1_DARK');
             end else begin
               TriggerOnUpdateIconsAndStyle(uisoWizardDarkStyle);
               { Forced dark with a custom style: delete the built-in dark style
                 Or, dynamic with a custom dark style: same
                 Or, forced light with or without a custom style: same
                 Note: forced light without a custom style doesn't actually use SetupCustomStyle.e32/64 at the moment so won't get here }
-              DeleteResource(H, M, 'VCLSTYLE', 'WINDOWSMODERNDARK');
+              DeleteResource(H, M, 'VCLSTYLE', WindowsModernDarkStyleName);
             end;
 
             { Delete additional styles - they are handled above. Stellar and

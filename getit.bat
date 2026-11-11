@@ -33,16 +33,30 @@ rem Delphi 10.4 note: Delphi 10.4 does not display these styles when using the
 rem GetIt Package Manager from the IDE, but its GetItCmd.exe can still retrieve
 rem them. When it does, it obtains the same files as Delphi 12.3.
 
-GetItCmd.exe --accepteulas --donotsetenvfile -i=VCLStyle-Windows11Light-1.0;VCLStyle-Windows11Dark-1.0;VCLStyle-PolarLight-1.0;VCLStyle-PolarDark-1.0;VCLStyle-Stellar-2.0;VCLStyle-Zircon-2.0
+GetItCmd.exe --accepteulas --donotsetenvfile -i=VCLStyle-Windows11Light-1.0;VCLStyle-PolarLight-1.0;VCLStyle-PolarDark-1.0;VCLStyle-Stellar-2.0;VCLStyle-Zircon-2.0
 if errorlevel 1 goto failed
+
+rem VCLStyle-WindowsModernDarkSE is the same as VCLStyle-Windows11Dark, except
+rem for its style name, its file name, and an empty toolbar separator image.
+rem Delphi 12.3's repository contains VCLStyle-Windows11Dark but not
+rem VCLStyle-WindowsModernDarkSE, and for Delphi 13.0 it's the other way
+rem around. So we try to get both, and fail only if neither style file
+rem exists afterwards. The exit codes can't be used for this because
+rem GetItCmd.exe of Delphi 12.3 returns 0 for a package it can't find.
+
+echo Next command will fail on Delphi 13.0 and newer, that's okay
+GetItCmd.exe --accepteulas --donotsetenvfile -i=VCLStyle-Windows11Dark-1.0
+
+echo Next command will fail on Delphi 12.3 and older, that's okay
+GetItCmd.exe --accepteulas --donotsetenvfile -i=VCLStyle-WindowsModernDarkSE
+
+if not exist "%BDSCOMMONDIR%\Styles\Windows11_Modern_Dark.vsf" if not exist "%BDSCOMMONDIR%\Styles\Windows_Modern_Dark_SE.vsf" goto failed
 
 echo Success!
 
-goto exit
+exit /b 0
 
 :failed
 echo *** FAILED ***
 :failed2
 exit /b 1
-
-:exit

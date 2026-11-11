@@ -27,7 +27,7 @@ type
     destructor Destroy; override;
   end;
 
-  { Note: This type is also present in Compiler.ScriptFunc.pas }
+  { Note: This type is also present in Compiler.ScriptFunc.pas and IDE.ScriptModel.Metadata.Extra }
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 
   TMsgBoxCallbackFunc = procedure(const Flags: Cardinal; const After: Boolean;
@@ -352,7 +352,7 @@ begin
             MsgBoxFlagsDecode(Flags, Icon, TDCommonButtons, DefCommonButton, SetForeground);
             { Note: Shared.TaskDialogFunc also uses TaskDialogForm }
             Result := TaskDialogForm('', Text, Caption, Icon, TDCommonButtons, [], [], DefCommonButton, 0,
-              Flags, '', nil, cfMessageBox, SetForeground);
+              Flags, '', nil, dkMessageBox, SetForeground);
             Exit;
           end;
         end;

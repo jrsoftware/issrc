@@ -248,14 +248,17 @@ begin
   begin
     RegisterProperty('AlphaFormat', 'TAlphaFormat', iptrw);
   end;
-  with Cl.AddClassN(CL.FindClass('TCustomControl'),'TBitmapButton') do
+  with Cl.AddClassN(CL.FindClass('TButtonControl'),'TBitmapButton') do
   begin
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('BackColor', 'TColor', iptrw);
     RegisterProperty('Bitmap', 'TBitmap', iptrw);
+    RegisterProperty('Cancel', 'Boolean', iptrw);
     RegisterProperty('Caption', 'String', iptrw);
     RegisterProperty('Center', 'Boolean', iptrw);
+    RegisterProperty('Default', 'Boolean', iptrw);
+    RegisterProperty('ModalResult', 'LongInt', iptrw);
     RegisterProperty('PngImage', 'TPngImage', iptrw);
     RegisterProperty('ReplaceColor', 'TColor', iptrw);
     RegisterProperty('ReplaceWithColor', 'TColor', iptrw);

@@ -273,6 +273,7 @@ begin
   FRichEdit.Align := alClient;
   FRichEdit.WordWrap := True;
   FRichEdit.ScrollBars := ssVertical;
+  FRichEdit.MaxLength := $7FFFFFFE; { Default is 64K }
   {$IFDEF HAVEURLS}
   FRichEdit.EnableURLs := True;
   FRichEdit.OnLinkClick := RichEditLinkClick;
@@ -442,7 +443,7 @@ procedure TRichEditForm.OpenFile(const AFilename: String);
     EditStream.dwCookie := DWORD_PTR(@Data);
     EditStream.dwError := 0;
     EditStream.pfnCallback := StreamLoad;
-    SendMessage(FRichEdit.Handle, EM_EXLIMITTEXT, 0, LPARAM($7FFFFFFE));
+    { MaxLength already set by CreateRichEditControl }
     SendMessage(FRichEdit.Handle, EM_STREAMIN, SF_RTF, LPARAM(@EditStream));
     if EditStream.dwError <> 0 then { dwError is not a Win32 error code }
       raise Exception.Create(LFmtMessage(SRichEditStreamInError, [EditStream.dwError]));
@@ -491,7 +492,7 @@ begin
   var Filename := FFilename;
   if ASaveAs or (Filename = '') then begin
     if not NewGetSaveFileName('', Filename, '',
-             Format(SLitExtAndAllFilter, [LFmtMessage(SRtfFiles), SLitRtfExt, LFmtMessage(SAllFiles)]),
+             FormatFileFilter(SRtfFiles, [SLitRtfExt]),
              SLitRtfExt, Handle) then
       Exit;
     Filename := PathExpand(Filename);
@@ -543,7 +544,7 @@ begin
     Exit;
   var Filename := FFilename;
   if NewGetOpenFileName('', Filename, '',
-       Format(SLitExtAndAllFilter, [LFmtMessage(SRtfFiles), SLitRtfExt, LFmtMessage(SAllFiles)]),
+       FormatFileFilter(SRtfFiles, [SLitRtfExt]),
        SLitRtfExt, Handle) then
     OpenFile(PathExpand(Filename));
 end;

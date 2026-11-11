@@ -22,6 +22,7 @@ type
     procedure UpdateFileMenu(const Menu: TMenuItem);
     procedure UpdateNewMainFileButtons;
     procedure UpdateSaveMenuItemAndButton;
+    procedure SetComplexCommandFakeShortCuts(const OEMKeyOnes: Boolean);
     procedure UpdateEditMenu(const Menu: TMenuItem);
     procedure UpdateViewMenu(const Menu: TMenuItem);
     procedure UpdateBuildMenu(const Menu: TMenuItem);
@@ -33,6 +34,8 @@ type
     procedure UpdateRunMenu(const Menu: TMenuItem);
     procedure UpdateBreakPointsMenu(const Menu: TMenuItem);
     procedure UpdateTargetMenuItems;
+    procedure UpdateInspectorPopupMenu(const Menu: TMenuItem);
+    procedure UpdateMinimapPopupMenu(const Menu: TMenuItem);
     { Private }
     procedure _UpdateMenuBitmapsIfNeeded;
     procedure _ApplyMenuBitmapsAndNewShortCutText(const ParentMenuItem: TMenuItem);
@@ -44,10 +47,10 @@ implementation
 
 uses
   Windows, CommCtrl,
-  SysUtils, Generics.Collections, VirtualImageList, ComCtrls,
+  Classes, SysUtils, Generics.Collections, VirtualImageList, ComCtrls,
   PathFunc,
   Shared.LicenseFunc,
-  IDE.HelperFunc, IDE.IDEScintEdit, IDE.Messages, IDE.LocalizeFunc;
+  IDE.HelperFunc, IDE.IDEScintEdit, IDE.Inspector, IDE.Messages, IDE.LocalizeFunc;
 
 procedure TMainFormUpdateMenuHelper._UpdateMenuBitmapsIfNeeded;
 
@@ -55,8 +58,8 @@ procedure TMainFormUpdateMenuHelper._UpdateMenuBitmapsIfNeeded;
     const MenuItem: TMenuItem; const ImageList: TVirtualImageList; const ImageIndex: Integer); overload;
   begin
     var pvBits: Pointer;
-    var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
-    var OldBitmap := SelectObject(DC, Bitmap);
+    const Bitmap = CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    const OldBitmap = SelectObject(DC, Bitmap);
     if ImageList_Draw(ImageList.Handle, ImageIndex, DC, 0, 0, ILD_TRANSPARENT) then begin
       MenuBitmaps.Add(MenuItem, Bitmap);
       SelectObject(DC, OldBitmap); { Make sure the bitmap can be deleted later }
@@ -130,13 +133,15 @@ begin
           BM(RRun, RunButton),
           BM(RPause, PauseButton),
           BM(RTerminate, TerminateButton),
-          BM(HDoc, HelpButton)];
+          BM(HDoc, HelpButton),
+          BM(PInspectorHelp, HelpButton)];
 
         for var ButtonedMenu in ButtonedMenus do
           AddMenuBitmap(FMenuBitmaps, DC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
 
         var NamedMenus := [
           NM(FClearRecent, 'eraser'),
+          NM(PInspectorRemove, 'eraser'),
           NM(FSaveMainFileAs, 'save-as-filled'),
           NM(FSaveAll, 'save-all-filled'),
           NM(FPrint, 'printer'),
@@ -341,6 +346,27 @@ begin
   SaveButton.Enabled := FSave.Enabled;
 end;
 
+procedure TMainFormUpdateMenuHelper.SetComplexCommandFakeShortCuts(
+  const OEMKeyOnes: Boolean);
+
+  procedure SetComplexCommandFakeShortCut(const MenuItem: TMenuItem;
+    const Command: TIDEScintComplexCommand);
+  begin
+    const ShortCut = FMainMemo.GetComplexCommandShortCut(Command);
+    if ShortCutUsesOEMKey(ShortCut) = OEMKeyOnes then
+      SetFakeShortCut(MenuItem, ShortCut);
+  end;
+
+begin
+  SetComplexCommandFakeShortCut(ESelectNextOccurrence, ccSelectNextOccurrence);
+  SetComplexCommandFakeShortCut(ESelectAllOccurrences, ccSelectAllOccurrences);
+  SetComplexCommandFakeShortCut(ESelectAllFindMatches, ccSelectAllFindMatches);
+  SetComplexCommandFakeShortCut(EFoldLine, ccFoldLine);
+  SetComplexCommandFakeShortCut(EUnfoldLine, ccUnfoldLine);
+  SetComplexCommandFakeShortCut(EToggleLinesComment, ccToggleLinesComment);
+  SetComplexCommandFakeShortCut(EBraceMatch, ccBraceMatch);
+end;
+
 procedure TMainFormUpdateMenuHelper.UpdateEditMenu(const Menu: TMenuItem);
 var
   MemoHasFocus, MemoIsReadOnly: Boolean;
@@ -367,9 +393,12 @@ begin
   EUnfoldLine.Visible := EFoldLine.Visible;
   EUnfoldLine.Enabled := EFoldLine.Enabled;
   EGotoFile.Enabled := FMainMemo.Filename <> '';
-  EGotoLine.Enabled := MemoHasFocus;
+  EGotoLine.Enabled := MemoHasFocus or FInspector.JvInspector.Focused;
   EToggleLinesComment.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EBraceMatch.Enabled := MemoHasFocus;
+
+  { This is here because some complex-command-shortcuts use OEM keys }
+  SetComplexCommandFakeShortCuts(True);
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;
@@ -400,12 +429,19 @@ begin
   if VReopenTab.Visible then
     _UpdateReopenTabMenu(VReopenTab);
   VReopenTabs.Visible := VReopenTab.Visible;
-  VHide.Checked := not StatusPanel.Visible;
+  VNavigatorFocus.Enabled := NavigatorPanel.Visible;
+  VNavigatorFocusAndSelect.Enabled := VNavigatorFocus.Enabled;
+  VHideStatusPanel.Checked := not StatusPanel.Visible;
   VCompilerOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiCompilerOutput);
   VDebugOutput.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugOutput);
   VDebugCallStack.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiDebugCallStack);
   VFindResults.Checked := StatusPanel.Visible and (OutputTabSet.TabIndex = tiFindResults);
   VWordWrap.Checked := FOptions.WordWrap;
+
+  { Ctrl+Shift+; and Ctrl+Shift+. are handled by FormKeyDown.
+    These are here because they use OEM keys. }
+  SetFakeShortCut(VNavigatorFocus, VK_OEM_1, [ssShift, ssCtrl]);
+  SetFakeShortCut(VNavigatorFocusAndSelect, VK_OEM_PERIOD, [ssShift, ssCtrl]);
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;
@@ -522,6 +558,34 @@ begin
     RTargetUninstall.Checked := True;
     TargetUninstallButton.Down := True;
   end;
+end;
+
+procedure TMainFormUpdateMenuHelper.UpdateInspectorPopupMenu(const Menu: TMenuItem);
+begin
+  FInspector.FlushPendingRebuild;
+  const ShowingDirectiveSection = FInspector.ShowingDirectiveSection;
+  const ShowingParameterSectionEntry = FInspector.ShowingParameterSectionEntry;
+
+  PInspectorGoTo.Enabled := FInspector.CanGoToSelectedRow;
+  PInspectorRemove.Enabled := FInspector.CanRemoveSelectedRow;
+  PInspectorShowAllKnownDirectives.Visible := ShowingDirectiveSection;
+  PInspectorShowAllKnownDirectives.Checked := FOptions.InspectorShowAllKnownDirectives;
+  PInspectorShowAllKnownDirectives.Enabled := FActiveMemo = FMainMemo;
+  PInspectorFollowCaret.Checked := FOptions.InspectorFollowCaret;
+  PInspectorQuoteNewDirectiveValues.Visible := ShowingDirectiveSection;
+  PInspectorQuoteNewDirectiveValues.Checked := FOptions.InspectorQuoteNewDirectiveValues;
+  PInspectorQuoteNewParameterValues.Visible := ShowingParameterSectionEntry;
+  PInspectorQuoteNewParameterValues.Checked := FOptions.InspectorQuoteNewParameterValues;
+
+  _ApplyMenuBitmapsAndNewShortCutText(Menu);
+end;
+
+procedure TMainFormUpdateMenuHelper.UpdateMinimapPopupMenu(const Menu: TMenuItem);
+begin
+  PMinimapAlwaysShowSlider.Checked := FOptions.MinimapAlwaysShowSlider;
+  PMinimapShowOnLeft.Checked := FOptions.MinimapShowOnLeft;
+
+  _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;
 
 end.

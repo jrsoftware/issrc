@@ -4,7 +4,7 @@ paths: ["**/*.iss"]
 # Coding conventions for Inno Setup script files
 Inno Setup `.iss` scripts use the `[Code]` section for Pascal Script code. This is RemObjects Pascal Script (ROPS), not modern Delphi. The following rules apply to code in `[Code]` sections.
 ## Language differences compared to Delphi
-These are hard constraints of the ROPS compiler. Violating them causes compile errors.
+Most of these are hard constraints of the ROPS compiler. Violating them causes compile errors.
 - No inline `var` or inline `const`. All local variables must be declared in a `var` block before `begin`.
 - No local `const` or `type` declarations. Only `var` and `label` blocks are allowed before `begin`.
 - No `Exit(Value)` syntax. Assign to `Result` first, then call `Exit` separately.
@@ -16,6 +16,7 @@ These are hard constraints of the ROPS compiler. Violating them causes compile e
 - No script-defined classes. Classes can be used, but only those defined by Inno Setup.
 - No variant records.
 - `const` parameters are passed by value (copied), and not by reference as in modern Delphi.
+- As in Delphi, assigning a dynamic array, or passing it as a value or `const` parameter, shares its elements. A change to an element through one variable is visible through the other. `SetArrayLength` and `SetLength` copy a shared array only when the length changes. Delphi's `SetLength` always copies it. `Copy` doesn't support arrays. To get an array that isn't shared, change its length and change it back, or copy the elements to a new array.
 - The `/` operator always returns `Extended`, even when both operands are integers. Use `div` for integer division.
 - `Break` and `Continue` are not reserved words. They are ordinary identifiers recognized specially inside loop bodies. A local declaration named `Break` or `Continue` will shadow the loop-control behavior.
 - `Low`, `High`, and `SizeOf` must be used with a variable, not a type.

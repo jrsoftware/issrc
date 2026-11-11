@@ -45,8 +45,15 @@ Getting Started
    running **getit.bat** and following the instructions. When using the
    Community Edition, first remove the references to the Stellar and
    Zircon VCL styles from both **getit.bat** and
-   **Projects\SetupCustomStyle.dproj**. To ignore these changes consider
-   using Git's assume-unchanged or skip-worktree functionality.
+   **Projects\SetupCustomStyle.dproj**. When using Delphi 13.0 or newer,
+   either copy **Windows11_Modern_Dark.vsf** from the `%BDSCOMMONDIR%\Styles`
+   folder of a Delphi 12.3 installation to the same folder of your newer Delphi
+   installation, or in both **Projects\ISIDE.dproj** and
+   **Projects\SetupCustomStyle.dproj** replace
+   `Windows11 Modern Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows11_Modern_Dark.vsf`
+   with `Windows Modern Dark SE|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows_Modern_Dark_SE.vsf`.
+   The first option requires no project changes. To ignore these changes
+   consider using Git's assume-unchanged or skip-worktree functionality.
 
 3. **Install Microsoft HTML Help Workshop**
 
@@ -163,11 +170,11 @@ testing framework. Run **test.bat** to compile and run the tests manually.
 
 How do the projects link together?
 
-- ISIDE, ISCmplr, ISPP, Setup, SetupCustomStyle, SetupLdr, and ISTestTool share
-  the unit Shared.Struct.pas. This unit contains various data structures and
-  constants shared by the projects. If Shared.Struct.pas is changed, you usually
-  will need to recompile all these projects and the required targets using the
-  Release64 or Debug64 build group so that everything is in synch.
+- All projects except ISHelpGen share the unit Shared.Struct.pas. This unit
+  contains various data structures and constants shared by the projects. If
+  Shared.Struct.pas is changed, you usually will need to recompile all these
+  projects and the required targets using the Release64 or Debug64 build group
+  so that everything is in synch.
 
 - There are more units which are shared between projects. Search the .dpr
   files of the projects if you aren't sure if a project uses a particular
@@ -233,6 +240,9 @@ from the bzlib directory in the [iscompress] repository. Used by Setup and ISCmp
 
 **Files\isunzlib(-x64).dll**, **Files\iszlib(-x64).dll** - Compiled by Visual Studio 2022
 from the zlib directory in the [iscompress] repository. Used by Setup and ISCmplr respectively.
+
+**Files\isunzstd(-x64).dll**, **Files\iszstd(-x64|-Arm64EC).dll** - Compiled by Visual Studio 2022
+from the zstd directory in the [iscompress] repository. Used by Setup and ISCmplr respectively.
 
 **Files\islzma(-x64|-Arm64EC).dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
 by Visual Studio 2022 from the [Projects\Src\Compression.LZMACompressor\islzma] directory.
@@ -322,6 +332,9 @@ cd /d "%BDSCOMMONDIR%"
   Styles\Stellar.vsf ^
   Styles\Zircon.vsf
 ```
+
+When using Delphi 13.0 or newer and you edited the .dproj files instead of copying the style,
+replace `Styles\Windows11_Modern_Dark.vsf` above with `Styles\Windows_Modern_Dark_SE.vsf`.
 
 When using Delphi 13.1 or newer, also run:
 ```

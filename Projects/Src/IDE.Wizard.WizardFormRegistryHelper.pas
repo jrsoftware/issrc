@@ -48,7 +48,7 @@ implementation
 
 uses
   Windows, ShLwApi, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
-  ComCtrls, BrowseFunc,
+  ComCtrls, BrowseFunc, PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.MainForm, IDE.ImagesModule, IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.HtmlHelpFunc;
 
@@ -114,7 +114,7 @@ procedure TWizardFormRegistryHelper.FileButtonClick(Sender: TObject);
 begin
   var FileName: String := FFileEdit.Text;
   if NewGetOpenFileName('', FileName, '',
-       Format(SLitExtAndAllFilter, [LFmtMessage(SRegFiles), SLitRegExt, LFmtMessage(SAllFiles)]),
+       FormatFileFilter(SRegFiles, [SLitRegExt]),
        SLitRegExt, FForm.Handle) then
     FFileEdit.Text := FileName;
 end;
@@ -300,7 +300,7 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
   begin
     Result := (AEntry.Root = 'HKLM') or (AEntry.Root = 'HKCC') or
               ((AEntry.Root = 'HKU') and
-               (SameText(AEntry.QuotedSubkey, '".Default"') or StartsText('".Default\', AEntry.QuotedSubkey)));
+               (PathSame(AEntry.QuotedSubkey, '".Default"') or PathStartsWith(AEntry.QuotedSubkey, '".Default\')));
   end;
 
    function RequiresNotAdminInstallMode(AEntry: TRegistryEntry): Boolean;

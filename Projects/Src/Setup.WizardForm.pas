@@ -3026,7 +3026,7 @@ begin
     GroupEdit.Text := Path;
 end;
 
-{ also used by ScriptDlg! }
+{ also used by Setup.SelectFolderForm! }
 procedure TWizardForm.DirTreeRename(Sender: TCustomFolderTreeView;
   var NewName: string; var Accept: Boolean);
 const

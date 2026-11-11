@@ -208,7 +208,8 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Undefines (removes) a variable or user defined function. If no <link href="visibility">visibility</link> (<tt>public</tt>, <tt>protected</tt>, or <tt>private</tt>) is specified, ISPP first tries to remove a private variable of the given name, then protected, then public.</p>
+					<p>Undefines (removes) a variable or user defined function. If no <link href="visibility">visibility</link> (<tt>public</tt>, <tt>protected</tt>, or <tt>private</tt>) is specified, the default visibility is used.</p>
+					<p>The main script and files included using &file; are an exception. Until the script or file sets a default visibility or calls a <link href="sub">user defined procedure</link>, &undef; without a visibility removes the most recently defined accessible variable or user defined function with the given name, regardless of its visibility.</p>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -2411,7 +2412,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>Each file can set a default visibility, the visibility that will be used when no resolution clause is specified in a variable declaration. This can be done using the &define; directive, for example:</p>
 				<pre><line><ispp>#define</ispp> <ispp>protected</ispp></line></pre>
 				<p>sets protected visibility by default.</p>
-				<p>The default visibility isn't used when evaluating expressions, it is only used when a variable is defined or undefined without explicitly specifying its visibility. When default visibility is not set, <tt>public</tt> is assumed by default. Setting default visibility is not propagated on included or parent files.</p>
+				<p>The default visibility isn't used when evaluating expressions, it is only used when a variable is defined or undefined without explicitly specifying its visibility. When default visibility is not set, <tt>public</tt> is assumed by default, except by &undef; in some cases (see &undef;). Setting default visibility is not propagated on included or parent files.</p>
 				<p>In user defined function expressions, avoid using identifiers of lower visibility than the one the user defined function is declared in. This may cause "Undeclared identifier" errors if the user defined function is called from another file.</p>
 				<p>It is recommended that you use appropriate visibility when declaring variables to avoid problems with unexpected redefinition of a variable (for example in an included third-party file). If no included files depend on a variable, declare it as private. If they do, but the parent file doesn't, declare it as protected. Declare it as public otherwise. If you're unsure, protected visibility is usually the safe choice.</p>
 			</description>

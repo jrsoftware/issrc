@@ -21,6 +21,7 @@ uses
   ISSigFunc in '..\Components\ISSigFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
+  Shared.Struct in 'Src\Shared.Struct.pas',
   UnsignedFunc in '..\Components\UnsignedFunc.pas';
 
 {$APPTYPE CONSOLE}

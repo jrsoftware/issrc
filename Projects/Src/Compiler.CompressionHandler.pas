@@ -47,7 +47,7 @@ type
     procedure NewChunk(const ACompressorClass: TCustomCompressorClass;
       const ACompressLevel: Integer; const ACompressorProps: TCompressorProps;
       const AUseEncryption: Boolean; const ACryptKey: TSetupEncryptionKey);
-    procedure ProgressProc(BytesProcessed: Cardinal);
+    procedure ProgressProc(BytesProcessed: Int64);
     function ReserveBytesOnSlice(const Bytes: Int64): Boolean;
     procedure WriteProc(const Buf; BufSize: Cardinal);
     property ChunkBytesRead: Int64 read FChunkBytesRead;
@@ -292,7 +292,7 @@ begin
   end;
 end;
 
-procedure TCompressionHandler.ProgressProc(BytesProcessed: Cardinal);
+procedure TCompressionHandler.ProgressProc(BytesProcessed: Int64);
 begin
   FCompiler.AddBytesCompressedSoFar(BytesProcessed);
   FCompiler.CallIdleProc;

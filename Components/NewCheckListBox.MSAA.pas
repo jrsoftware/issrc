@@ -308,16 +308,21 @@ end;
 
 function TAccObject.get_accState(varChild: OleVariant;
   out pvarState: OleVariant): HRESULT;
-var
-  ItemState: TItemState;
 begin
+  const IsItem = (TVarData(varChild).VType = VT_I4) and
+    (TVarData(varChild).VInteger <> CHILDID_SELF);
+  const Item = TVarData(varChild).VInteger;
+
   Result := FStdAcc.get_accState(varChild, pvarState);
+  { ^ On 64-bit, Delphi passes our own copy of varChild, and
+      FStdAcc.get_accState changes it (by decrementing VInteger),
+      so don't read from it anymore }
+
   try
-    if (Result = S_OK) and (TVarData(varChild).VType = VT_I4) and
-       (TVarData(varChild).VInteger <> CHILDID_SELF) and
+    if (Result = S_OK) and IsItem and
        (TVarData(pvarState).VType = VT_I4) and
        Assigned(FControl) then begin
-      ItemState := FControl.ItemStates[TVarData(varChild).VInteger-1];
+      const ItemState = FControl.ItemStates[Item-1];
       if ItemState.ItemType <> itGroup then begin
         case ItemState.State of
           cbChecked: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_CHECKED;

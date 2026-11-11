@@ -69,7 +69,8 @@ type
 implementation
 
 uses
-  IDE.Messages, IDE.LocalizeFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  IDE.Messages, IDE.LocalizeFunc, IDE.ScriptModel.Metadata.Extra;
 
 {$R *.DFM}
 
@@ -78,17 +79,27 @@ type
     Constant, Description: String;
   end;
 
-const
+var
+  { Order must match FilesDestDirCommonValues in IDE.ScriptModel.Metadata.Extra!
+    Constant values filled at startup by InitializeDestRootDirs. }
   DestRootDirs: array[0..6] of TConstant =
   (
-    ( Constant: '{app}'; Description: SWizardDirApplication),
-    ( Constant: '{autopf}'; Description: SWizardDirProgramFiles),
-    ( Constant: '{autocf}'; Description: SWizardDirCommonFiles),
-    ( Constant: '{win}'; Description: SWizardDirWindows),
-    ( Constant: '{sys}'; Description: SWizardDirWindowsSystem),
-    ( Constant: '{src}'; Description: SWizardDirSetupSource),
-    ( Constant: '{sd}'; Description: SWizardDirSystemDriveRoot)
+    ( Constant: ''; Description: SWizardDirApplication),
+    ( Constant: ''; Description: SWizardDirProgramFiles),
+    ( Constant: ''; Description: SWizardDirCommonFiles),
+    ( Constant: ''; Description: SWizardDirWindows),
+    ( Constant: ''; Description: SWizardDirWindowsSystem),
+    ( Constant: ''; Description: SWizardDirSetupSource),
+    ( Constant: ''; Description: SWizardDirSystemDriveRoot)
   );
+
+procedure InitializeDestRootDirs;
+begin
+  if Length(FilesDestDirCommonValues) <> Length(DestRootDirs) then
+    raise Exception.Create('Internal error: DestDir common values mismatch');
+  for var I := Low(DestRootDirs) to High(DestRootDirs) do
+    DestRootDirs[I].Constant := FilesDestDirCommonValues[I];
+end;
 
 procedure MakeBold(const Ctl: TNewStaticText);
 begin
@@ -232,4 +243,6 @@ begin
   end;
 end;
 
+initialization
+  InitializeDestRootDirs;
 end.

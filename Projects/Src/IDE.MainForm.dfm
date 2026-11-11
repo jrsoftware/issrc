@@ -38,7 +38,7 @@ object MainForm: TMainForm
     BevelOuter = bvNone
     FullRepaint = False
     TabOrder = 3
-    object SplitPanel: TPanel
+    object StatusSplitPanel: TPanel
       Left = 0
       Top = 86
       Width = 361
@@ -47,10 +47,10 @@ object MainForm: TMainForm
       Align = alBottom
       BevelOuter = bvNone
       FullRepaint = False
-      TabOrder = 1
+      TabOrder = 3
       Visible = False
       StyleName = 'Windows'
-      OnMouseMove = SplitPanelMouseMove
+      OnMouseMove = StatusSplitPanelMouseMove
     end
     object StatusPanel: TPanel
       Left = 0
@@ -60,7 +60,7 @@ object MainForm: TMainForm
       Align = alBottom
       BevelOuter = bvNone
       FullRepaint = False
-      TabOrder = 0
+      TabOrder = 4
       Visible = False
       object FindResultsList: TListBox
         Left = 0
@@ -135,6 +135,153 @@ object MainForm: TMainForm
           '*'
           '*')
         OnClick = OutputTabSetClick
+      end
+    end
+    object InspectorSplitPanel: TPanel
+      Left = 236
+      Top = 0
+      Width = 4
+      Height = 86
+      Cursor = crHSplit
+      Align = alRight
+      BevelOuter = bvNone
+      FullRepaint = False
+      TabOrder = 1
+      Visible = False
+      StyleName = 'Windows'
+      OnMouseMove = InspectorSplitPanelMouseMove
+    end
+    object InspectorPanel: TPanel
+      Left = 240
+      Top = 0
+      Width = 121
+      Height = 86
+      Align = alRight
+      BevelOuter = bvNone
+      FullRepaint = False
+      TabOrder = 2
+      Visible = False
+      StyleElements = []
+      OnResize = InspectorPanelResize
+      object InspectorHeaderPanel: TPanel
+        Left = 0
+        Top = 0
+        Width = 121
+        Height = 22
+        Align = alTop
+        BevelOuter = bvNone
+        FullRepaint = False
+        TabOrder = 0
+        StyleElements = []
+        OnResize = InspectorHeaderPanelResize
+        object InspectorCaptionText: TNewStaticText
+          Left = 4
+          Top = 4
+          Width = 5
+          Height = 14
+          Caption = '*'
+          StyleName = 'Windows'
+          TabOrder = 0
+          Transparent = False
+        end
+        object InspectorFilterEdit: TEdit
+          Left = 56
+          Top = 1
+          Width = 61
+          Height = 21
+          TabOrder = 1
+          TextHint = 'Filter'
+          StyleElements = [seClient, seBorder]
+          OnChange = InspectorFilterEditChange
+          OnKeyDown = InspectorFilterEditKeyDown
+        end
+        object InspectorPopupMenuBitBtn: TBitmapButton
+          Left = 96
+          Top = 1
+          Width = 21
+          Height = 21
+          Caption = 'Inspector Menu'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 2
+          OnClick = InspectorPopupMenuBitBtnClick
+        end
+      end
+      object InspectorNoteText: TNewStaticText
+        AlignWithMargins = True
+        Left = 4
+        Top = 22
+        Width = 113
+        Height = 14
+        Margins.Left = 4
+        Margins.Top = 0
+        Margins.Right = 4
+        Margins.Bottom = 0
+        Align = alTop
+        StyleName = 'Windows'
+        TabOrder = 1
+        Transparent = False
+        Visible = False
+        WordWrap = True
+      end
+    end
+    object MemoPanel: TPanel
+      Left = 0
+      Top = 0
+      Width = 236
+      Height = 86
+      Align = alClient
+      BevelOuter = bvNone
+      FullRepaint = False
+      TabOrder = 0
+      object NavigatorPanel: TPanel
+        Left = 0
+        Top = 0
+        Width = 236
+        Height = 25
+        Align = alTop
+        BevelOuter = bvNone
+        FullRepaint = False
+        TabOrder = 0
+        Visible = False
+        StyleElements = []
+        OnResize = NavigatorPanelResizeOrCaretInCodeSectionChange
+        object NavigatorComboBox: TComboBox
+          Left = 4
+          Top = 2
+          Width = 125
+          Height = 21
+          Hint = 'Sections'
+          Style = csDropDownList
+          DropDownCount = 24
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 0
+          StyleElements = [seClient, seBorder]
+        end
+        object NavigatorCaptionText: TNewStaticText
+          Left = 134
+          Top = 5
+          Width = 7
+          Height = 14
+          Caption = '>'
+          StyleName = 'Windows'
+          TabOrder = 1
+          Transparent = False
+        end
+        object NavigatorComboBox2: TComboBox
+          Left = 146
+          Top = 2
+          Width = 125
+          Height = 21
+          Hint = 'Routines'
+          Style = csDropDownList
+          DropDownCount = 24
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 2
+          StyleElements = [seClient, seBorder]
+        end
       end
     end
   end
@@ -381,7 +528,7 @@ object MainForm: TMainForm
       Margins.Bottom = 8
       Align = alRight
       Caption = 'Close Banner'
-      TabOrder = 1
+      TabOrder = 2
       OnClick = UpdatePanelCloseBitBtnClick
       OnPaint = UpdatePanelCloseBitBtnPaint
     end
@@ -398,7 +545,7 @@ object MainForm: TMainForm
       Align = alRight
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 2
+      TabOrder = 1
       OnClick = UpdatePanelDonateBitBtnClick
     end
     object UpdateLinkLabel: TLinkLabel
@@ -579,7 +726,7 @@ object MainForm: TMainForm
         OnClick = EFoldOrUnfoldLineClick
       end
       object EUnfoldLine: TMenuItem
-        Caption = '&Unfold Section'
+        Caption = 'Unfold Section'
         OnClick = EFoldOrUnfoldLineClick
       end
       object EGotoFile: TMenuItem
@@ -630,6 +777,18 @@ object MainForm: TMainForm
       object VToolbar: TMenuItem
         Caption = '&Toolbar'
         OnClick = VToolbarClick
+      end
+      object VNavigator: TMenuItem
+        Caption = 'Na&vigator'
+        OnClick = VNavigatorClick
+      end
+      object VMinimap: TMenuItem
+        Caption = '&Minimap'
+        OnClick = VMinimapClick
+      end
+      object VInspector: TMenuItem
+        Caption = '&Inspector'
+        OnClick = VInspectorClick
       end
       object VStatusBar: TMenuItem
         Caption = 'St&atus Bar'
@@ -684,6 +843,17 @@ object MainForm: TMainForm
       object N20: TMenuItem
         Caption = '-'
       end
+      object VNavigatorFocus: TMenuItem
+        Caption = 'Focus Navi&gator'
+        OnClick = VNavigatorFocusClick
+      end
+      object VNavigatorFocusAndSelect: TMenuItem
+        Caption = 'Focus And &Select Navigator'
+        OnClick = VNavigatorFocusClick
+      end
+      object N28: TMenuItem
+        Caption = '-'
+      end
       object VCompilerOutput: TMenuItem
         Caption = '&Compiler Output'
         RadioItem = True
@@ -704,10 +874,10 @@ object MainForm: TMainForm
         RadioItem = True
         OnClick = VFindResultsClick
       end
-      object VHide: TMenuItem
+      object VHideStatusPanel: TMenuItem
         Caption = '&Hide Bottom Pane'
         RadioItem = True
-        OnClick = VHideClick
+        OnClick = VHideStatusPanelClick
       end
       object N24: TMenuItem
         Caption = '-'
@@ -728,6 +898,58 @@ object MainForm: TMainForm
         object POutputListSelectAll: TMenuItem
           Caption = 'Select &All'
           OnClick = POutputListSelectAllClick
+        end
+      end
+      object InspectorPopupMenu: TMenuItem
+        Caption = 'InspectorPopupMenu'
+        Visible = False
+        OnClick = InspectorPopupMenuClick
+        object PInspectorGoTo: TMenuItem
+          Caption = '&Go to'
+          OnClick = PInspectorGoToClick
+        end
+        object PInspectorRemove: TMenuItem
+          Caption = 'Remo&ve'
+          OnClick = PInspectorRemoveClick
+        end
+        object N26: TMenuItem
+          Caption = '-'
+        end
+        object PInspectorShowAllKnownDirectives: TMenuItem
+          Caption = 'Show all known directives'
+          OnClick = PInspectorShowAllKnownDirectivesClick
+        end
+        object PInspectorFollowCaret: TMenuItem
+          Caption = 'Follow cursor'
+          OnClick = PInspectorFollowCaretClick
+        end
+        object PInspectorQuoteNewDirectiveValues: TMenuItem
+          Caption = 'Quote new directive values'
+          OnClick = PInspectorQuoteNewDirectiveValuesClick
+        end
+        object PInspectorQuoteNewParameterValues: TMenuItem
+          Caption = 'Quote new parameter values'
+          OnClick = PInspectorQuoteNewParameterValuesClick
+        end
+        object N27: TMenuItem
+          Caption = '-'
+        end
+        object PInspectorHelp: TMenuItem
+          Caption = '&Help'
+          OnClick = PInspectorHelpClick
+        end
+      end
+      object MinimapPopupMenu: TMenuItem
+        Caption = 'MinimapPopupMenu'
+        Visible = False
+        OnClick = MinimapPopupMenuClick
+        object PMinimapAlwaysShowSlider: TMenuItem
+          Caption = 'Always show slider'
+          OnClick = PMinimapAlwaysShowSliderClick
+        end
+        object PMinimapShowOnLeft: TMenuItem
+          Caption = 'Show on left'
+          OnClick = PMinimapShowOnLeftClick
         end
       end
     end
@@ -1400,6 +1622,11 @@ object MainForm: TMainForm
         CollectionIndex = 78
         CollectionName = 'unused\format-list-numbered'
         Name = 'unused\format-list-numbered'
+      end
+      item
+        CollectionIndex = 79
+        CollectionName = 'menu-hamburger'
+        Name = 'menu-hamburger'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 80

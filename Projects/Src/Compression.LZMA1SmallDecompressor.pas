@@ -2,7 +2,7 @@ unit Compression.LZMA1SmallDecompressor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -46,19 +46,19 @@ type
 
   TLZMA1SmallDecompressor = class(TCustomDecompressor)
   private
-    FReachedEnd: Boolean;
     FHeaderProcessed: Boolean;
     FDecoderState: TLZMAInternalDecoderState;
     FHeapBase: Pointer;
     FHeapSize: Cardinal;
-    FBuffer: array[0..65535] of Byte;
+    FInBuffer: array[0..65535] of Byte;
     procedure DestroyHeap;
     procedure DoRead(var Buffer: Pointer; var BufferSize: Cardinal);
     procedure ProcessHeader;
+  protected
+    procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
+    procedure DoReset; override;
   public
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Cardinal); override;
-    procedure Reset; override;
   end;
 
 implementation
@@ -139,13 +139,8 @@ end;
 
 procedure TLZMA1SmallDecompressor.DoRead(var Buffer: Pointer; var BufferSize: Cardinal);
 begin
-  Buffer := @FBuffer;
-  BufferSize := 0;
-  if not FReachedEnd then begin
-    BufferSize := ReadProc(FBuffer, SizeOf(FBuffer));
-    if BufferSize = 0 then
-      FReachedEnd := True;  { not really necessary, but for consistency }
-  end;
+  Buffer := @FInBuffer;
+  BufferSize := ReadInput(FInBuffer, SizeOf(FInBuffer));
 end;
 
 procedure TLZMA1SmallDecompressor.ProcessHeader;
@@ -155,7 +150,7 @@ var
   NewHeapSize: Cardinal;
 begin
   { Read header fields }
-  if ReadProc(Props, SizeOf(Props)) <> SizeOf(Props) then
+  if ReadInput(Props, SizeOf(Props)) <> SizeOf(Props) then
     LZMADataError(1);
 
   { Initialize the LZMA decoder state structure, and calculate the size of
@@ -182,7 +177,7 @@ begin
   FHeaderProcessed := True;
 end;
 
-procedure TLZMA1SmallDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+procedure TLZMA1SmallDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
 var
   CallbackData: TLZMADecompressorCallbackData;
   Code: Integer;
@@ -204,10 +199,9 @@ begin
     LZMADataError(6);
 end;
 
-procedure TLZMA1SmallDecompressor.Reset;
+procedure TLZMA1SmallDecompressor.DoReset;
 begin
   FHeaderProcessed := False;
-  FReachedEnd := False;
 end;
 
 end.

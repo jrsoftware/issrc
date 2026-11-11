@@ -35,7 +35,7 @@ uses
   SysUtils, Forms, UITypes,
   PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.ConfigIniFile,
-  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
+  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata.Extra, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
   IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.RichEditForm, IDE.Wizard.WizardFormRegistryHelper;
 
 {$IFNDEF WIN64}
@@ -103,8 +103,8 @@ procedure TMainFormToolsHelper.ShowRegistryDesignerForm(const AMemo: TScintEdit)
 begin
   var RegistryDesignerForm := TRegistryDesignerForm.Create(Application);
   try
-    var PrivilegesRequired := FindSetupDirectiveValue('PrivilegesRequired', 'admin');
-    var PrivilegesRequiredOverridesAllowed := FindSetupDirectiveValue('PrivilegesRequiredOverridesAllowed', '');
+    var PrivilegesRequired := FindSetupDirectiveValue('PrivilegesRequired');
+    var PrivilegesRequiredOverridesAllowed := FindSetupDirectiveValue('PrivilegesRequiredOverridesAllowed');
     if PrivilegesRequiredOverridesAllowed = '' then begin
       if SameText(PrivilegesRequired, 'admin') then
         RegistryDesignerForm.PrivilegesRequired := prAdmin
@@ -129,7 +129,7 @@ procedure TMainFormToolsHelper.ShowFilesDesignerForm(const AMemo: TScintEdit);
 begin
   var FilesDesignerForm := TFilesDesignerForm.Create(Application);
   try
-    FilesDesignerForm.CreateAppDir := FindSetupDirectiveValue('CreateAppDir', True);
+    FilesDesignerForm.CreateAppDir := FindSetupDirectiveValueAsBoolean('CreateAppDir');
     if FilesDesignerForm.ShowModal = mrOk then begin
       var Text := FilesDesignerForm.Text;
       if TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scFiles then

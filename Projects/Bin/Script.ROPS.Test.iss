@@ -3295,7 +3295,7 @@ end;
 
 procedure Test_PSStackHelper;
 var
-  DynArray: TArrayOfString;
+  DynArray, SavedArray: TArrayOfString;
 begin
   { Tests PSStackHelper.GetStringArray, SetArray, and GetProc which marshal
     array and callback parameters for RegisterScriptFunc-registered functions.
@@ -3318,6 +3318,15 @@ begin
   DynArray := StringSplit('hello', [','], stAll);
   CheckEqualsInt64(1, GetArrayLength(DynArray));
   CheckEqualsString('hello', DynArray[0]);
+
+  { SetArray must not overwrite a shared array when the length doesn't change }
+  DynArray := StringSplit('a=1', ['='], stAll);
+  SavedArray := DynArray;
+  DynArray := StringSplit('b=2', ['='], stAll);
+  CheckEqualsString('a', SavedArray[0]);
+  CheckEqualsString('1', SavedArray[1]);
+  CheckEqualsString('b', DynArray[0]);
+  CheckEqualsString('2', DynArray[1]);
 
   { TestPSStackHelper_InvokeCallback exercises PSStackHelper.GetProc }
   CheckEqualsInt64(10, TestPSStackHelper_InvokeCallback(@Test_PSStackHelper_DoubleValue, 5));

@@ -60,9 +60,9 @@ type
     NumThreadGroups: Integer;
   end;
   TLZMACompressorRingBuffer = record
-    Count: Integer;         { updated by reader and writer using InterlockedExchangeAdd only }
-    WriterOffset: Integer;  { accessed only by writer thread }
-    ReaderOffset: Integer;  { accessed only by reader thread }
+    [volatile] Count: Integer;  { updated by reader and writer using InterlockedExchangeAdd only }
+    WriterOffset: Integer;      { accessed only by writer thread }
+    ReaderOffset: Integer;      { accessed only by reader thread }
     Buf: array[0..$FFFFF] of Byte;
   end;
   { Using 32-bit handles to ensure islzma.exe doesn't depend on our bitness. This is safe
@@ -81,9 +81,9 @@ type
   end;
   PLZMACompressorSharedData = ^TLZMACompressorSharedData;
   TLZMACompressorSharedData = record
-    ProgressBytes: Int64;
-    NoMoreInput: BOOL;
-    EncodeResult: TLZMASRes;
+    [volatile] ProgressBytes: Int64;
+    [volatile] NoMoreInput: BOOL;
+    [volatile] EncodeResult: TLZMASRes;
     InputBuffer: TLZMACompressorRingBuffer;
     OutputBuffer: TLZMACompressorRingBuffer;
   end;
@@ -165,7 +165,7 @@ type
   private
     FThread: THandle;
     FLZMAHandle: TLZMACompressorHandle;
-    FReadLock, FWriteLock, FProgressLock: Integer;
+    [volatile] FReadLock, FWriteLock, FProgressLock: Integer;
     FSavedFatalException: TObject;
     function CheckTerminateWorkerEvent: HRESULT;
     function FillBuffer(const AWrite: Boolean; const Data: Pointer;
@@ -983,11 +983,8 @@ begin
 end;
 
 procedure TLZMACompressor.UpdateProgress;
-const
-  MaxBytesPerProgressProcCall = 1 shl 30;  { 1 GB }
 var
   NewProgressBytes, Bytes: Int64;
-  LimitedBytes: Cardinal;
 begin
   { Check if the timer is signaled. Because it's an auto-reset timer, this
     also resets it to non-signaled. Note that WaitForWorkerEvent also waits
@@ -1010,14 +1007,7 @@ begin
       end else
         Bytes := 0;
 
-      repeat
-        if Bytes >= MaxBytesPerProgressProcCall then
-          LimitedBytes := MaxBytesPerProgressProcCall
-        else
-          LimitedBytes := Cardinal(Bytes);
-        ProgressProc(LimitedBytes);
-        Dec(Bytes, LimitedBytes);
-      until Bytes = 0;
+      ProgressProc(Bytes);
     end;
   end;
 end;

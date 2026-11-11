@@ -20,12 +20,12 @@ procedure ScriptClassesLibraryUpdateVars(ScriptInterpreter: TIFPSExec);
 implementation
 
 uses
-  Windows, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage, Classes,
+  Windows, SysUtils, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage, Classes,
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
   UIStateForm, PasswordEdit, FolderTreeView, BitmapButton, BitmapImage, NewNotebook, NewCtrls,
-  Shared.SetupTypes, Shared.CommonFunc.Vcl,
+  Shared.SetupTypes, Shared.CommonFunc, Shared.CommonFunc.Vcl,
   Setup.SetupForm, Setup.WizardForm, Setup.WizardForm.CustomPages, Setup.UninstallProgressForm;
 
 procedure TControlParentR(Self: TControl; var T: TWinControl); begin T := Self.Parent; end;
@@ -39,12 +39,9 @@ procedure RegisterControl_R(Cl: TPSRuntimeClassImporter);
 begin
   RIRegisterTControl(Cl);
 
-  with Cl.FindClass(AnsiString(TControl.ClassName)) do
-  begin
-    { This overrides the property helper added by RIRegisterTControl, because uPSRuntime's SpecImport
-      starts at the end of the FClassItems list when looking for property helpers }
-    RegisterPropertyHelper(@TControlParentR, @TControlParentW, 'Parent');
-  end;
+  { This overrides the property helper added by RIRegisterTControl, because uPSRuntime's SpecImport
+    starts at the end of the FClassItems list when looking for property helpers }
+  Cl.FindClass(AnsiString(TControl.ClassName)).RegisterPropertyHelper(@TControlParentR, @TControlParentW, 'Parent');
 end;
 
 type
@@ -61,6 +58,60 @@ begin
   begin
     RegisterPropertyHelper(@TWinControlParentBackground_R, @TWinControlParentBackground_W, 'ParentBackground');
   end;
+end;
+
+procedure BitmapLoadFromStreamHelper(Self: TBitmap; const Stream: TStream);
+begin
+  { Use a copy, because RemoveEmbeddedColorProfileFromBitmap changes the data }
+  const MemoryStream = TMemoryStream.Create;
+  try
+    const StartPosition = Stream.Position;
+    const Count = Stream.Size - StartPosition;
+    if Count > 0 then { CopyFrom copies the whole stream if Count is 0 }
+      MemoryStream.CopyFrom(Stream, Count);
+    RemoveEmbeddedColorProfileFromBitmap(MemoryStream.Memory, MemoryStream.Size);
+    MemoryStream.Position := 0;
+    try
+      Self.LoadFromStream(MemoryStream);
+    finally
+      { Leave Stream where TBitmap.LoadFromStream would have left it }
+      Stream.Position := StartPosition + MemoryStream.Position;
+    end;
+  finally
+    MemoryStream.Free;
+  end;
+end;
+
+procedure GraphicLoadFromFileHelper(Self: TGraphic; const Filename: String);
+begin
+  if Self is TBitmap then begin
+    { Ensure RemoveEmbeddedColorProfileFromBitmap is used }
+    const Stream = TFileStream.Create(Filename, fmOpenRead or fmShareDenyWrite);
+    try
+      BitmapLoadFromStreamHelper(TBitmap(Self), Stream);
+    finally
+      Stream.Free;
+    end;
+  end else
+    Self.LoadFromFile(Filename);
+end;
+
+procedure RegisterGraphic_R(Cl: TPSRuntimeClassImporter);
+begin
+  RIRegisterTGraphic(Cl);
+
+  { This overrides the method added by RIRegisterTGraphic, because uPSRuntime's SpecImport
+    starts at the end of the FClassItems list when looking for methods }
+  Cl.FindClass(AnsiString(TGraphic.ClassName)).RegisterMethod(@GraphicLoadFromFileHelper, 'LoadFromFile');
+end;
+
+procedure RegisterBitmap_R(Cl: TPSRuntimeClassImporter);
+begin
+  RIRegisterTBitmap(Cl, True);
+
+  { This overrides the method added by RIRegisterTBitmap, because uPSRuntime's SpecImport
+    starts at the end of the FClassItems list when looking for methods }
+  Cl.FindClass(AnsiString(TBitmap.ClassName)).RegisterMethod(@BitmapLoadFromStreamHelper, 'LoadFromStream');
 end;
 
 procedure TPngImageCanvas_R(Self: TPngImage; var T: TCanvas); begin T := Self.Canvas; end;
@@ -464,8 +515,8 @@ begin
     RIRegisterTCanvas(Cl);
     RIRegisterTPen(Cl);
     RIRegisterTBrush(Cl);
-    RIRegisterTGraphic(Cl);
-    RIRegisterTBitmap(Cl, True);
+    RegisterGraphic_R(Cl);
+    RegisterBitmap_R(Cl);
 
     { Controls }
     RegisterControl_R(Cl);
