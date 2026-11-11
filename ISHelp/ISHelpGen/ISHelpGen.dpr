@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.37';
+  Version = '1.38';
 
   XMLFileVersion = '1';
 
@@ -600,6 +600,8 @@ begin
 
   CurrentTopicName := '';
 
+  const TopicFilename = GenerateTopicFilename(TopicName);
+
   S :=
     '<!DOCTYPE html>' + SNewLine +
     '<html lang="en">' + SNewLine +
@@ -607,6 +609,7 @@ begin
     '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' + SNewLine +
     '<meta http-equiv="X-UA-Compatible" content="IE=11" />' + SNewLine +
     '<title>' + EscapeHTML(TopicTitle, False) + '</title>' + SNewLine +
+    '<link rel="canonical" href="https://jrsoftware.org/ishelp/' + TopicFilename + '" />' + SNewLine +
     '<link rel="stylesheet" type="text/css" href="styles.css" />' + SNewLine +
     '<script type="text/javascript" src="topic.js"></script>' + SNewLine +
     '</head>' + SNewLine +
@@ -644,7 +647,7 @@ begin
   StringChange(S, #13#10, #10);
   StringChange(S, #10, #13#10);
 
-  SaveStringToFile(S, OutputDir + GenerateTopicFilename(TopicName));
+  SaveStringToFile(S, OutputDir + TopicFilename);
   Inc(TopicsGenerated);
 end;
 

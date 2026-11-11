@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -50,7 +50,7 @@ function topic_loaded()
 	    (matches = window.location.pathname.match(/^(\/.+\/)topic_([a-z0-9_\-]+)\.htm$/)) &&
 	    window.location.hash != "#noredir") {
 
-		topicRedirectURL = matches[1] + "index.php?topic=" + matches[2];
+		topicRedirectURL = matches[1] + "?topic=" + matches[2];
 
 		if ((matches = window.location.hash.match(/^#([a-zA-Z0-9_\-.]+)$/))) {
 			topicRedirectURL += "&anchor=" + matches[1];
@@ -73,5 +73,5 @@ function topic_redirect()
 	document.body.removeChild(redirectBox);
 	redirectBox = null;
 
-	window.location.href = topicRedirectURL;
+	window.location.replace(topicRedirectURL);
 }
