@@ -1884,6 +1884,10 @@ var
     begin
       Stack.SetBool(PStart, IsDotNetInstalled(InstallDefaultRegView, TDotNetVersion(Stack.GetInt(PStart-1)), Stack.GetUInt(PStart-2)));
     end);
+    RegisterScriptFunc('ISDOTNETRUNTIMEINSTALLED', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetBool(PStart, IsDotNetRuntimeInstalled(Stack.GetString(PStart-1), Stack.GetInt64(PStart-2), TSetupProcessorArchitecture(Stack.GetInt(PStart-3))));
+    end);
     RegisterScriptFunc('ISMSIPRODUCTINSTALLED', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var ErrorCode: Cardinal;

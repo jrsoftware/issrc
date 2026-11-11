@@ -1,6 +1,11 @@
 ISTORY of the LZMA SDK
 -----------------------
 
+26.06          2026-11-06
+-------------------------
+- Improved support for split files created by "split" utility in Linux.
+
+
 26.05          2026-10-21
 -------------------------
 - minor changes.

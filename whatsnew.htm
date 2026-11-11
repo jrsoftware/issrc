@@ -70,7 +70,6 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Added new <tt>[Setup]</tt> section directive <tt>ZstdNumThreads</tt> to enable multi-threaded compression. Doing so has almost no effect on the compression ratio, unlike multi-threading for <tt>lzma2</tt> which has a negative effect.<br/>
         At level 20, the compiler lowers the compressor's default job size from 128 MB to 32 MB. This reduces memory use and allows compression to be aborted in a timely manner.<br/>
         Levels 21 and 22 cannot be combined with this directive, because at those levels compression cannot be aborted in a timely manner.</li>
-    <li>Thanks to Amy Spark for their work on this, contributed via <a href="https://github.com/jrsoftware/issrc">GitHub</a>.</li>
   </ul>
   </li>
   <li>Added a new <i>Navigator</i> bar above the Compiler IDE editor. It shows the section and the <tt>[Code]</tt> routine the cursor is in as two breadcrumb combo boxes, allowing you to go to the section or routine.
@@ -172,26 +171,35 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   </ul>
   </li>
   <li>The <tt>[Setup]</tt> section directives which take a color now accept all standard web color names defined by CSS, such as <tt>orange</tt> and <tt>cornflowerblue</tt>, as well as the short <tt>#<i>rgb</i></tt> form.</li>
+  <li>Added support for <tt>.bmp</tt> files with an embedded color profile to Setup and Uninstall.</li>
   <li>Pascal Scripting:
   <ul>
+    <li>Added new support function <tt>IsDotNetRuntimeInstalled</tt> to check if a .NET (formerly .NET Core) shared runtime, such as the .NET Desktop Runtime, is installed for a specific architecture.</li>
     <li>Support functions <tt>FileSize</tt> and <tt>FileSize64</tt> no longer need read access to the file. For example, they now also work for a file which another process has open exclusively.</li>
     <li>Support function <tt>StrToColor</tt> now accepts all values accepted by the <tt>[Setup]</tt> section directives which take a color, in addition to the <tt>#<i>rrggbb</i></tt> form it already accepted.</li>
     <li>Buttons of type <tt>TBitmapButton</tt> can now also be pressed with Enter, instead of only with Space, and take part in default button handling. They now descend from <tt>TButtonControl</tt> instead of <tt>TCustomControl</tt>, and new properties <tt>Cancel</tt> (which allows pressing them with Esc), <tt>Default</tt>, and <tt>ModalResult</tt> were added.</li>
+    <li><i>Documentation fix:</i> The <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_taskdialogmsgbox">documentation</a> of support function <tt>TaskDialogMsgBox</tt> and the <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> example script used <tt>#13#10</tt> to separate a button label from its button note, but the <tt>#13</tt> adds an empty line to the button label. The documentation and the example script have now been corrected to use <tt>#10</tt>. If your script passes button labels with <tt>#13#10</tt> to <tt>TaskDialogMsgBox</tt> or <tt>SuppressibleTaskDialogMsgBox</tt>, replace it with <tt>#10</tt>.</li>
   </ul>
   </li>
   <li>A process started with the credentials of the user that started Setup initially, such as by a <tt>[Run]</tt> section entry with the <tt>postinstall</tt> flag, now never inherits Setup's RedirectionGuard mitigation. Inno Setup 7.1.1 already did this if Setup had to request administrative privileges when it started. Now it also applies if it didn't, for example if <tt>PrivilegesRequired</tt> is set to <tt>lowest</tt>, or if Setup was started with administrative privileges already. To make this possible, Setup now always starts a second Setup process when it's going to enable RedirectionGuard, and not only when it has to request administrative privileges.</li>
+  <li><i>Fix:</i> In both Setup and the Compiler IDE, checkboxes and radio buttons in lists could be clipped on the left when the first monitor wasn't the primary monitor and used a lower scaling than the primary monitor.</li>
+  <li><i>Fix:</i> <tt>WizardStyle</tt> modifiers <tt>excludelightbuttons</tt> and <tt>excludelightcontrols</tt> didn't apply to some controls, such as the <i>Browse...</i> button on the <i>Select Start Menu Folder</i> page and, for <tt>excludelightcontrols</tt>, the progress bar (broken since 6.7.0).</li>
   <li><i>Fix:</i> ISPP support function <tt>FileSize</tt> returned 0 for a directory and the size of the first matching file for a file name with wildcards, instead of -1 as documented, and 0 for a symbolic link, instead of the size of its target.</li>
   <li><i>Fix:</i> The <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/DownloadFiles.iss">DownloadFiles.iss</a></tt> and <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDownloadFiles.iss">CodeDownloadFiles.iss</a></tt> example scripts failed because the URL they used to download the latest Inno Setup installer is no longer available. They now download <tt>ISSigTool.exe</tt> instead.</li>
-  <li>Updated the 7-Zip and LZMA SDK source code used by Inno Setup to version 26.05, and the Scintilla source code to version 5.6.6.</li>
+  <li><i>Documentation fix:</i> The documentation of <tt>[Setup]</tt> section directives <tt><a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardimagefile">WizardImageFile</a></tt> and <tt><a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardbackimagefile">WizardBackImageFile</a></tt> listed the wrong image area size at 250% DPI (wrong since 6.6.0 and 6.7.0, respectively). It now lists 551&times;1055 and 1630&times;1181, instead of 534&times;1022 and 1630&times;1148.</li>
+  <li>Updated the 7-Zip and LZMA SDK source code used by Inno Setup to version 26.06, the Scintilla source code to version 5.6.6, and the zlib source code to version 1.4.</li>
   <li>Removed support for the undocumented <tt>PrivilegesRequired</tt> value <tt>poweruser</tt>, the undocumented <tt>Permissions</tt> identifier <tt>powerusers</tt>, and undocumented support function <tt>IsPowerUserLoggedOn</tt>.</li>
+  <li>Added official Uzbek translation.</li>
   <li>Other minor improvements and fixes.</li>
 </ul>
+
+<p>Contributions via <a href="https://github.com/jrsoftware/issrc" target="_blank">GitHub</a>: Thanks to Amy Spark, jwfx, and Dom Gries for their contributions.</p>
 
 </details>
 <details>
 <summary>Inno Setup 7.1</summary>
 
-<p><a name="7.1.1"></a><span class="ver">7.1.1-dev </span><span class="date">(2026-10-28)</span></p>
+<p><a name="7.1.1"></a><span class="ver">7.1.1 </span><span class="date">(2026-10-28)</span></p>
 
 <span class="head2">Changes</span>
 

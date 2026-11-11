@@ -95,7 +95,6 @@ begin
   if Sort then begin
     { Scintilla uses an ASCII binary search so the list must be in ASCII sort
       order (case-insensitive) }
-    WordStringList.CaseSensitive := False;
     WordStringList.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
     WordStringList.Sort;
   end;
@@ -247,7 +246,6 @@ end;
 function CreateWordsBySectionList: TStringList;
 begin
   Result := TStringList.Create;
-  Result.CaseSensitive := False;
   Result.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
   Result.Sorted := True;
 end;

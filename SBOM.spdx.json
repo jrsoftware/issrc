@@ -120,17 +120,18 @@
       "comment": "Optional feature; used by ISCmplr only."
     },
     {
-      "name": "RemObjects Pascal Script",
+      "name": "RemObjects Pascal Script (Inno Setup version)",
       "SPDXID": "SPDXRef-RemObjects-Pascal-Script",
-      "downloadLocation": "https://github.com/remobjects/pascalscript/tree/stable",
+      "downloadLocation": "https://github.com/jrsoftware/issrc/tree/main/Components/UniPs",
       "filesAnalyzed": false,
       "licenseConcluded": "LicenseRef-RemObjects-Pascal-Script",
       "licenseDeclared": "LicenseRef-RemObjects-Pascal-Script",
       "copyrightText": "Copyright (C) 2000-2014 by Carlo Kok and RemObjects Software, LLC",
-      "supplier": "Organization: RemObjects Software, LLC",
-      "versionInfo": "NOASSERTION",
-      "comment": "Optional feature; source is included in Components/UniPs and the required upstream revision is recorded in Components/UniPs/rev.txt.",
-      "sourceInfo": "Source path: Components/UniPs; upstream revision: Components/UniPs/rev.txt."
+      "originator": "Organization: RemObjects Software, LLC",
+      "supplier": "Organization: JRSoftware",
+      "versionInfo": "7.2.0-dev",
+      "comment": "Optional feature; source is included in Components/UniPs and is maintained as part of Inno Setup.",
+      "sourceInfo": "Source path: Components/UniPs; forked from https://github.com/remobjects/pascalscript at stable branch commit 246a51fd8ec18e011178dbcf14022709289a9b0d."
     },
     {
       "name": "LZMA SDK",
@@ -141,7 +142,7 @@
       "licenseDeclared": "LZMA-SDK-9.22",
       "copyrightText": "Public domain",
       "supplier": "Person: Igor Pavlov",
-      "versionInfo": "26.05"
+      "versionInfo": "26.06"
     },
     {
       "name": "LZMA SDK (Size-optimized)",
@@ -162,9 +163,9 @@
       "filesAnalyzed": false,
       "licenseConcluded": "zlib",
       "licenseDeclared": "zlib",
-      "copyrightText": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler",
+      "copyrightText": "Copyright (C) 1995-2026 Jean-loup Gailly and Mark Adler",
       "supplier": "Person: Jean-loup Gailly and Mark Adler",
-      "versionInfo": "1.3.2",
+      "versionInfo": "1.4",
       "comment": "Optional compression and decompression; used by Setup via iszlib/isunzlib precompiled libraries. License text in Iscompress/zlib/LICENSE."
     },
     {
@@ -200,7 +201,7 @@
       "licenseDeclared": "LGPL-2.1-or-later AND LicenseRef-unRAR-restriction AND BSD-3-Clause AND BSD-2-Clause AND LicenseRef-7zip-Public-Domain",
       "copyrightText": "Copyright (C) 1999-2026 Igor Pavlov",
       "supplier": "Person: Igor Pavlov",
-      "versionInfo": "26.05",
+      "versionInfo": "26.06",
       "comment": "Optional decompression; is7z/is7zxa/is7zxr DLLs are compiled from 7-Zip source code (see README.md). License details in Is7z/DOC/License.txt describe LGPL-2.1-or-later with unRAR restriction, plus BSD-3-Clause/BSD-2-Clause and public domain files."
     },
     {

@@ -4306,7 +4306,7 @@ iside --no-recently-opened <i>&lt;script name&gt;</i></precode>
 <li>Releases are built on a dedicated machine only used for this purpose. Signing keys are not stored on other machines.</li>
 <li>The Inno Setup source code is self-contained and no external dependencies are pulled in when a release is built.</li>
 <li>Precompiled files included in Inno Setup's source code are code signed and are accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files to detect corruption or tampering before using them to build a release.</li>
-<li>Vendor updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available. Of the named sources, only LZMA SDK is an integral part of the Setup program, and only in a reduced form.</li>
+<li>Vendor updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Zstandard, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available. Of the named sources, only LZMA SDK is an integral part of the Setup program, and only in a reduced form.</li>
 <li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files you can use to detect corruption or tampering before running them. For more details, see <extlink href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</extlink>.</li>
 <li>Our GitHub repositories require signed commits on all branches, have GitHub Actions disabled, and do not allow any workflows to run.</li>
 </ul>
@@ -6280,7 +6280,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <tr><td>175%</td><td>403&times;772</td></tr>
 <tr><td>200%</td><td>430&times;824</td></tr>
 <tr><td>225%</td><td>498&times;953</td></tr>
-<tr><td>250%</td><td>534&times;1022</td></tr>
+<tr><td>250%</td><td>551&times;1055</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is not specified, a single built-in 240&times;459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
@@ -6385,7 +6385,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <tr><td>175%</td><td>1193&times;864</td></tr>
 <tr><td>200%</td><td>1272&times;922</td></tr>
 <tr><td>225%</td><td>1471&times;1066</td></tr>
-<tr><td>250%</td><td>1630&times;1148</td></tr>
+<tr><td>250%</td><td>1630&times;1181</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is set to a blank value, no background image will be used.</p>

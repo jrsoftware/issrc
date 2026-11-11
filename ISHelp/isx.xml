@@ -30,7 +30,7 @@
 
 <p>An integrated <link topic="scriptdebug">run-time debugger</link> to debug your custom Pascal script is also available.</p>
 
-<p>The scripting engine used by Inno Setup is RemObjects Pascal Script by Carlo Kok. Like Inno Setup, RemObjects Pascal Script is freely available and comes with source. See <extlink href="http://www.remobjects.com/ps">http://www.remobjects.com/ps</extlink> for more information.</p>
+<p>The scripting engine used by Inno Setup is a modified version of Carlo Kok's RemObjects Pascal Script. Like Inno Setup, RemObjects Pascal Script is freely available and comes with source. See <extlink href="http://www.remobjects.com/ps">http://www.remobjects.com/ps</extlink> for more information.</p>
 
 <p>Note: the Pascal scripting feature works exclusively at run-time, and has no compile-time functionality.</p>
 

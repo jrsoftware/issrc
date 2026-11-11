@@ -610,8 +610,6 @@ object WizardForm: TWizardForm
             Height = 145
             Anchors = [akLeft, akTop, akRight, akBottom]
             Color = clBtnFace
-            Lines.Strings = (
-              'PreparingMemo')
             ReadOnly = True
             ScrollBars = ssBoth
             TabOrder = 1

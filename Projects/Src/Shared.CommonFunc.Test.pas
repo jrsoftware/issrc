@@ -23,6 +23,31 @@ uses
 {$C+}
 
 procedure SharedCommonFuncRunTests;
+
+  procedure TestRemoveEmbeddedColorProfileFromBitmap(const FileType: Word;
+    const HeaderSize, ColorSpaceType: DWORD; const SizeDecrease: Integer;
+    const ExpectChange: Boolean);
+  begin
+    var BitmapFile: TBytes;
+    SetLength(BitmapFile, SizeOf(TBitmapFileHeader) + SizeOf(TBitmapV5Header));
+    PBitmapFileHeader(@BitmapFile[0]).bfType := FileType;
+    const Header = PBitmapV5Header(@BitmapFile[SizeOf(TBitmapFileHeader)]);
+    Header.bV5Size := HeaderSize;
+    Header.bV5CSType := ColorSpaceType;
+    Header.bV5ProfileData := $25BF4;
+    Header.bV5ProfileSize := 596;
+    RemoveEmbeddedColorProfileFromBitmap(@BitmapFile[0], Length(BitmapFile) - SizeDecrease);
+    if ExpectChange then begin
+      Assert(Header.bV5CSType = $73524742); { LCS_sRGB }
+      Assert(Header.bV5ProfileData = 0);
+      Assert(Header.bV5ProfileSize = 0);
+    end else begin
+      Assert(Header.bV5CSType = ColorSpaceType);
+      Assert(Header.bV5ProfileData = $25BF4);
+      Assert(Header.bV5ProfileSize = 596);
+    end;
+  end;
+
 begin
   { AddQuotes: only adds quotes when there is a space and the string is not
     already quoted }
@@ -576,6 +601,18 @@ begin
   Assert(not NewTryStringToColor('clDefault', Color));
   Assert(not NewTryStringToColor('$20000000', Color));
   {$ENDIF}
+
+  { RemoveEmbeddedColorProfileFromBitmap: only changes a BMP file with a V5
+    header and an embedded color profile }
+  const BM: Word = $4D42;
+  const PROFILE_EMBEDDED = $4D424544; { 'MBED' }
+  TestRemoveEmbeddedColorProfileFromBitmap(BM, SizeOf(TBitmapV5Header), PROFILE_EMBEDDED, 0, True);
+  TestRemoveEmbeddedColorProfileFromBitmap(BM, SizeOf(TBitmapV5Header), $4C494E4B { PROFILE_LINKED }, 0, False);
+  TestRemoveEmbeddedColorProfileFromBitmap(BM, SizeOf(TBitmapV5Header), $73524742 { LCS_sRGB }, 0, False);
+  TestRemoveEmbeddedColorProfileFromBitmap(BM, SizeOf(TBitmapV4Header), PROFILE_EMBEDDED, 0, False);
+  TestRemoveEmbeddedColorProfileFromBitmap($4142 { 'BA' }, SizeOf(TBitmapV5Header), PROFILE_EMBEDDED, 0, False);
+  { Too small for a V5 header }
+  TestRemoveEmbeddedColorProfileFromBitmap(BM, SizeOf(TBitmapV5Header), PROFILE_EMBEDDED, 1, False);
 end;
 
 {$IFDEF DEBUG}

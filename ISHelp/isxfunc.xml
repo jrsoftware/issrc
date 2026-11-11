@@ -698,6 +698,24 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   <key>if</key> <key>not</key> Result <key>then</key>
     SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), [<str>'.NET Framework'</str>, <str>'4.6.2'</str>]), mbCriticalError, MB_OK, IDOK);
 <key>end</key>;</pre></example>
+        <seealso><p><isxfunc>IsDotNetRuntimeInstalled</isxfunc></p></seealso>
+      </function>
+      <function>
+        <name>IsDotNetRuntimeInstalled</name>
+        <prototype>function IsDotNetRuntimeInstalled(const Runtime: String; const PackedMinVersion: Int64; const Architecture: TSetupProcessorArchitecture): Boolean;</prototype>
+        <description><p>Returns <tt>True</tt> if a .NET (formerly .NET Core) shared runtime with the specified name, for example <tt>Microsoft.NETCore.App</tt>, <tt>Microsoft.AspNetCore.App</tt>, or <tt>Microsoft.WindowsDesktop.App</tt>, is installed for the specified architecture with the same major version as <tt>PackedMinVersion</tt> and a version greater than or equal to <tt>PackedMinVersion</tt>. A newer major version doesn't count because applications don't roll forward to it by default.</p>
+<p><tt>PackedMinVersion</tt> is a packed version, as returned by <isxfunc>PackVersionComponents</isxfunc>.</p>
+<p><tt>Architecture</tt> must be <tt>paX86</tt>, <tt>paX64</tt>, or <tt>paArm64</tt>. If it isn't, or if the user's system doesn't support the specified architecture, the function returns <tt>False</tt>.</p>
+<p>Prerelease runtimes and version directories without the runtime's <tt>.deps.json</tt> file are ignored. Only the global installation is checked, so private installations and environment variables such as <tt>DOTNET_ROOT</tt> are ignored.</p>
+<p>An exception will be raised if an error occurs.</p></description>
+        <example><pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>begin</key>
+  Result := IsDotNetRuntimeInstalled(<str>'Microsoft.WindowsDesktop.App'</str>, PackVersionComponents(<num>8</num>, <num>0</num>, <num>0</num>, <num>0</num>), paX64); <com>//Returns True if .NET Desktop Runtime 8.0 (x64) is installed</com>
+  <key>if</key> <key>not</key> Result <key>then</key>
+    SuppressibleMsgBox(<str>'This program requires .NET Desktop Runtime 8.0 (x64).'</str>, mbCriticalError, MB_OK, IDOK);
+<key>end</key>;</pre></example>
+        <seealso><p><isxfunc>IsDotNetInstalled</isxfunc><br />
+<isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsMsiProductInstalled</name>
@@ -3289,7 +3307,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
 <tt>Text</tt> specifies the message to display.<br />
 <tt>Typ</tt> specifies which icon to display in the task dialog. If set to <tt>mbConfirmation</tt>, no icon will be displayed.<br />
 <tt>Buttons</tt> specifies which buttons to include in the task dialog.<br />
-<tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note. If <tt>Buttons</tt> is set to <tt>MB_OKCANCEL</tt>, <tt>MB_YESNOCANCEL</tt>, or <tt>MB_RETRYCANCEL</tt>, specifying a label for the Cancel button as the last element in the array is optional.<br />
+<tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline (<tt>#10</tt>), then the first string specifies the button label and the second string specifies the button note. Don't use <tt>#13#10</tt> as the separator, because the <tt>#13</tt> adds an empty line to the button label. If <tt>Buttons</tt> is set to <tt>MB_OKCANCEL</tt>, <tt>MB_YESNOCANCEL</tt>, or <tt>MB_RETRYCANCEL</tt>, specifying a label for the Cancel button as the last element in the array is optional.<br />
 <tt>ShieldButton</tt> specifies which button to display a shield icon on. If set to 0, no shield icon will be displayed.</p>
 <p>Returns an <tt>ID*</tt> constant indicating the button the user clicked. If the function fails, it returns 0 or raises an exception (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
         <remarks><p><tt>TMsgBoxType</tt> is defined as:</p>
@@ -3303,7 +3321,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
   <key>case</key> TaskDialogMsgBox(<str>'Choose A or B'</str>,
                         <str>'You can choose A or B.'</str>,
                         mbInformation,
-                        MB_YESNOCANCEL, [<str>'I choose &amp;A'#13#10'A will be chosen.'</str>, <str>'I choose &amp;B'#13#10'B will be chosen.'</str>],
+                        MB_YESNOCANCEL, [<str>'I choose &amp;A'#10'A will be chosen.'</str>, <str>'I choose &amp;B'#10'B will be chosen.'</str>],
                         IDYES) <key>of</key>
     IDYES: MsgBox(<str>'You chose A.'</str>, mbInformation, MB_OK);
     IDNO: MsgBox(<str>'You chose B.'</str>, mbInformation, MB_OK);

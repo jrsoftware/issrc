@@ -419,6 +419,10 @@ procedure TSetupForm.CreateWnd;
   end;
 
 begin
+  {$IFDEF DEBUG}
+  if csReading in ComponentState then
+    InternalError('Unexpected CreateWnd while reading'); { DisableChildControlsStylesAsNeeded is one-time, and would miss controls not read yet }
+  {$ENDIF}
   { DisableChildControlsStylesAsNeeded works both before and after
     calling inherited. But it does require the child controls to have
     no handle allocated, which is why it's in CreateWnd and not in
