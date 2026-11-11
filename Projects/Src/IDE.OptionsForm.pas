@@ -67,6 +67,14 @@ type
     SmartHomeCheck: TCheckBox;
     Label6: TNewStaticText;
     LanguageComboBox: TComboBox;
+    GroupBox2: TNewGroupBox;
+    InspectorShowAllKnownDirectivesCheck: TCheckBox;
+    InspectorFollowCaretCheck: TCheckBox;
+    InspectorQuoteNewDirectiveValuesCheck: TCheckBox;
+    InspectorQuoteNewParameterValuesCheck: TCheckBox;
+    GroupBox4: TNewGroupBox;
+    MinimapAlwaysShowSliderCheck: TCheckBox;
+    MinimapShowOnLeftCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -101,6 +109,19 @@ begin
   ChangeFontButton.Width := W;
   FontPanel.Width := FontPanel.Width - Diff;
 
+  if GetActiveLanguage in [ilFrench, ilSpanish, ilItalian] then begin
+    { French, Spanish, and Italian need even more space than the form already
+      provides }
+    const ExtraWidth = MulDiv(GroupBox1.Width, 10, 100);
+    GroupBox1.Width := GroupBox1.Width + ExtraWidth;
+    GroupBox2.Width := GroupBox2.Width + ExtraWidth;
+    GroupBox3.Left := GroupBox3.Left + ExtraWidth;
+    GroupBox3.Width := GroupBox3.Width + ExtraWidth;
+    GroupBox4.Left := GroupBox4.Left + ExtraWidth;
+    GroupBox4.Width := GroupBox4.Width + ExtraWidth;
+    ClientWidth := ClientWidth + 2*ExtraWidth;
+  end;
+
   { Order must match IDE.HelperFunc.TKeyMappingType }
   KeyMappingComboBox.Items.Add(LFmtMessage(SOptionsKeyMappingDelphi));
   KeyMappingComboBox.Items.Add(LFmtMessage(SOptionsKeyMappingVisualStudio));
@@ -120,6 +141,12 @@ begin
   LanguageComboBox.Items.Add('Nederlands');
   LanguageComboBox.Items.Add('Deutsch');
   LanguageComboBox.Items.Add(#$65E5#$672C#$8A9E);
+  LanguageComboBox.Items.Add('Fran'#$00E7'ais');
+  LanguageComboBox.Items.Add('Espa'#$00F1'ol');
+  LanguageComboBox.Items.Add('Italiano');
+  LanguageComboBox.Items.Add(#$7B80#$4F53#$4E2D#$6587);
+  LanguageComboBox.Items.Add(#$7E41#$9AD4#$4E2D#$6587);
+  LanguageComboBox.Items.Add(#$D55C#$AD6D#$C5B4);
 end;
 
 procedure TOptionsForm.FormShow(Sender: TObject);

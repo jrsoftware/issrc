@@ -220,6 +220,7 @@ object TaskDialogForm: TTaskDialogForm
       Anchors = [akLeft, akTop, akRight]
       Caption = '*'
       TabOrder = 0
+      WordWrap = True
     end
   end
 end

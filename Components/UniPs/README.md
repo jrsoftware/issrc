@@ -1,13 +1,13 @@
-# RemObjects Pascal Script (Inno Setup copy)
+# RemObjects Pascal Script (Inno Setup version)
 
-These files are copies of the `stable` branch of the
+These files are a modified fork of the `stable` branch of the
 [RemObjects Pascal Script](https://github.com/remobjects/pascalscript)
-repository. All files that Inno Setup does not use have been removed. See
-`rev.txt` for the original upstream commit hash.
+repository, taken at commit `246a51fd8ec18e011178dbcf14022709289a9b0d`. Inno
+Setup no longer follows that repository.
 
-The retained source files still contain a significant amount of dead code
-guarded by compiler directives that are never true in Inno Setup builds. This
-dead code exists because Pascal Script supports many compilers, platforms, and
+These source files still contain a significant amount of dead code guarded by
+compiler directives that are never true in Inno Setup builds. This dead code
+exists because upstream Pascal Script supports many compilers, platforms, and
 configurations that Inno Setup does not use. For example `PS_NOINT64` is never
 true.
 

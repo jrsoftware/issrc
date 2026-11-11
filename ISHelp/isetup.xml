@@ -109,7 +109,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 7.1.1</b><br/>
+<b>Inno Setup version 7.2.0-dev</b><br/>
 <b>Copyright &copy; 1997-2026 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2026 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -138,13 +138,13 @@
 
 <li>Installation of <link topic="filessection">files</link>:<br/>
 The installer has the ability to compare file version info, replace in-use files, use shared file counting, register DLL/OCX's and type libraries, install fonts, download and verify files, and extract archives.<br/>
-Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. Also includes support for extended-length paths.</li>
+Includes integrated support for zlib (zip), bzip2, Zstandard (zstd), and 7-Zip LZMA/LZMA2 file <link topic="setup_compression">compression</link>. Also includes support for extended-length paths.</li>
 
 <li>Creation of <link topic="iconssection">shortcuts</link> anywhere, including in the Start menu and on the desktop.</li>
 
 <li>Creation of <link topic="registrysection">registry</link> and <tt><link topic="inisection">.ini</link></tt> file entries.</li>
 
-<li><link topic="runsection">Running</link> other programs before, during or after install.</li>
+<li><link topic="runsection">Running</link> other programs before, during, or after install.</li>
 
 <li>Support for <link topic="languagessection">multilingual</link> installs, including right-to-left language support.</li>
 
@@ -1135,6 +1135,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 <li><link topic="setup_lzmanumfastbytes">LZMANumFastBytes</link></li>
 <li><link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link></li>
 <li><link topic="setup_solidcompression">SolidCompression</link></li>
+<li><link topic="setup_zstdnumthreads">ZstdNumThreads</link></li>
 </ul>
 
 <heading><a name="diskspanning">Disk Spanning</a></heading>
@@ -3664,6 +3665,8 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <keyword value="Compiler IDE Keyboard And Mouse Commands" />
 <keyword value="Keyboard commands" />
 <keyword value="Mouse commands" />
+<keyword value="Inspector keyboard and mouse commands" />
+<keyword value="Navigator keyboard commands" />
 <body>
 
 <p>Besides the keyboard commands listed in the menus, the Compiler IDE supports additional keyboard and mouse commands, some of which depend on the active editor key map.</p>
@@ -3672,7 +3675,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
 
-<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for <tt>VK_OEM_1</tt>, . for <tt>VK_OEM_PERIOD</tt>, / for <tt>VK_OEM_2</tt>, [ for <tt>VK_OEM_4</tt>, \ for <tt>VK_OEM_5</tt>, and ] for <tt>VK_OEM_6</tt>. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
+<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for <tt>VK_OEM_1</tt>, . for <tt>VK_OEM_PERIOD</tt>, / for <tt>VK_OEM_2</tt>, [ for <tt>VK_OEM_4</tt>, \ for <tt>VK_OEM_5</tt>, and ] for <tt>VK_OEM_6</tt>. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the menus these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
 
 <table>
 <tr><th>Command</th><th>Classic shortcut</th><th>Visual Studio Code shortcut</th></tr>
@@ -3701,13 +3704,13 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Delete to start of word</td><td>Ctrl+Backspace</td>
 </tr>
 <tr>
-  <td>Delete to end of word</td><td>Ctrl+Delete</td>
+  <td>Delete to end of word</td><td>Ctrl+Del</td>
 </tr>
 <tr>
   <td>Delete to start of line</td><td>Ctrl+Shift+Backspace</td>
 </tr>
 <tr>
-  <td>Delete to end of line</td><td>Ctrl+Shift+Delete</td>
+  <td>Delete to end of line</td><td>Ctrl+Shift+Del</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
@@ -3758,7 +3761,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Cut selection or line</td><td>Ctrl+X or Shift+Delete</td>
+  <td>Cut selection or line</td><td>Ctrl+X or Shift+Del</td>
 </tr>
 <tr>
   <td>Copy selection or line</td><td>Ctrl+C or Ctrl+Insert</td>
@@ -3884,7 +3887,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Select autocompletion</td><td>Tab or Enter</td>
 </tr>
 <tr>
-  <td>Fillup autocompletion</td><td>Space for ISPP directives, for <sn>[Setup]</sn> section values, and for <tt>Flags</tt> and <tt>Type</tt> parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives</td>
+  <td>Fillup autocompletion</td><td>Space for ISPP directives, for section directive and parameter values<br />\ for constants<br />: for constants and section parameter names<br />= for section directive and message names</td>
 </tr>
 <tr>
   <td>Invoke parameter hint or show next definition</td><td>Ctrl+Shift+Space</td>
@@ -3905,7 +3908,85 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Close current tab</td><td>Ctrl+F4 or Ctrl+W</td>
 </tr>
 <tr>
-  <td>Switch between the active memo, the active bottom pane, and the active banner (Shift reverses direction)</td><td>F6</td>
+  <td>Switch between the active memo, the Inspector, the active bottom pane, the active banner, and the Navigator</td><td>F6 or Shift+F6</td>
+</tr>
+<tr>
+  <td>Return focus to the active memo</td><td>Esc</td>
+</tr>
+</table>
+
+<p>The Navigator supports its own keyboard commands, listed below.</p>
+
+<table>
+<tr><th>Command</th><th>Keyboard</th></tr>
+<tr>
+  <td>Focus</td><td>Ctrl+Shift+;</td>
+</tr>
+<tr>
+  <td>Focus and select</td><td>Ctrl+Shift+.</td>
+</tr>
+<tr>
+  <td>Move between combo boxes</td><td>Left or Right</td>
+</tr>
+<tr>
+  <td>Return focus to the active memo</td><td>Esc or Enter</td>
+</tr>
+</table>
+
+<p>The Inspector supports its own keyboard and mouse commands, listed below.</p>
+
+<table>
+<tr><th>Command</th><th>Keyboard or mouse</th></tr>
+<tr>
+  <td>Move between rows</td><td>Up, Down, Page Up, or Page Down</td>
+</tr>
+<tr>
+  <td>Expand the selected row</td><td>Numpad + or Ctrl+Numpad +</td>
+</tr>
+<tr>
+  <td>Collapse the selected row</td><td>Numpad &minus; or Ctrl+Numpad &minus;</td>
+</tr>
+<tr>
+  <td>Expand or collapse the selected row</td><td>Enter or Space</td>
+</tr>
+<tr>
+  <td>Expand the selected row, or move to its first child</td><td>Right</td>
+</tr>
+<tr>
+  <td>Collapse the selected row, or move to its parent</td><td>Left</td>
+</tr>
+<tr>
+  <td>Expand or collapse any row</td><td>Click the expand button, or (unless the row shows a <sn>[Code]</sn> routine, type, or method) DoubleClick the row's name</td>
+</tr>
+<tr>
+  <td>Commit the value being edited</td><td>Enter</td>
+</tr>
+<tr>
+  <td>Toggle a <tt>yes</tt>/<tt>no</tt> value</td><td>Space or click the checkbox</td>
+</tr>
+<tr>
+  <td>Open or close the drop-down list of a choice value</td><td>F4, Alt+Down, Alt+Up, or click the drop-down button</td>
+</tr>
+<tr>
+  <td>Change to the next value in the list</td><td>Ctrl+Down, Ctrl+Enter, or DoubleClick the value</td>
+</tr>
+<tr>
+  <td>Change to the previous value in the list</td><td>Ctrl+Up</td>
+</tr>
+<tr>
+  <td>Browse for a path value</td><td>F4, Alt+Down, or click the "..." button</td>
+</tr>
+<tr>
+  <td>Go to and select the selected row's value(s) in the script, or go to the <sn>[Code]</sn> declaration it shows</td><td>Ctrl+G, or (if the row is not expandable, or shows a <sn>[Code]</sn> routine, type, or method) DoubleClick the row's name</td>
+</tr>
+<tr>
+  <td>Remove the selected key or parameter(s) from the script</td><td>Ctrl+Del, or (if the row shows a checkbox) Del</td>
+</tr>
+<tr>
+  <td>Show help for the selected directive, parameter, or flag</td><td>F1</td>
+</tr>
+<tr>
+  <td>Discard changes to the value being edited, clear the filter, or return focus to the active memo</td><td>Esc</td>
 </tr>
 </table>
 
@@ -4059,6 +4140,38 @@ iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precod
 <p>Running the wizard from the command line does not suppress any error messages. The Setup Script Wizard will return an exit code of 0 if there was no error and additionally it will save the generated script file to the specified filename, 1 if the command-line parameters were invalid, or 2 if the generated script file could not be saved. If the user cancelled the Setup Script Wizard, an exit code of 0 is returned and no script file is saved.</p>
 </li>
 
+<li>
+<p>The language the Compiler IDE displays can also be selected from the command line. Command-line usage is as follows:</p>
+
+<precode>iside -lang <i>&lt;language tag&gt;</i>
+iside --language <i>&lt;language tag&gt;</i></precode>
+<indent>
+<example><pre>iside -lang en "c:\isetup\samples\my script.iss"</pre></example>
+</indent>
+
+<p>Each language offered by the <i>Language</i> option has its own tag, for example <tt>en</tt> for English and <tt>fr</tt> for French. The language tag is case-insensitive. Specifying an unsupported tag shows a message which lists all supported tags.</p>
+
+<p>This option can be combined with the options above. It overrides the <i>Language</i> option. Not remembered for next session.</p>
+
+<p>Short options accept both <tt>-</tt> and <tt>/</tt> as a prefix and are case-insensitive. Long <tt>--</tt> options are case-sensitive and do not accept <tt>//</tt> as a prefix.</p>
+</li>
+
+<li>
+<p>The Compiler IDE can be told not to add the script file named on the command line to the list of recently opened files. Command-line usage is as follows:</p>
+
+<precode>iside -norecent <i>&lt;script name&gt;</i>
+iside --no-recently-opened <i>&lt;script name&gt;</i></precode>
+<indent>
+<example><pre>iside -norecent "c:\isetup\samples\my script.iss"</pre></example>
+</indent>
+
+<p>The file is also kept out of the list if you reopen or save it later in the same session. Other files you open yourself are still added.</p>
+
+<p>This option is ignored if no script file is specified on the command line.</p>
+
+<p>Short options accept both <tt>-</tt> and <tt>/</tt> as a prefix and are case-insensitive. Long <tt>--</tt> options are case-sensitive and do not accept <tt>//</tt> as a prefix.</p>
+</li>
+
 </ul>
 
 </body>
@@ -4193,7 +4306,7 @@ iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precod
 <li>Releases are built on a dedicated machine only used for this purpose. Signing keys are not stored on other machines.</li>
 <li>The Inno Setup source code is self-contained and no external dependencies are pulled in when a release is built.</li>
 <li>Precompiled files included in Inno Setup's source code are code signed and are accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files to detect corruption or tampering before using them to build a release.</li>
-<li>Vendor updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available. Of the named sources, only LZMA SDK is an integral part of the Setup program, and only in a reduced form.</li>
+<li>Vendor updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Zstandard, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available. Of the named sources, only LZMA SDK is an integral part of the Setup program, and only in a reduced form.</li>
 <li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files you can use to detect corruption or tampering before running them. For more details, see <extlink href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</extlink>.</li>
 <li>Our GitHub repositories require signed commits on all branches, have GitHub Actions disabled, and do not allow any workflows to run.</li>
 </ul>
@@ -4955,6 +5068,10 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Igor Pavlov: Creator of the <extlink href="https://7-zip.org/">7-Zip</extlink> and <extlink href="http://www.7-zip.org/sdk.html">LZMA SDK</extlink> libraries that Inno Setup uses.</li>
 
+<li>Yann Collet: Creator of the <extlink href="https://facebook.github.io/zstd/">Zstandard</extlink> compression library that Inno Setup uses (7.2).</li>
+
+<li>Amy Spark: Most of the code for the Zstandard integration (7.2).</li>
+
 <li>Vince Valenti: Most of the code for the "Window" <sn>[Setup]</sn> section directives (1.12.4 - 6.3.3).</li>
 
 <li>Joe White: Code for <sd>ChangesAssociations</sd> <sn>[Setup]</sn> section directive (1.2).</li>
@@ -4973,11 +5090,13 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Creators of <extlink href="http://www.scintilla.org/">Scintilla</extlink>: The syntax-highlighting editor used in the Compiler IDE (5.4).</li>
 
+<li>Creators of <extlink href="https://github.com/project-jedi/jvcl">TJvInspector</extlink>: The (heavily modified) inspector control used in the Compiler IDE (7.2).</li>
+
 <li>Zaher Dirkey: Initial work on improved right-to-left languages support (5.2.3).</li>
 
 <li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support (5.3).</li>
 
-<li>Motaz Alnuweiri: 128x128 and 256x256 sizes of the Compiler IDE and document icons (5.5.3).</li>
+<li>Motaz Alnuweiri: 128&times;128 and 256&times;256 sizes of the Compiler IDE and document icons (5.5.3).</li>
 
 <li>DRON: Code for the improved image stretching (5.6).</li>
 
@@ -5403,7 +5522,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 </setuptopic>
 
 <setuptopic directive="DisablePrecompiledFileVerifications">
-<setupvalid>One or more of the following, separated by spaces:<br/><tt>setup</tt><br/><tt>setupcustomstyle</tt><br/><tt>setupldr</tt><br/><tt>is7z</tt><br/><tt>isbunzip</tt><br/><tt>isunzlib</tt><br/><tt>islzma</tt></setupvalid>
+<setupvalid>One or more of the following, separated by spaces:<br/><tt>setup</tt><br/><tt>setupcustomstyle</tt><br/><tt>setupldr</tt><br/><tt>is7z</tt><br/><tt>isbunzip</tt><br/><tt>isunzlib</tt><br/><tt>islzma</tt><br/><tt>isunzstd</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>The compiler verifies precompiled files before using them. For certain files, you can disable verification if necessary. Use this directive to specify the list of files that should not be verified.</p>
@@ -5490,11 +5609,15 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <keyword value="zip" />
 <keyword value="bzip" />
 <keyword value="lzma" />
+<keyword value="zstd" />
 <keyword value="lzma2" />
 <setupvalid><tt>zip</tt><br/>
 <tt>zip/1</tt> through <tt>zip/9</tt><br/>
 <tt>bzip</tt><br/>
 <tt>bzip/1</tt> through <tt>bzip/9</tt><br/>
+<tt>zstd</tt><br/>
+<tt>zstd/1</tt> through <tt>zstd/20</tt><br/>
+<tt>zstd/21</tt> and <tt>zstd/22</tt> &nbsp;&nbsp;(review memory requirements below before using)<br/>
 <tt>lzma</tt><br/>
 <tt>lzma/fast</tt><br/>
 <tt>lzma/normal</tt><br/>
@@ -5513,10 +5636,28 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>This specifies the method of compression to use on the files, and optionally the level of compression. Higher levels compress better but take longer doing so, and may also require more memory while compressing/decompressing.</p>
 <p><tt>zip</tt> is the method of compression employed by <tt>.zip</tt> files ("deflate"). It is fast in both compression and decompression, and has very low memory requirements (less than 1 MB for both compression and decompression at level 9), but generally does not compress nearly as well as the other supported methods. <tt>zip</tt>, like <tt>lzma2</tt>, has one special property, though: it will not expand incompressible data (e.g., files that are already compressed). If a compression level isn't specified, it defaults to 7.</p>
 <p><tt>bzip</tt> is the method of compression employed by the <extlink href="http://www.bzip.org/">bzip2</extlink> compressor. It almost always compresses better than <tt>zip</tt> but is usually slower in both compression and decompression. Up to 4 MB of memory is required during decompression, and up to 8 MB during compression. If a compression level isn't specified, it defaults to 9.</p>
-<p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
+<p><tt>zstd</tt> is the method of compression employed by the <extlink href="https://facebook.github.io/zstd/">Zstandard</extlink> compressor. It almost always compresses better than <tt>zip</tt> and <tt>bzip</tt>, and at its highest levels its compression ratio approaches that of <tt>lzma</tt> and <tt>lzma2</tt> while compressing faster. Decompression is extremely fast at every level. Optionally it can compress multiple parts of large files in parallel, greatly increasing compression speed with almost no reduction in compression ratio (see <sd>ZstdNumThreads</sd>). The following table summarizes the approximate memory requirements for the most meaningful <tt>zstd</tt> compression levels. If a compression level isn't specified, it defaults to 19.</p>
 <indent>
 <table>
-<tr><th>Level</th><th>Decompression<br/>(dictionary size)</th><th>Compression<br/>(6 MB + 11.5 * dictionary size)</th></tr>
+<tr><th>Level</th><th>Decompression<br/>(window size + 0.5 MB)</th><th>Compression<br/>(1 MB + match tables + 2 &times; window size)</th></tr>
+<tr><td><tt>1</tt></td><td>1 MB</td><td>2 MB</td></tr>
+<tr><td><tt>3</tt></td><td>2.5 MB</td><td>6 MB</td></tr>
+<tr><td><tt>6</tt></td><td>2.5 MB</td><td>7.5 MB</td></tr>
+<tr><td><tt>8</tt></td><td>2.5 MB</td><td>10 MB</td></tr>
+<tr><td><tt>13</tt></td><td>4.5 MB</td><td>41 MB</td></tr>
+<tr><td><tt>16</tt></td><td>4.5 MB</td><td>42 MB</td></tr>
+<tr><td><tt>18</tt></td><td>8.5 MB</td><td>66 MB</td></tr>
+<tr><td><tt>19</tt> (default)</td><td>8.5 MB</td><td>98 MB</td></tr>
+<tr><td><tt>20</tt></td><td>33 MB</td><td>226 MB</td></tr>
+<tr><td><tt>21</tt></td><td>65 MB</td><td>450 MB</td></tr>
+<tr><td><tt>22</tt></td><td>129 MB</td><td>898 MB</td></tr>
+</table>
+<p>See <sd>ZstdNumThreads</sd> for the compression memory required when multiple compression threads are used. Levels 21 and 22 cannot be combined with multiple compression threads.</p>
+</indent>
+<p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods, and somewhat better than <tt>zstd</tt>. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
+<indent>
+<table>
+<tr><th>Level</th><th>Decompression<br/>(dictionary size)</th><th>Compression<br/>(6 MB + 11.5 &times; dictionary size)</th></tr>
 <tr><td><tt>fast</tt> (worst)</td><td>32 KB</td><td>6 MB</td></tr>
 <tr><td><tt>normal</tt></td><td>2 MB</td><td>29 MB</td></tr>
 <tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>98 MB</td></tr>
@@ -5533,7 +5674,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>Dictionary sizes larger than 1 GB are only supported by <link topic="setup_setuparchitecture">64-bit Setup</link>.</p>
 <p>The compression memory requirements are approximately 60% of the above when <sd>LZMAMatchFinder</sd> is set to <tt>HC</tt> at the expense of compression ratio.</p>
 </indent>
-<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <sd>LZMANumBlockThreads</sd>). If a compression level isn't specified, it defaults to <tt>max</tt>. Like LZMA, LZMA2 can consume a <i>lot</i> of memory; see the above table. Do note: LZMA2 only supports a limited number of dictionary sizes and other sizes will be rounded up to the next supported size. Supported sizes are powers of two starting at 4 (4, 8, 16, 32, etc.) and the midway points between them (6, 12, 24, etc.). For instance, a dictionary size of 524289 (512 MB + 1 KB) has the same memory requirements as one of 786432 (768 MB).</p>
+<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but (unlike <tt>zstd</tt>) with a possible reduction in compression ratio (see <sd>LZMANumBlockThreads</sd>). If a compression level isn't specified, it defaults to <tt>max</tt>. Like LZMA, LZMA2 can consume a <i>lot</i> of memory; see the above table. Do note: LZMA2 only supports a limited number of dictionary sizes and other sizes will be rounded up to the next supported size. Supported sizes are powers of two starting at 4 (4, 8, 16, 32, etc.) and the midway points between them (6, 12, 24, etc.). For instance, a dictionary size of 524289 (512 MB + 1 KB) has the same memory requirements as one of 786432 (768 MB).</p>
+<p>When choosing between <tt>lzma2</tt> and <tt>zstd</tt>: at the same dictionary and window sizes, <tt>lzma2</tt> typically compresses 5 to 15% better than <tt>zstd</tt>, making it the best choice when a small download size is most important. In return, <tt>zstd</tt> decompresses roughly 20 times faster. This makes <tt>zstd</tt> the best choice when installation time is most important, such as with very large installations.</p>
 <p><tt>none</tt> specifies that no compression be used.</p>
 <p><b>See also:</b><br/>
 <sd>SolidCompression</sd><br/>
@@ -5543,7 +5685,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <sd>LZMAMatchFinder</sd><br/>
 <sd>LZMANumBlockThreads</sd><br/>
 <sd>LZMANumFastBytes</sd><br/>
-<sd>LZMAUseSeparateProcess</sd>
+<sd>LZMAUseSeparateProcess</sd><br/>
+<sd>ZstdNumThreads</sd>
 </p>
 </body>
 </setuptopic>
@@ -5562,7 +5705,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>Values of <tt>2</tt> or higher are currently equivalent to <tt>auto</tt>.</p>
 <p>Note that for the LZMA2 compressor, this directive only controls whether the multi-threaded match finder is used. To enable support for compressing multiple parts of large files in parallel, set <sd>LZMANumBlockThreads</sd>.</p>
 <p><b>See also:</b><br/>
-<sd>LZMANumBlockThreads</sd></p>
+<sd>LZMANumBlockThreads</sd><br/>
+<sd>ZstdNumThreads</sd></p>
 </body>
 </setuptopic>
 
@@ -6126,31 +6270,31 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>Specifies the name(s) of the image file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
 <p>Supports <tt>.bmp</tt> and <tt>.png</tt> images, including those with transparency. Use <sd>WizardImageBackColor</sd> to customize the background color. Even transparent <tt>.bmp</tt> files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardImageOpacity</sd> to increase transparency.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used. In all cases, an aspect ratio of 164:314 is maintained. The specified image should have the same aspect ratio.</p>
-<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 202x386 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
+<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 202&times;386 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240&times;459.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
-<tr><td>100%</td><td>202x386</td></tr>
-<tr><td>125%</td><td>269x515</td></tr>
-<tr><td>150%</td><td>336x643</td></tr>
-<tr><td>175%</td><td>403x772</td></tr>
-<tr><td>200%</td><td>430x824</td></tr>
-<tr><td>225%</td><td>498x953</td></tr>
-<tr><td>250%</td><td>534x1022</td></tr>
+<tr><td>100%</td><td>202&times;386</td></tr>
+<tr><td>125%</td><td>269&times;515</td></tr>
+<tr><td>150%</td><td>336&times;643</td></tr>
+<tr><td>175%</td><td>403&times;772</td></tr>
+<tr><td>200%</td><td>430&times;824</td></tr>
+<tr><td>225%</td><td>498&times;953</td></tr>
+<tr><td>250%</td><td>551&times;1055</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
-<p>If this directive is not specified, a single built-in 240x459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>If this directive is not specified, a single built-in 240&times;459 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>If this directive is set to a blank value, no wizard image will be used. This does not change the layout of the wizard.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
-<tr><td>100%</td><td>164x314</td></tr>
-<tr><td>125%</td><td>202x386</td></tr>
-<tr><td>150%</td><td>240x459</td></tr>
-<tr><td>175%</td><td>290x556</td></tr>
-<tr><td>200%</td><td>315x604</td></tr>
-<tr><td>225%</td><td>366x700</td></tr>
-<tr><td>250%</td><td>416x797</td></tr>
+<tr><td>100%</td><td>164&times;314</td></tr>
+<tr><td>125%</td><td>202&times;386</td></tr>
+<tr><td>150%</td><td>240&times;459</td></tr>
+<tr><td>175%</td><td>290&times;556</td></tr>
+<tr><td>200%</td><td>315&times;604</td></tr>
+<tr><td>225%</td><td>366&times;700</td></tr>
+<tr><td>250%</td><td>416&times;797</td></tr>
 </table>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicImage.bmp</tt>.</p>
 <example><pre><key>WizardImageFile</key>=myimage.bmp,myimage2.bmp</pre></example>
@@ -6178,32 +6322,32 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>Specifies the name(s) of the image file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
 <p>Supports <tt>.bmp</tt> and <tt>.png</tt> images, including those with transparency. Use <sd>WizardSmallImageBackColor</sd> to customize the background color. Even transparent <tt>.bmp</tt> files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardImageOpacity</sd> to increase transparency.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. In all cases, the area is square; thus, the specified image should be square as well.</p>
-<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
+<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 58&times;58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147&times;147.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
-<tr><td>100%</td><td>58x58</td></tr>
-<tr><td>125%</td><td>77x77</td></tr>
-<tr><td>150%</td><td>97x97</td></tr>
-<tr><td>175%</td><td>116x116</td></tr>
-<tr><td>200%</td><td>124x124</td></tr>
-<tr><td>225%</td><td>143x143</td></tr>
-<tr><td>250%</td><td>159x159</td></tr>
+<tr><td>100%</td><td>58&times;58</td></tr>
+<tr><td>125%</td><td>77&times;77</td></tr>
+<tr><td>150%</td><td>97&times;97</td></tr>
+<tr><td>175%</td><td>116&times;116</td></tr>
+<tr><td>200%</td><td>124&times;124</td></tr>
+<tr><td>225%</td><td>143&times;143</td></tr>
+<tr><td>250%</td><td>159&times;159</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
-<p>Backward compatibility note: If a single image smaller than 58x58 is specified, the image will not be stretched to fill the entire image area; instead, it will be centered.</p>
-<p>If this directive is not specified, a single built-in 147x147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
+<p>Backward compatibility note: If a single image smaller than 58&times;58 is specified, the image will not be stretched to fill the entire image area; instead, it will be centered.</p>
+<p>If this directive is not specified, a single built-in 147&times;147 wizard image will be used, by default stretched or shrunk if the image is larger or smaller than required.</p>
 <p>If this directive is set to a blank value, no wizard image will be used. This does not change the layout of the wizard.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
-<tr><td>100%</td><td>58x58</td></tr>
-<tr><td>125%</td><td>71x71</td></tr>
-<tr><td>150%</td><td>85x85</td></tr>
-<tr><td>175%</td><td>103x103</td></tr>
-<tr><td>200%</td><td>112x112</td></tr>
-<tr><td>225%</td><td>129x129</td></tr>
-<tr><td>250%</td><td>147x147</td></tr>
+<tr><td>100%</td><td>58&times;58</td></tr>
+<tr><td>125%</td><td>71&times;71</td></tr>
+<tr><td>150%</td><td>85&times;85</td></tr>
+<tr><td>175%</td><td>103&times;103</td></tr>
+<tr><td>200%</td><td>112&times;112</td></tr>
+<tr><td>225%</td><td>129&times;129</td></tr>
+<tr><td>250%</td><td>147&times;147</td></tr>
 </table>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicSmallImage.bmp</tt>.</p>
 <example><pre><key>WizardSmallImageFile</key>=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
@@ -6231,17 +6375,17 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>Specifies the name(s) of the image file(s) to display as the background of wizard pages in Setup, but not in Uninstall. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
 <p>Supports <tt>.bmp</tt> and <tt>.png</tt> images, including those with transparency. Use <sd>WizardBackColor</sd> to customize the background color. Even transparent <tt>.bmp</tt> files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardBackImageOpacity</sd> to increase transparency.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used. If <sd>WizardKeepAspectRatio</sd> is set to <tt>yes</tt>, which is the default, an aspect ratio of 497:360 is maintained. The specified image should have the same aspect ratio.</p>
-<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 596x432 is recommended to avoid the image looking blurry on higher-DPI systems.</p>
+<p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 596&times;432 is recommended to avoid the image looking blurry on higher-DPI systems.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
-<tr><td>100%</td><td>596x432</td></tr>
-<tr><td>125%</td><td>796x576</td></tr>
-<tr><td>150%</td><td>994x720</td></tr>
-<tr><td>175%</td><td>1193x864</td></tr>
-<tr><td>200%</td><td>1272x922</td></tr>
-<tr><td>225%</td><td>1471x1066</td></tr>
-<tr><td>250%</td><td>1630x1148</td></tr>
+<tr><td>100%</td><td>596&times;432</td></tr>
+<tr><td>125%</td><td>796&times;576</td></tr>
+<tr><td>150%</td><td>994&times;720</td></tr>
+<tr><td>175%</td><td>1193&times;864</td></tr>
+<tr><td>200%</td><td>1272&times;922</td></tr>
+<tr><td>225%</td><td>1471&times;1066</td></tr>
+<tr><td>250%</td><td>1630&times;1181</td></tr>
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is set to a blank value, no background image will be used.</p>
@@ -6325,7 +6469,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 </setuptopic>
 
 <setuptopic directive="WizardImageBackColor">
-<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>black</tt>, <tt>maroon</tt>, <tt>green</tt>, <tt>olive</tt>, <tt>navy</tt>, <tt>purple</tt>, <tt>teal</tt>, <tt>gray</tt>, <tt>silver</tt>, <tt>red</tt>, <tt>lime</tt>, <tt>yellow</tt>, <tt>blue</tt>, <tt>fuchsia</tt>, <tt>aqua</tt>, <tt>white</tt>, <tt>none</tt>, <tt>window</tt>.</setupvalid>
+<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. The short form <tt>#<i>rgb</i></tt> is also accepted. Or it may be a color name, such as <tt>none</tt>, <tt>window</tt>, <tt>red</tt>, <tt>white</tt>, or <tt>blue</tt>. All Windows system color names are supported. All standard web color names defined by CSS are supported too, such as <tt>orange</tt> and <tt>cornflowerblue</tt>.</setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>This directive specifies the background color used to fill any unused or transparent space around the wizard image, which is specified by <sd>WizardImageFile</sd>. Using <tt>none</tt> as the fill color keeps transparency.</p>
@@ -6351,7 +6495,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </setuptopic>
 
 <setuptopic directive="WizardSmallImageBackColor">
-<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>black</tt>, <tt>maroon</tt>, <tt>green</tt>, <tt>olive</tt>, <tt>navy</tt>, <tt>purple</tt>, <tt>teal</tt>, <tt>gray</tt>, <tt>silver</tt>, <tt>red</tt>, <tt>lime</tt>, <tt>yellow</tt>, <tt>blue</tt>, <tt>fuchsia</tt>, <tt>aqua</tt>, <tt>white</tt>, <tt>none</tt>, <tt>window</tt>.</setupvalid>
+<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. The short form <tt>#<i>rgb</i></tt> is also accepted. Or it may be a color name, such as <tt>none</tt>, <tt>window</tt>, <tt>red</tt>, <tt>white</tt>, or <tt>blue</tt>. All Windows system color names are supported. All standard web color names defined by CSS are supported too, such as <tt>orange</tt> and <tt>cornflowerblue</tt>.</setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>This directive specifies the background color used to fill any unused or transparent space around the small wizard image, which is specified by <sd>WizardSmallImageFile</sd>. Using <tt>none</tt> as the fill color keeps transparency.</p>
@@ -6371,7 +6515,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 </setuptopic>
 
 <setuptopic directive="WizardBackColor">
-<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>black</tt>, <tt>maroon</tt>, <tt>green</tt>, <tt>olive</tt>, <tt>navy</tt>, <tt>purple</tt>, <tt>teal</tt>, <tt>gray</tt>, <tt>silver</tt>, <tt>red</tt>, <tt>lime</tt>, <tt>yellow</tt>, <tt>blue</tt>, <tt>fuchsia</tt>, <tt>aqua</tt>, <tt>white</tt>, <tt>none</tt>, <tt>window</tt>.</setupvalid>
+<setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. The short form <tt>#<i>rgb</i></tt> is also accepted. Or it may be a color name, such as <tt>none</tt>, <tt>window</tt>, <tt>red</tt>, <tt>white</tt>, or <tt>blue</tt>. All Windows system color names are supported. All standard web color names defined by CSS are supported too, such as <tt>orange</tt> and <tt>cornflowerblue</tt>.</setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>This directive specifies the background color to use for wizard pages and all other windows such as the <i>Select Language</i> dialog, in both Setup and Uninstall.</p>
@@ -6721,7 +6865,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies a custom program icon to use for Setup/Uninstall. The file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
-<p>It is recommended to include at least the following sizes in your icon: 16x16, 32x32, 48x48, 64x64, and 256x256.</p>
+<p>It is recommended to include at least the following sizes in your icon: 16&times;16, 32&times;32, 48&times;48, 64&times;64, and 256&times;256.</p>
 <p>If this directive is not specified or is blank, a built-in icon supporting the above sizes will be used.</p>
 <p>To use the old default icon set this directive to <tt>compiler:SetupClassicIcon.ico</tt>.</p>
 <example><pre><key>SetupIconFile</key>=MyProgSetup.ico</pre></example>
@@ -7225,7 +7369,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 
 <setuptopic directive="LZMABlockSize">
 <setupvalid><tt>1024</tt> through <tt>262144</tt></setupvalid>
-<setupdefault>4 * <sd>LZMADictionarySize</sd> with a minimum of 1024 and a maximum of 262144</setupdefault>
+<setupdefault>4 &times; <sd>LZMADictionarySize</sd> with a minimum of 1024 and a maximum of 262144</setupdefault>
 <body>
 <p>Controls the block size used by the LZMA2 compressor, in kilobytes, when <sd>LZMANumBlockThreads</sd> is set to <tt>2</tt> or higher.</p>
 <p>Note that setting this too high can negate the benefits of using multiple block threads. Typically, the block size should be no more than the total size of your data divided by the number of block threads.</p>
@@ -7271,12 +7415,25 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <body>
 <p>When compressing a large file, the LZMA2 compressor has the ability to divide its data into "blocks" and compress two or more of these blocks in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the maximum number of threads to use -- that is, the maximum number of blocks that the LZMA2 compressor may compress in parallel. Using a high maximum requires a very large file before this maximum is fully used.</p>
 <p>The memory required during compression when multiple block threads are used is roughly:</p>
-<indent><p><tt>LZMANumBlockThreads</tt> * (<link topic="setup_compression">Normal memory usage</link> + (<sd>LZMABlockSize</sd> * 2))</p></indent>
+<indent><p><tt>LZMANumBlockThreads</tt> &times; (<link topic="setup_compression">Normal memory usage</link> + (<sd>LZMABlockSize</sd> &times; 2))</p></indent>
 <p>Since LZMA2 (and LZMA) uses two threads for match-finding by default (see <sd>CompressionThreads</sd>), there ideally should be two processor cores available for each block thread. Thus, to see the maximum benefit from a value of <tt>2</tt>, four cores are needed.</p>
 <p>Dividing the data into multiple blocks can reduce the compression ratio, as the compressor cannot find matches across blocks. Using a large <link topic="setup_lzmablocksize">block size</link> can help to mitigate this.</p>
 <p><link topic="64bit">32-bit compiler</link>: If an "Out of memory" error is seen when multiple block threads are enabled in combination with a compression level that uses a large dictionary size (such as <tt>ultra64</tt>), <sd>LZMAUseSeparateProcess</sd> may need to be set.</p>
 <p><b>See also:</b><br/>
 <sd>LZMABlockSize</sd></p>
+</body>
+</setuptopic>
+
+<setuptopic directive="ZstdNumThreads">
+<setupvalid><tt>1</tt> through <tt>64</tt></setupvalid>
+<setupdefault><tt>1</tt></setupdefault>
+<body>
+<p>When compressing a large file, the zstd compressor has the ability to divide its data into "jobs" and compress two or more of these jobs in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the maximum number of threads to use -- that is, the maximum number of jobs that the zstd compressor may compress in parallel. Using a high maximum requires a very large file before this maximum is fully used. At the default setting of <tt>1</tt>, the data is not divided into jobs and a single thread is used.</p>
+<p>The memory required during compression when multiple threads are used is roughly:</p>
+<indent><p><tt>ZstdNumThreads</tt> &times; (<link topic="setup_compression">Normal memory usage</link> + (job size &times; 2)) + (job size &times; 4)</p></indent>
+<p>The job size is 2 MB at level 1, 4 MB at level 2, 8 MB at levels 3-8, 16 MB at levels 9-16, and 32 MB at levels 17-20. At level 20, the compiler lowers the zstd compressor's default job size from 128 MB to 32 MB. This reduces memory use and allows compression to be aborted in a timely manner.</p>
+<p>Dividing the data into multiple jobs has almost no effect on the compression ratio, as consecutive jobs overlap and the compressor can still find nearby matches across job boundaries.</p>
+<p>Setting this directive to <tt>2</tt> or higher is not supported at <link topic="setup_compression">compression levels</link> 21 and 22, because at those levels compression cannot be aborted in a timely manner.</p>
 </body>
 </setuptopic>
 

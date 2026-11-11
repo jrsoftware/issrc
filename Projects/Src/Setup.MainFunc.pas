@@ -139,7 +139,7 @@ var
   { Other }
   ShowLanguageDialog, MatchedLangParameter: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
-  HasIcons, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
+  HasIcons, Is64BitInstallMode, IsAdmin, IsAdminInstallMode,
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress,
     CustomWizardBackground: Boolean;
@@ -258,7 +258,7 @@ uses
   ChaCha20, ECDSA, ISSigFunc, NewCtrls, PathFunc, UnsignedFunc, FormBackgroundStyleHook, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir,
-  Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
+  Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor, Compression.Zstd,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc, StringScanner,
@@ -1237,6 +1237,7 @@ begin
       InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if (Cnst <> '') and (Cnst[1] = '%') then Result := ExpandEnvConst(Cnst)
+  { Same list of prefixes as in ConstantsWithParam }
   else if StrLComp(PChar(Cnst), 'reg:', 4) = 0 then Result := ExpandRegConst(Cnst)
   else if StrLComp(PChar(Cnst), 'ini:', 4) = 0 then Result := ExpandIniConst(Cnst)
   else if StrLComp(PChar(Cnst), 'param:', 6) = 0 then Result := ExpandParamConst(Cnst)
@@ -2456,33 +2457,17 @@ var
   IsRedirectionGuardEnabled: Boolean;
 
 procedure RedirectionGuardConfigure(const AEnable: Boolean);
-const
-  ProcessRedirectionTrustPolicy = TProcessMitigationPolicy(16);
-var
-  SetProcessMitigationPolicyFunc: function(MitigationPolicy: TProcessMitigationPolicy;
-    lpBuffer: PVOID; dwLength: SIZE_T): BOOL; stdcall;
 begin
-  var Status: String;
+  var CurModeAsString: String;
+  TRedirectionGuardMode.GetCurrentMode(CurModeAsString);
+  LogFmt('RedirectionGuard: Initial mode for current process: %s',
+    [CurModeAsString]);
 
-  if AEnable then begin
-    SetProcessMitigationPolicyFunc := GetProcAddress(GetModuleHandle(kernel32),
-      PAnsiChar('SetProcessMitigationPolicy'));
-    if Assigned(SetProcessMitigationPolicyFunc) then begin
-      const Flags: DWORD = 1;  { = EnforceRedirectionTrust bit set }
-      if SetProcessMitigationPolicyFunc(ProcessRedirectionTrustPolicy, @Flags, SizeOf(Flags)) then begin
-        IsRedirectionGuardEnabled := True;
-        Status := 'Enabled in enforcing mode'
-      end else begin
-        const ErrorCode = GetLastError;
-        Status := Format('Could not enable (SetProcessMitigationPolicy failed with error code %u)',
-          [ErrorCode]);
-      end;
-    end else
-      Status := 'Could not enable (SetProcessMitigationPolicy unavailable)';
-  end else
-    Status := 'Not enabling';
-
-  LogFmt('RedirectionGuard status for current process: %s', [Status]);
+  if AEnable then
+    IsRedirectionGuardEnabled := TRedirectionGuardMode.Create(
+      TRedirectionGuardMode.EnforceRedirectionTrustFlag).Activate
+  else
+    Log('RedirectionGuard: Not changing mode.');
 end;
 
 function RedirectionGuardEnabled: Boolean;
@@ -2545,8 +2530,6 @@ begin
 
   if IsAdmin then
     Log('User privileges: Administrative')
-  else if IsPowerUserOrAdmin then
-    Log('User privileges: Power User')
   else
     Log('User privileges: None');
 end;
@@ -2713,7 +2696,6 @@ procedure InitializeCommonVars;
 { Initializes variables shared between Setup and Uninstall }
 begin
   IsAdmin := IsAdminLoggedOn;
-  IsPowerUserOrAdmin := IsAdmin or IsPowerUserLoggedOn;
 end;
 
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
@@ -2831,6 +2813,7 @@ var
       if TPngImage.CanLoadFromStream(MemStream) then
         Result := TPngImage.Create
       else begin
+        RemoveEmbeddedColorProfileFromBitmap(MemStream.Memory, MemStream.Size);
         Result := TBitmap.Create;
         TBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
       end;
@@ -2879,6 +2862,9 @@ var
       cmBzip:
         if not BZInitDecompressFunctions(DecompressorDLLHandle) then
           InternalError('BZInitDecompressFunctions failed');
+      cmZstd:
+        if not ZstdInitDecompressFunctions(DecompressorDLLHandle) then
+          InternalError('ZstdInitDecompressFunctions failed');
     end;
   end;
 
@@ -3330,7 +3316,7 @@ begin
       if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
         AbortInit(SIncorrectPassword);
       { The first FileExtractor (a function!) call creates the decompressor for
-        SetupHeader.CompressMethod, and the zip and bzip decompressors call into the decompressor DLL
+        SetupHeader.CompressMethod, and the zip and zstd decompressors call into the decompressor DLL
         when created, so delaying setting FileExtractor.CryptKey until SetupHeader is read and
         LoadDecompressorDLL is called below }
     end;
@@ -3536,7 +3522,7 @@ begin
         ReadWizardImages(Reader, WizardBackImages, WantWizardImagesDynamicDark);
         { Decompressor DLL }
         DecompressorDLL := nil;
-        if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
+        if SetupHeader.CompressMethod in [cmZip, cmBzip, cmZstd] then begin
           DecompressorDLL := TMemoryStream.Create;
           ReadFileIntoStream(Reader, DecompressorDLL);
         end;
@@ -3634,8 +3620,6 @@ begin
 
   { Check if the user lacks the required privileges }
   case SetupHeader.PrivilegesRequired of
-    prPowerUser:
-      if not IsPowerUserOrAdmin then AbortInit(msgPowerUserPrivilegesRequired);
     prAdmin:
       if not IsAdmin then AbortInit(msgAdminPrivilegesRequired);
   end;
@@ -3648,7 +3632,7 @@ begin
   CreateTempInstallDir;
 
   { Save DecompressorDLL stream as "_isdecmp.dll" in TempInstallDir, and load it }
-  if SetupHeader.CompressMethod in [cmZip, cmBzip] then
+  if SetupHeader.CompressMethod in [cmZip, cmBzip, cmZstd] then
     LoadDecompressorDLL;
 
   if SetupEncryptionHeader.EncryptionUse = euFull then

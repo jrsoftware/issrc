@@ -45,10 +45,12 @@ object GotoFileForm: TGotoFileForm
     Top = 37
     Width = 561
     Height = 422
+    Style = lbOwnerDrawFixed
     Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 13
     TabOrder = 1
     OnDblClick = GotoFileListBoxDblClick
+    OnDrawItem = GotoFileListBoxDrawItem
     OnKeyDown = GotoFileEditOrListBoxKeyDown
   end
   object GotoFileEdit: TEdit

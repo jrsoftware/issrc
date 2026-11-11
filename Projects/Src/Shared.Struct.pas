@@ -6,8 +6,8 @@ unit Shared.Struct;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Various records and other types that are shared by the ISCmplr, ISIDE,
-  ISPP, ISTestTool, Setup, SetupCustomStyle, and SetupLdr projects
+  Various records and other types that are shared by all projects except
+  ISHelpGen
 }
 
 interface
@@ -17,8 +17,8 @@ uses
 
 const
   SetupTitle = 'Inno Setup';
-  SetupVersion = '7.1.1';
-  SetupBinVersion = (7 shl 24) + (1 shl 16) + (1 shl 8) + 0;
+  SetupVersion = '7.2.0-dev';
+  SetupBinVersion = (7 shl 24) + (2 shl 16) + (0 shl 8) + 0;
 
 type
   TSetupID = array[0..63] of AnsiChar;
@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (7.1.1)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (7.2.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)',
      'Inno Setup Uninstall Log (b) 64-bit'); { '64-bit' refers to 64-bit install mode }
@@ -81,7 +81,7 @@ type
       64-bit builds, even without specifying packed. But to be sure we specify
       it anyway. }
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
-  TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
+  TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2, cmZstd);
   TSetupKDFSalt = array[0..15] of Byte;
   TSetupEncryptionKey = array[0..31] of Byte;
   TSetupEncryptionNonce = record
@@ -92,7 +92,7 @@ type
   TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm32, paArm64);
   TSetupProcessorArchitectures = set of TSetupProcessorArchitecture;
   TSetupDisablePage = (dpAuto, dpNo, dpYes);
-  TSetupPrivilegesRequired = (prNone, prPowerUser, prAdmin, prLowest);
+  TSetupPrivilegesRequired = (prNone, prAdmin, prLowest);
   TSetupPrivilegesRequiredOverride = (proCommandLine, proDialog);
   TSetupPrivilegesRequiredOverrides = set of TSetupPrivilegesRequiredOverride;
   TSetupWizardDarkStyle = (wdsLight, wdsDark, wdsDynamic);
@@ -256,6 +256,10 @@ type
 const
   SetupFileEntryStrings = 15;
   SetupFileEntryAnsiStrings = 1;
+  { Not really part of the structs, but data stored in the entries }
+  ConstantsWithParam: array of String = [
+    'cm', 'code', 'drive', 'ini', 'param', 'reg'
+  ];
 type
   PSetupFileEntry = ^TSetupFileEntry;
   TSetupFileVerificationType = (fvNone, fvHash, fvISSig);

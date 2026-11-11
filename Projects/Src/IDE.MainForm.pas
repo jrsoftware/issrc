@@ -27,9 +27,9 @@ uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
-  Shared.DebugStruct, Shared.CompilerInt.Struct, NewUxTheme, ImageList, ImgList, ToolWin,
-  IDE.HelperFunc, IDE.LocalizeFunc,
-  VirtualImageList, BaseImageCollection, BitmapButton;
+  Shared.DebugStruct, Shared.CompilerInt.Struct, Shared.ConfigIniFile, NewUxTheme, ImageList, ImgList, ToolWin,
+  IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.Navigator, IDE.Minimap, IDE.LiveScriptObjectFactory,
+  VirtualImageList, BaseImageCollection, BitmapButton, NewStaticText;
 
 const
   WM_StartCommandLineCompile = WM_USER + $1000;
@@ -150,6 +150,12 @@ type
     OpenIncludedFiles: Boolean;
     AutoHideNewIncludedFiles: Boolean;
     ShowCaretPosition: Boolean;
+    InspectorShowAllKnownDirectives: Boolean;
+    InspectorFollowCaret: Boolean;
+    InspectorQuoteNewParameterValues: Boolean;
+    InspectorQuoteNewDirectiveValues: Boolean;
+    MinimapAlwaysShowSlider: Boolean;
+    MinimapShowOnLeft: Boolean;
   end;
 
   TMainForm = class(TUIStateForm)
@@ -187,7 +193,7 @@ type
     ReplaceDialog: TReplaceDialog;
     StatusPanel: TPanel;
     CompilerOutputList: TListBox;
-    SplitPanel: TPanel;
+    StatusSplitPanel: TPanel;
     HWebsite: TMenuItem;
     VToolbar: TMenuItem;
     N7: TMenuItem;
@@ -234,7 +240,7 @@ type
     OutputTabSet: TNewTabSet;
     DebugOutputList: TListBox;
     VDebugOutput: TMenuItem;
-    VHide: TMenuItem;
+    VHideStatusPanel: TMenuItem;
     N11: TMenuItem;
     TMenu: TMenuItem;
     TAddRemovePrograms: TMenuItem;
@@ -249,6 +255,8 @@ type
     N17: TMenuItem;
     BOpenOutputFolder: TMenuItem;
     N8: TMenuItem;
+    VInspector: TMenuItem;
+    VNavigator: TMenuItem;
     VZoom: TMenuItem;
     VZoomIn: TMenuItem;
     VZoomOut: TMenuItem;
@@ -336,6 +344,35 @@ type
     UpdatePanelCloseBitBtn: TBitmapButton;
     UpdatePanelDonateBitBtn: TBitmapButton;
     EGotoFile: TMenuItem;
+    InspectorSplitPanel: TPanel;
+    InspectorPanel: TPanel;
+    InspectorHeaderPanel: TPanel;
+    InspectorCaptionText: TNewStaticText;
+    InspectorFilterEdit: TEdit;
+    InspectorPopupMenuBitBtn: TBitmapButton;
+    InspectorNoteText: TNewStaticText;
+    InspectorPopupMenu: TMenuItem;
+    PInspectorGoTo: TMenuItem;
+    PInspectorHelp: TMenuItem;
+    PInspectorRemove: TMenuItem;
+    N26: TMenuItem;
+    PInspectorShowAllKnownDirectives: TMenuItem;
+    PInspectorFollowCaret: TMenuItem;
+    PInspectorQuoteNewDirectiveValues: TMenuItem;
+    PInspectorQuoteNewParameterValues: TMenuItem;
+    N27: TMenuItem;
+    MemoPanel: TPanel;
+    NavigatorPanel: TPanel;
+    NavigatorComboBox: TComboBox;
+    NavigatorCaptionText: TNewStaticText;
+    NavigatorComboBox2: TComboBox;
+    VNavigatorFocus: TMenuItem;
+    VNavigatorFocusAndSelect: TMenuItem;
+    N28: TMenuItem;
+    VMinimap: TMenuItem;
+    MinimapPopupMenu: TMenuItem;
+    PMinimapAlwaysShowSlider: TMenuItem;
+    PMinimapShowOnLeft: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -360,7 +397,7 @@ type
     procedure EReplaceClick(Sender: TObject);
     procedure ReplaceDialogReplace(Sender: TObject);
     procedure EFindNextOrPreviousClick(Sender: TObject);
-    procedure SplitPanelMouseMove(Sender: TObject; Shift: TShiftState; X,
+    procedure StatusSplitPanelMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure VMenuClick(Sender: TObject);
     procedure HWebsiteClick(Sender: TObject);
@@ -399,7 +436,7 @@ type
     procedure DebugOutputListDrawItem(Control: TWinControl; Index: Integer;
       Rect: TRect; State: TOwnerDrawState);
     procedure OutputTabSetClick(Sender: TObject);
-    procedure VHideClick(Sender: TObject);
+    procedure VHideStatusPanelClick(Sender: TObject);
     procedure VDebugOutputClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure TAddRemoveProgramsClick(Sender: TObject);
@@ -474,6 +511,30 @@ type
     procedure UpdatePanelDonateBitBtnClick(Sender: TObject);
     procedure HMenuClick(Sender: TObject);
     procedure EGotoFileClick(Sender: TObject);
+    procedure VInspectorClick(Sender: TObject);
+    procedure InspectorSplitPanelMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
+    procedure InspectorHeaderPanelResize(Sender: TObject);
+    procedure InspectorPanelResize(Sender: TObject);
+    procedure InspectorFilterEditChange(Sender: TObject);
+    procedure InspectorFilterEditKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure InspectorPopupMenuBitBtnClick(Sender: TObject);
+    procedure InspectorPopupMenuClick(Sender: TObject);
+    procedure PInspectorGoToClick(Sender: TObject);
+    procedure PInspectorHelpClick(Sender: TObject);
+    procedure PInspectorRemoveClick(Sender: TObject);
+    procedure PInspectorShowAllKnownDirectivesClick(Sender: TObject);
+    procedure PInspectorFollowCaretClick(Sender: TObject);
+    procedure PInspectorQuoteNewDirectiveValuesClick(Sender: TObject);
+    procedure PInspectorQuoteNewParameterValuesClick(Sender: TObject);
+    procedure VNavigatorClick(Sender: TObject);
+    procedure VNavigatorFocusClick(Sender: TObject);
+    procedure NavigatorPanelResizeOrCaretInCodeSectionChange(Sender: TObject);
+    procedure VMinimapClick(Sender: TObject);
+    procedure MinimapPopupMenuClick(Sender: TObject);
+    procedure PMinimapAlwaysShowSliderClick(Sender: TObject);
+    procedure PMinimapShowOnLeftClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -524,7 +585,10 @@ type
     FUpdatePanelMessages: TUpdatePanelMessages;
     FHighContrastActive: Boolean;
     FDonateImageMenuItem: TMenuItem;
+    FAllowUpdateInspectorPanelWidth: Boolean;
     FInAppOnActivate: Boolean;
+    FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
+    FMinimap: TMinimap;
     procedure AppOnActivate(Sender: TObject);
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -549,8 +613,12 @@ type
       out Output: String): Integer;
     function FindResultsListItemIsHeader(const Index: Integer): Boolean;
     procedure FinishLocalization;
+    procedure FocusNavigator(const AOpenDropDown: Boolean);
     function GetBorderStyle: TFormBorderStyle;
     function GetMainFilename: String;
+    function GetMainBaseDir: String;
+    function GetMinimapWidths(const AMemo: TIDEScintEdit): TMinimapWidths;
+    function GetSignTools: TStringList;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
     function InitializeFileMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
@@ -572,6 +640,8 @@ type
     procedure MemoMarginRightClick(Sender: TObject; MarginNumber: Integer;
       Line: Integer);
     procedure MemoModifiedChange(Sender: TObject);
+    procedure MemoPainted(Sender: TObject);
+    procedure MemoResizeOrLineNumbersWidthChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
     class procedure MessageBoxCallback(const Flags: Cardinal; const After: Boolean;
@@ -590,12 +660,21 @@ type
     function SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
     procedure SetBorderStyle(Value: TFormBorderStyle);
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
+    procedure SetInspectorActiveFactory;
+    procedure SetInspectorVisible(const AVisible: Boolean);
+    procedure SetMinimapVisible(const AVisible: Boolean);
+    procedure NavigatorComboBoxItemsChanged(Sender: TObject;
+      const AComboBox: TComboBox);
+    procedure SetNavigatorActiveFactory;
+    procedure SetNavigatorVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusBarCanvasDrawPanel(Canvas: TCanvas;
       Panel: TStatusPanel; const Rect: TRect);
     procedure StatusMessage(const Kind: TStatusMessageKind; const S: String);
     procedure SyncEditorOptions;
+    procedure SyncInspectorOptions;
+    procedure SyncMinimapOptions;
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TIDEScintEdit;
     procedure ToggleBreakPoint(Line: Integer);
     procedure Uncloak;
@@ -615,6 +694,9 @@ type
     procedure UpdateMarginsAndAutoCompleteIcons;
     procedure UpdateMarginsAndSquigglyAndCaretWidths;
     procedure UpdateMemosTabSetVisibility;
+    procedure UpdateMinimapLayout;
+    procedure UpdateMinimapReservation(const AMemo: TIDEScintEdit);
+    procedure UpdateMinimapReservationsAndLayout;
     procedure UpdateModifiedStatusPanel;
     procedure UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
     procedure UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
@@ -623,6 +705,9 @@ type
     procedure UpdateTheme;
     procedure UpdateThemeData(const Open: Boolean);
     procedure UpdateStatusPanelHeight(H: Integer);
+    procedure UpdateInspectorPanelWidth(W: Integer);
+    procedure UpdateInspectorHeaderPanelLayout;
+    procedure UpdateNavigatorPanelLayout;
     procedure WMAppCommand(var Message: TMessage); message WM_APPCOMMAND;
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
@@ -660,6 +745,8 @@ type
     FErrorMemo, FStepMemo: TIDEScintFileEdit; { These change depending on user input }
     FMemosStyler: TInnoSetupStyler;           { Single styler for all memos }
     { Used by class helpers }
+    FAutoCompleteAndCallTipsLiveCodeSection: TLiveScriptCodeSection;
+    FAutoCompleteExtraContinueChars: TSysCharSet;
     FCallTipState: TCallTipState;
     FCompiledExe: String;
     FCompiling: Boolean;
@@ -668,6 +755,8 @@ type
     FDebugging: Boolean;
     FDebugTarget: TDebugTarget;
     FFindResults: TFindResults;
+    FInspector: TInspector;
+    FNavigator: TNavigator;
     FLastFindOptions: TFindOptions;
     FLastFindRegEx: Boolean;
     FLastFindText: String;
@@ -694,6 +783,8 @@ type
       const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
       const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
     procedure ReopenTabClick(Sender: TObject);
+    function LiveScriptObjectFactoryForMemo(const AMemo: TScintEdit): TLiveScriptObjectFactory;
+    procedure ResetLiveScriptObjectFactoryForMemo(const AMemo: TScintEdit);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     procedure UpdateFindResultsListScrollWidth;
     { Other }
@@ -704,6 +795,7 @@ type
     destructor Destroy; override;
     function IsShortCut(var Message: TWMKey): Boolean; override;
     property FullPathInTitleBar: Boolean read FOptions.FullPathInTitleBar;
+    function LiveScriptObjectFactoryForMainMemo: TLiveScriptObjectFactory;
     property MainFilename: String read GetMainFilename;
   published
     property BorderStyle: TFormBorderStyle read GetBorderStyle write SetBorderStyle;
@@ -714,19 +806,25 @@ var
   CommandLineFilename, CommandLineWizardName: String;
   CommandLineCompile: Boolean;
   CommandLineWizard: Boolean;
+  CommandLineLanguage: TIDELanguage;
+  CommandLineLanguageSet: Boolean;
+  CommandLineNoRecentlyOpened: Boolean;
 
 implementation
 
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes, DateUtils,
   Math, StrUtils, WideStrUtils, TypInfo,
-  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc, Toolbar.Accessibility,
+  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc, Toolbar.Accessibility, JvInspector, OleAccFunc,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
+  Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule, IDE.IDEForm,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
   IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper, IDE.RichEditForm,
-  Shared.ConfigIniFile, Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
+  {$IFDEF DEBUG} IDE.LiveScriptObjectFactory.Test, {$ENDIF} IDE.ScriptModel.Metadata.Extra,
+  IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
+  IDE.ScriptModel.Metadata.Extra.WordLists;
 
 {$R *.DFM}
 
@@ -738,6 +836,26 @@ const
   FirstIncludedFilesMemoIndex = 1; { This is an index into FFileMemos }
 
   LineStateGrowAmount = 4000;
+
+  { VS Code's default for its editor.minimap.maxColumn setting, see
+    'maxColumn: 120' in src/vs/editor/common/config/editorOptions.ts. Note:
+    Column is VS Code's term for one minimap character, so the minimap, its
+    gutter included, is at most this many characters wide. VS Code added it to
+    stop the minimap from getting too wide on wide windows, see
+    https://github.com/microsoft/vscode/issues/20931. Unlike VS Code, ignored
+    with word wrap on, see CalculateMinimapWidths. The minimap can then get as
+    wide as the memo's text, when the memo is zoomed far out. }
+  MinimapMaxColumn = 120;
+
+procedure SaveBooleanOption(const OptionName: String; const Value: Boolean);
+begin
+  const Ini = TConfigIniFile.Create;
+  try
+    Ini.WriteBool('Options', OptionName, Value);
+  finally
+    Ini.Free;
+  end;
+end;
 
 { TUpdatePanelMessage }
 
@@ -777,6 +895,11 @@ begin
   var OldVisible := FParentMenuItem.Visible; { See ApplyMenuBitmaps }
   FParentMenuItem.Visible := True;
   try
+    { Update the items now, like TPopupMenu.Popup's DoPopup: changes to the
+      Visible property of menu items made during the Click fired by TrackPopupMenu
+      (via WM_INITMENUPOPUP, as explained by ApplyMenuBitmaps) don't stick.
+      Calling Click now fixes that. }
+    FParentMenuItem.Click;
     TrackPopupMenu(FParentMenuItem.Handle, TPM_RIGHTBUTTON, X, Y, 0, Form.Handle, nil);
   finally
     FParentMenuItem.Visible := OldVisible;
@@ -788,6 +911,8 @@ end;
 function TMainForm.InitializeMemoBase(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
 begin
   Memo.Align := alClient;
+  Memo.Margins.SetBounds(0, 0, 0, 0);
+  Memo.AlignWithMargins := True; { See UpdateMinimapReservation }
   Memo.Font.Name := GetPreferredMemoFont; { Default font only, see ReadConfig }
   Memo.Font.Size := 10;
   Memo.ShowHint := True;
@@ -799,13 +924,16 @@ begin
   Memo.OnHintShow := MemoHintShow;
   Memo.OnKeyDown := MemoKeyDown;
   Memo.OnKeyPress := MemoKeyPress;
+  Memo.OnLineNumbersWidthChange := MemoResizeOrLineNumbersWidthChange;
   Memo.OnMarginClick := MemoMarginClick;
   Memo.OnMarginRightClick := MemoMarginRightClick;
   Memo.OnModifiedChange := MemoModifiedChange;
+  Memo.OnPainted := MemoPainted;
+  Memo.OnResize := MemoResizeOrLineNumbersWidthChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
-  Memo.Parent := BodyPanel;
-  Memo.SetAutoCompleteSeparators(InnoSetupStylerWordListSeparator, InnoSetupStylerWordListTypeSeparator);
+  Memo.Parent := MemoPanel;
+  Memo.SetAutoCompleteSeparators(AutoCompleteWordListSeparator, AutoCompleteWordListTypeSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;
   Memo.StyleName := 'Windows';
@@ -840,6 +968,25 @@ begin
   Result := Memo;
 end;
 
+function TMainForm.LiveScriptObjectFactoryForMemo(const AMemo: TScintEdit): TLiveScriptObjectFactory;
+begin
+  Result := nil;
+  if FLiveScriptObjectFactories <> nil then
+    FLiveScriptObjectFactories.TryGetValue(AMemo, Result);
+end;
+
+function TMainForm.LiveScriptObjectFactoryForMainMemo: TLiveScriptObjectFactory;
+begin
+  Result := LiveScriptObjectFactoryForMemo(FMainMemo);
+end;
+
+procedure TMainForm.ResetLiveScriptObjectFactoryForMemo(const AMemo: TScintEdit);
+begin
+  const Factory = LiveScriptObjectFactoryForMemo(AMemo);
+  if Factory <> nil then
+    Factory.Reset;
+end;
+
 constructor TMainForm.Create(AOwner: TComponent);
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
@@ -860,6 +1007,51 @@ constructor TMainForm.Create(AOwner: TComponent);
       Msg, Color, HasLink);
   end;
 
+  procedure CreateInspector;
+  begin
+    const JvInspector = TJvInspector.Create(Self);
+    JvInspector.AccessibleName := RemoveAccelChar(VInspector.Caption);
+    JvInspector.ShowHint := True;
+    JvInspector.PopupMenu := TMainFormPopupMenu.Create(Self, InspectorPopupMenu);
+    JvInspector.Parent := InspectorPanel;
+    JvInspector.Align := alClient;
+    const Ini = TConfigIniFile.Create;
+    try
+      FOptions.InspectorShowAllKnownDirectives := Ini.ReadBool('Options', 'InspectorShowAllKnownDirectives', True);
+      FOptions.InspectorFollowCaret := Ini.ReadBool('Options', 'InspectorFollowCaret', True);
+    finally
+      Ini.Free;
+    end;
+    FInspector := TInspector.Create(JvInspector, InspectorNoteText, ThemedMarkersAndACVirtualImageList,
+      LiveScriptObjectFactoryForMemo(FActiveMemo),
+      FOptions.InspectorShowAllKnownDirectives, { No main-memo check needed: FActiveMemo is FMainMemo at startup }
+      FOptions.InspectorFollowCaret, GetMainBaseDir, GetSignTools, LiveScriptObjectFactoryForMainMemo);
+  end;
+
+  procedure CreateNavigator;
+  begin
+    FNavigator := TNavigator.Create(NavigatorComboBox, NavigatorComboBox2,
+      LiveScriptObjectFactoryForMemo(FActiveMemo),
+      NavigatorPanelResizeOrCaretInCodeSectionChange, NavigatorComboBoxItemsChanged);
+  end;
+
+  procedure CreateMinimap;
+  begin
+    FMinimap := TMinimap.Create(Self);
+    FMinimap.Styler := FMemosStyler;
+    { ^ Must come before the minimap has a window: otherwise this assignment
+      clears the styling of the shared document, affecting the memo. See
+      TScintEdit.SetStyler. }
+    FMinimap.Theme := FTheme;
+    FMinimap.StyleName := 'Windows';
+    FMinimap.PopupMenu := TMainFormPopupMenu.Create(Self, MinimapPopupMenu);
+    FMinimap.Visible := False;
+    FMinimap.Parent := MemoPanel;
+    FMinimap.UpdateFont(FMainMemo.Font);
+    { ^ After setting Parent, whose rescaling of the font can round its size }
+    FMinimap.SetMemo(FActiveMemo);
+  end;
+
   procedure ReadAndApplyConfig;
   var
     Ini: TConfigIniFile;
@@ -871,6 +1063,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Menu check boxes state }
       ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
+      { ShowNavigator, ShowMinimap, and ShowInspector done below }
       FOptions.LowPriorityDuringCompile := Ini.ReadBool('Options', 'LowPriorityDuringCompile', False);
 
       { Configuration options - does not read ThemeType, see ReadAndUpdateTheme instead }
@@ -911,6 +1104,11 @@ constructor TMainForm.Create(AOwner: TComponent);
       I := Ini.ReadInteger('Options', 'MemoKeyMappingType', Ord(GetDefaultMemoKeyMappingType));
       if (I >= 0) and (I <= Ord(High(TIDEScintKeyMappingType))) then
         FOptions.MemoKeyMappingType := TIDEScintKeyMappingType(I);
+      { FOptions.InspectorShowAllKnownDirectives and InspectorFollowCaret already loaded }
+      FOptions.InspectorQuoteNewParameterValues := Ini.ReadBool('Options', 'InspectorQuoteNewParameterValues', True);
+      FOptions.InspectorQuoteNewDirectiveValues := Ini.ReadBool('Options', 'InspectorQuoteNewDirectiveValues', False);
+      FOptions.MinimapAlwaysShowSlider := Ini.ReadBool('Options', 'MinimapAlwaysShowSlider', False);
+      FOptions.MinimapShowOnLeft := Ini.ReadBool('Options', 'MinimapShowOnLeft', False);
       FMainMemo.Font.Name := Ini.ReadString('Options', 'EditorFontName', FMainMemo.Font.Name);
       FMainMemo.Font.Size := Ini.ReadInteger('Options', 'EditorFontSize', 10);
       FMainMemo.Font.Charset := TFontCharSet(Ini.ReadInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset));
@@ -924,6 +1122,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       for Memo in FMemos do
         if Memo <> FMainMemo then
           Memo.Font := FMainMemo.Font;
+      FMinimap.UpdateFont(FMainMemo.Font);
 
       { UpdatePanel visibility }
       const BannerGreen = $ABE3AB; { MGreen with HSL lightness changed from 40% to 78% }
@@ -936,13 +1135,30 @@ constructor TMainForm.Create(AOwner: TComponent);
         LFmtMessage(SUpdatePanelVSCodeShortcutsAdded, ['toptions-vscode']), BannerBlue, True);
       CheckUpdatePanelMessage(Ini, 'RichEditor', 0, 1,
         LFmtMessage(SUpdatePanelRichEditorAdded, ['tricheditor']), BannerBlue, True);
-      if FOptions.Language = ilEnglish then begin
+      if (FOptions.Language = ilEnglish) and not CommandLineLanguageSet then begin
+        const UILanguage = GetUILanguage;
         var MessageLanguage := ilEnglish;
-        case PRIMARYLANGID(GetUILanguage) of
+        case PRIMARYLANGID(UILanguage) of
           LANG_CZECH: MessageLanguage := ilCzech;
           LANG_DUTCH: MessageLanguage := ilDutch;
           LANG_GERMAN: MessageLanguage := ilGerman;
           LANG_JAPANESE: MessageLanguage := ilJapanese;
+          LANG_FRENCH: MessageLanguage := ilFrench;
+          LANG_SPANISH: MessageLanguage := ilSpanish;
+          LANG_ITALIAN: MessageLanguage := ilItalian;
+          LANG_CHINESE:
+            begin
+              const SUBLANG_CHINESE_MACAU = $05; { Not defined by Windows.pas }
+              const SubLanguage = SUBLANGID(UILanguage);
+              if (SubLanguage = SUBLANG_CHINESE_SIMPLIFIED) or
+                 (SubLanguage = SUBLANG_CHINESE_SINGAPORE) then
+                MessageLanguage := ilChineseSimplified
+              else if (SubLanguage = SUBLANG_CHINESE_TRADITIONAL) or
+                      (SubLanguage = SUBLANG_CHINESE_HONGKONG) or
+                      (SubLanguage = SUBLANG_CHINESE_MACAU) then
+                MessageLanguage := ilChineseTraditional;
+            end;
+          LANG_KOREAN: MessageLanguage := ilKorean;
         end;
         if MessageLanguage <> ilEnglish then
           CheckUpdatePanelMessage(Ini, 'Language', 0, 1,
@@ -991,9 +1207,20 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
 
-      { StatusPanel height }
+      { StatusPanel height and navigator visibility }
       StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
         (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(OutputTabSet.Height)));
+      SetNavigatorVisible(Ini.ReadBool('Options', 'ShowNavigator', True));
+
+      { Minimap visibility }
+      SyncMinimapOptions;
+      SetMinimapVisible(Ini.ReadBool('Options', 'ShowMinimap', True));
+
+      { Inspector widths and visibility }
+      SyncInspectorOptions;
+      InspectorPanel.Width := ToCurrentPPI(Ini.ReadInteger('State', 'InspectorWidth', 400));
+      FInspector.DividerWidth := ToCurrentPPI(Ini.ReadInteger('State', 'InspectorDividerWidth', 200));
+      SetInspectorVisible(Ini.ReadBool('Options', 'ShowInspector', True)); { This doesn't call UpdateInspectorPanelWidth yet, for the reasons explained above. Also see FormShow. }
     finally
       Ini.Free;
     end;
@@ -1010,7 +1237,10 @@ constructor TMainForm.Create(AOwner: TComponent);
     finally
       Ini.Free
     end;
-    InitLocalization(FOptions.Language);
+    if CommandLineLanguageSet then
+      InitLocalization(CommandLineLanguage)
+    else
+      InitLocalization(FOptions.Language);
   end;
 
   procedure ReadAndApplyTheme;
@@ -1059,6 +1289,10 @@ begin
     UpdateLinkLabel.UseVisualStyle := True;
     { COLOR_WINDOW is documented as the associated background color of COLOR_HOTLIGHT }
     UpdatePanel.Color := clWindow;
+    { UpdateTheme does not set Font.Color in this case, so re-add seFont }
+    InspectorFilterEdit.StyleElements := InspectorFilterEdit.StyleElements + [seFont];
+    NavigatorComboBox.StyleElements := NavigatorComboBox.StyleElements + [seFont];
+    NavigatorComboBox2.StyleElements := NavigatorComboBox2.StyleElements + [seFont];
   end;
 
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
@@ -1088,13 +1322,24 @@ begin
   SetFakeShortCut(POutputListSelectAll, Ord('A'), [ssCtrl]);
   { Set real shortcut on TOptions which can't be set at design time }
   TOptions.ShortCut := ShortCut(VK_OEM_COMMA, [ssCtrl]);
-  { F1 is handled by the memo's and by the inspector }
+  { F1 is handled by the memos and by the inspector }
   SetFakeShortCut(HDoc, VK_F1, []);
+  SetFakeShortCut(PInspectorHelp, VK_F1, []);
+  { Ctrl+Del is handled by the inspector }
+  SetFakeShortCut(PInspectorRemove, VK_DELETE, [ssCtrl]);
+  { Use fake Ctrl+G shortcut for PInspectorGoTo because EGotoLine already has
+    the real one }
+  SetFakeShortCut(PInspectorGoTo, Ord('G'), [ssCtrl]);
+  { Fake shortcuts using OEM keys should be set just-in-time in UpdateMenuHelper,
+    so do not add those here }
 
   PopupMenu := TMainFormPopupMenu.Create(Self, EMenu);
 
   FMemosStyler := TInnoSetupStyler.Create(Self);
-  FMemosStyler.ISPPInstalled := ISPPInstalled;
+  const ISPPIsInstalled = ISPPInstalled;
+  FMemosStyler.ISPPInstalled := ISPPIsInstalled;
+  InitializeFunctionDefinitions;
+  InitializeWordLists(ISPPIsInstalled);
 
   FTheme := TTheme.Create;
   InitFormThemeInit(FTheme);
@@ -1105,8 +1350,6 @@ begin
   ToolBarPanel.ParentBackground := False;
   UpdatePanel.ParentBackground := False;
   UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(HDonate.Caption);
-
-  UpdateImages;
 
   FMemos := TList<TIDEScintEdit>.Create;
   FMainMemo := InitializeMainMemo(TIDEScintFileEdit.Create(Self), PopupMenu);
@@ -1127,6 +1370,22 @@ begin
   FErrorMemo := FMainMemo;
   FStepMemo := FMainMemo;
   UpdateMarginsAndSquigglyAndCaretWidths;
+
+  FLiveScriptObjectFactories := TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>.Create([doOwnsValues]);
+  for Memo in FMemos do
+    FLiveScriptObjectFactories.Add(Memo, TLiveScriptObjectFactory.Create(Memo, FMemosStyler));
+
+  CreateInspector;
+  UpdateInspectorHeaderPanelLayout;
+  TWinControlMSAANameHook.Create(InspectorFilterEdit, InspectorFilterEdit.TextHint);
+  InspectorPopupMenuBitBtn.Hint := InspectorPopupMenuBitBtn.Caption;
+
+  TWinControlMSAANameHook.Create(NavigatorComboBox, NavigatorComboBox.Hint);
+  TWinControlMSAANameHook.Create(NavigatorComboBox2, NavigatorComboBox2.Hint);
+  CreateNavigator; { Also hooks and must be after previous calls }
+
+  CreateMinimap;
+  TWinControlMSAANameHook.Create(FMinimap, RemoveAccelChar(VMinimap.Caption));
 
   FMemosStyler.Theme := FTheme;
 
@@ -1226,11 +1485,16 @@ destructor TMainForm.Destroy;
       { Menu check boxes state }
       Ini.WriteBool('Options', 'ShowToolbar', ToolbarPanel.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
+      Ini.WriteBool('Options', 'ShowNavigator', NavigatorPanel.Visible);
+      Ini.WriteBool('Options', 'ShowMinimap', FMinimap.Visible);
+      Ini.WriteBool('Options', 'ShowInspector', InspectorPanel.Visible);
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
       { Window state }
       SaveWindowState(Self, 'State', Ini);
       Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
+      Ini.WriteInteger('State', 'InspectorWidth', FromCurrentPPI(InspectorPanel.Width));
+      Ini.WriteInteger('State', 'InspectorDividerWidth', FromCurrentPPI(FInspector.DividerWidth));
 
       { Zoom state }
       Ini.WriteInteger('Options', 'Zoom', FMainMemo.Zoom); { Only saves the main memo's zoom }
@@ -1256,6 +1520,8 @@ begin
     GlobalFree(FDevNames);
 
   FUpdatePanelMessages.Free;
+  FInspector.Free;
+  FNavigator.Free;
   FNavStacks.Free;
   FKeyMappedMenus.Free;
   FMenuBitmaps.Free;
@@ -1268,6 +1534,8 @@ begin
   FSignTools.Free;
   FMRUParametersList.Free;
   FMRUMainFilesList.Free;
+  TLiveScriptObjectFactory.ReleaseAndNil(FAutoCompleteAndCallTipsLiveCodeSection);
+  FLiveScriptObjectFactories.Free;
   FFileMemos.Free;
   FHiddenFiles.Free;
   FMemos.Free;
@@ -1283,6 +1551,17 @@ end;
 function TMainForm.GetMainFilename: String;
 begin
   Result := FMainMemo.Filename;
+end;
+
+function TMainForm.GetMainBaseDir: String;
+{ Returns '' for an unsaved script }
+begin
+  Result := PathExtractDir(GetMainFilename);
+end;
+
+function TMainForm.GetSignTools: TStringList;
+begin
+  Result := FSignTools;
 end;
 
 procedure TMainForm.SetBorderStyle(Value: TFormBorderStyle);
@@ -1337,6 +1616,13 @@ begin
     toolbar wrapping) during form creation. A delay until the form shows is
     needed to make it work. }
   ToolBarPanel.AutoSize := True;
+
+  { The form's width is final now, except when maximized: the maximize
+    happens right after this event and fires FormResize with the final
+    width }
+  FAllowUpdateInspectorPanelWidth := True;
+  if InspectorPanel.Visible and (WindowState <> wsMaximized) then
+    UpdateInspectorPanelWidth(InspectorPanel.Width);
 end;
 
 procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
@@ -1344,6 +1630,7 @@ procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
 begin
   UpdateImages;
   UpdateMarginsAndAutoCompleteIcons;
+  FMinimap.UpdateFont(FMainMemo.Font); { VCL rescaled the font for the new DPI, which can round its size, so reapply }
   UpdateMarginsAndSquigglyAndCaretWidths;
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateAddedLinesScrollWidth(CompilerOutputList, alpNone, 0);
@@ -1351,6 +1638,10 @@ begin
   UpdateAddedLinesScrollWidth(DebugCallStackList, alpCountdown, 0);
   UpdateFindResultsListScrollWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
+  UpdateInspectorPanelWidth(InspectorPanel.Width);
+  UpdateInspectorHeaderPanelLayout; { Also calls UpdateNavigatorPanelLayout }
+  if InspectorNoteText.Visible then
+    InspectorNoteText.AdjustHeight;
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject;
@@ -1369,12 +1660,39 @@ end;
 procedure TMainForm.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 
-  procedure AddControlToArray(const ControlToAdd: TWinControl; var Controls: TArray<TWinControl>;
-    var NControls: NativeInt);
+  procedure AddControlToArray(const ControlToAdd, RegionControl: TWinControl;
+    var Controls, RegionControls: TArray<TWinControl>; var NControls: NativeInt);
   begin
     Inc(NControls);
     SetLength(Controls, NControls);
+    SetLength(RegionControls, NControls);
     Controls[NControls-1] := ControlToAdd;
+    RegionControls[NControls-1] := RegionControl;
+  end;
+
+  function ShouldFocusActiveMemo(const AShortCut: TShortCut): Boolean;
+  begin
+    if AShortCut = VK_ESCAPE then begin
+      if (ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2) then
+        Result := True { Returns to the memo even with the list open, just like VSCode }
+      else if ActiveControl = InspectorFilterEdit then
+        Result := InspectorFilterEdit.Text = '' { Otherwise Esc clears the filter }
+      else if FInspector.JvInspector.ContainsControl(ActiveControl) then
+        Result := (ActiveControl = FInspector.JvInspector) or
+          FInspector.JvInspector.EditorActiveWithNothingToUndo { Otherwise Esc restores the value in the in-place editor }
+      else
+        Result := UpdatePanel.ContainsControl(ActiveControl) or
+                  InspectorHeaderPanel.ContainsControl(ActiveControl) or
+                  (ActiveControl = CompilerOutputList) or (ActiveControl = DebugOutputList) or
+                  (ActiveControl = DebugCallStackList) or (ActiveControl = FindResultsList);
+    end else if AShortCut = VK_RETURN then begin
+      { Only the navigator comboboxes, and only with the list closed: with it open
+        the combobox needs Enter to accept the pick, and then IDE.Navigator will
+        move focus itself }
+      Result := ((ActiveControl = NavigatorComboBox) and not NavigatorComboBox.DroppedDown) or
+                ((ActiveControl = NavigatorComboBox2) and not NavigatorComboBox2.DroppedDown);
+    end else
+      Result := False;
   end;
 
 begin
@@ -1382,6 +1700,9 @@ begin
   if (AShortCut = VK_ESCAPE) and BStopCompile.Enabled then begin
     Key := 0; { Intentionally only done when BStopCompile is enabled to allow the memo to process it instead }
     BStopCompileClick(Self)
+  end else if ShouldFocusActiveMemo(AShortCut) then begin
+    Key := 0;
+    ActiveControl := FActiveMemo;
   end else if (AShortCut = FBackNavButtonShortCut) or
               ((FBackNavButtonShortCut2 <> 0) and (AShortCut = FBackNavButtonShortCut2)) then begin
     Key := 0;
@@ -1411,14 +1732,24 @@ begin
     UpdateViewMenu(VMenu); { VCloseCurrentTab.Enabled is not kept updated }
     if VCloseCurrentTab.Enabled then
       VCloseCurrentTabClick(Self);
+  end else if ((Key = VK_OEM_1) or (Key = VK_OEM_PERIOD)) and
+              (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift, ssCtrl]) then begin
+    { Ctrl+Shift+; = Focus and Ctrl+Shift+. = Focus and select, just like VSCode }
+    const OpenDropDown = Key = VK_OEM_PERIOD;
+    Key := 0;
+    FocusNavigator(OpenDropDown);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
-    { Move focus between the active memo, the active bottom pane, and the active
-      banner, backward if Shift is held }
+    { Move focus between the active memo, the inspector, the active bottom
+      pane, the active banner, and the navigator, backward if Shift is held }
     Key := 0;
 
-    { First get the list of controls to toggle between }
+    { First get the list of controls to toggle between, only one per 'major region':
+      https://learn.microsoft.com/en-us/windows/apps/design/accessibility/keyboard-accessibility#optimize-for-f6 }
     var Controls: TArray<TWinControl> := [FActiveMemo];
+    var RegionControls: TArray<TWinControl> := [FActiveMemo];
     var NControls: NativeInt := Length(Controls); { Explicit type for Delphi 10.4 }
+    if InspectorPanel.Visible then
+      AddControlToArray(FInspector.JvInspector, InspectorPanel, Controls, RegionControls, NControls);
     if StatusPanel.Visible then begin
       var ControlToAdd: TWinControl := nil;
       case OutputTabSet.TabIndex of
@@ -1428,20 +1759,25 @@ begin
         tiFindResults: ControlToAdd := FindResultsList;
       end;
       if ControlToAdd <> nil then
-        AddControlToArray(ControlToAdd, Controls, NControls);
+        AddControlToArray(ControlToAdd, StatusPanel, Controls, RegionControls, NControls);
     end;
     if UpdatePanel.Visible then begin
-      if FUpdatePanelMessages[UpdateLinkLabel.Tag].HasLink then
-        AddControlToArray(UpdateLinkLabel, Controls, NControls);
-      AddControlToArray(UpdatePanelDonateBitBtn, Controls, NControls);
-      AddControlToArray(UpdatePanelCloseBitBtn, Controls, NControls);
+      if UpdateLinkLabel.TabStop then
+        AddControlToArray(UpdateLinkLabel, UpdatePanel, Controls, RegionControls, NControls)
+      else
+        AddControlToArray(UpdatePanelDonateBitBtn, UpdatePanel, Controls, RegionControls, NControls);
     end;
+    if NavigatorPanel.Visible then
+      AddControlToArray(NavigatorComboBox, NavigatorPanel, Controls, RegionControls, NControls);
+
+    { Show focus rectangles if they're hidden }
+    SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
 
     { Now move focus to next or previous }
     if NControls > 1 then begin
       const Delta = IfThen(ssShift in Shift, -1, 1);
       for var I := 0 to NControls-1 do begin
-        if ActiveControl = Controls[I] then begin
+        if RegionControls[I].ContainsControl(ActiveControl) then begin
           ActiveControl := Controls[(I+Delta+NControls) mod NControls];
           Exit;
         end;
@@ -1473,21 +1809,9 @@ begin
     { Key is not cleared to allow Scintilla to do the actual handling }
   end;
 
-  if Key = VK_F1 then begin
+  if (Key = VK_F1) and (Shift * [ssShift, ssAlt, ssCtrl] = []) then begin
     Key := 0;
-    var HelpFile := GetHelpFile;
-    if Assigned(HtmlHelp) then begin
-      HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
-      var S := FActiveMemo.WordAtCaret;
-      if S <> '' then begin
-        var KLink: THH_AKLINK;
-        FillChar(KLink, SizeOf(KLink), 0);
-        KLink.cbStruct := SizeOf(KLink);
-        KLink.pszKeywords := PChar(S);
-        KLink.fIndexOnFail := True;
-        HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD_PTR(@KLink));
-      end;
-    end;
+    ShowHelp(FActiveMemo.WordAtCaret);
   end else if ((Key = Ord('V')) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl])) or
               ((Key = VK_INSERT) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssShift])) then begin
     if FActiveMemo.CanPaste then
@@ -1564,6 +1888,11 @@ begin
     to the form's height decreasing }
   if StatusPanel.Visible then
     UpdateStatusPanelHeight(StatusPanel.Height);
+  { Same for the inspector's width in response to the form's width decreasing,
+    once FormShow allowed it. StatusPanel doesn't need this because it always
+    starts invisible. }
+  if InspectorPanel.Visible and FAllowUpdateInspectorPanelWidth then
+    UpdateInspectorPanelWidth(InspectorPanel.Width);
 end;
 
 procedure TMainForm.WndProc(var Message: TMessage);
@@ -1587,10 +1916,33 @@ begin
     processing. In Delphi 5+, however, this happens even when a TFindDialog
     is active, causing Ctrl+V/Esc/etc. to be intercepted by the main form.
     Work around this by always returning False when not Active. }
-  if Active then
-    Result := inherited IsShortCut(Message)
-  else
-    Result := False;
+  if not Active then
+    Exit(False);
+
+  { The inspector handles F4 itself, except Alt+F4 }
+  if (Message.CharCode = VK_F4) and
+     not (ssAlt in KeyDataToShiftState(Message.KeyData)) and
+     FInspector.JvInspector.ContainsControl(ActiveControl) then
+    Exit(False);
+
+  { The navigator's comboboxes handle F4 themselves, except Alt+F4 }
+  if (Message.CharCode = VK_F4) and
+     not (ssAlt in KeyDataToShiftState(Message.KeyData)) and
+     ((ActiveControl = NavigatorComboBox) or (ActiveControl = NavigatorComboBox2)) then
+    Exit(False);
+
+  { If EFindRegEx uses Alt+R as the shortcut just like VSCode then also handle it like VSCode:
+    when the memo does not have the focus open the Run menu (also Alt+R) instead. Only done
+    here for the key: a mouse click on the menu item must always toggle }
+  const AltR = ShortCut(Ord('R'), [ssAlt]);
+  if (EFindRegEx.ShortCut = AltR) and
+     (ShortCut(Message.CharCode, KeyDataToShiftState(Message.KeyData)) = AltR) and
+     not FActiveMemo.Focused then begin
+    SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r')); { Just beeps if no menu uses R, which is ok }
+    Exit(True);
+  end;
+
+  Result := inherited;
 end;
 
 procedure TMainForm.FinishLocalization;
@@ -1615,6 +1967,7 @@ begin
   OutputTabSet.Tabs[tiDebugOutput] := RemoveAccelChar(VDebugOutput.Caption);
   OutputTabSet.Tabs[tiDebugCallStack] := RemoveAccelChar(VDebugCallStack.Caption);
   OutputTabSet.Tabs[tiFindResults] := RemoveAccelChar(VFindResults.Caption);
+  InspectorCaptionText.Caption := RemoveAccelChar(VInspector.Caption);
 
   { Not displayed, for TToolBarAccessibility }
   BackNavButton.Caption := LFmtMessage(SToolBarBack);
@@ -1697,6 +2050,7 @@ begin
   FModifiedAnySinceLastCompile := True;
   FPreprocessorOutput := '';
   FIncludedFiles.Clear;
+  ResetLiveScriptObjectFactoryForMemo(FMainMemo);
   UpdatePreprocMemos(IsReload);
   if not IsReload then
     FMainMemo.ClearUndo;
@@ -1961,6 +2315,7 @@ begin
       if AMemo = FMainMemo then
         NewMainFile(IsReload)
       else begin
+        ResetLiveScriptObjectFactoryForMemo(AMemo);
         if IsReload and (AMemo = FErrorMemo) then
           HideError;
         ClearBreakPoints(AMemo, IsReload);
@@ -2086,7 +2441,7 @@ begin
       raise Exception.Create('Internal error: AMemo <> FMainMemo');
     var FN := AMemo.Filename;
     if not NewGetSaveFileName('', FN, '',
-             Format(SLitExtAndAllFilter, [LFmtMessage(SIssFiles), SLitIssExt, LFmtMessage(SAllFiles)]),
+             FormatFileFilter(SIssFiles, [SLitIssExt]),
              SLitIssExt, Handle) then
       Exit;
     FN := PathExpand(FN);
@@ -2484,6 +2839,7 @@ begin
     for Memo in FFileMemos do
       Memo.ReadOnly := True;
     UpdateEditModeStatusPanel;
+    FInspector.UpdateReadOnly;
     HideError;
     CompilerOutputList.Clear;
     CompilerOutputList.ScrollWidth := 0;
@@ -2584,6 +2940,7 @@ begin
     for Memo in FFileMemos do
       Memo.ReadOnly := False;
     UpdateEditModeStatusPanel;
+    FInspector.UpdateReadOnly;
     UpdateRunMenuItems;
     UpdateCaption;
     if FCompilePreprocMemosUpdatePending then begin
@@ -2609,14 +2966,15 @@ end;
 
 procedure TMainForm.SyncEditorOptions;
 const
-  SquigglyStyles: array[Boolean] of Integer = (INDIC_HIDDEN, INDIC_SQUIGGLE);
+  SquigglyStyles: array[Boolean] of TScintIndicatorStyle = (sisHidden, sisSquiggle);
+  MinimapSquigglyStyles: array[Boolean] of TScintIndicatorStyle = (sisHidden, sisFullBox); { Also see TMinimap.CreateWnd for occurrence boxes }
   WhiteSpaceStyles: array[Boolean] of Integer = (SCWS_INVISIBLE, SCWS_VISIBLEALWAYS);
 var
   Memo: TIDEScintEdit;
 begin
   for Memo in FMemos do begin
     Memo.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
-    Memo.Call(SCI_INDICSETSTYLE, minSquiggly, SquigglyStyles[FOptions.UnderlineErrors]);
+    Memo.IndicatorStyle[minSquiggly] := SquigglyStyles[FOptions.UnderlineErrors];
     Memo.Call(SCI_SETVIEWWS, WhiteSpaceStyles[FOptions.ShowWhiteSpace], 0);
 
     if FOptions.CursorPastEOL then
@@ -2629,15 +2987,8 @@ begin
     Memo.UseTabCharacter := FOptions.UseTabCharacter;
 
     Memo.KeyMappingType := FOptions.MemoKeyMappingType;
-    if Memo = FMainMemo then begin
-      SetFakeShortCut(ESelectNextOccurrence,  FMainMemo.GetComplexCommandShortCut(ccSelectNextOccurrence));
-      SetFakeShortCut(ESelectAllOccurrences, FMainMemo.GetComplexCommandShortCut(ccSelectAllOccurrences));
-      SetFakeShortCut(ESelectAllFindMatches, FMainMemo.GetComplexCommandShortCut(ccSelectAllFindMatches));
-      SetFakeShortCut(EFoldLine, FMainMemo.GetComplexCommandShortCut(ccFoldLine));
-      SetFakeShortCut(EUnfoldLine, FMainMemo.GetComplexCommandShortCut(ccUnfoldLine));
-      SetFakeShortCut(EToggleLinesComment, FMainMemo.GetComplexCommandShortCut(ccToggleLinesComment));
-      SetFakeShortCut(EBraceMatch, FMainMemo.GetComplexCommandShortCut(ccBraceMatch));
-    end;
+    if Memo = FMainMemo then
+      SetComplexCommandFakeShortCuts(False);
 
     Memo.SmartHome := FOptions.SmartHome;
     Memo.UseFolding := FOptions.UseFolding;
@@ -2650,6 +3001,30 @@ begin
 
     Memo.LineNumbers := FOptions.GutterLineNumbers;
   end;
+
+  { Only view-level options, and no document-level ones: the minimap shares the
+    active memo's document }
+  FMinimap.UseStyleAttributes := FOptions.UseSyntaxHighlighting;
+  FMinimap.IndicatorStyle[minSquiggly] := MinimapSquigglyStyles[FOptions.UnderlineErrors]; { Over the text by default, like VS Code }
+  { Not WordWrap: setting it sets document-level options too, see the comment
+    of TScintEdit.SetDocumentPointer }
+  FMinimap.Call(SCI_SETWRAPMODE, Ord(FOptions.WordWrap), 0);
+end;
+
+procedure TMainForm.SyncInspectorOptions;
+begin
+  { Also see SetInspectorActiveFactory }
+  const ActiveMemoIsMainMemo = (FActiveMemo = FMainMemo);
+  FInspector.ShowAllKnownDirectives := FOptions.InspectorShowAllKnownDirectives and ActiveMemoIsMainMemo;
+  FInspector.ShowAllKnownDirectivesSuppressedNote := FOptions.InspectorShowAllKnownDirectives and not ActiveMemoIsMainMemo;
+  FInspector.FollowCaret := FOptions.InspectorFollowCaret;
+  FInspector.QuoteNewDirectiveValues := FOptions.InspectorQuoteNewDirectiveValues;
+  FInspector.QuoteNewParameterValues := FOptions.InspectorQuoteNewParameterValues;
+end;
+
+procedure TMainForm.SyncMinimapOptions;
+begin
+  FMinimap.AlwaysShowSlider := FOptions.MinimapAlwaysShowSlider;
 end;
 
 procedure TMainForm.FMenuClick(Sender: TObject);
@@ -2682,7 +3057,7 @@ begin
   end;
   if ConfirmCloseFile(True) then
     if NewGetOpenFileName('', Filename, InitialDir,
-         Format(SLitExtAndAllFilter, [LFmtMessage(SIssFiles), SLitIssExt, LFmtMessage(SAllFiles)]),
+         FormatFileFilter(SIssFiles, [SLitIssExt]),
          SLitIssExt, Handle) then begin
       { Check if user actually wants to open tab for an included file }
       if FOptions.OpenIncludedFiles then begin
@@ -3286,31 +3661,25 @@ procedure TMainForm.VWordWrapClick(Sender: TObject);
 begin
   FOptions.WordWrap := not FOptions.WordWrap;
   SyncEditorOptions;
-  var Ini := TConfigIniFile.Create;
-  try
-    Ini.WriteBool('Options', 'WordWrap', FOptions.WordWrap);
-  finally
-    Ini.Free;
-  end;
+  UpdateMinimapReservationsAndLayout; { See CalculateMinimapWidths }
+  SaveBooleanOption('WordWrap', FOptions.WordWrap);
 end;
 
 procedure TMainForm.SetStatusPanelVisible(const AVisible: Boolean);
-var
-  CaretWasInView: Boolean;
 begin
   if StatusPanel.Visible <> AVisible then begin
-    CaretWasInView := FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
+    const CaretWasInView =
+      FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
     if AVisible then begin
       { Ensure the status panel height isn't out of range before showing }
       UpdateStatusPanelHeight(StatusPanel.Height);
-      SplitPanel.Top := ClientHeight;
+      StatusSplitPanel.Top := ClientHeight;
       StatusPanel.Top := ClientHeight;
-    end
-    else begin
+    end else begin
       if StatusPanel.ContainsControl(ActiveControl) then
         ActiveControl := FActiveMemo;
     end;
-    SplitPanel.Visible := AVisible;
+    StatusSplitPanel.Visible := AVisible;
     StatusPanel.Visible := AVisible;
     if AVisible and CaretWasInView then begin
       { If the caret was in view, make sure it still is }
@@ -3319,7 +3688,246 @@ begin
   end;
 end;
 
-procedure TMainForm.VHideClick(Sender: TObject);
+procedure TMainForm.SetInspectorActiveFactory;
+begin
+  { Also see SyncInspectorOptions }
+  FInspector.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo),
+    FOptions.InspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo),
+    FOptions.InspectorShowAllKnownDirectives and (FActiveMemo <> FMainMemo));
+end;
+
+procedure TMainForm.SetInspectorVisible(const AVisible: Boolean);
+begin
+  if InspectorPanel.Visible <> AVisible then begin
+    { Only with word wrap on can the width change move the caret vertically,
+      through rewrapping, both when showing and when hiding. Horizontal
+      changes with word wrap off are left alone: restoring those would scroll
+      the line starts out of view, which is just as bad or even worse.
+      Also the code for it would require recomputing virtual space
+      positioning. }
+    const KeepCaretInView = FOptions.WordWrap and
+      FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
+    if AVisible then begin
+      { Ensure the inspector width isn't out of range before showing }
+      if FAllowUpdateInspectorPanelWidth then
+        UpdateInspectorPanelWidth(InspectorPanel.Width);
+      InspectorSplitPanel.Left := ClientWidth;
+      InspectorPanel.Left := ClientWidth;
+      { Update contents }
+      SetInspectorActiveFactory;
+    end else begin
+      { If an in-place editor is active it will lose focus after the next
+        focus change, which causes it to show an error on bad input.
+        Call ForceFinishEdit to accept good input and reject bad input. }
+      FInspector.ForceFinishEdit;
+      if InspectorPanel.ContainsControl(ActiveControl) then
+        ActiveControl := FActiveMemo;
+    end;
+    InspectorSplitPanel.Visible := AVisible;
+    InspectorPanel.Visible := AVisible;
+    if KeepCaretInView then
+      FActiveMemo.ScrollCaretIntoView;
+  end;
+  VInspector.Checked := AVisible;
+end;
+
+procedure TMainForm.VInspectorClick(Sender: TObject);
+begin
+  SetInspectorVisible(not InspectorPanel.Visible);
+end;
+
+procedure TMainForm.SetNavigatorActiveFactory;
+begin
+  FNavigator.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo));
+end;
+
+procedure TMainForm.SetNavigatorVisible(const AVisible: Boolean);
+begin
+  if NavigatorPanel.Visible <> AVisible then begin
+    const CaretWasInView =
+      FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
+    if AVisible then
+      SetNavigatorActiveFactory { Update contents }
+    else if NavigatorPanel.ContainsControl(ActiveControl) then
+      ActiveControl := FActiveMemo;
+    NavigatorPanel.Visible := AVisible;
+    if StatusPanel.Visible then begin { Note: Still False when called by ReadAndApplyConfig }
+      { The navigator changed the room left for the memo, so reclamp an
+        output pane at maximum height. When the pane is shown later,
+        SetStatusPanelVisible reclamps. }
+      UpdateStatusPanelHeight(StatusPanel.Height);
+    end;
+    if AVisible and CaretWasInView then begin
+      { If the caret was in view, make sure it still is }
+      FActiveMemo.ScrollCaretIntoView;
+    end;
+  end;
+  VNavigator.Checked := AVisible;
+end;
+
+procedure TMainForm.VNavigatorClick(Sender: TObject);
+begin
+  SetNavigatorVisible(not NavigatorPanel.Visible);
+end;
+
+procedure TMainForm.SetMinimapVisible(const AVisible: Boolean);
+begin
+  if FMinimap.Visible <> AVisible then begin
+    { Showing or hiding the minimap changes the width of the memos' text. See
+      SetInspectorVisible for why this keeps the caret in view only with word
+      wrap on. }
+    const KeepCaretInView = FOptions.WordWrap and
+      FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
+    if AVisible then
+      FMinimap.SetMemo(FActiveMemo);
+    FMinimap.Visible := AVisible;
+    UpdateMinimapReservationsAndLayout;
+    if KeepCaretInView then
+      FActiveMemo.ScrollCaretIntoView;
+  end;
+  VMinimap.Checked := AVisible;
+end;
+
+procedure TMainForm.VMinimapClick(Sender: TObject);
+begin
+  SetMinimapVisible(not FMinimap.Visible);
+end;
+
+procedure TMainForm.MinimapPopupMenuClick(Sender: TObject);
+begin
+  UpdateMinimapPopupMenu(Sender as TMenuItem);
+end;
+
+procedure TMainForm.PMinimapAlwaysShowSliderClick(Sender: TObject);
+begin
+  FOptions.MinimapAlwaysShowSlider := not FOptions.MinimapAlwaysShowSlider;
+  SyncMinimapOptions;
+  SaveBooleanOption('MinimapAlwaysShowSlider', FOptions.MinimapAlwaysShowSlider);
+end;
+
+procedure TMainForm.PMinimapShowOnLeftClick(Sender: TObject);
+begin
+  FOptions.MinimapShowOnLeft := not FOptions.MinimapShowOnLeft;
+  UpdateMinimapReservationsAndLayout;
+  SaveBooleanOption('MinimapShowOnLeft', FOptions.MinimapShowOnLeft);
+end;
+
+function GetVScrollWidthIfHidden(const Memo: TScintEdit): Integer;
+begin
+  { See the explanation in GetMinimapReservation below }
+  if GetWindowLong(Memo.Handle, GWL_STYLE) and WS_VSCROLL = 0 then
+    Result := Memo.GetSystemMetrics(SM_CXVSCROLL)
+  else
+    Result := 0;
+end;
+
+function TMainForm.GetMinimapWidths(const AMemo: TIDEScintEdit): TMinimapWidths;
+
+  function GetTypicalHalfwidthCharWidth(const Edit: TScintEdit): Double;
+  begin
+    { Like VS Code, measures 'n' repeated 256 times, see
+      FontMeasurementsImpl._actualReadFontInfo, and DomCharWidthReader._render
+      and _readFromDomElements. This only matters for fractional character
+      widths, which GDI doesn't have. Currently GDI is used, so the repeat has
+      no effect. }
+    const RepeatCount = 256;
+    Result := Edit.GetTextWidth(STYLE_DEFAULT,
+      AnsiString(StringOfChar('n', RepeatCount))) / RepeatCount;
+  end;
+
+begin
+  var MemoAndMinimapWidth: Integer;
+  if FOptions.MinimapShowOnLeft then
+    MemoAndMinimapWidth := MemoPanel.ClientWidth { Minimap and memo are side-by-side }
+  else
+    MemoAndMinimapWidth := AMemo.Width; { Minimap is inside memo }
+
+  var MemoGutterWidth := AMemo.LeftBlankMarginWidth;
+  for var Margin := 0 to AMemo.MarginCount-1 do
+    Inc(MemoGutterWidth, AMemo.MarginWidth[Margin]);
+
+  { Always passes the vertical scrollbar's width, even while it's hidden:
+    otherwise the reservation could show or hide it through rewrapping }
+  Result := CalculateMinimapWidths(MemoAndMinimapWidth, MemoGutterWidth,
+    AMemo.GetSystemMetrics(SM_CXVSCROLL), GetTypicalHalfwidthCharWidth(AMemo),
+    GetTypicalHalfwidthCharWidth(FMinimap), fsItalic in AMemo.Font.Style, FOptions.WordWrap,
+    MinimapMaxColumn, MinimapGutterWidth);
+end;
+
+procedure TMainForm.UpdateMinimapReservation(const AMemo: TIDEScintEdit);
+
+  function GetMinimapReservation(const MinimapWidths: TMinimapWidths): Integer;
+  { Returns the width AMemo should reserve right of its text, inside its client area.
+    A shown vertical scrollbar already makes the client area smaller, so the
+    reservation leaves it out. A hidden one leaves its space to the client area,
+    so then the reservation includes that space. This keeps the memo's text width
+    the same when the scrollbar shows or hides, so word wrap never rewraps the
+    text, which could show or hide the scrollbar again. }
+  begin
+    Result := MinimapWidths.BlankWidth + GetVScrollWidthIfHidden(AMemo);
+    if not FOptions.MinimapShowOnLeft then
+      Inc(Result, MinimapWidths.MinimapWidth);
+  end;
+
+begin
+  var Reservation := 0;
+  var LeftMargin := 0;
+  if (FMinimap <> nil) and FMinimap.Visible then begin
+    const MinimapWidths = GetMinimapWidths(AMemo);
+    Reservation := GetMinimapReservation(MinimapWidths);
+    if FOptions.MinimapShowOnLeft then
+      LeftMargin := MinimapWidths.MinimapWidth; { See below: VCL margin, not Scintilla }
+  end;
+
+  { The check avoids rewrapping all text when it's not needed, like when only
+    the height changes: setting RightBlankMarginWidth always invalidates the
+    layout, and with word wrap on that rewraps all text }
+  if AMemo.RightBlankMarginWidth <> Reservation then
+    AMemo.RightBlankMarginWidth := Reservation; { Scintilla margin }
+
+  AMemo.Margins.Left := TMarginSize(LeftMargin);
+end;
+
+procedure TMainForm.UpdateMinimapReservationsAndLayout;
+begin
+  for var Memo in FMemos do
+    UpdateMinimapReservation(Memo);
+  UpdateMinimapLayout;
+end;
+
+procedure TMainForm.UpdateMinimapLayout;
+begin
+  if (FMinimap <> nil) and FMinimap.Visible then begin
+    const MinimapWidth = GetMinimapWidths(FActiveMemo).MinimapWidth;
+    if FOptions.MinimapShowOnLeft then
+      FMinimap.SetBounds(FActiveMemo.Left - MinimapWidth, FActiveMemo.Top,
+        MinimapWidth, FActiveMemo.Height)
+    else
+      FMinimap.SetBounds(FActiveMemo.Left + FActiveMemo.ClientWidth -
+        GetVScrollWidthIfHidden(FActiveMemo) - MinimapWidth, FActiveMemo.Top,
+          MinimapWidth, FActiveMemo.ClientHeight);
+    FMinimap.SyncScrollPosition;
+  end;
+end;
+
+procedure TMainForm.FocusNavigator(const AOpenDropDown: Boolean);
+begin
+  if NavigatorPanel.Visible then begin
+    var ComboBox := NavigatorComboBox;
+    if NavigatorComboBox2.Visible then
+      ComboBox := NavigatorComboBox2;
+    ActiveControl := ComboBox;
+    if AOpenDropDown then
+      ComboBox.DroppedDown := True;
+  end;
+end;
+
+procedure TMainForm.VNavigatorFocusClick(Sender: TObject);
+begin
+  FocusNavigator(Sender = VNavigatorFocusAndSelect);
+end;
+
+procedure TMainForm.VHideStatusPanelClick(Sender: TObject);
 begin
   SetStatusPanelVisible(False);
 end;
@@ -3570,10 +4178,28 @@ end;
 
 procedure TMainForm.WMStartNormally(var Message: TMessage);
 
+  {$IFDEF DEBUG}
+  { Run the live script object factory self-test now that the form is up (it
+    needs a live, VCL-parented memo, so unlike the model test it cannot run at
+    unit initialization). It runs against the preprocessor output memo, which is
+    empty scratch at startup: this keeps the test clear of the main memo, so its
+    edits can neither mask a real main-memo bug nor disturb the user's script.
+    Silent on success, surfacing only on failure }
+  procedure RunLiveScriptObjectFactorySelfTest;
+  begin
+    try
+      IDELiveScriptObjectFactoryRunTests(FPreprocessorOutputMemo, FMemosStyler);
+    except
+      on E: Exception do
+        MessageBox(Handle, PChar(E.Message), 'Live Script Object Factory Self-Test Failed',
+          MB_OK or MB_ICONSTOP);
+    end;
+  end;
+  {$ENDIF}
+
   procedure ShowStartupForm;
   var
     StartupForm: TStartupForm;
-    Ini: TConfigIniFile;
   begin
     ReadMRUMainFilesList;
     StartupForm := TStartupForm.Create(Application);
@@ -3583,12 +4209,7 @@ procedure TMainForm.WMStartNormally(var Message: TMessage);
       if StartupForm.ShowModal = mrOK then begin
         if FOptions.ShowStartupForm <> not StartupForm.StartupCheck.Checked then begin
           FOptions.ShowStartupForm := not StartupForm.StartupCheck.Checked;
-          Ini := TConfigIniFile.Create;
-          try
-            Ini.WriteBool('Options', 'ShowStartupForm', FOptions.ShowStartupForm);
-          finally
-            Ini.Free;
-          end;
+          SaveBooleanOption('ShowStartupForm', FOptions.ShowStartupForm);
         end;
         case StartupForm.Result of
           srEmpty:
@@ -3610,6 +4231,10 @@ procedure TMainForm.WMStartNormally(var Message: TMessage);
   end;
 
 begin
+  {$IFDEF DEBUG}
+  RunLiveScriptObjectFactorySelfTest;
+  {$ENDIF}
+
   if CommandLineFilename = '' then begin
     if FOptions.ShowStartupForm then
       ShowStartupForm;
@@ -3622,6 +4247,7 @@ begin
   inherited;
   for var Memo in FMemos do
     Memo.SysColorChange(Message);
+  FMinimap.SysColorChange(Message);
 end;
 
 procedure TMainForm.MemosTabSetPopupMenuClick(Sender: TObject);
@@ -3636,8 +4262,10 @@ begin
 
   var NewActiveMemo := TabIndexToMemo(MemosTabSet.TabIndex, MemosTabSet.Tabs.Count-1);
   if NewActiveMemo <> FActiveMemo then begin
-    { Avoiding flicker by showing new before hiding old }
-    NewActiveMemo.Visible := True;
+    if InspectorPanel.Visible then
+      FInspector.ForceFinishEdit; { See SetInspectorVisible }
+    UpdateMinimapReservation(NewActiveMemo); { Can be outdated: hidden memos aren't aligned }
+    NewActiveMemo.Visible := True; { Aligns it and drops realign requests made meanwhile }
     var OldActiveMemo := FActiveMemo;
     FActiveMemo := NewActiveMemo;
     ActiveControl := NewActiveMemo;
@@ -3649,6 +4277,14 @@ begin
     UpdateCaretPosPanelAndBackNavStack;
     UpdateEditModeStatusPanel;
     UpdateModifiedStatusPanel;
+
+    if InspectorPanel.Visible then
+      SetInspectorActiveFactory;
+    if NavigatorPanel.Visible then
+      SetNavigatorActiveFactory;
+    if FMinimap.Visible then
+      FMinimap.SetMemo(FActiveMemo);
+    UpdateMinimapLayout;
   end;
 end;
 
@@ -3695,20 +4331,9 @@ end;
 
 procedure TMainForm.EFindRegExClick(Sender: TObject);
 begin
-  { If EFindRegEx uses Alt+R as the shortcut just like VSCode then also handle it like VSCode:
-    when the memo does not have the focus open the Run menu (also Alt+R) instead }
-  if not FActiveMemo.Focused and (EFindRegEx.ShortCut = ShortCut(Ord('R'), [ssAlt])) then
-    SendMessage(Handle, WM_SYSCOMMAND, SC_KEYMENU, Ord('r'))
-  else begin
-    FOptions.FindRegEx := not FOptions.FindRegEx;
-    UpdateFindRegExUI;
-    var Ini := TConfigIniFile.Create;
-    try
-      Ini.WriteBool('Options', 'FindRegEx', FOptions.FindRegEx);
-    finally
-      Ini.Free;
-    end;
-  end;
+  FOptions.FindRegEx := not FOptions.FindRegEx;
+  UpdateFindRegExUI;
+  SaveBooleanOption('FindRegEx', FOptions.FindRegEx);
 end;
 
 procedure TMainForm.EFoldOrUnfoldLineClick(Sender: TObject);
@@ -3717,14 +4342,179 @@ begin
 end;
 
 procedure TMainForm.UpdateStatusPanelHeight(H: Integer);
-var
-  MinHeight, MaxHeight: Integer;
 begin
-  MinHeight := (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + OutputTabSet.Height;
-  MaxHeight := BodyPanel.ClientHeight - ToCurrentPPI(48) - SplitPanel.Height;
+  const MinHeight = (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + OutputTabSet.Height;
+  var MaxHeight := BodyPanel.ClientHeight - ToCurrentPPI(48) - StatusSplitPanel.Height;
+  if NavigatorPanel.Visible then
+    Dec(MaxHeight, NavigatorPanel.Height);
   if H > MaxHeight then H := MaxHeight;
   if H < MinHeight then H := MinHeight;
   StatusPanel.Height := H;
+end;
+
+procedure TMainForm.UpdateNavigatorPanelLayout;
+begin
+  const Padding = ToCurrentPPI(4); { See UpdateInspectorHeaderPanelLayout }
+
+  { Update height by copying the inspector header's height, for a consistent layout.
+    Works even if the inspector is hidden. }
+  NavigatorPanel.ClientHeight := InspectorHeaderPanel.ClientHeight;
+
+  { Update combobox position }
+  NavigatorComboBox.Left := Padding;
+  NavigatorComboBox.Top := (NavigatorPanel.ClientHeight - NavigatorComboBox.Height) div 2;
+
+  { Update caption position }
+  NavigatorCaptionText.Left := NavigatorComboBox.Left + NavigatorComboBox.Width + Padding;
+  NavigatorCaptionText.Top := (NavigatorPanel.ClientHeight - NavigatorCaptionText.Height) div 2;
+
+  { Update second combobox position }
+  const X = NavigatorCaptionText.Left + NavigatorCaptionText.Width + Padding -
+    ToCurrentPPI(2); { The '>' text has trailing whitespace }
+  NavigatorCaptionText.Visible := (FNavigator <> nil) and
+    FNavigator.CaretInCodeSection;
+  NavigatorComboBox2.Visible := NavigatorCaptionText.Visible;
+  if NavigatorComboBox2.Visible then
+    NavigatorComboBox2.SetBounds(X, (NavigatorPanel.ClientHeight - NavigatorComboBox2.Height) div 2,
+      NavigatorComboBox2.Width, NavigatorComboBox2.Height);
+end;
+
+procedure TMainForm.NavigatorPanelResizeOrCaretInCodeSectionChange(Sender: TObject);
+begin
+  UpdateNavigatorPanelLayout;
+end;
+
+procedure TMainForm.NavigatorComboBoxItemsChanged(Sender: TObject;
+  const AComboBox: TComboBox);
+begin
+  if AComboBox = NavigatorComboBox2 then begin
+    AComboBox.Canvas.Font.Assign(AComboBox.Font);
+    var W := NavigatorComboBox.Width; { Minimum width }
+    const Extra = ToCurrentPPI(32);
+    for var I := 0 to AComboBox.Items.Count-1 do
+      W := Max(W, AComboBox.Canvas.TextWidth(AComboBox.Items[I]) + Extra);
+    AComboBox.Width := W;
+    { Calling UpdateNavigatorPanelLayout now is not needed currently }
+  end;
+end;
+
+procedure TMainForm.UpdateInspectorPanelWidth(W: Integer);
+begin
+  const MinWidth = ToCurrentPPI(130);
+  const MaxWidth = BodyPanel.ClientWidth - ToCurrentPPI(200) - InspectorSplitPanel.Width;
+  if W > MaxWidth then W := MaxWidth;
+  if W < MinWidth then W := MinWidth;
+  InspectorPanel.Width := W;
+  FInspector.DividerWidth := FInspector.DividerWidth; { Triggers minimum divider width check }
+end;
+
+procedure TMainForm.UpdateInspectorHeaderPanelLayout;
+begin
+  { 4 = same as InspectorNoteText's horizontal margins in the .dfm.
+    Also see UpdateNavigatorPanelLayout. }
+  const Padding = ToCurrentPPI(4);
+
+  { Update height }
+  InspectorHeaderPanel.ClientHeight := InspectorFilterEdit.Height + 2*Padding;
+
+  { Update caption position }
+  InspectorCaptionText.Left := Padding;
+  InspectorCaptionText.Top := (InspectorHeaderPanel.ClientHeight - InspectorCaptionText.Height) div 2;
+
+  { Update button position and size }
+  const WH = InspectorFilterEdit.Height;
+  InspectorPopupMenuBitBtn.SetBounds(InspectorHeaderPanel.ClientWidth - Padding - WH, Padding, WH, WH);
+
+  { Update edit position and width }
+  const X = InspectorCaptionText.Left + InspectorCaptionText.Width + 2*Padding;
+  const W = InspectorPopupMenuBitBtn.Left - Padding - X;
+  InspectorFilterEdit.Visible := W > 0;
+  if InspectorFilterEdit.Visible then
+    InspectorFilterEdit.SetBounds(X, Padding, W, InspectorFilterEdit.Height);
+
+  { Keep the navigator panel at the same height }
+  UpdateNavigatorPanelLayout;
+end;
+
+procedure TMainForm.InspectorHeaderPanelResize(Sender: TObject);
+begin
+  UpdateInspectorHeaderPanelLayout;
+end;
+
+procedure TMainForm.InspectorPanelResize(Sender: TObject);
+begin
+  if InspectorNoteText.Visible then
+    InspectorNoteText.AdjustHeight;
+end;
+
+procedure TMainForm.InspectorFilterEditChange(Sender: TObject);
+begin
+  FInspector.FilterText := InspectorFilterEdit.Text;
+end;
+
+procedure TMainForm.InspectorFilterEditKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (Key = VK_ESCAPE) and (Shift * [ssShift, ssAlt, ssCtrl] = []) then begin
+    Key := 0;
+    InspectorFilterEdit.Text := ''; { Also updates the filter }
+  end;
+end;
+
+procedure TMainForm.InspectorPopupMenuBitBtnClick(Sender: TObject);
+begin
+  { Popup below the button always }
+  const Point = InspectorPopupMenuBitBtn.ClientToScreen(TPoint.Create(0, InspectorPopupMenuBitBtn.Height));
+  (FInspector.JvInspector.PopupMenu as TMainFormPopupMenu).Popup(Point.X, Point.Y);
+end;
+
+procedure TMainForm.InspectorPopupMenuClick(Sender: TObject);
+begin
+  UpdateInspectorPopupMenu(Sender as TMenuItem);
+end;
+
+procedure TMainForm.PInspectorGoToClick(Sender: TObject);
+begin
+  FInspector.GoToSelectedRow;
+end;
+
+procedure TMainForm.PInspectorHelpClick(Sender: TObject);
+begin
+  ShowHelp(FInspector.GetSelectedHelpKeyword);
+end;
+
+procedure TMainForm.PInspectorRemoveClick(Sender: TObject);
+begin
+  FInspector.RemoveSelectedRow;
+end;
+
+procedure TMainForm.PInspectorShowAllKnownDirectivesClick(Sender: TObject);
+begin
+  FInspector.ForceFinishEdit;
+  FOptions.InspectorShowAllKnownDirectives := not FOptions.InspectorShowAllKnownDirectives;
+  SyncInspectorOptions; { Rebuilds }
+  SaveBooleanOption('InspectorShowAllKnownDirectives', FOptions.InspectorShowAllKnownDirectives);
+end;
+
+procedure TMainForm.PInspectorFollowCaretClick(Sender: TObject);
+begin
+  FOptions.InspectorFollowCaret := not FOptions.InspectorFollowCaret;
+  SyncInspectorOptions;
+  SaveBooleanOption('InspectorFollowCaret', FOptions.InspectorFollowCaret);
+end;
+
+procedure TMainForm.PInspectorQuoteNewDirectiveValuesClick(Sender: TObject);
+begin
+  FOptions.InspectorQuoteNewDirectiveValues := not FOptions.InspectorQuoteNewDirectiveValues;
+  SyncInspectorOptions;
+  SaveBooleanOption('InspectorQuoteNewDirectiveValues', FOptions.InspectorQuoteNewDirectiveValues);
+end;
+
+procedure TMainForm.PInspectorQuoteNewParameterValuesClick(Sender: TObject);
+begin
+  FOptions.InspectorQuoteNewParameterValues := not FOptions.InspectorQuoteNewParameterValues;
+  SyncInspectorOptions;
+  SaveBooleanOption('InspectorQuoteNewParameterValues', FOptions.InspectorQuoteNewParameterValues);
 end;
 
 procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
@@ -3767,7 +4557,8 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
   function HighlightAtCursorAllowed(const Word: TScintRawString): Boolean;
   begin
     const Section = TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
-    Result := FMemosStyler.HighlightAtCursorAllowed(Section, AMemo.ConvertRawStringToString(Word));
+    Result := NoHighlightAtCursorWords[Section].IndexOf(
+      AMemo.ConvertRawStringToString(Word)) = -1;
   end;
 
 begin
@@ -3814,13 +4605,17 @@ begin
 end;
 
 procedure TMainForm.UpdateImages;
-{ Should be called at startup and after DPI changes }
+{ Should be called after DPI and theme changes }
 begin
-  var WH := MulDiv(16, CurrentPPI, 96);
-  var Images := ImagesModule.ToolbarImageCollection[FTheme.Dark];
+  const WH = MulDiv(16, CurrentPPI, 96);
 
-  var Image := Images.GetSourceImage(Images.GetIndexByName('heart-filled'), WH, WH);
-  UpdatePanelDonateBitBtn.Graphic := Image;
+  const LightImages = ImagesModule.ToolbarImageCollection[False];
+  const DonateImage = LightImages.GetSourceImage(LightImages.GetIndexByName('heart-filled'), WH, WH);
+  UpdatePanelDonateBitBtn.Graphic := DonateImage;
+
+  const ThemedImages = ImagesModule.ToolbarImageCollection[FTheme.Dark];
+  const MenuImage = ThemedImages.GetSourceImage(ThemedImages.GetIndexByName('menu-hamburger'), WH, WH);
+  InspectorPopupMenuBitBtn.Graphic := MenuImage;
 end;
 
 procedure TMainForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
@@ -3877,8 +4672,8 @@ type
   begin
     { Prepare a bitmap and select it }
     var pvBits: Pointer;
-    var Bitmap := CreateDIBSection(DC, BitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
-    var OldBitmap := SelectObject(DC, Bitmap);
+    const Bitmap = CreateDIBSection(DC, BitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
+    const OldBitmap = SelectObject(DC, Bitmap);
 
     { Fill the entire bitmap to avoid any alpha so we don't have to worry about
       whether will be premultiplied or not (it was in tests) when Scintilla wants
@@ -3946,29 +4741,9 @@ begin
         AutoCompleteBkBrush := TBrush.Create;
         AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
 
-        var NamedTypes := [
-          NNT(awtSection, 'ac\structure-filled'),
-          NNT(awtParameter, 'ac\xml-filled'),
-          NNT(awtDirective, 'ac\xml-filled'),
-          NNT(awtFlagOrSetupDirectiveValue, 'ac\values'),
-          NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
-          NNT(awtPreprocessorSubDirective, 'ac\symbol-hashtag-arrow-right-2'),
-          NNT(awtConstant, 'ac\constant-filled_2'),
-          NNT(awtScriptFunction, 'ac\method-filled'),
-          NNT(awtScriptType, 'ac\types'),
-          NNT(awtScriptVariable, 'ac\variables'),
-          NNT(awtScriptConstant, 'ac\constant-filled'),
-          NNT(awtScriptInterface, 'ac\interface-filled'),
-          NNT(awtScriptProperty, 'ac\properties-filled'),
-          NNT(awtScriptEvent, 'ac\event-filled'),
-          NNT(awtScriptKeyword, 'ac\list'),
-          NNT(awtScriptEnumValue, 'ac\constant-filled'),
-          NNT(awtISPPFunction, 'ac\method-filled'),
-          NNT(awtISPPVariable, 'ac\variables'),
-          NNT(awtISPPConstant, 'ac\constant-filled')];
-
-        for var NamedType in NamedTypes do
-          AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);
+        for var WordType := Low(TAutoCompleteWordType) to High(TAutoCompleteWordType) do
+          AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, Ord(WordType), AutoCompleteBkBrush,
+            ImageList, TImagesModule.AutoCompleteWordTypeImageName(WordType));
 
         for var Memo in FMemos do begin
           Memo.Call(SCI_RGBAIMAGESETWIDTH, ImageList.Width, 0);
@@ -3991,9 +4766,10 @@ begin
 end;
 
 procedure TMainForm.UpdateMarginsAndSquigglyAndCaretWidths;
-{ Update the width of our two margins. Note: the width of the line numbers
-  margin is fully handled by TScintEdit. Should be called at startup and after
-  DPI change. }
+{ Update the widths of the memos' margins, including the minimap reservations,
+  and the minimap layout. Note: the width of the line numbers margin is fully
+  handled by TScintEdit. Should be called at startup, after DPI change, and
+  after options change. }
 begin
   var IconMarkersWidth := ToCurrentPPI(18); { 3 pixel margin on both sides of the icon }
   var BaseChangeHistoryWidth := ToCurrentPPI(6); { 6 = 2 pixel bar with 2 pixel margin on both sides because: "SC_MARK_BAR ... takes ... 1/3 of the margin width" }
@@ -4003,18 +4779,32 @@ begin
   var CaretWidth := ToCurrentPPI(2);
   var WhiteSpaceSize := CaretWidth;
 
-  for var Memo in FMemos do
+  for var Memo in FMemos do begin
     Memo.UpdateWidthsAndSizes(IconMarkersWidth, BaseChangeHistoryWidth, FolderMarkersWidth,
       LeftBlankMarginWidth, 0, SquigglyWidth, CaretWidth, WhiteSpaceSize);
+    UpdateMinimapReservation(Memo); { Depends on the margin widths set above }
+  end;
+
+  UpdateMinimapLayout;
 end;
 
-procedure TMainForm.SplitPanelMouseMove(Sender: TObject;
+procedure TMainForm.StatusSplitPanelMouseMove(Sender: TObject;
   Shift: TShiftState; X, Y: Integer);
 begin
   if (ssLeft in Shift) and StatusPanel.Visible then begin
     UpdateStatusPanelHeight(BodyPanel.ClientToScreen(Point(0, 0)).Y -
-      SplitPanel.ClientToScreen(Point(0, Y)).Y +
-      BodyPanel.ClientHeight - (SplitPanel.Height div 2));
+      StatusSplitPanel.ClientToScreen(Point(0, Y)).Y +
+      BodyPanel.ClientHeight - (StatusSplitPanel.Height div 2));
+  end;
+end;
+
+procedure TMainForm.InspectorSplitPanelMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if (ssLeft in Shift) and InspectorPanel.Visible then begin
+    UpdateInspectorPanelWidth(BodyPanel.ClientToScreen(Point(0, 0)).X -
+      InspectorSplitPanel.ClientToScreen(Point(X, 0)).X +
+      BodyPanel.ClientWidth - (InspectorSplitPanel.Width div 2));
   end;
 end;
 
@@ -4106,6 +4896,12 @@ begin
     OptionsForm.FontPanel.Color := FMainMemo.Color;
     OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked := FOptions.HighlightWordAtCursorOccurrences;
     OptionsForm.HighlightSelTextOccurrencesCheck.Checked := FOptions.HighlightSelTextOccurrences;
+    OptionsForm.InspectorShowAllKnownDirectivesCheck.Checked := FOptions.InspectorShowAllKnownDirectives;
+    OptionsForm.InspectorFollowCaretCheck.Checked := FOptions.InspectorFollowCaret;
+    OptionsForm.InspectorQuoteNewDirectiveValuesCheck.Checked := FOptions.InspectorQuoteNewDirectiveValues;
+    OptionsForm.InspectorQuoteNewParameterValuesCheck.Checked := FOptions.InspectorQuoteNewParameterValues;
+    OptionsForm.MinimapAlwaysShowSliderCheck.Checked := FOptions.MinimapAlwaysShowSlider;
+    OptionsForm.MinimapShowOnLeftCheck.Checked := FOptions.MinimapShowOnLeft;
 
     const SaveLanguage = FOptions.Language;
 
@@ -4147,6 +4943,12 @@ begin
     FOptions.Language := TIDELanguage(OptionsForm.LanguageComboBox.ItemIndex);
     FOptions.HighlightWordAtCursorOccurrences := OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked;
     FOptions.HighlightSelTextOccurrences := OptionsForm.HighlightSelTextOccurrencesCheck.Checked;
+    FOptions.InspectorShowAllKnownDirectives := OptionsForm.InspectorShowAllKnownDirectivesCheck.Checked;
+    FOptions.InspectorFollowCaret := OptionsForm.InspectorFollowCaretCheck.Checked;
+    FOptions.InspectorQuoteNewDirectiveValues := OptionsForm.InspectorQuoteNewDirectiveValuesCheck.Checked;
+    FOptions.InspectorQuoteNewParameterValues := OptionsForm.InspectorQuoteNewParameterValuesCheck.Checked;
+    FOptions.MinimapAlwaysShowSlider := OptionsForm.MinimapAlwaysShowSliderCheck.Checked;
+    FOptions.MinimapShowOnLeft := OptionsForm.MinimapShowOnLeftCheck.Checked;
 
     UpdateCaption;
     UpdatePreprocMemos;
@@ -4157,12 +4959,15 @@ begin
       Memo.CaretLine := Memo.CaretLine;
       Memo.Font.Assign(OptionsForm.FontPanel.Font);
     end;
+    FMinimap.UpdateFont(OptionsForm.FontPanel.Font);
     SyncEditorOptions;
     UpdateMarginsAndSquigglyAndCaretWidths;
     UpdateNewMainFileButtons;
     UpdateOccurrenceIndicators(FActiveMemo);
     UpdateKeyMapping;
     UpdateTheme;
+    SyncInspectorOptions;
+    SyncMinimapOptions;
 
     { Save new options }
     Ini := TConfigIniFile.Create;
@@ -4205,6 +5010,12 @@ begin
       Ini.WriteInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
       Ini.WriteBool('Options', 'EditorFontBold', fsBold in FMainMemo.Font.Style);
       Ini.WriteBool('Options', 'EditorFontItalic', fsItalic in FMainMemo.Font.Style);
+      Ini.WriteBool('Options', 'InspectorShowAllKnownDirectives', FOptions.InspectorShowAllKnownDirectives);
+      Ini.WriteBool('Options', 'InspectorFollowCaret', FOptions.InspectorFollowCaret);
+      Ini.WriteBool('Options', 'InspectorQuoteNewParameterValues', FOptions.InspectorQuoteNewParameterValues);
+      Ini.WriteBool('Options', 'InspectorQuoteNewDirectiveValues', FOptions.InspectorQuoteNewDirectiveValues);
+      Ini.WriteBool('Options', 'MinimapAlwaysShowSlider', FOptions.MinimapAlwaysShowSlider);
+      Ini.WriteBool('Options', 'MinimapShowOnLeft', FOptions.MinimapShowOnLeft);
     finally
       Ini.Free;
     end;
@@ -4220,9 +5031,13 @@ begin
         -If multiple English strings have the same translation, only one is used
          when retranslating the translation back into to English.
         -It does not update the UpdatePanel message text.
-        -It does not update the exit code shown in the status bar (spExtraStatus). }
-      if SaveLanguage <> ilEnglish then begin
-        InitLocalization(SaveLanguage, True);
+        -It does not update the exit code shown in the status bar (spExtraStatus).
+        -It does not resort the Inspector's [Setup] category headers.
+        Note: ActiveLanguage differs from SaveLanguage if the --language
+        command-line parameter was used. }
+      const ActiveLanguage = GetActiveLanguage;
+      if ActiveLanguage <> ilEnglish then begin
+        InitLocalization(ActiveLanguage, True);
         LocalizeComponent(Self);
       end;
       InitLocalization(FOptions.Language);
@@ -4335,14 +5150,7 @@ begin
   else
     Pos := AMemo.CaretPosition; { Not actually moving caret - it's already were we want it}
 
-  { If the line is in a contracted section, expand it }
-  AMemo.EnsureLineVisible(AMemo.GetLineFromPosition(Pos));
-
-  { If the line isn't in view, scroll so that it's in the center }
-  if not AMemo.IsPositionInViewVertically(Pos) then
-    AMemo.TopLine := AMemo.GetVisibleLineFromDocLine(AMemo.GetLineFromPosition(Pos)) -
-      (AMemo.LinesInWindow div 2);
-
+  AMemo.EnsurePositionInViewVertically(Pos);
   AMemo.CaretPosition := Pos;
   if IsPosition then
     AMemo.CaretVirtualSpace := PositionVirtualSpace;
@@ -4468,7 +5276,7 @@ begin
     const Section = TInnoSetupStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine], False);
     const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
     Text := Format('%s-%s@%d+%d:%s', [
-      Copy(GetEnumName(TypeInfo(TInnoSetupStylerSection), Ord(Section)), 3, MaxInt),
+      SectionToSectionName(Section),
       Copy(GetEnumName(TypeInfo(TInnoSetupStylerStyle), Style), 3, MaxInt),
       CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
   end;
@@ -4526,6 +5334,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty, Include
       NewTabs.Add(LFmtMessage(SCompilerPreprocessorOutput));
       NewHints.Add('');
       NewCloseButtons.Add(False);
+      ResetLiveScriptObjectFactoryForMemo(FPreprocessorOutputMemo);
       FPreprocessorOutputMemo.ReadOnly := False;
       try
         FPreprocessorOutputMemo.Lines.Text := FPreprocessorOutput;
@@ -4786,6 +5595,17 @@ procedure TMainForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
   end;
 
 begin
+  if FMinimap.Visible and (Sender = FActiveMemo) then begin
+    { Syncing now keeps the minimap from first painting at its old position,
+      except after a scroll or fold alone: Scintilla reports those only when
+      the memo paints, which can be after the minimap's paint. MemoPainted
+      catches the rest. }
+    if suFolding in Updated then
+      FMinimap.SyncFolding;
+    if Updated * [suContent, suVScroll, suFolding] <> [] then
+      FMinimap.SyncScrollPosition;
+  end;
+
   if Updated * [suContent, suSelection] = [] then
     Exit;
 
@@ -4803,12 +5623,29 @@ begin
   UpdateBraceHighlighting(Memo);
   CallTipsHandleUpdateUI(Memo);
   UpdateOccurrenceIndicators(Memo);
+
+  if InspectorPanel.Visible and (Memo = FActiveMemo) then
+    FInspector.UpdateFromCaret;
+  if NavigatorPanel.Visible and (Memo = FActiveMemo) then
+    FNavigator.UpdateFromCaret;
+  if FMinimap.Visible and (Memo = FActiveMemo) then
+    FMinimap.SyncSelections;
 end;
 
 procedure TMainForm.MemoModifiedChange(Sender: TObject);
 begin
   if Sender = FActiveMemo then
     UpdateModifiedStatusPanel;
+end;
+
+procedure TMainForm.MemoPainted(Sender: TObject);
+begin
+  { Lazy rewrapping sends no OnUpdateUI unless the top line changes. In
+    Scintilla's Editor.cxx, only ContainerNeedsUpdate makes it send one, and
+    WrapLines calls it only through SetTopLine, when the top line changes.
+    This also runs on every caret blink, so SyncScrollPosition must stay cheap! }
+  if FMinimap.Visible and (Sender = FActiveMemo) then
+    FMinimap.SyncScrollPosition;
 end;
 
 procedure TMainForm.MemoCallTipArrowClick(Sender: TObject;
@@ -4957,7 +5794,7 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
     if FNavStacks.LinesDeleted(Memo, FirstLine, Count) then
       UpdateNavigationButtons;
     { We do NOT update FCurrentNavItem here so it might point to a line that's
-      deleted until next UpdateCaretPosPanelAndBackStack by UpdateMemoUI }
+      deleted until next UpdateCaretPosPanelAndBackNavStack by UpdateMemoUI }
 
     { When lines are deleted, Scintilla insists on moving all of the deleted
       lines' markers to the line on which the deletion started
@@ -4969,22 +5806,19 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
   end;
 
   procedure MemoLinesInsertedOrDeleted(Memo: TIDEScintFileEdit);
-  var
-    FirstAffectedLine, Line, LinePos: Integer;
   begin
-    Line := Memo.GetLineFromPosition(Info.StartPos);
-    LinePos := Memo.GetPositionFromLine(Line);
-    FirstAffectedLine := Line;
+    var FirstLine := Memo.GetLineFromPosition(Info.StartPos);
+    const FirstAffectedLine = FirstLine;
     { If the deletion/insertion does not start on the first character of Line,
       then we consider the first deleted/inserted line to be the following
       line (Line+1). This way, if you press Del at the end of line 1, the dot
       on line 2 is removed, while line 1's dot stays intact. }
-    if Info.StartPos > LinePos then
-      Inc(Line);
+    if Info.StartPos > Memo.GetPositionFromLine(FirstLine) then
+      Inc(FirstLine);
     if Info.LinesDelta > 0 then
-      MemoLinesInserted(Memo, Line, Info.LinesDelta)
+      MemoLinesInserted(Memo, FirstLine, Info.LinesDelta)
     else
-      MemoLinesDeleted(Memo, Line, -Info.LinesDelta, FirstAffectedLine);
+      MemoLinesDeleted(Memo, FirstLine, -Info.LinesDelta, FirstAffectedLine);
   end;
 
 var
@@ -5008,6 +5842,10 @@ begin
 
   if Info.LinesDelta <> 0 then
     MemoLinesInsertedOrDeleted(Memo);
+
+  const Factory = LiveScriptObjectFactoryForMemo(Memo);
+  if Factory <> nil then
+    Factory.Change(Info);
 
   if Memo = FErrorMemo then begin
     { When the Delete key is pressed, the caret doesn't move, so reset
@@ -5173,7 +6011,7 @@ begin
       if IsInISPPLineContext(FActiveMemo, LinePos, VarOrFuncRange.StartPos, IsPragmaContext) and not IsPragmaContext then begin
         const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
         var Count: Integer;
-        const FunctionDefinition = FMemosStyler.GetISPPFunctionDefinition(Name, 0, Count);
+        const FunctionDefinition = GetISPPFunctionDefinition(Name, 0, Count);
         if Count > 0 then begin
           if Count <> 1 then
             raise Exception.CreateFmt('MemoHintShow: unexpected Count (%d)', [Count]);
@@ -5205,18 +6043,18 @@ begin
           HintStr := LFmtMessage(SEvaluateHintUnknownError2);
         end;
       end else begin
-        var ClassMember := False;
         const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
+        { A dot before the word selects the member lookup, like the call tips' ClassOrRecordMember detection }
+        const PositionBeforeWordStartPos = FActiveMemo.GetPositionBefore(VarOrFuncRange.StartPos);
+        const ClassMember = (PositionBeforeWordStartPos >= FActiveMemo.GetPositionFromLine(Line)) and
+          (FActiveMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
+        const UserDefined = BuildUserDefinedFunctionDefinitions(FActiveMemo, Line, ClassMember);
         var Index := 0;
         var Count: Integer;
-        var FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
-        if Count = 0 then begin
-          ClassMember := not ClassMember;
-          FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
-        end;
+        var FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, UserDefined, Count);
         while Index < Count do begin
           if Index <> 0 then
-            FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index);
+            FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, UserDefined);
           if HintStr <> '' then
             HintStr := HintStr + #13;
           HintStr := HintStr + ScriptFuncHeaderKindToStr(FunctionDefinition.HeaderKind) +
@@ -5267,7 +6105,18 @@ begin
     finally
       FSynchingZoom := False;
     end;
+    UpdateMinimapReservationsAndLayout;
   end;
+end;
+
+procedure TMainForm.MemoResizeOrLineNumbersWidthChange(Sender: TObject);
+begin
+  { Also runs when the vertical scrollbar shows or hides, which changes the
+    reservation }
+  const Memo = Sender as TIDEScintEdit;
+  UpdateMinimapReservation(Memo);
+  if Memo = FActiveMemo then
+    UpdateMinimapLayout;
 end;
 
 procedure TMainForm.StatusBarResize(Sender: TObject);
@@ -5425,6 +6274,7 @@ begin
   inherited;
   for var Memo in FMemos do
     Memo.DPIChanged(Message);
+  FMinimap.DPIChanged(Message);
 end;
 
 procedure TMainForm.WMDebuggerException(var Message: TMessage);
@@ -5930,11 +6780,33 @@ begin
   FTheme.Typ := FOptions.ThemeType;
 
   {$IF RtlVersion >= 36.0}
-  { For MainForm the active style only impacts message boxes and tooltips: FMemos, ToolbarPanel,
-    UpdatePanel, SplitPanel and the 4 ListBoxes all ignore it because their StyleName property is set
-    to 'Windows' always, either by the .dfm or by code. Additionally, for scrollbars and StatusBar,
-    MainForm's StyleElements is empty. Menus ignore it because shMenus is removed from
-    TStyleManager.SystemHooks at startup. }
+  { For MainForm the active style only impacts:
+    - Message boxes
+    - Tooltips
+    - Scrollbars and StatusBar
+    - The inspector's filter edit
+    - The inspector's checkboxes, in-place editors, drop-down buttons, and drop-down lists
+    - The navigator's comboboxes
+    The following components (and any children) ignore the active style because
+    their StyleName is set to 'Windows' always, either by the .dfm or by code:
+    - FMemos
+    - FMinimap
+    - ToolbarPanel
+    - UpdatePanel
+    - StatusSplitPanel
+    - InspectorSplitPanel, InspectorCaptionText, and InspectorNoteText
+    - NavigatorCaptionText
+    - The 4 ListBoxes
+    Setting a control's StyleName to 'Windows' also prevents all its children
+    from being styled. For that reason some controls set StyleElements to []
+    instead of setting StyleName. This allows children to use the active style.
+    This applies to:
+    - MainForm itself, for styling of scrollbars and StatusBar
+    - InspectorHeaderPanel, for styling of the inspector filter edit
+    - InspectorPanel, for styling of the inspector elements named above (and InspectorHeaderPanel's children)
+    - NavigatorPanel, for styling of the navigator's comboboxes
+    Menus ignore the active style because shMenus is removed from TStyleManager.SystemHooks
+    at startup. }
   if FTheme.Dark then begin
     { Which one is present depends on the .dproj, see README.md }
     if not TStyleManager.TrySetStyle('Windows Modern Dark SE', False) then
@@ -5970,21 +6842,49 @@ begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlWindowTheme(Memo, FTheme.Dark);
   end;
+  FMinimap.UpdateThemeColorsAndStyleAttributes;
   SetListBoxWindowTheme(CompilerOutputList);
   SetListBoxWindowTheme(DebugOutputList);
   SetListBoxWindowTheme(DebugCallStackList);
   SetListBoxWindowTheme(FindResultsList);
+
+  { TComboBoxStyleHook subclasses the drop-down window to paint its border,
+    but only does so while the combobox's window is being created. A style
+    change normally handles this by recreating all windows (see
+    CM_CUSTOMSTYLECHANGED in TCustomForm.WndProc) but skips forms whose
+    StyleElements is empty, like MainForm. So recreate here, using Perform
+    because RecreateWnd is protected in Delphi 10.4 }
+  NavigatorComboBox.Perform(CM_RECREATEWND, 0, 0);
+  NavigatorComboBox2.Perform(CM_RECREATEWND, 0, 0);
 
   ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[FTheme.Dark];
   ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.MarkersAndACImageCollection[FTheme.Dark];
 
   UpdateThemeData(True);
   UpdateBevel1Visibility;
+  UpdateImages;
   UpdateMarginsAndAutoCompleteIcons;
 
-  SplitPanel.ParentBackground := False;
-  SplitPanel.Color := FTheme.Colors[tcSplitterBack];
+  StatusSplitPanel.ParentBackground := False;
+  StatusSplitPanel.Color := FTheme.Colors[tcSplitterBack];
+  InspectorSplitPanel.ParentBackground := False;
+  InspectorSplitPanel.Color := FTheme.Colors[tcSplitterBack];
 
+  if not FHighContrastActive then begin
+    InspectorPanel.ParentBackground := False;
+    InspectorPanel.Color := FTheme.Colors[tcToolBack];
+    InspectorHeaderPanel.ParentColor := True;
+    InspectorCaptionText.Font.Color := FTheme.Colors[tcFore];
+    InspectorNoteText.Font.Color := FTheme.Colors[tcFore];
+    InspectorFilterEdit.Font.Color := FTheme.Colors[tcFore];
+    NavigatorPanel.ParentBackground := False;
+    NavigatorPanel.Color := FTheme.Colors[tcToolBack];
+    NavigatorCaptionText.Font.Color := FTheme.Colors[tcFore];
+    NavigatorComboBox.Font.Color := FTheme.Colors[tcFore];
+    NavigatorComboBox2.Font.Color := FTheme.Colors[tcFore];
+  end;
+
+  FInspector.UpdateTheme(FTheme, FHighContrastActive);
   FMenuDarkBackgroundBrush.Color := FTheme.Colors[tcToolBack];
   FMenuDarkHotOrSelectedBrush.Color := $2C2C2C; { Same as themed menu drawn by Windows 11, which is close to Colors[tcBack] }
 
@@ -6039,6 +6939,7 @@ begin
     var MessageToShowIndex := FUpdatePanelMessages.Count-1;
     UpdateLinkLabel.Tag := MessageToShowIndex;
     UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
+    UpdateLinkLabel.TabStop := FUpdatePanelMessages[MessageToShowIndex].HasLink;
     if not FHighContrastActive then
       UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
     if FUpdatePanelMessages[MessageToShowIndex].ConfigIdent.StartsWith('Purchase') then
@@ -6420,18 +7321,29 @@ procedure TMainForm.EGotoFileClick(Sender: TObject);
 begin
   const GotoFileForm = TGotoFileForm.Create(Application);
   try
-    const Files = TStringList.Create;
+    var Files: TStringList := nil;
+    var ImageNames: TStringList := nil;
     try
+      Files := TStringList.Create;
+      ImageNames := TStringList.Create;
+
       { Build file list }
       Files.Add(FMainMemo.Filename);
-      for var IncludedFile in FIncludedFiles do
-        if IncludedFile.Memo <> nil then
+      ImageNames.Add('document');
+      for var IncludedFile in FIncludedFiles do begin
+        if IncludedFile.Memo <> nil then begin
           Files.Add(IncludedFile.Filename);
-      if FPreprocessorOutputMemo.Used then
+          ImageNames.Add('document-script');
+        end;
+      end;
+      if FPreprocessorOutputMemo.Used then begin
         Files.Add(MemosTabSet.Tabs[MemoToTabIndex(FPreprocessorOutputMemo)]);
+        ImageNames.Add('document-script-filled');
+      end;
 
       { Show form }
       GotoFileForm.Files := Files;
+      GotoFileForm.ImageNames := ImageNames;
       if GotoFileForm.ShowModal = mrOK then begin
         { Go to file }
         const FileIndex = GotoFileForm.FileIndex;
@@ -6457,6 +7369,7 @@ begin
           MemosTabSet.TabIndex := MemoToTabIndex(GotoMemo);
       end;
     finally
+      ImageNames.Free;
       Files.Free;
     end;
   finally
@@ -6465,15 +7378,20 @@ begin
 end;
 
 procedure TMainForm.EGotoLineClick(Sender: TObject);
-var
-  S: String;
-  L: Integer;
 begin
-  S := IntToStr(FActiveMemo.CaretLine + 1);
-  if InputQueryEdit(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin
-    L := StrToIntDef(S, Low(L));
-    if L <> Low(L) then
-      FActiveMemo.CaretLine := L - 1;
+  if FInspector.JvInspector.Focused then begin
+    if not FInspector.GoToSelectedRow then
+      FActiveMemo.SetFocus; { Attempt simple switch to allow going back and forth using F6 and Ctrl+G. }
+  end else begin
+    var S := IntToStr(FActiveMemo.CaretLine + 1);
+    if InputQueryEdit(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin
+      const L = StrToIntDef(S, Low(Integer));
+      if L <> Low(Integer) then begin
+        const Line = Min(Max(L - 1, 0), FActiveMemo.Lines.Count-1);
+        FActiveMemo.EnsurePositionInViewVertically(FActiveMemo.GetPositionFromLine(Line));
+        FActiveMemo.CaretLine := Line;
+      end;
+    end;
   end;
 end;
 
@@ -6665,6 +7583,7 @@ begin
   end;
   for var Memo in FMemos do
     Memo.SettingChange(Message);
+  FMinimap.SettingChange(Message);
 end;
 
 procedure TMainForm.WMThemeChanged(var Message: TMessage);
@@ -6853,7 +7772,7 @@ begin
       for Memo in FFileMemos do begin
         if Memo.Used and PathSame(Memo.Filename, FindResult.Filename) then begin
           MoveCaretAndActivateMemo(Memo, FindResult.Line, True);
-          Memo.SelectAndEnsureVisible(FindResult.Range);
+          Memo.SelectAndEnsureInView(FindResult.Range);
           ActiveControl := Memo;
           Exit;
         end;

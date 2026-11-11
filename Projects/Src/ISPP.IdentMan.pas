@@ -243,8 +243,6 @@ begin
     Result := agsNone
 end;
 
-{ TMacroCallContext }
-
 type
 
 { TMacroLocalArrayCallContext }

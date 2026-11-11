@@ -44,9 +44,9 @@ type
     FCompressionLevel: Integer;
     FInitialized: Boolean;
     FStrm: TBZStreamRec;
-    FBuffer: array[0..65535] of Byte;
+    FOutBuffer: array[0..65535] of Byte;
     procedure EndCompress;
-    procedure FlushBuffer;
+    procedure FlushOutBuffer;
     procedure InitCompress;
   protected
     procedure DoCompress(const Buffer; Count: Cardinal); override;
@@ -63,14 +63,19 @@ type
     FInitialized: Boolean;
     FStrm: TBZStreamRec;
     FReachedEnd: Boolean;
-    FBuffer: array[0..65535] of Byte;
-    FHeapBase, FHeapNextFree: Pointer;
-    function Malloc(Bytes: Cardinal): Pointer;
+    FHeapBase: Pointer;
+    FHeapCommitSize: Cardinal;
+    FHeapNextFree: Cardinal;
+    FInBuffer: array[0..65535] of Byte;
+    procedure EndDecompress;
+    procedure InitDecompress;
+    function Malloc(const AItems, ASize: Integer): Pointer;
+  protected
+    procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
+    procedure DoReset; override;
   public
     constructor Create(AReadProc: TDecompressorReadProc); override;
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Cardinal); override;
-    procedure Reset; override;
   end;
 
 implementation
@@ -106,9 +111,8 @@ const
   BZ_OUTBUFF_FULL     = (-8);
   BZ_CONFIG_ERROR     = (-9);
 
-  SBzlibDataError = 'bzlib: Compressed data is corrupted';
+  SBzlibDataError = 'bzlib: Compressed data is corrupted (%d)';
   SBzlibInternalError = 'bzlib: Internal error. Code %d';
-  SBzlibAllocError = 'bzlib: Too much memory requested';
 
 function BZInitCompressFunctions(Module: HMODULE): Boolean;
 begin
@@ -140,12 +144,13 @@ end;
 
 function BZAllocMem(AppData: Pointer; Items, Size: Integer): Pointer; stdcall;
 begin
+  if (Items <= 0) or (Size <= 0) or (Items > High(Integer) div Size) then
+    Exit(nil);
   try
     GetMem(Result, Items * Size);
   except
-    { trap any exception, because bzlib expects a NULL result if it's out
-      of memory }
-    Result := nil;
+    on EOutOfMemory do
+      Result := nil;
   end;
 end;
 
@@ -195,8 +200,8 @@ procedure TBZCompressor.InitCompress;
 begin
   if not FInitialized then begin
     InitStream(FStrm);
-    FStrm.next_out := @FBuffer;
-    FStrm.avail_out := SizeOf(FBuffer);
+    FStrm.next_out := @FOutBuffer;
+    FStrm.avail_out := SizeOf(FOutBuffer);
     Check(BZ2_bzCompressInit(FStrm, FCompressionLevel, 0, 0), [BZ_OK]);
     FInitialized := True;
   end;
@@ -210,12 +215,12 @@ begin
   end;
 end;
 
-procedure TBZCompressor.FlushBuffer;
+procedure TBZCompressor.FlushOutBuffer;
 begin
-  if FStrm.avail_out < SizeOf(FBuffer) then begin
-    WriteProc(FBuffer, Cardinal(SizeOf(FBuffer) - FStrm.avail_out));
-    FStrm.next_out := @FBuffer;
-    FStrm.avail_out := SizeOf(FBuffer);
+  if FStrm.avail_out < SizeOf(FOutBuffer) then begin
+    WriteProc(FOutBuffer, Cardinal(SizeOf(FOutBuffer) - FStrm.avail_out));
+    FStrm.next_out := @FOutBuffer;
+    FStrm.avail_out := SizeOf(FOutBuffer);
   end;
 end;
 
@@ -227,7 +232,7 @@ begin
   while FStrm.avail_in > 0 do begin
     Check(BZ2_bzCompress(FStrm, BZ_RUN), [BZ_RUN_OK]);
     if FStrm.avail_out = 0 then
-      FlushBuffer;
+      FlushOutBuffer;
   end;
   if Assigned(ProgressProc) then
     ProgressProc(Count);
@@ -241,8 +246,8 @@ begin
   { Note: This assumes FStrm.avail_out > 0. This shouldn't be a problem since
     Compress always flushes when FStrm.avail_out reaches 0. }
   while Check(BZ2_bzCompress(FStrm, BZ_FINISH), [BZ_FINISH_OK, BZ_STREAM_END]) <> BZ_STREAM_END do
-    FlushBuffer;
-  FlushBuffer;
+    FlushOutBuffer;
+  FlushOutBuffer;
   EndCompress;
 end;
 
@@ -269,7 +274,7 @@ const
 
 function DecompressorAllocMem(AppData: Pointer; Items, Size: Integer): Pointer; stdcall;
 begin
-  Result := TBZDecompressor(AppData).Malloc(Cardinal(Items * Size));
+  Result := TBZDecompressor(AppData).Malloc(Items, Size);
 end;
 
 procedure DecompressorFreeMem(AppData, Block: Pointer); stdcall;
@@ -284,77 +289,110 @@ begin
   FHeapBase := VirtualAlloc(nil, DecompressorHeapSize, MEM_RESERVE, PAGE_NOACCESS);
   if FHeapBase = nil then
     OutOfMemoryError;
-  FHeapNextFree := FHeapBase;
-  FStrm.AppData := Self;
-  FStrm.zalloc := DecompressorAllocMem;
-  FStrm.zfree := DecompressorFreeMem;
-  FStrm.next_in := @FBuffer;
-  FStrm.avail_in := 0;
-  Check(BZ2_bzDecompressInit(FStrm, 0, 0), [BZ_OK]);
-  FInitialized := True;
 end;
 
 destructor TBZDecompressor.Destroy;
 begin
-  if FInitialized then
-    BZ2_bzDecompressEnd(FStrm);
+  EndDecompress;
   if Assigned(FHeapBase) then
     VirtualFree(FHeapBase, 0, MEM_RELEASE);
-  inherited Destroy;
+  inherited;
 end;
 
-function TBZDecompressor.Malloc(Bytes: Cardinal): Pointer;
+procedure TBZDecompressor.InitDecompress;
 begin
-  { Round up to dword boundary if necessary }
-  if Bytes mod 4 <> 0 then
-    Inc(Bytes, 4 - Bytes mod 4);
+  if not FInitialized then begin
+    { Discard previous allocations }
+    FHeapNextFree := 0;
+    { Clear FStrm (avail_in needs to be reset to 0) }
+    FStrm := Default(TBZStreamRec);
+    FStrm.AppData := Self;
+    FStrm.zalloc := DecompressorAllocMem;
+    FStrm.zfree := DecompressorFreeMem;
+    Check(BZ2_bzDecompressInit(FStrm, 0, 0), [BZ_OK]);
+    FInitialized := True;
+  end;
+end;
+
+procedure TBZDecompressor.EndDecompress;
+begin
+  if FInitialized then begin
+    FInitialized := False;
+    BZ2_bzDecompressEnd(FStrm);
+  end;
+end;
+
+function TBZDecompressor.Malloc(const AItems, ASize: Integer): Pointer;
+begin
+  if (AItems <= 0) or (ASize <= 0) or
+     (AItems > DecompressorHeapSize div ASize) then
+    Exit(nil);
+
+  var EndOffset := Cardinal(AItems * ASize);
+  { Round up to multiple of 16 bytes if necessary }
+  if EndOffset and $F <> 0 then
+    EndOffset := (EndOffset or $F) + 1;
+  Inc(EndOffset, FHeapNextFree);
 
   { Did bzlib request more memory than we reserved? This shouldn't happen
     unless this unit is used with a different version of bzlib that allocates
     more memory. }
-  const HeapSize = NativeUInt(PByte(FHeapNextFree) - PByte(FHeapBase)) + Bytes;
-  if HeapSize > DecompressorHeapSize then
-    raise ECompressInternalError.Create(SBzlibAllocError);
+  if EndOffset > DecompressorHeapSize then
+    Exit(nil);
 
-  if VirtualAlloc(FHeapNextFree, Bytes, MEM_COMMIT, PAGE_READWRITE) = nil then
-    Result := nil
-  else begin
-    Result := FHeapNextFree;
-    Inc(PByte(FHeapNextFree), Bytes);
+  if EndOffset > FHeapCommitSize then begin
+    if VirtualAlloc(PByte(FHeapBase) + FHeapCommitSize,
+       EndOffset - FHeapCommitSize, MEM_COMMIT, PAGE_READWRITE) = nil then
+      Exit(nil);
+    FHeapCommitSize := EndOffset;
   end;
+
+  Result := PByte(FHeapBase) + FHeapNextFree;
+  FHeapNextFree := EndOffset;
 end;
 
-procedure TBZDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+procedure TBZDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
+
+  procedure RaiseDataError(const Id: Integer);
+  begin
+    raise ECompressDataError.CreateFmt(SBzlibDataError, [Id]);
+  end;
+
 begin
+  InitDecompress;
   FStrm.next_out := @Buffer;
   FStrm.avail_out := Count;
   while FStrm.avail_out > 0 do begin
-    if FReachedEnd then  { unexpected EOF }
-      raise ECompressDataError.Create(SBzlibDataError);
+    if FReachedEnd then
+      RaiseDataError(1);
     if FStrm.avail_in = 0 then begin
-      FStrm.next_in := @FBuffer;
-      FStrm.avail_in := ReadProc(FBuffer, SizeOf(FBuffer));
-      { Unlike zlib, bzlib does not return an error when avail_in is zero and
-        it still needs input. To avoid an infinite loop, check for this and
-        consider it a data error. }
-      if FStrm.avail_in = 0 then
-        raise ECompressDataError.Create(SBzlibDataError);
+      FStrm.next_in := @FInBuffer;
+      FStrm.avail_in := ReadInput(FInBuffer, SizeOf(FInBuffer));
     end;
+    const OldAvailIn = FStrm.avail_in;
+    const OldAvailOut = FStrm.avail_out;
     case Check(BZ2_bzDecompress(FStrm), [BZ_OK, BZ_STREAM_END, BZ_DATA_ERROR, BZ_DATA_ERROR_MAGIC]) of
+      BZ_OK:
+        begin
+          { If BZ_OK was returned but no forward progress was made, then that
+            means bzlib has run out of input (avail_in was 0 on entry) but it
+            is expecting more because it never got the full 10-byte stream
+            trailer (which would have caused BZ_STREAM_END to be returned
+            instead). To avoid an infinite loop, treat that as a data error. }
+          if (FStrm.avail_in = OldAvailIn) and (FStrm.avail_out = OldAvailOut) then
+            RaiseDataError(2);
+        end;
       BZ_STREAM_END: FReachedEnd := True;
-      BZ_DATA_ERROR, BZ_DATA_ERROR_MAGIC: raise ECompressDataError.Create(SBzlibDataError);
+      BZ_DATA_ERROR: RaiseDataError(3);
+      BZ_DATA_ERROR_MAGIC: RaiseDataError(4);
     end;
   end;
 end;
 
-procedure TBZDecompressor.Reset;
+procedure TBZDecompressor.DoReset;
 begin
-  FStrm.next_in := @FBuffer;
-  FStrm.avail_in := 0;
   { bzlib doesn't offer an optimized 'Reset' function like zlib }
-  BZ2_bzDecompressEnd(FStrm);
-  FHeapNextFree := FHeapBase;  { discard previous allocations }
-  Check(BZ2_bzDecompressInit(FStrm, 0, 0), [BZ_OK]);
+  EndDecompress;
   FReachedEnd := False;
 end;
 

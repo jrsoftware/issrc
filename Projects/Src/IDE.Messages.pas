@@ -27,9 +27,17 @@ const
   SLitRegExt = 'reg';
   SLitIcoExt = 'ico';
   SLit7zExt  = '7z';
-  SLitExtAndAllFilter = '%s (*.%s)|*.%1:s|%s|*.*';
-  SLitDocsAndAllFilter = '%s (*.rtf,*.txt)|*.rtf;*.txt|%s|*.*';
+  SLitBmpExt = 'bmp';
+  SLitPngExt = 'png';
+  SLitVsfExt = 'vsf';
+  SLitIslExt = 'isl';
+  SLitTxtExt = 'txt';
+  SLitIsPublicKeyExt = 'ispublickey';
+  SLitExtFilter = '*.%s';
+  SLitExtsAndAllFilter = '%s (%s)|%s|%s|*.*';
   SLitAllFilesFilter = '%s|*.*';
+
+  { Do localize - should not contain script text }
 
   { Compiler-specific messages }
   SCompilerCommandLineHelpUsage = 'Command-line usage:';
@@ -57,6 +65,11 @@ const
   SRtfFiles = 'Rich Text Format files';
   SRegFiles = 'Registry files';
   SIcoFiles = 'Icon files';
+  SImageFiles = 'Image files';
+  SVclStylesFiles = 'VCL Styles files';
+  SIslFiles = 'Inno Setup Messages files';
+  SIsPublicKeyFiles = 'Public key files';
+  STxtFiles = 'Text files';
 
   { Compiler Script Wizard }
   SWizardDefaultName = 'Inno Setup Script Wizard';
@@ -221,6 +234,21 @@ const
   SSignToolDuplicateName = 'Duplicate name.';
   SSignToolCommandPrompt = 'Command of the Sign Tool:';
   SSignToolInvalidCommand = 'Invalid command.';
+
+  { Inspector }
+  SInspectorValidationError = 'Value of "%1" is invalid';
+  SInspectorReadOnlyError = 'The script cannot be edited because it is read-only';
+  SInspectorBrowseParamFlagError = 'Parameter "%1" cannot be browsed for when the "%2" flag is used';
+  SInspectorNothingToInspectNote = 'Move to a parameter entry or a key/value or [Code] section';
+  SInspectorEmptySectionNote = 'Move to a parameter entry or a non-empty key/value or [Code] section';
+  SInspectorMixedSelectionNote = 'Select entries of one section type, and no other content';
+  SInspectorSiblingOccurrencesNote = 'Unspecified directives are hidden because this section occurs more than once';
+  SInspectorShowAllKnownDirectivesSuppressedNote = 'Unspecified directives are hidden because this is not the main script file';
+  SInspectorCategoryRoutines = 'Routines';
+  SInspectorCategoryTypes = 'Types';
+  SInspectorCategorySymbols = 'Symbols';
+  SInspectorParametersRow = 'Parameters';
+  SInspectorLocalsRow = 'Locals';
 
   { Tools }
   SToolsInsertGuidConfirm = 'The generated GUID will be inserted into the editor at the cursor position. Continue?';

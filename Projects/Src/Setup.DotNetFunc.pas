@@ -29,7 +29,7 @@
 interface
 
 uses
-  Ole2, SysUtils, Windows, Shared.CommonFunc, Shared.DotNetVersion;
+  Ole2, SysUtils, Windows, Shared.CommonFunc, Shared.DotNetVersion, Shared.Struct;
 
 type
   IAssemblyCache = class(IUnknown)
@@ -57,11 +57,12 @@ type
 function GetDotNetInstallRoot(const RegView: TRegView): String;
 function GetDotNetVersionInstallRoot(const RegView: TRegView; const Version: TDotNetBaseVersion): String;
 function IsDotNetInstalled(const RegView: TRegView; const MinVersion: TDotNetVersion; const MinServicePack: DWORD): Boolean;
+function IsDotNetRuntimeInstalled(const Runtime: String; const PackedMinVersion: Int64; const Architecture: TSetupProcessorArchitecture): Boolean;
 
 implementation
 
 uses
-  Setup.InstFunc, PathFunc;
+  PathFunc, Shared.VerInfoFunc, Setup.InstFunc, Setup.MainFunc;
 
 var
   DotNetRoot: array [TRegView] of String;
@@ -279,6 +280,113 @@ begin
         Result := False;
   end else
     Result := False;
+end;
+
+{ IsDotNetRuntimeInstalled }
+
+function IsDotNetRuntimeInstalled(const Runtime: String; const PackedMinVersion: Int64; const Architecture: TSetupProcessorArchitecture): Boolean;
+
+  function IsReleaseVersionName(const Name: String): Boolean;
+  begin
+    const Parts = Name.Split(['.']);
+    if Length(Parts) <> 3 then
+      Exit(False);
+    for var Part in Parts do begin
+      if (Part = '') or ((Part[1] = '0') and (Length(Part) > 1)) then
+        Exit(False);
+      for var C in Part do
+        if not CharInSet(C, ['0'..'9']) then
+          Exit(False);
+    end;
+    Result := True;
+  end;
+
+  function GetLastErrorUnlessNotFound: DWORD;
+  begin
+    Result := GetLastError;
+    if (Result = ERROR_FILE_NOT_FOUND) or (Result = ERROR_PATH_NOT_FOUND) then
+      Result := 0;
+  end;
+
+begin
+  Result := False;
+
+  var ArchName: String;
+  case Architecture of
+    paX86: ArchName := 'x86';
+    paX64: ArchName := 'x64';
+    paArm64: ArchName := 'arm64';
+  else
+    Exit;
+  end;
+
+  // Like the .NET host, no default location for Arm64 on x64 Windows: skip architectures the system can't run
+  if not (Architecture in MachineTypesSupportedBySystem) then
+    Exit;
+
+  // Same global install location lookup as the .NET host: the registered install location, which is
+  // always in the 32-bit view, else the default location. See https://github.com/dotnet/designs/blob/main/accepted/2020/install-locations.md
+  var InstallDir := '';
+  var K: HKEY;
+  if RegOpenKeyExView(rv32Bit, HKEY_LOCAL_MACHINE, PChar('SOFTWARE\dotnet\Setup\InstalledVersions\' + ArchName),
+     0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS then begin
+    if not RegQueryStringValue(K, 'InstallLocation', InstallDir) or not PathIsRooted(InstallDir) then
+      InstallDir := '';
+    RegCloseKey(K);
+  end;
+  if InstallDir = '' then begin
+    if Architecture = paX86 then
+      InstallDir := AddBackslash(ProgramFiles32Dir) + 'dotnet'
+    else begin
+      InstallDir := AddBackslash(ProgramFiles64Dir) + 'dotnet';
+      // x64 .NET installs into a subdirectory on Arm64 Windows
+      if (Architecture = paX64) and (ProcessorArchitecture = paArm64) then
+        InstallDir := InstallDir + '\x64';
+    end;
+  end;
+
+  // Each version is a subdirectory such as shared\Microsoft.NETCore.App\8.0.0
+  const RuntimeDir = AddBackslash(InstallDir) + 'shared\' + Runtime + '\';
+  var FindData: TWin32FindData;
+  const H = FindFirstFile(PChar(RuntimeDir + '*'), FindData);
+  if H = INVALID_HANDLE_VALUE then begin
+    const ErrorCode = GetLastErrorUnlessNotFound;
+    if ErrorCode <> 0 then
+      Win32ErrorMsgEx('FindFirstFile', ErrorCode);
+    Exit;
+  end;
+  var DepsLastError: DWORD := 0;
+  try
+    repeat
+      const Name: String = FindData.cFileName;
+      // Ignore build metadata such as +vendor.1
+      const NumericName = Copy(Name, 1, Pos('+', Name + '+') - 1);
+      var VersionNumbers: TFileVersionNumbers;
+      // Like the .NET host, reject names such as 8.0.0.0. Unlike the host, also skip prerelease versions
+      // such as 10.0.0-rc.1.25451.107, even as a fallback.
+      if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY <> 0) and IsReleaseVersionName(NumericName) and
+         StrToVersionNumbers(NumericName, VersionNumbers) then begin
+        const Version = VersionNumbersToInt64(VersionNumbers);
+        // Apps only roll forward to a runtime with the same major version. Like the .NET host,
+        // ignore a directory without .deps.json, which could be left over from an uninstall.
+        if (Version shr 48 = PackedMinVersion shr 48) and (Version >= PackedMinVersion) then begin
+          const Attr = GetFileAttributes(PChar(RuntimeDir + Name + '\' + Runtime + '.deps.json'));
+          if Attr = INVALID_FILE_ATTRIBUTES then begin
+            // Don't raise yet: a later version can still match
+            if DepsLastError = 0 then
+              DepsLastError := GetLastErrorUnlessNotFound;
+          end else if Attr and FILE_ATTRIBUTE_DIRECTORY = 0 then
+            Exit(True);
+        end;
+      end;
+    until not FindNextFile(H, FindData);
+    if GetLastError <> ERROR_NO_MORE_FILES then
+      Win32ErrorMsg('FindNextFile');
+  finally
+    Windows.FindClose(H);
+  end;
+  if DepsLastError <> 0 then
+    Win32ErrorMsgEx('GetFileAttributes', DepsLastError);
 end;
 
 end.

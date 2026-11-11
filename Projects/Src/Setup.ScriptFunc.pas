@@ -762,10 +762,6 @@ var
     begin
       Stack.SetBool(PStart, IsAdmin);
     end);
-    RegisterScriptFunc('ISPOWERUSERLOGGEDON', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetBool(PStart, IsPowerUserLoggedOn);
-    end);
     RegisterScriptFUnc('ISADMININSTALLMODE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetBool(PStart, IsAdminInstallMode);
@@ -1370,33 +1366,17 @@ var
     begin
       Stack.SetInt(PStart, Integer(TStrongRandom.GenerateUInt32Range(UInt32(Stack.GetInt(PStart-1)))));
     end);
-    RegisterScriptFunc('FILESIZE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    RegisterScriptFunc(['FileSize', 'FileSize64'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      try
-        var F := TFile.Create(Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
-        try
-          Stack.SetInt(PStart-2, Integer(F.CappedSize)); { Even though CappedSize returns Cardinal, it's capped at High(Int32) }
-          Stack.SetBool(PStart, True);
-        finally
-          F.Free;
-        end;
-      except
-        Stack.SetBool(PStart, False);
+      var Size: Int64;
+      const Res = GetSizeOfFile(Stack.GetString(PStart-1), Size);
+      if Res then begin
+        if OrgName = 'FileSize64' then
+          Stack.SetInt64(PStart-2, Size)
+        else
+          Stack.SetInt(PStart-2, Integer(Min(Size, High(Int32))));
       end;
-    end);
-    RegisterScriptFunc('FILESIZE64', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      try
-        var F := TFile.Create(Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
-        try
-          Stack.SetInt64(PStart-2, F.Size);
-          Stack.SetBool(PStart, True);
-        finally
-          F.Free;
-        end;
-      except
-        Stack.SetBool(PStart, False);
-      end;
+      Stack.SetBool(PStart, Res);
     end);
     RegisterScriptFunc('SET8087CW', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1904,6 +1884,10 @@ var
     begin
       Stack.SetBool(PStart, IsDotNetInstalled(InstallDefaultRegView, TDotNetVersion(Stack.GetInt(PStart-1)), Stack.GetUInt(PStart-2)));
     end);
+    RegisterScriptFunc('ISDOTNETRUNTIMEINSTALLED', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetBool(PStart, IsDotNetRuntimeInstalled(Stack.GetString(PStart-1), Stack.GetInt64(PStart-2), TSetupProcessorArchitecture(Stack.GetInt(PStart-3))));
+    end);
     RegisterScriptFunc('ISMSIPRODUCTINSTALLED', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var ErrorCode: Cardinal;
@@ -2008,7 +1992,9 @@ var
         FreeAndNil(F);
         raise;
       end;
-      if not KeepOpen then
+      if KeepOpen then
+        F.Position := 0
+      else
         FreeAndNil(F);
 
       Stack.SetClass(PStart, F);
@@ -2033,10 +2019,7 @@ var
     end);
     RegisterScriptFunc('StrToColor', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      var Hex := Stack.GetString(PStart-1);
-      if (Length(Hex) = 7) and (Hex[1] = '#') then
-        Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
-      Stack.SetInt(PStart, SysUtils.StrToInt(Hex));
+      Stack.SetInt(PStart, NewStringToColor(Stack.GetString(PStart-1)));
     end);
     RegisterScriptFunc('RPos', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin

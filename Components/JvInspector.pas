@@ -1,0 +1,3027 @@
+{ This is not the original file: it has been modified for Inno Setup. }
+
+{-----------------------------------------------------------------------------
+
+ Project JEDI Visible Component Library (J-VCL)
+
+ The contents of this file are subject to the Mozilla Public License Version
+ 1.1 (the "License"); you may not use this file except in compliance with the
+ License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+
+ Software distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ the specific language governing rights and limitations under the License.
+
+ The Initial Developer of the Original Code is Marcel Bestebroer
+  <jedi_mbe (at) users (dot) sf (dot) net>.
+ Portions created by Marcel Bestebroer are Copyright (C) 2000 - 2002 mbeSoft.
+ All Rights Reserved.
+
+ The in-place editor's autocomplete is derived from JvAutoComplete.pas.
+ The Initial Developer of that Original Code is Andreas Hausladen
+  [Andreas dott Hausdaden att gmx dott de].
+ Portions created by Andreas Hausladen are Copyright (C) 2004 Andreas Hausladen.
+ All Rights Reserved.
+
+ ******************************************************************************
+
+ You may retrieve the latest version of this file at the Project JEDI home
+ page, located at http://www.delphi-jedi.org
+
+-----------------------------------------------------------------------------}
+
+unit JvInspector;
+
+interface
+
+uses
+  SysUtils, Classes, Generics.Collections,
+  Windows, Messages, Graphics, Controls, StdCtrls, ImgList;
+
+type
+  // early declarations
+  TJvInspector = class;
+  TJvCustomInspectorItem = class;
+  TJvInspectorCustomCategoryItem = class;
+  TJvInspectorListBox = class;
+
+  TInspectorItemFlag = (iifReadonly, iifExpanded, iifValueList, iifEditButton,
+    iifNameDblClickEvent);
+  TInspectorItemFlags = set of TInspectorItemFlag;
+
+  TInspectorPaintRect = (iprItem, iprExpandButton, iprMarker, iprNameArea,
+    iprNameGlyph, iprNameText, iprValueArea, iprValueGlyph, iprValueText,
+    iprValueEdit, iprValueButton);
+
+  TInspectorGlyphKind = (igkNone, igkImage, igkColor);
+
+  { A small square painted before a row's name or value text }
+  TInspectorGlyph = record
+    Kind: TInspectorGlyphKind;
+    ImageList: TCustomImageList; { igkImage }
+    ImageName: string;           { igkImage }
+    Color: TColor;               { igkColor }
+  end;
+
+  TInspectorItemEvent = procedure(Item: TJvCustomInspectorItem) of object;
+  TInspectorItemGetGlyphEvent = procedure(Item: TJvCustomInspectorItem; var Glyph: TInspectorGlyph) of object;
+  TInspectorItemGetValueListEvent = procedure(Item: TJvCustomInspectorItem; Values: TStrings) of object;
+  TInspectorItemEditButtonClickEvent = procedure(Item: TJvCustomInspectorItem; var Value: string) of object;
+  TJvInspAsOrdinal = procedure(Sender: TJvCustomInspectorItem; var Value: Int64) of object;
+  TJvInspAsString = procedure(Sender: TJvCustomInspectorItem; var Value: string) of object;
+  TInspectorBeforeEditEvent = procedure(Sender: TObject; Item: TJvCustomInspectorItem; Edit: TEdit) of object;
+
+  EJvInspectorData = class(Exception);
+
+  TOnJvInspectorCustomizeItemCanvas = procedure(Item: TJvCustomInspectorItem; Canvas: TCanvas) of object;
+
+  TJvInspector = class(TCustomControl)
+  private
+    FDivider: Integer;
+    FDraggingDivider: Boolean;
+    FLockCount: Integer;
+    FNeedRebuild: Boolean;
+    FCategoryColor: TColor;
+    FCategoryDividerColor: TColor;
+    FCategoryTextColor: TColor;
+    FDividerColor: TColor;
+    FHideSelectColor: TColor;
+    FHideSelectTextColor: TColor;
+    FNameColor: TColor;
+    FOnCustomizeItemCanvas: TOnJvInspectorCustomizeItemCanvas;
+    FMarkedItem: TJvCustomInspectorItem;
+    FPaintItem: TJvCustomInspectorItem;
+    FPaintItemIndex: Integer;
+    FPaintRect: TRect;
+    FTextHeight: Integer;
+    FSelectedColor: TColor;
+    FSelectedTextColor: TColor;
+    FValueColor: TColor;
+    FPaintGen: Integer;
+    FReadOnly: Boolean;
+    FRoot: TJvCustomInspectorItem;
+    FSelectedIndex: Integer;
+    FPressedItem: TJvCustomInspectorItem;
+    FTopIndex: Integer;
+    FLastClientWidth: Integer;
+    FVisibleList: TList<TJvCustomInspectorItem>;
+    FVisibleTags: TDictionary<NativeInt, Integer>; { Item.Tag -> FVisibleList index }
+    FOnEditorKeyDown: TKeyEvent;
+    FOnNameDblClick: TInspectorItemEvent;
+    FOnGetAsOrdinal: TJvInspAsOrdinal;
+    FOnGetAsString: TJvInspAsString;
+    FOnSetAsOrdinal: TJvInspAsOrdinal;
+    FOnSetAsString: TJvInspAsString;
+    FOnGetValueList: TInspectorItemGetValueListEvent;
+    FOnGetNameGlyph: TInspectorItemGetGlyphEvent;
+    FOnGetValueGlyph: TInspectorItemGetGlyphEvent;
+    FOnEditButtonClick: TInspectorItemEditButtonClickEvent;
+    // BeforeEdit NOTE: - WAP
+    //
+    // This event fired is when creating TEdit objects, and
+    // allows end users to customize the properties of the editor
+    // objects, or hook event handlers, which were
+    // otherwise invisible. This could be used to ill effect, so beware.
+    FBeforeEdit: TInspectorBeforeEditEvent;
+    FMouseWheelAccum: Integer;
+    FAccessibleName: string;
+    function ApplicationHook(var Msg: TMessage): Boolean;
+    procedure ApplyNameFont;
+    procedure ApplyValueFont(const ACanvas: TCanvas);
+    procedure ChangeSelectedIndex(const OldItem: TJvCustomInspectorItem;
+      const OldIndex, NewIndex: Integer; const CancelEdits: Boolean);
+    procedure DoPaintItem;
+    procedure InvalidateItem(const Item: TJvCustomInspectorItem);
+    procedure InvalidateRow(const Index: Integer);
+    procedure PaintItem(var ARect: TRect; const AItemIndex: Integer);
+    procedure PaintItems;
+    procedure SetMarkedItem(const Value: TJvCustomInspectorItem);
+    procedure SetupRects(const AItem: TJvCustomInspectorItem;
+      const APaintRect: TRect);
+    procedure UpdateTextHeight;
+  protected
+    FAccObject: IInterface;
+    function CalcItemIndex(const Y: Integer): Integer;
+    procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
+    procedure CMActivate(var Msg: TCMActivate); message CM_ACTIVATE;
+    procedure CMDeactivate(var Msg: TCMActivate); message CM_DEACTIVATE;
+    procedure CMHintShow(var Msg: TCMHintShow); message CM_HINTSHOW;
+    procedure CreateParams(var Params: TCreateParams); override;
+    function GetBackgroundColor: TColor;
+    function GetImageHeight: Integer;
+    function GetItemHeight: Integer;
+    function GetLastFullVisible: Integer;
+    function GetMaxTopIndex: Integer;
+    function GetSelected: TJvCustomInspectorItem;
+    function GetVisibleCount: Integer;
+    function GetVisibleItems(const I: Integer): TJvCustomInspectorItem;
+    function IdxToY(const Index: Integer): Integer;
+    function InheritedFocused: Boolean;
+    procedure InvalidateList;
+    procedure InvalidateUnlessLocked;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure KeyUp(var Key: Word; Shift: TShiftState); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    procedure Paint; override;
+    procedure RebuildVisible;
+    procedure BoundsChanged;
+    procedure SetBackgroundColor(const Value: TColor);
+    procedure SetDivider(Value: Integer);
+    procedure SetSelected(const Value: TJvCustomInspectorItem);
+    procedure SetSelectedIndex(Value: Integer);
+    procedure SetTopIndex(Value: Integer);
+    procedure UpdateScrollBars;
+    procedure WMGetObject(var Msg: TMessage); message WM_GETOBJECT;
+    procedure WMVScroll(var Msg: TWMScroll); message WM_VSCROLL;
+    procedure WndProc(var Msg: TMessage); override;
+    function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean; override;
+    function YToIdx(const Y: Integer): Integer;
+    property DraggingDivider: Boolean read FDraggingDivider write FDraggingDivider;
+    property LockCount: Integer read FLockCount;
+    property NeedRebuild: Boolean read FNeedRebuild write FNeedRebuild;
+    property PaintGeneration: Integer read FPaintGen;
+    property SelectedIndex: Integer read FSelectedIndex write SetSelectedIndex;
+    property TopIndex: Integer read FTopIndex write SetTopIndex;
+  public
+    constructor Create(AOwner: TComponent); override;
+    procedure BeforeDestruction; override;
+    procedure BeginUpdate;
+    procedure EndUpdate;
+    function EditorActive: Boolean;
+    function EditorActiveWithNothingToUndo: Boolean;
+    function Focused: Boolean; override;
+    procedure InvalidateItemByTag(const ATag: NativeInt);
+    procedure ResyncEditor;
+    procedure Clear;
+    property AccessibleName: string read FAccessibleName write FAccessibleName;
+    property Divider: Integer read FDivider write SetDivider;
+    property MarkedItem: TJvCustomInspectorItem read FMarkedItem write SetMarkedItem;
+    property PopupMenu;
+    property ReadOnly: Boolean read FReadOnly write FReadOnly;
+    property Root: TJvCustomInspectorItem read FRoot;
+    property Selected: TJvCustomInspectorItem read GetSelected write SetSelected;
+    property BeforeEdit: TInspectorBeforeEditEvent read FBeforeEdit write FBeforeEdit; // Low level hook for customizing TEdit after objects are created, just before editing.
+    property OnKeyDown; // Standard control event
+    { Standard TCustomControl event - this is really an event fired by
+      the TEdit control used when editing in a cell!}
+    property OnEditorKeyDown: TKeyEvent read FOnEditorKeyDown write FOnEditorKeyDown;
+    { Fired when the name area of a row without children, or of a row with
+      iifNameDblClickEvent, is double-clicked. Such a row is then not expanded
+      or collapsed. }
+    property OnNameDblClick: TInspectorItemEvent read FOnNameDblClick write FOnNameDblClick;
+    property OnGetAsOrdinal: TJvInspAsOrdinal read FOnGetAsOrdinal write FOnGetAsOrdinal;
+    property OnGetAsString: TJvInspAsString read FOnGetAsString write FOnGetAsString;
+    property OnSetAsOrdinal: TJvInspAsOrdinal read FOnSetAsOrdinal write FOnSetAsOrdinal;
+    property OnSetAsString: TJvInspAsString read FOnSetAsString write FOnSetAsString;
+    property OnGetValueList: TInspectorItemGetValueListEvent read FOnGetValueList write FOnGetValueList;
+    property OnGetNameGlyph: TInspectorItemGetGlyphEvent read FOnGetNameGlyph write FOnGetNameGlyph;
+    property OnGetValueGlyph: TInspectorItemGetGlyphEvent read FOnGetValueGlyph write FOnGetValueGlyph;
+    property OnEditButtonClick: TInspectorItemEditButtonClickEvent read FOnEditButtonClick write FOnEditButtonClick;
+    property BackgroundColor: TColor read GetBackgroundColor write SetBackgroundColor;
+    property CategoryColor: TColor read FCategoryColor write FCategoryColor;
+    property CategoryDividerColor: TColor read FCategoryDividerColor write FCategoryDividerColor;
+    property CategoryTextColor: TColor read FCategoryTextColor write FCategoryTextColor;
+    property DividerColor: TColor read FDividerColor write FDividerColor;
+    property HideSelectColor: TColor read FHideSelectColor write FHideSelectColor;
+    property HideSelectTextColor: TColor read FHideSelectTextColor write FHideSelectTextColor;
+    property NameColor: TColor read FNameColor write FNameColor;
+    property SelectedColor: TColor read FSelectedColor write FSelectedColor;
+    property SelectedTextColor: TColor read FSelectedTextColor write FSelectedTextColor;
+    property ValueColor: TColor read FValueColor write FValueColor;
+    property OnCustomizeItemCanvas: TOnJvInspectorCustomizeItemCanvas read FOnCustomizeItemCanvas write FOnCustomizeItemCanvas;
+  end;
+
+  TJvCustomInspectorItem = class(TObject)
+  private
+    FDisplayName: string;
+    FDroppedDown: Boolean;
+    FEditCtrlDestroying: Boolean;
+    FEditCtrl: TEdit;
+    FEditWndPrc: TWndMethod;
+    FEditing: Boolean;
+    FFlags: TInspectorItemFlags;
+    FInspector: TJvInspector;
+    FItems: TObjectList<TJvCustomInspectorItem>;
+    FListBox: TJvInspectorListBox;
+    FListBoxFilled: Boolean;
+    FNameGlyph: TInspectorGlyph;
+    FOnGetValueList: TInspectorItemGetValueListEvent;
+    FParent: TJvCustomInspectorItem;
+    FLastPaintGen: Integer;
+    FPressed: Boolean;
+    FRects: array [TInspectorPaintRect] of TRect;
+    FTag: NativeInt;
+    FTracking: Boolean;
+    FUpdateEditCtrl: Integer; // Used to prevent EditCtrl destruction while in Apply().
+    FValueGlyph: TInspectorGlyph;
+  protected
+    procedure Apply;
+    procedure CancelPress; virtual;
+    function CanEdit: Boolean;
+    procedure CloseUp(Accept: Boolean);
+    procedure DrawGlyph(const ACanvas: TCanvas; const AGlyph: TInspectorGlyph;
+      const AGlyphRect, AClipRect: TRect);
+    procedure DoDropDownKeys(var Key: Word; Shift: TShiftState);
+    procedure DropDown;
+    procedure EditButtonClick;
+    procedure EditFocusLost(Sender: TObject);
+    procedure EditKeyPress(Sender: TObject; var Key: Char);
+    procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); dynamic;
+    procedure EditKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); dynamic;
+    procedure EditMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Edit_WndProc(var Msg: TMessage);
+    procedure AutoComplete(var Key: Char);
+    function GetAsOrdinal: Int64;
+    function GetAsString: string;
+    function GetBaseCategory: TJvCustomInspectorItem;
+    function GetCount: NativeInt;
+    function GetDisplayValue: string; virtual;
+    function GetExpanded: Boolean;
+    function GetGlyph(const AEvent: TInspectorItemGetGlyphEvent): TInspectorGlyph;
+    function GetItems(const I: NativeInt): TJvCustomInspectorItem;
+    function GetLevel: Integer;
+    function GetReadOnly: Boolean;
+    function GetRects(const RectKind: TInspectorPaintRect): TRect;
+    function GetValueEditHitRect: TRect;
+    procedure GetValueList(const Strings: TStrings);
+    procedure InvalidateItem;
+    procedure SetAsOrdinal(Value: Int64);
+    procedure SetAsString(Value: string);
+    procedure InvalidateList;
+    function IsCategory: Boolean; virtual;
+    procedure ListValueSelect(Sender: TObject);
+    procedure ListDeactivate(Sender: TObject);
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); virtual;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); virtual;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); virtual;
+    procedure SelectValue(const Delta: Integer);
+    procedure SetDisplayValue(const Value: string); virtual;
+    procedure SetEditCtrl(const Value: TEdit);
+    procedure SetExpanded(Value: Boolean);
+    procedure SetFlags(const Value: TInspectorItemFlags); virtual;
+    procedure SetFocus;
+    procedure SetRects(const RectKind: TInspectorPaintRect; Value: TRect);
+    procedure StopTracking;
+    procedure TrackButton(X, Y: Integer);
+    procedure Undo;
+    property AsOrdinal: Int64 read GetAsOrdinal write SetAsOrdinal;
+    property AsString: string read GetAsString write SetAsString;
+    property DroppedDown: Boolean read FDroppedDown;
+    property EditCtrlDestroying: Boolean read FEditCtrlDestroying;
+    property EditCtrl: TEdit read FEditCtrl;
+    property EditWndPrc: TWndMethod read FEditWndPrc;
+    property LastPaintGeneration: Integer read FLastPaintGen;
+    property ListBox: TJvInspectorListBox read FListBox;
+    property NameGlyph: TInspectorGlyph read FNameGlyph;
+    property Pressed: Boolean read FPressed write FPressed;
+    property Tracking: Boolean read FTracking write FTracking;
+    property ValueGlyph: TInspectorGlyph read FValueGlyph;
+  public
+    constructor Create(const AParent: TJvCustomInspectorItem);
+    procedure BeforeDestruction; override;
+    procedure DrawValue(const ACanvas: TCanvas); virtual;
+    procedure InitEdit; dynamic;
+    procedure DoneEdit(const CancelEdits: Boolean = False); dynamic;
+    procedure ScrollInView(const ACenter: Boolean);
+    property Count: NativeInt read GetCount;
+    property DisplayName: string read FDisplayName write FDisplayName;
+    property DisplayValue: string read GetDisplayValue write SetDisplayValue;
+    property Editing: Boolean read FEditing;
+    property Expanded: Boolean read GetExpanded write SetExpanded;
+    property Flags: TInspectorItemFlags read FFlags write SetFlags;
+    property Inspector: TJvInspector read FInspector;
+    property Items[const I: NativeInt]: TJvCustomInspectorItem read GetItems; default;
+    property Level: Integer read GetLevel;
+    { Per-item override of the inspector's OnGetValueList }
+    property OnGetValueList: TInspectorItemGetValueListEvent read FOnGetValueList write FOnGetValueList;
+    property Parent: TJvCustomInspectorItem read FParent;
+    property ReadOnly: Boolean read GetReadOnly;
+    property Rects[const RectKind: TInspectorPaintRect]: TRect read GetRects write SetRects;
+    property Tag: NativeInt read FTag write FTag;
+  end;
+
+  TJvInspectorCustomCategoryItem = class(TJvCustomInspectorItem)
+  protected
+    function IsCategory: Boolean; override;
+    procedure SetFlags(const Value: TInspectorItemFlags); override;
+  end;
+
+  TJvInspectorStringItem = class(TJvCustomInspectorItem)
+  protected
+    function GetDisplayValue: string; override;
+    procedure SetDisplayValue(const Value: string); override;
+  end;
+
+  TJvInspectorBooleanItem = class(TJvCustomInspectorItem)
+  public
+    const IndeterminateOrdinal = 2; { AsOrdinal value showing an indeterminate checkbox }
+  private
+    FClickRect: TRect;
+    FCheckPressed: Boolean;
+    FCheckTracking: Boolean;
+    FCheckKeyPressed: Boolean;
+  protected
+    procedure CancelPress; override;
+    procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); override;
+    procedure EditKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure Toggle;
+  public
+    procedure DoneEdit(const CancelEdits: Boolean = False); override;
+    procedure DrawValue(const ACanvas: TCanvas); override;
+    procedure InitEdit; override;
+  end;
+
+  TJvInspectorListBox = class(TCustomListBox)
+  private
+    FOnValueSelect: TNotifyEvent;
+    FOnDeactivate: TNotifyEvent;
+    FNCClick: Boolean;
+    FClicking: Boolean;
+    FItem: TJvCustomInspectorItem;
+    FSearchText: string;
+    FSearchTickCount: UInt64;
+    FMouseWheelAccum: Integer;
+    procedure UpdateSelectedItem(const ClientPos: TPoint);
+  protected
+    procedure CreateParams(var Params: TCreateParams); override;
+    procedure CreateWnd; override;
+    procedure KeyPress(var Key: Char); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure WMMouseWheel(var Msg: TWMMouseWheel); message WM_MOUSEWHEEL;
+  public
+    property OnValueSelect: TNotifyEvent read FOnValueSelect write FOnValueSelect;
+    property OnDeactivate: TNotifyEvent read FOnDeactivate write FOnDeactivate;
+    property Item: TJvCustomInspectorItem read FItem write FItem;
+  end;
+
+implementation
+
+uses
+  System.UITypes,
+  Character, Types, Forms, Themes,
+  PathFunc,
+  JvInspector.MSAA, OleAccFunc;
+
+const
+  BackSpace = #8;
+  Esc = #27;
+  { The checkbox size and the gap between it and its label, at 96 DPI. Both
+    glyph kinds use the gap and a color square uses the size; the value column
+    also reserves the size as its minimum glyph width, so a value row lines up
+    with a checkbox row. }
+  CheckBoxSize = 13;
+  CheckBoxLabelGap = 4;
+
+resourcestring
+  RsJvInspItemValueException = 'Exception ';
+  RsEJvInspDataNoAccessAs = 'Data cannot be accessed as %s';
+
+//============================================================================
+
+function CanvasMaxTextHeight(Canvas: TCanvas): Integer;
+var
+  tt: TTextMetric;
+begin
+  GetTextMetrics(Canvas.Handle, tt);
+  Result := tt.tmHeight;
+end;
+
+{ With VCL Styles active, DrawElement changes the DC's selected objects
+  and colors, and does not restore them }
+procedure DrawElementPreservingDCState(DC: HDC;
+  const Details: TThemedElementDetails; const R: TRect; DPI: Integer = 0);
+var
+  SaveIndex: Integer;
+begin
+  SaveIndex := SaveDC(DC);
+  try
+    StyleServices.DrawElement(DC, Details, R, nil, DPI);
+  finally
+    RestoreDC(DC, SaveIndex);
+  end;
+end;
+
+function DrawThemedFrameControl(DC: HDC; const Rect: TRect;
+  uType, uState: UINT; DPI: Integer = 0): BOOL;
+const
+  Mask = $00FF;
+var
+  Btn: TThemedButton;
+  ComboBox: TThemedComboBox;
+  R: TRect;
+begin
+  Result := False;
+  if StyleServices.Enabled and (uType = DFC_SCROLL) and
+     ((uState and Mask) = DFCS_SCROLLCOMBOBOX) then begin
+    R := Rect;
+    if uState and DFCS_PUSHED <> 0 then begin
+      { Not all VCL Styles have an actual image for this, and will just show a
+        regular checkbox. This includes 'Windows11 Modern Dark'. In
+        TSeButtonObject.Draw variable FState is correctly set to ssPressed,
+        but FBitmapPressed.Assigned is False. }
+      ComboBox := tcDropDownButtonPressed
+    end else
+      ComboBox := tcDropDownButtonNormal;
+
+    DrawElementPreservingDCState(DC, StyleServices.GetElementDetails(ComboBox), R, DPI);
+    Result := True;
+  end else if StyleServices.Enabled and (uType = DFC_BUTTON) and
+     ((uState and Mask) = DFCS_BUTTONCHECK) then begin
+    R := Rect;
+    if uState and DFCS_CHECKED <> 0 then
+      if uState and DFCS_PUSHED <> 0 then
+        Btn := tbCheckBoxCheckedPressed
+      else
+        Btn := tbCheckBoxCheckedNormal
+    else if uState and DFCS_PUSHED <> 0 then
+      Btn := tbCheckBoxUncheckedPressed { See above }
+    else
+      Btn := tbCheckBoxUncheckedNormal;
+
+    DrawElementPreservingDCState(DC, StyleServices.GetElementDetails(Btn), R, DPI);
+    Result := True;
+  end else if StyleServices.Enabled and (uType = DFC_BUTTON) and
+     ((uState and Mask) = DFCS_BUTTON3STATE) then begin
+    R := Rect;
+    if uState and DFCS_CHECKED <> 0 then
+      if uState and DFCS_PUSHED <> 0 then
+        Btn := tbCheckBoxMixedPressed { See above }
+      else
+        Btn := tbCheckBoxMixedNormal
+    else if uState and DFCS_PUSHED <> 0 then
+      Btn := tbCheckBoxUncheckedPressed { See above }
+    else
+      Btn := tbCheckBoxUncheckedNormal;
+
+    DrawElementPreservingDCState(DC, StyleServices.GetElementDetails(Btn), R, DPI);
+    Result := True;
+  end else if StyleServices.Enabled and (uType = DFC_BUTTON) and
+     ((uState and Mask) = DFCS_BUTTONPUSH) then begin
+    R := Rect;
+    if uState and DFCS_PUSHED <> 0 then
+      Btn := tbPushButtonPressed
+    else
+      Btn := tbPushButtonNormal;
+
+    DrawElementPreservingDCState(DC, StyleServices.GetElementDetails(Btn), R, DPI);
+    Result := True;
+  end;
+
+  if not Result then
+    Result := DrawFrameControl(DC, Rect, uType, uState);
+end;
+
+function WheelScrollTopIndex(var Accumulator: Integer; const WheelDelta,
+  CurrentTopIndex: Integer; PageScrollLines: Integer): Integer;
+{ Returns the top index a wheel scroll should move to, keeping any leftover
+  delta in Accumulator as required by
+  https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-mousewheel }
+begin
+  { Sanity check }
+  if PageScrollLines < 1 then
+    PageScrollLines := 1;
+  { Mouse.WheelScrollLines stays 0 if no wheel was present at VCL startup, so
+    prefer SPI_GETWHEELSCROLLLINES }
+  var Lines: Integer;  // 0 = don't scroll, -1 = WHEEL_PAGESCROLL
+  if not SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, Lines, 0) then
+    Lines := Mouse.WheelScrollLines;
+  { Lines > PageScrollLines: see SPI_SETWHEELSCROLLLINES in
+    https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfow }
+  if (Lines < 0) or (Lines > PageScrollLines) then
+    Lines := PageScrollLines;
+  Inc(Accumulator, WheelDelta * Lines);
+  const Count = Accumulator div WHEEL_DELTA;
+  Dec(Accumulator, Count * WHEEL_DELTA);
+  Result := CurrentTopIndex - Count;
+  if Result < 0 then
+    Result := 0;
+end;
+
+//=== { TJvInspector } =================================================
+
+function TJvInspector.ApplicationHook(var Msg: TMessage): Boolean;
+begin
+  Result := False;
+  // Forward the application's activate/deactivate to this inspector so the
+  // selected row repaints in its focused/unfocused style and an open dropdown
+  // closes
+  if (Msg.Msg = CM_ACTIVATE) or (Msg.Msg = CM_DEACTIVATE) then
+    if HandleAllocated then
+      PostMessage(Handle, Msg.Msg, 0, 0);
+end;
+
+constructor TJvInspector.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  ControlStyle := ControlStyle + [csOpaque];
+  {$IFNDEF DEBUG}
+  DoubleBuffered := True;
+  {$ENDIF}
+  FVisibleList := TList<TJvCustomInspectorItem>.Create;
+  FVisibleTags := TDictionary<NativeInt, Integer>.Create;
+  FRoot := TJvCustomInspectorItem.Create(nil);
+  FRoot.FInspector := Self;
+  FSelectedIndex := -1;
+  TabStop := True;
+  Width := 300;
+  Height := 100;
+  Divider := 75;
+
+  BackgroundColor := clWindow;
+  FCategoryColor := clBtnFace;
+  FCategoryTextColor := clBtnText;
+  FCategoryDividerColor := clBtnShadow;
+  FDividerColor := clBtnFace;
+  FNameColor := clWindowText;
+  FValueColor := clWindowText;
+  FSelectedColor := clHighlight;
+  FSelectedTextColor := clHighlightText;
+  FHideSelectColor := clBtnFace;
+  FHideSelectTextColor := clBtnText;
+
+  Application.HookMainWindow(ApplicationHook);
+end;
+
+procedure TJvInspector.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  Params.Style := Params.Style or WS_CLIPCHILDREN;
+end;
+
+function TJvInspector.CalcItemIndex(const Y: Integer): Integer;
+begin
+  if Y < 0 then
+    Result := -1
+  else begin
+    Result := TopIndex + Y div GetItemHeight;
+    if Result >= GetVisibleCount then
+      Result := -1;
+  end;
+end;
+
+procedure TJvInspector.ChangeScale(M, D: Integer; isDpiChange: Boolean);
+begin
+  inherited;
+  if M <> D then
+    FDivider := MulDiv(FDivider, M, D);
+end;
+
+procedure TJvInspector.CMActivate(var Msg: TCMActivate);
+begin
+  inherited;
+  InvalidateRow(SelectedIndex);
+end;
+
+procedure TJvInspector.CMDeactivate(var Msg: TCMActivate);
+begin
+  inherited;
+  if Selected <> nil then
+    Selected.CancelPress;
+  InvalidateRow(SelectedIndex);
+end;
+
+procedure TJvInspector.CMHintShow(var Msg: TCMHintShow);
+
+  function TextIsClipped(const AItem: TJvCustomInspectorItem;
+    const AText: string; const AAvailableWidth: Integer): Boolean;
+  begin
+    Canvas.Font := Font;
+    if Assigned(FOnCustomizeItemCanvas) then
+      FOnCustomizeItemCanvas(AItem, Canvas);
+    Result := Canvas.TextWidth(AText) > AAvailableWidth;
+  end;
+
+begin
+  inherited;
+  const HintInfo = Msg.HintInfo;
+  const X = HintInfo.CursorPos.X;
+  const Index = CalcItemIndex(HintInfo.CursorPos.Y);
+  const Item = GetVisibleItems(Index);
+  if Item <> nil then begin
+    const NameAreaLeft = Item.Rects[iprNameArea].Left;
+    const NameAreaRight = Item.Rects[iprNameArea].Right;
+    const ValueAreaLeft = Item.Rects[iprValueArea].Left;
+    const ValueAreaRight = Item.Rects[iprValueArea].Right;
+    var HintStr := '';
+    var HintAreaLeft := 0;
+    var HintAreaRight := 0;
+    if (X >= NameAreaLeft) and (X < NameAreaRight) then begin
+      if TextIsClipped(Item, Item.DisplayName, Item.Rects[iprNameText].Width) then
+        HintStr := Item.DisplayName;
+      HintAreaLeft := NameAreaLeft;
+      HintAreaRight := NameAreaRight;
+    end else if (X >= ValueAreaLeft) and (X < ValueAreaRight) and
+       not Item.Editing and not (Item is TJvInspectorBooleanItem) then begin
+      var Value: string;
+      try
+        Value := Item.DisplayValue;
+      except
+        Value := '';
+      end;
+      if TextIsClipped(Item, Value, Item.Rects[iprValueText].Width) then
+        HintStr := Value;
+      HintAreaLeft := ValueAreaLeft;
+      HintAreaRight := ValueAreaRight;
+    end;
+    if HintStr <> '' then begin
+      HintInfo.HintStr := HintStr;
+      const HintAreaTop = IdxToY(Index - TopIndex);
+      HintInfo.CursorRect := Rect(HintAreaLeft, HintAreaTop, HintAreaRight,
+        HintAreaTop + GetItemHeight);
+      HintInfo.HideTimeout := High(Integer); { infinite }
+    end;
+  end;
+end;
+
+function TJvInspector.GetImageHeight: Integer;
+begin
+  Result := GetVisibleCount * GetItemHeight;
+end;
+
+function TJvInspector.GetItemHeight: Integer;
+begin
+  Result := MulDiv(18, CurrentPPI, 96);
+end;
+
+function TJvInspector.GetLastFullVisible: Integer;
+begin
+  Result := YToIdx(IdxToY(TopIndex) + Pred(ClientHeight));
+  if Result < 0 then
+    Result := Pred(GetVisibleCount)
+  else if Result > TopIndex + Pred(ClientHeight div GetItemHeight) then
+    Result := TopIndex + Pred(ClientHeight div GetItemHeight);
+end;
+
+function TJvInspector.GetMaxTopIndex: Integer;
+begin
+  if GetImageHeight <= ClientHeight then
+    Result := 0 { Everything fits: no scrolling, so TopIndex must be 0 and not 1 }
+  else
+    Result := Succ(YToIdx(GetImageHeight - ClientHeight));
+end;
+
+function TJvInspector.GetSelected: TJvCustomInspectorItem;
+begin
+  Result := GetVisibleItems(SelectedIndex);
+end;
+
+function TJvInspector.GetVisibleCount: Integer;
+begin
+  Result := Integer(FVisibleList.Count);
+end;
+
+function TJvInspector.GetVisibleItems(const I: Integer): TJvCustomInspectorItem;
+begin
+  if (I < 0) or (I >= FVisibleList.Count) then
+    Result := nil
+  else
+    Result := FVisibleList[I];
+end;
+
+function TJvInspector.IdxToY(const Index: Integer): Integer;
+begin
+  Result := Index * GetItemHeight;
+end;
+
+procedure TJvInspector.InvalidateItem(const Item: TJvCustomInspectorItem);
+begin
+  if (LockCount = 0) and HandleAllocated then
+    InvalidateRow(Integer(FVisibleList.IndexOf(Item)));
+end;
+
+procedure TJvInspector.InvalidateItemByTag(const ATag: NativeInt);
+begin
+  var Index: Integer;
+  if (LockCount = 0) and HandleAllocated and
+     FVisibleTags.TryGetValue(ATag, Index) then
+    InvalidateRow(Index);
+end;
+
+procedure TJvInspector.InvalidateList;
+begin
+  if not (csDestroying in ComponentState) and (LockCount = 0) then begin
+    if HandleAllocated then begin
+      RebuildVisible;
+      TopIndex := TopIndex; //the list may have shrunk
+      UpdateScrollBars;
+      Invalidate;
+    end else
+      NeedRebuild := True;
+  end else
+    NeedRebuild := True;
+end;
+
+procedure TJvInspector.InvalidateRow(const Index: Integer);
+begin
+  if HandleAllocated then begin
+    const Y = IdxToY(Index - TopIndex);
+    if (Y >= 0) and (Y < ClientHeight) then begin
+      var R := Rect(0, Y, ClientWidth, Y + GetItemHeight);
+      Windows.InvalidateRect(Handle, @R, False);
+    end;
+  end;
+end;
+
+procedure TJvInspector.InvalidateUnlessLocked;
+begin
+  if (LockCount = 0) and HandleAllocated then
+    Invalidate;
+end;
+
+procedure TJvInspector.KeyDown(var Key: Word; Shift: TShiftState);
+var
+  Item: TJvCustomInspectorItem;
+  TmpIdx: Integer;
+begin
+  Item := Selected;
+  if Shift = [] then begin
+    var IgnoreKey := True; // reset to False below for unhandled keys
+    case Key of
+      VK_UP:
+        if SelectedIndex > 0 then
+          SelectedIndex := SelectedIndex - 1;
+      VK_DOWN:
+        if SelectedIndex < Pred(GetVisibleCount) then
+          SelectedIndex := SelectedIndex + 1;
+      VK_PRIOR:
+        begin
+          if SelectedIndex > TopIndex then
+            SelectedIndex := TopIndex
+          else if SelectedIndex > 0 then begin
+            TmpIdx := YToIdx(IdxToY(SelectedIndex) + GetItemHeight - ClientHeight); { Also see WMVScroll }
+            if TmpIdx < 0 then
+              TmpIdx := 0;
+            SelectedIndex := TmpIdx;
+          end;
+        end;
+      VK_NEXT:
+        begin
+          TmpIdx := GetLastFullVisible;
+          if SelectedIndex < TmpIdx then
+            SelectedIndex := TmpIdx
+          else if SelectedIndex < Pred(GetVisibleCount) then
+            SelectedIndex := SelectedIndex + ClientHeight div GetItemHeight; { Also see WMVScroll }
+        end;
+      VK_RIGHT:
+        if (Item <> nil) and (Item.Count > 0) then begin
+          if not Item.Expanded then
+            Item.Expanded := True
+          else
+            SelectedIndex := SelectedIndex + 1;
+        end;
+      VK_LEFT:
+        if Item <> nil then begin
+          if Item.Expanded then
+            Item.Expanded := False
+          else begin
+            const ParentIndex = Integer(FVisibleList.IndexOf(Item.Parent));
+            if ParentIndex >= 0 then
+              SelectedIndex := ParentIndex;
+          end;
+        end;
+      VK_RETURN, VK_SPACE:
+        if (Item <> nil) and not Item.Editing then begin
+          if (Item.Count > 0) and not Item.Expanded then
+            Item.Expanded := True
+          else if Item.Expanded then
+            Item.Expanded := False;
+        end else
+          IgnoreKey := False;
+    else
+      IgnoreKey := False;
+    end;
+    if IgnoreKey then begin
+      Key := 0;
+      SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
+    end;
+  end;
+  if (Key <> 0) and ((Shift = []) or (Shift = [ssCtrl])) then begin
+    var IgnoreKey := True;
+    case Key of
+      VK_ADD:
+        if (Item <> nil) and (Item.Count > 0) and not Item.Expanded then
+          Item.Expanded := True;
+      VK_SUBTRACT:
+        if (Item <> nil) and Item.Expanded then
+          Item.Expanded := False;
+    else
+      IgnoreKey := False;
+    end;
+    if IgnoreKey then begin
+      Key := 0;
+      SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
+    end;
+  end;
+  inherited;
+  Item := Selected;
+  if (Item <> nil) and Item.Editing then begin
+    Item.ScrollInView(False);
+    Item.EditKeyDown(Self, Key, Shift);
+  end;
+end;
+
+procedure TJvInspector.KeyUp(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  const Item = Selected;
+  if (Item <> nil) and Item.Editing then
+    Item.EditKeyUp(Self, Key, Shift);
+end;
+
+procedure TJvInspector.MouseDown(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+var
+  ItemIndex: Integer;
+  Item: TJvCustomInspectorItem;
+begin
+  inherited;
+  ItemIndex := CalcItemIndex(Y);
+  Item := GetVisibleItems(ItemIndex);
+  if not Focused and ((Item = nil) or (not Item.Editing)) then
+    SetFocus
+  else if (Item <> nil) and Item.Editing then
+    Item.SetFocus;
+  if (Button = mbRight) and (Item <> nil) and (ItemIndex <> SelectedIndex) then
+    SelectedIndex := ItemIndex;
+  if Button = mbLeft then begin
+    // Check divider dragging
+    if (X >= Pred(Divider)) and (X <= Succ(Divider)) then
+      DraggingDivider := True
+    // Check selecting
+    else if (Item <> nil) and (ItemIndex <> SelectedIndex) then
+      SelectedIndex := ItemIndex;
+    const Expandable = (Item <> nil) and
+      ((Item.Count > 0) or (iifExpanded in Item.Flags));
+    const FireNameDblClick = (Item <> nil) and (ssDouble in Shift) and
+      not Item.IsCategory and (not Expandable or (iifNameDblClickEvent in Item.Flags)) and
+      Assigned(FOnNameDblClick) and
+      PtInRect(Item.Rects[iprNameArea], Point(X, Y));
+    if Expandable and not FireNameDblClick then begin
+      if PtInRect(Item.Rects[iprExpandButton], Point(X, Y)) or
+         ((ssDouble in Shift) and (Item.IsCategory or (X < Pred(Divider)))) then
+        Item.Expanded := not Item.Expanded;
+    end;
+    if (Item <> nil) and (PtInRect(Item.Rects[iprNameArea], Point(X, Y)) or
+       PtInRect(Item.Rects[iprValueArea], Point(X, Y))) then begin
+      FPressedItem := Item;
+      Item.MouseDown(Button, Shift, X, Y);
+    end;
+    // A click on the value of an item that was not being edited yet lands on
+    // the inspector, not the freshly focused edit, so the edit can't start a
+    // click-drag selection. Forward the click to the edit so it places the
+    // caret and captures the mouse for dragging, like the Delphi object
+    // inspector (when the item was already being edited the click lands on the
+    // edit itself and never gets here). Hand the whole gesture to the edit:
+    // drop the inspector's own pressed-item, button-down and capture state,
+    // since it gets no matching MouseUp once the edit captures and would
+    // otherwise fire a stray click or keep following the mouse.
+    if not (ssDouble in Shift) and not DraggingDivider and
+       (Item <> nil) and Item.Editing and (Item.EditCtrl <> nil) and
+       Item.EditCtrl.HandleAllocated and Item.EditCtrl.CanFocus and
+       PtInRect(Item.GetValueEditHitRect, Point(X, Y)) then begin
+      FPressedItem := nil;
+      ControlState := ControlState - [csLButtonDown, csClicked];
+      MouseCapture := False;
+      const Keys = MK_LBUTTON or (Ord(ssShift in Shift) * MK_SHIFT) or
+        (Ord(ssCtrl in Shift) * MK_CONTROL);
+      Item.EditCtrl.Perform(WM_LBUTTONDOWN, WPARAM(Keys),
+        PointToLParam(Point(X - Item.EditCtrl.Left, Y - Item.EditCtrl.Top)));
+    end;
+    if FireNameDblClick then begin
+      FPressedItem := nil; // The handler may change focus or rebuild the items
+      FOnNameDblClick(Item);
+    end;
+  end;
+end;
+
+procedure TJvInspector.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  if DraggingDivider then
+    Divider := X
+  else if FPressedItem <> nil then begin
+    Cursor := crDefault;
+    FPressedItem.MouseMove(Shift, X, Y);
+  end
+  else if (X >= Pred(Divider)) and (X <= Succ(Divider)) then
+    Cursor := crHSplit
+  else begin
+    const Item = GetVisibleItems(CalcItemIndex(Y));
+    if (Item <> nil) and Item.CanEdit and not (Item is TJvInspectorBooleanItem) and
+      not Item.Editing and PtInRect(Item.GetValueEditHitRect, Point(X, Y)) then
+      Cursor := crIBeam
+    else
+      Cursor := crDefault;
+  end
+end;
+
+procedure TJvInspector.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  if Button = mbLeft then begin
+    if DraggingDivider then
+      DraggingDivider := False;
+    if FPressedItem <> nil then begin
+      const Item = FPressedItem;
+      FPressedItem := nil;
+      Item.MouseUp(Button, Shift, X, Y);
+    end;
+  end;
+end;
+
+procedure TJvInspector.UpdateTextHeight;
+begin
+  Canvas.Font := Font;
+  FTextHeight := CanvasMaxTextHeight(Canvas);
+end;
+
+procedure TJvInspector.Paint;
+begin
+  if NeedRebuild then
+    InvalidateList;
+  Inc(FPaintGen);
+  UpdateTextHeight;
+  Canvas.Brush.Color := BackgroundColor;
+  PaintItems;
+end;
+
+procedure TJvInspector.RebuildVisible;
+var
+  OldSel: TJvCustomInspectorItem;
+
+  procedure AddChildren(const Item: TJvCustomInspectorItem);
+  var
+    Child: TJvCustomInspectorItem;
+  begin
+    for var I := 0 to Item.Count - 1 do begin
+      Child := Item.Items[I];
+      FVisibleList.Add(Child);
+      if Child.Tag <> 0 then
+        FVisibleTags.AddOrSetValue(Child.Tag, Integer(FVisibleList.Count)-1);
+      if Child.Expanded then
+        AddChildren(Child);
+    end;
+  end;
+
+begin
+  OldSel := Selected;
+  FVisibleList.Clear;
+  FVisibleTags.Clear;
+  AddChildren(Root);
+  AnnounceReorderToMSAA;
+  if OldSel <> nil then begin
+    const NewIndex = Integer(FVisibleList.IndexOf(OldSel));
+    if NewIndex <> SelectedIndex then begin
+      const OldIndex = SelectedIndex;
+      { DoneEdit moves the focus to the inspector, and its WM_SETFOCUS handler
+        uses Selected. In the rebuilt list, OldIndex can point to another item. }
+      FSelectedIndex := -1;
+      { Cancels because applying can raise, and this can run from Paint }
+      ChangeSelectedIndex(OldSel, OldIndex, NewIndex, True);
+    end;
+  end;
+  NeedRebuild := False;
+end;
+
+procedure TJvInspector.BoundsChanged;
+begin
+  if csCreating in ControlState then
+    Exit;
+  TopIndex := TopIndex; // Adapt position
+  if HandleAllocated then begin
+    UpdateScrollBars;
+    if ClientWidth <> FLastClientWidth then begin
+      FLastClientWidth := ClientWidth;
+      Invalidate;
+    end;
+  end;
+end;
+
+function TJvInspector.GetBackgroundColor: TColor;
+begin
+  Result := Color;
+end;
+
+procedure TJvInspector.SetBackgroundColor(const Value: TColor);
+begin
+  { Using the Color property itself so background erases use the correct
+    color: invalidations initiated by Windows itself, such as when the
+    control is uncovered, erase with Color even if csOpaque is set. }
+  Color := Value;
+end;
+
+procedure TJvInspector.SetDivider(Value: Integer);
+var
+  W: Integer;
+begin
+  if HandleAllocated then
+    W := ClientWidth
+  else
+    W := Width;
+  if Value > (W - 2 * GetItemHeight) then
+    Value := W - 2 * GetItemHeight;
+  if Value < (4 * GetItemHeight) then
+    Value := 4 * GetItemHeight;
+  if Value = FDivider then
+    Exit;
+  FDivider := Value;
+  Invalidate; { Full invalidate because names use end ellipsis }
+end;
+
+procedure TJvInspector.SetMarkedItem(const Value: TJvCustomInspectorItem);
+begin
+  if Value <> FMarkedItem then begin
+    if FMarkedItem <> nil then
+      InvalidateItem(FMarkedItem);
+    FMarkedItem := Value;
+    if FMarkedItem <> nil then
+      InvalidateItem(FMarkedItem);
+  end;
+end;
+
+procedure TJvInspector.SetSelected(const Value: TJvCustomInspectorItem);
+begin
+  SelectedIndex := Integer(FVisibleList.IndexOf(Value));
+end;
+
+procedure TJvInspector.SetSelectedIndex(Value: Integer);
+begin
+  if Value >= GetVisibleCount then
+    Value := Pred(GetVisibleCount);
+  if Value < -1 then
+    Value := -1;
+  if (Value <> SelectedIndex) and not (csDestroying in ComponentState) then
+    ChangeSelectedIndex(Selected, SelectedIndex, Value, False);
+end;
+
+procedure TJvInspector.ChangeSelectedIndex(const OldItem: TJvCustomInspectorItem;
+  const OldIndex, NewIndex: Integer; const CancelEdits: Boolean);
+begin
+  const ItemChanged = GetVisibleItems(NewIndex) <> OldItem;
+  if ItemChanged and (OldItem <> nil) then
+    OldItem.DoneEdit(CancelEdits);
+  FSelectedIndex := NewIndex;
+  if ItemChanged then
+    MarkedItem := nil; { Changing selection auto unmarks }
+  if Selected <> nil then begin
+    Selected.ScrollInView(False);
+    if ItemChanged then
+      Selected.InitEdit;
+  end;
+  InvalidateRow(OldIndex);
+  InvalidateRow(NewIndex);
+  AnnounceSelectionToMSAA;
+end;
+
+procedure TJvInspector.SetTopIndex(Value: Integer);
+begin
+  const MaxIdx = GetMaxTopIndex;
+  if Value > MaxIdx then
+    Value := MaxIdx;
+  if Value < 0 then
+    Value := 0;
+  if TopIndex <> Value then begin
+    const OldTopIndex = TopIndex;
+    FTopIndex := Value;
+    if HandleAllocated then begin
+      UpdateScrollBars;
+      // without SW_SCROLLCHILDREN any editor is still moved (in the paint), but becomes stale
+      ScrollWindowEx(Handle, 0, IdxToY(OldTopIndex - Value), nil, nil, 0,
+        nil, SW_INVALIDATE or SW_SCROLLCHILDREN);
+    end;
+  end;
+end;
+
+procedure TJvInspector.UpdateScrollBars;
+var
+  DrawHeight: Integer;
+  ClHeight: Integer;
+  ScrollInfo: TScrollInfo;
+  ShowVertSB: Boolean;
+begin
+  if csDestroying in ComponentState then
+    Exit;
+
+  if not HandleAllocated then
+    Exit;
+
+  // Cache the image height and client height
+  DrawHeight := GetImageHeight;
+  ClHeight := ClientHeight;
+  ShowVertSB := DrawHeight > ClHeight;
+  if ShowVertSB then begin
+    with ScrollInfo do begin
+      cbSize := SizeOf(ScrollInfo);
+      fMask := SIF_ALL;
+      nMin := 0;
+      nMax := IdxToY(GetMaxTopIndex) + ClientHeight;
+      nPage := UINT(ClHeight);
+      nPos := IdxToY(TopIndex);
+      nTrackPos := 0;
+    end;
+    SetScrollInfo(Handle, SB_VERT, ScrollInfo, True);
+  end;
+  ShowScrollBar(Handle, SB_VERT, ShowVertSB);
+end;
+
+procedure TJvInspector.WndProc(var Msg: TMessage);
+
+  function OtherWndIsEditCtrl(const OtherWnd: HWND): Boolean;
+  begin
+    Result := EditorActive and Selected.EditCtrl.HandleAllocated and
+      (Selected.EditCtrl.Handle = OtherWnd);
+  end;
+
+begin
+  case Msg.Msg of
+    WM_SETFOCUS:
+      begin
+        inherited;
+        if (Selected <> nil) and not Selected.EditCtrlDestroying then
+          Selected.SetFocus;
+        if not OtherWndIsEditCtrl(HWND(Msg.WParam)) then
+          InvalidateRow(SelectedIndex);
+        AnnounceFocusToMSAA;
+      end;
+    WM_KILLFOCUS:
+      begin
+        inherited;
+        if Selected <> nil then
+          Selected.CancelPress;
+        if not OtherWndIsEditCtrl(HWND(Msg.WParam)) then
+          InvalidateRow(SelectedIndex);
+      end;
+    WM_SIZE:
+      begin
+        inherited;
+        BoundsChanged;
+      end;
+    WM_GETDLGCODE:
+      begin
+        inherited;
+        Msg.Result := DLGC_WANTARROWS;
+      end;
+  else
+    inherited;
+  end;
+end;
+
+procedure TJvInspector.WMGetObject(var Msg: TMessage);
+begin
+  if not HandleMSAAGetObject(Msg) then
+    inherited;
+end;
+
+procedure TJvInspector.WMVScroll(var Msg: TWMScroll);
+var
+  Delta: Integer;
+begin
+  Delta := 0;
+  case Msg.ScrollCode of
+    SB_BOTTOM:
+      TopIndex := GetMaxTopIndex;
+    SB_LINEDOWN:
+      TopIndex := TopIndex + 1;
+    SB_LINEUP:
+      TopIndex := TopIndex - 1;
+    SB_PAGEDOWN:
+      TopIndex := TopIndex + ClientHeight div GetItemHeight; { Also see KeyDown }
+    SB_PAGEUP:
+      TopIndex := YToIdx(IdxToY(TopIndex) + GetItemHeight - ClientHeight); { Also see KeyDown }
+    SB_THUMBPOSITION, SB_THUMBTRACK:
+      begin
+        var ScrollInfo: TScrollInfo;
+        ScrollInfo.cbSize := SizeOf(ScrollInfo);
+        ScrollInfo.fMask := SIF_TRACKPOS;
+        if GetScrollInfo(Handle, SB_VERT, ScrollInfo) then
+          Delta := ScrollInfo.nTrackPos - IdxToY(TopIndex)
+        else
+          Delta := Msg.Pos - IdxToY(TopIndex);
+      end;
+    SB_TOP:
+      Delta := -IdxToY(TopIndex);
+  end;
+  if Delta <> 0 then
+    TopIndex := YToIdx(IdxToY(TopIndex) + Delta);
+end;
+
+function TJvInspector.YToIdx(const Y: Integer): Integer;
+begin
+  if Y <= 0 then
+    Result := 0
+  else
+    Result := (Y - 1) div GetItemHeight;
+  if Result >= GetVisibleCount then
+    Result := -1;
+end;
+
+procedure TJvInspector.BeforeDestruction;
+begin
+  inherited;
+  { The accessible object reads FRoot and FVisibleList, which are freed
+    below: clear its control pointer and disconnect it first, then release
+    our reference. A later WM_GETOBJECT will not recreate it: the inherited
+    call above set csDestroying }
+  DisconnectMSAAObject;
+  Application.UnhookMainWindow(ApplicationHook);
+  FRoot.Free;
+  FVisibleList.Free;
+  FVisibleTags.Free;
+end;
+
+procedure TJvInspector.BeginUpdate;
+begin
+  Inc(FLockCount);
+end;
+
+procedure TJvInspector.EndUpdate;
+begin
+  if FLockCount > 0 then
+    Dec(FLockCount);
+  if FLockCount = 0 then begin
+    if NeedRebuild then
+      InvalidateList
+    else
+      InvalidateUnlessLocked;
+  end;
+end;
+
+function TJvInspector.EditorActive: Boolean;
+{ The Editing property cannot be used here: for boolean items it
+  is True, even if there's no in-place editor control created }
+begin
+  Result := (Selected <> nil) and (Selected.EditCtrl <> nil);
+end;
+
+function TJvInspector.EditorActiveWithNothingToUndo: Boolean;
+{ True if the in-place editor is active while its text still matches the
+  selected item's value, so Esc/Undo has nothing to restore and losing the focus
+  applies nothing }
+begin
+  Result := EditorActive and (Selected.EditCtrl.Text = Selected.DisplayValue);
+end;
+
+function TJvInspector.Focused: Boolean;
+begin
+  Result := inherited or
+    (EditorActive and Selected.EditCtrl.Focused);
+end;
+
+function TJvInspector.InheritedFocused: Boolean;
+{ Used by JvInspector.MSAA to skip the override above }
+begin
+  Result := inherited Focused;
+end;
+
+procedure TJvInspector.ResyncEditor;
+begin
+  if (Selected <> nil) and Selected.Editing then begin
+    if (Selected.EditCtrl = nil) or (Selected.DisplayValue <> Selected.EditCtrl.Text) then begin
+      Selected.DoneEdit(True);
+      Selected.InitEdit;
+    end;
+  end;
+end;
+
+procedure TJvInspector.Clear;
+begin
+  BeginUpdate;
+  try
+    SelectedIndex := -1;
+    Root.FItems.Clear;
+    InvalidateList;
+  finally
+    EndUpdate;
+  end;
+end;
+
+function TJvInspector.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;
+begin
+  if (Selected <> nil) and Selected.DroppedDown then begin
+    { Let the dropped down list box scroll instead of us. MousePos is already in
+      screen coordinates, just like WM_MOUSEWHEEL's lParam }
+    Selected.ListBox.Perform(WM_MOUSEWHEEL, WPARAM(WheelDelta shl 16),
+      MakeLong(Word(MousePos.X), Word(MousePos.Y)));
+  end else begin
+    var MinPos, MaxPos: Integer;
+    GetScrollRange(Handle, SB_VERT, MinPos, MaxPos);
+    if MinPos <> MaxPos then // no scroll bar enabled
+      TopIndex := WheelScrollTopIndex(FMouseWheelAccum, WheelDelta, TopIndex,
+        ClientHeight div GetItemHeight);
+  end;
+  Result := True;
+end;
+
+//=== { TJvInspector painting } ========================================
+
+procedure TJvInspector.ApplyNameFont;
+begin
+  Canvas.Font := Font;
+  if FPaintItem.IsCategory then
+    Canvas.Font.Color := FCategoryTextColor
+  else
+    Canvas.Font.Color := FNameColor;
+  if FPaintItem = Selected then begin
+    if Focused then begin
+      Canvas.Brush.Color := FSelectedColor;
+      Canvas.Font.Color := FSelectedTextColor;
+    end else begin
+      Canvas.Brush.Color := FHideSelectColor;
+      Canvas.Font.Color := FHideSelectTextColor;
+    end;
+  end else if FPaintItem.IsCategory then
+    Canvas.Brush.Color := FCategoryColor
+  else
+    Canvas.Brush.Color := BackgroundColor;
+end;
+
+procedure TJvInspector.ApplyValueFont(const ACanvas: TCanvas);
+begin
+  ACanvas.Font := Font;
+  ACanvas.Font.Color := FValueColor;
+  ACanvas.Brush.Color := BackgroundColor;
+end;
+
+procedure TJvInspector.PaintItems;
+var
+  SelItemVisible: Boolean;
+  Rect: TRect;
+  ItemIdx: Integer;
+  MaxItemIdx: Integer;
+begin
+  SelItemVisible := False;
+  Rect := ClientRect;
+  Canvas.FillRect(Rect);
+  ItemIdx := TopIndex;
+  MaxItemIdx := GetVisibleCount;
+  // Loop through the visible list
+  while (Rect.Top < Rect.Bottom) and (ItemIdx < MaxItemIdx) do begin
+    SelItemVisible := SelItemVisible or (ItemIdx = SelectedIndex);
+    PaintItem(Rect, ItemIdx);
+    Inc(ItemIdx);
+  end;
+  if not SelItemVisible and (Selected <> nil) then
+    Selected.Rects[iprValueEdit] := TRect.Empty;
+end;
+
+procedure TJvInspector.PaintItem(var ARect: TRect;
+  const AItemIndex: Integer);
+begin
+  // Initialize paint variables
+  FPaintRect := ARect;
+  FPaintItemIndex := AItemIndex;
+  // retrieve item
+  FPaintItem := GetVisibleItems(FPaintItemIndex);
+  // calculate rectangles
+  SetupRects(FPaintItem, FPaintRect);
+
+  // Do actual painting
+  DoPaintItem;
+
+  // Finalize painting
+  FPaintRect.Top := Succ(FPaintItem.Rects[iprItem].Bottom);
+  FPaintItem := nil;
+  FPaintItemIndex := -1;
+  ARect := FPaintRect;
+end;
+
+procedure TJvInspector.SetupRects(const AItem: TJvCustomInspectorItem;
+  const APaintRect: TRect);
+{ APaintRect.Bottom is not used }
+
+  procedure LayOutGlyph(const AArea: TRect; const AGlyph: TInspectorGlyph;
+    const AMinWidth: Integer; var ATextRect: TRect; out AGlyphRect: TRect);
+  { Puts the glyph where the column's text starts and moves the text right of it.
+    AMinWidth is the width to reserve even for a narrower glyph, which centers in
+    it. }
+  begin
+    if AGlyph.Kind = igkNone then begin
+      AGlyphRect := TRect.Empty;
+      Exit;
+    end;
+    var GlyphWidth, GlyphHeight: Integer;
+    if AGlyph.Kind = igkImage then begin
+      GlyphWidth := AGlyph.ImageList.Width;
+      GlyphHeight := AGlyph.ImageList.Height;
+    end else begin
+      GlyphWidth := MulDiv(CheckBoxSize, CurrentPPI, 96);
+      GlyphHeight := GlyphWidth;
+    end;
+    var GlyphAreaWidth := AMinWidth;
+    if GlyphAreaWidth < GlyphWidth then
+      GlyphAreaWidth := GlyphWidth;
+    const GlyphAreaLeft = ATextRect.Left;
+    const GlyphLeft = GlyphAreaLeft + (GlyphAreaWidth - GlyphWidth) div 2;
+    AGlyphRect := Rect(GlyphLeft, 0, GlyphLeft + GlyphWidth, GlyphHeight);
+    OffsetRect(AGlyphRect, 0, AArea.Top + (AArea.Height - GlyphHeight) div 2);
+    ATextRect.Left := GlyphAreaLeft + GlyphAreaWidth + MulDiv(CheckBoxLabelGap, CurrentPPI, 96);
+    IntersectRect(ATextRect, ATextRect, AArea);
+  end;
+
+begin
+  if FTextHeight = 0 then { Not set yet if the control has never painted }
+    UpdateTextHeight;
+
+  { Base }
+  AItem.Rects[iprItem] := Rect(APaintRect.Left, APaintRect.Top,
+    APaintRect.Right, Pred(APaintRect.Top + GetItemHeight));
+  const ItemRect2 = AItem.Rects[iprItem];
+  var ExpandButtonArea := Rect(ItemRect2.Left + (AItem.Level * GetItemHeight), ItemRect2.Top,
+    ItemRect2.Left + (Succ(AItem.Level) * GetItemHeight), ItemRect2.Bottom);
+  if not AItem.IsCategory and (ExpandButtonArea.Left > Pred(Divider)) then begin
+    ExpandButtonArea.Left := 0;
+    ExpandButtonArea.Right := 0;
+  end;
+  if not AItem.IsCategory and (ExpandButtonArea.Right > Pred(Divider)) then
+    ExpandButtonArea.Right := Pred(Divider);
+  var TmpRect := ItemRect2;
+  TmpRect.Left := ItemRect2.Left + (Succ(AItem.Level) * GetItemHeight);
+  if AItem.IsCategory then begin
+    AItem.Rects[iprNameArea] := TmpRect;
+    AItem.Rects[iprValueArea] := TRect.Empty;
+  end else begin
+    if TmpRect.Left > Pred(Divider) then
+      TmpRect := TRect.Empty
+    else
+      TmpRect.Right := ItemRect2.Left + Pred(Divider);
+    AItem.Rects[iprNameArea] := TmpRect;
+    TmpRect := ItemRect2;
+    TmpRect.Left := ItemRect2.Left + Divider + 1;
+    AItem.Rects[iprValueArea] := TmpRect;
+  end;
+
+  { Expand/collapse button }
+  var ExpandButtonRect: TRect;
+  if (AItem.Expanded or (AItem.Count > 0)) and (ExpandButtonArea.Width > 0) then begin
+    var Size := MulDiv(9, CurrentPPI, 96);
+    if not Odd(Size) then
+      Dec(Size);
+    ExpandButtonRect := Rect(0, 0, Size, Size);
+    OffsetRect(ExpandButtonRect, (GetItemHeight - Size) div 2,
+      (ExpandButtonArea.Height - Size) div 2);
+    OffsetRect(ExpandButtonRect, ExpandButtonArea.Left, ExpandButtonArea.Top);
+    IntersectRect(ExpandButtonRect, ExpandButtonRect, ExpandButtonArea);
+  end else
+    ExpandButtonRect := TRect.Empty;
+  AItem.Rects[iprExpandButton] := ExpandButtonRect;
+
+  { Marker: it goes in the free 'gutter cell' left of and nearest to the name:
+    ExpandButtonArea itself, or the 'cell' left of it when the button occupies it.
+    Note that GetItemHeight determines the width of these cells. Limitation: a top
+    level item which is a parent has no free cell, so never gets a marker. }
+  var MarkerArea := ExpandButtonArea;
+  if not IsRectEmpty(ExpandButtonRect) then begin
+    OffsetRect(MarkerArea, -GetItemHeight, 0);
+    MarkerArea.Width := GetItemHeight; { Restore: the divider may have clipped ExpandButtonArea }
+  end;
+  var MarkerRect: TRect;
+  if (MarkerArea.Width > 0) and (MarkerArea.Left >= ItemRect2.Left) then begin
+    var Size := MulDiv(9, CurrentPPI, 96);
+    if not Odd(Size) then
+      Dec(Size);
+    MarkerRect := Rect(0, 0, Size, Size);
+    OffsetRect(MarkerRect, (GetItemHeight - Size) div 2,
+      (MarkerArea.Height - Size) div 2);
+    OffsetRect(MarkerRect, MarkerArea.Left, MarkerArea.Top);
+    IntersectRect(MarkerRect, MarkerRect, MarkerArea);
+  end else
+    MarkerRect := TRect.Empty;
+  AItem.Rects[iprMarker] := MarkerRect;
+
+  { The name }
+  TmpRect := AItem.Rects[iprNameArea];
+  if AItem.Level = 0 then
+    Inc(TmpRect.Left, 2);
+  if TmpRect.Height div FTextHeight < 2 then
+    OffsetRect(TmpRect, 0, (TmpRect.Height - FTextHeight) div 2)
+  else begin
+    Inc(TmpRect.Top, 1);
+    Dec(TmpRect.Bottom, 1);
+  end;
+  IntersectRect(TmpRect, TmpRect, AItem.Rects[iprNameArea]);
+
+  { The name glyph }
+  if not AItem.IsCategory and not IsRectEmpty(AItem.Rects[iprNameArea]) then
+    AItem.FNameGlyph := AItem.GetGlyph(FOnGetNameGlyph)
+  else
+    AItem.FNameGlyph := Default(TInspectorGlyph);
+  var NameGlyphRect: TRect;
+  LayOutGlyph(AItem.Rects[iprNameArea], AItem.FNameGlyph,
+    0, TmpRect, NameGlyphRect);
+  AItem.Rects[iprNameGlyph] := NameGlyphRect;
+  AItem.Rects[iprNameText] := TmpRect;
+
+  { The value }
+  TmpRect := AItem.Rects[iprValueArea];
+  Inc(TmpRect.Left, MulDiv(2, CurrentPPI, 96));
+  if TmpRect.Height div FTextHeight < 2 then begin
+    OffsetRect(TmpRect, 0, (TmpRect.Height - FTextHeight) div 2);
+    IntersectRect(TmpRect, TmpRect, AItem.Rects[iprValueArea]);
+  end else begin
+    Inc(TmpRect.Top, 1);
+    Dec(TmpRect.Bottom, 1);
+    IntersectRect(TmpRect, TmpRect, AItem.Rects[iprValueArea]);
+  end;
+
+  { The value glyph }
+  if not AItem.IsCategory and not (AItem is TJvInspectorBooleanItem) then
+    AItem.FValueGlyph := AItem.GetGlyph(FOnGetValueGlyph)
+  else
+    AItem.FValueGlyph := Default(TInspectorGlyph);
+  var ValueGlyphRect: TRect;
+  LayOutGlyph(AItem.Rects[iprValueArea], AItem.FValueGlyph,
+    MulDiv(CheckBoxSize, CurrentPPI, 96), TmpRect, ValueGlyphRect); { Make it line up with a checkbox row }
+  AItem.Rects[iprValueGlyph] := ValueGlyphRect;
+  AItem.Rects[iprValueText] := TmpRect;
+
+  { The value edit and value button }
+  if not (AItem.Editing and
+     (AItem.Flags * [iifValueList, iifEditButton] <> [])) then begin // Value takes up entire value edit rect, there is no value button:
+    AItem.Rects[iprValueEdit] := AItem.Rects[iprValueText];
+    AItem.Rects[iprValueButton] := TRect.Empty;
+  end else begin // The value button is on the right of the value area:
+    var ButtonWidth := GetItemHeight;
+    if iifEditButton in AItem.Flags then
+      ButtonWidth := MulDiv(ButtonWidth, 5, 4);
+    TmpRect := AItem.Rects[iprValueText];
+    Dec(TmpRect.Right, ButtonWidth);
+    AItem.Rects[iprValueEdit] := TmpRect;
+    TmpRect := AItem.Rects[iprValueArea];
+    TmpRect.Left := TmpRect.Right - ButtonWidth;
+    AItem.Rects[iprValueButton] := TmpRect;
+  end;
+end;
+
+procedure TJvInspector.DoPaintItem;
+var
+  EndOfList: Boolean;
+  NextItem: TJvCustomInspectorItem;
+  EndOfCat: Boolean;
+  CatRect: TRect;
+  LeftX: Integer;
+
+  procedure PaintExpandButtonOrMarker(const PaintRect: TInspectorPaintRect);
+  begin
+    const GlyphRect = FPaintItem.Rects[PaintRect];
+    if IsRectEmpty(GlyphRect) then
+      Exit;
+    var Size := MulDiv(9, CurrentPPI, 96);
+    if not Odd(Size) then
+      Dec(Size);
+    const Mid = Size div 2;
+    const IsExpandButton = (PaintRect = iprExpandButton);
+    if IsExpandButton then
+      Canvas.Brush.Color := BackgroundColor
+    else
+      Canvas.Brush.Color := FNameColor;
+    Canvas.Pen.Color := FNameColor;
+    const SaveIndex = SaveDC(Canvas.Handle);
+    try
+      IntersectClipRect(Canvas.Handle, GlyphRect.Left, GlyphRect.Top,
+        GlyphRect.Right, GlyphRect.Bottom);
+      if IsExpandButton then begin
+        const Margin = MulDiv(2, Size, 9);
+        Canvas.Rectangle(GlyphRect.Left, GlyphRect.Top, GlyphRect.Left + Size,
+          GlyphRect.Top + Size);
+        Canvas.MoveTo(GlyphRect.Left + Margin, GlyphRect.Top + Mid);
+        Canvas.LineTo(GlyphRect.Left + Size - Margin, GlyphRect.Top + Mid);
+        if not FPaintItem.Expanded then begin
+          Canvas.MoveTo(GlyphRect.Left + Mid, GlyphRect.Top + Margin);
+          Canvas.LineTo(GlyphRect.Left + Mid, GlyphRect.Top + Size - Margin);
+        end;
+      end else begin
+        Canvas.Polygon([
+          Point(GlyphRect.Left, GlyphRect.Top + Mid - 1),
+          Point(GlyphRect.Left + Mid, GlyphRect.Top + Mid - 1),
+          Point(GlyphRect.Left + Mid, GlyphRect.Top),
+          Point(Pred(GlyphRect.Left + Size), GlyphRect.Top + Mid),
+          Point(GlyphRect.Left + Mid, Pred(GlyphRect.Top + Size)),
+          Point(GlyphRect.Left + Mid, GlyphRect.Top + Mid + 1),
+          Point(GlyphRect.Left, GlyphRect.Top + Mid + 1)]);
+      end;
+    finally
+      RestoreDC(Canvas.Handle, SaveIndex);
+    end;
+  end;
+
+begin
+  // Determine item type (end of list, end of a category)
+  EndOfList := Succ(FPaintItemIndex) >= GetVisibleCount;
+  if not EndOfList then begin
+    NextItem := GetVisibleItems(Succ(FPaintItemIndex));
+    EndOfCat := (NextItem.GetBaseCategory <> FPaintItem.GetBaseCategory) and
+      (FPaintItem.GetBaseCategory <> nil);
+  end else
+    EndOfCat := FPaintItem.GetBaseCategory <> nil;
+
+  CatRect := FPaintItem.Rects[iprItem];
+  CatRect.Right := CatRect.Left + GetItemHeight;
+  Inc(CatRect.Bottom);
+  if FPaintItem.GetBaseCategory <> nil then begin
+    Canvas.Brush.Color := FCategoryColor;
+    Canvas.FillRect(CatRect);
+  end;
+
+  if not FPaintItem.IsCategory then begin
+    Canvas.Pen.Color := FDividerColor;
+    Canvas.MoveTo(FPaintItem.Rects[iprItem].Left + Divider, Pred(FPaintItem.Rects[iprItem].Top));
+    Canvas.LineTo(FPaintItem.Rects[iprItem].Left + Divider, FPaintItem.Rects[iprItem].Bottom);
+  end;
+
+  ApplyNameFont;
+  var NameFillRect := FPaintItem.Rects[iprNameArea];
+  if not FPaintItem.IsCategory then
+    NameFillRect.Right := FPaintItem.Rects[iprItem].Left + Divider;
+  Canvas.FillRect(NameFillRect);
+  if Assigned(FOnCustomizeItemCanvas) then
+    FOnCustomizeItemCanvas(FPaintItem, Canvas);
+  FPaintItem.DrawGlyph(Canvas, FPaintItem.NameGlyph,
+    FPaintItem.Rects[iprNameGlyph], FPaintItem.Rects[iprNameArea]);
+  var NameTextRect := FPaintItem.Rects[iprNameText];
+  var NameText := FPaintItem.DisplayName;
+  Canvas.TextRect(NameTextRect, NameText, [tfSingleLine, tfNoPrefix, tfEndEllipsis]);
+  ApplyValueFont(Canvas);
+  if Assigned(FOnCustomizeItemCanvas) then
+    FOnCustomizeItemCanvas(FPaintItem, Canvas);
+  FPaintItem.DrawValue(Canvas);
+
+  PaintExpandButtonOrMarker(iprExpandButton);
+
+  if FPaintItem = FMarkedItem then
+    PaintExpandButtonOrMarker(iprMarker);
+
+  if EndOfCat or FPaintItem.IsCategory then
+    Canvas.Pen.Color := FCategoryDividerColor
+  else
+    Canvas.Pen.Color := FDividerColor;
+  if not EndOfList and not EndOfCat then
+    LeftX := FPaintItem.Rects[iprItem].Left + GetItemHeight
+  else
+    LeftX := FPaintItem.Rects[iprItem].Left;
+  Canvas.MoveTo(FPaintItem.Rects[iprItem].Right, FPaintItem.Rects[iprItem].Bottom);
+  Canvas.LineTo(Pred(LeftX), FPaintItem.Rects[iprItem].Bottom);
+
+  if FPaintItem <> FPaintItem.GetBaseCategory then begin
+    if FPaintItem.GetBaseCategory <> nil then
+      Canvas.Pen.Color := FCategoryDividerColor
+    else
+      Canvas.Pen.Color := FCategoryColor;
+    Canvas.MoveTo(FPaintItem.Rects[iprItem].Left + GetItemHeight, FPaintItem.Rects[iprItem].Top);
+    Canvas.LineTo(FPaintItem.Rects[iprItem].Left + GetItemHeight, Succ(FPaintItem.Rects[iprItem].Bottom));
+  end;
+end;
+
+//=== { TJvCustomInspectorItem } =============================================
+
+constructor TJvCustomInspectorItem.Create(const AParent: TJvCustomInspectorItem);
+begin
+  inherited Create;
+  FItems := TObjectList<TJvCustomInspectorItem>.Create(True);
+  Flags := [];
+  if AParent <> nil then begin
+    FInspector := AParent.Inspector;
+    FParent := AParent;
+    AParent.FItems.Add(Self);
+    InvalidateList;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.Apply;
+var
+  TmpOnChange: TNotifyEvent;
+  NewValue: string;
+begin
+  try
+    if Editing and (EditCtrl <> nil) then begin // also see SelectValue
+      NewValue := EditCtrl.Text;
+      if DisplayValue <> NewValue then begin
+        Inc(FUpdateEditCtrl);
+        try
+          DisplayValue := NewValue;
+        finally
+          Dec(FUpdateEditCtrl);
+        end;
+        InvalidateItem;
+        // Applying a new value may change the underlying data a dynamic value
+        // list is built from, so refill the list box next time
+        FListBoxFilled := False;
+        if EditCtrl <> nil then begin
+          TmpOnChange := EditCtrl.OnChange;
+          EditCtrl.OnChange := nil;
+          try
+            EditCtrl.Text := DisplayValue;
+          finally
+            EditCtrl.OnChange := TmpOnChange;
+          end;
+        end;
+      end;
+    end;
+  finally
+    if Editing and (EditCtrl <> nil) then begin
+      EditCtrl.SelectAll;
+      EditCtrl.Modified := False;
+      EditCtrl.ClearUndo;
+    end;
+  end;
+end;
+
+function TJvCustomInspectorItem.CanEdit: Boolean;
+begin
+  Result := not IsCategory and not ReadOnly and not Inspector.ReadOnly;
+end;
+
+function TJvCustomInspectorItem.GetAsOrdinal: Int64;
+begin
+  if Assigned(Inspector.FOnGetAsOrdinal) then
+    Inspector.FOnGetAsOrdinal(Self, Result)
+  else
+    raise EJvInspectorData.CreateFmt(RsEJvInspDataNoAccessAs, ['Ordinal']);
+end;
+
+function TJvCustomInspectorItem.GetAsString: string;
+begin
+  if Assigned(Inspector.FOnGetAsString) then
+    Inspector.FOnGetAsString(Self, Result)
+  else
+    raise EJvInspectorData.CreateFmt(RsEJvInspDataNoAccessAs, ['string']);
+end;
+
+procedure TJvCustomInspectorItem.SetAsOrdinal(Value: Int64);
+begin
+  if Assigned(Inspector.FOnSetAsOrdinal) then
+    Inspector.FOnSetAsOrdinal(Self, Value)
+  else
+    raise EJvInspectorData.CreateFmt(RsEJvInspDataNoAccessAs, ['Ordinal']);
+  InvalidateItem;
+end;
+
+procedure TJvCustomInspectorItem.SetAsString(Value: string);
+begin
+  if Assigned(Inspector.FOnSetAsString) then
+    Inspector.FOnSetAsString(Self, Value)
+  else
+    raise EJvInspectorData.CreateFmt(RsEJvInspDataNoAccessAs, ['string']);
+  InvalidateItem;
+end;
+
+procedure TJvCustomInspectorItem.CloseUp(Accept: Boolean);
+begin
+  if DroppedDown then begin
+    if GetCaptureControl = ListBox then
+      SetCaptureControl(nil);
+    if GetCapture <> 0 then
+      SendMessage(GetCapture, WM_CANCELMODE, 0, 0);
+    SetWindowPos(ListBox.Handle, 0, 0, 0, 0, 0, SWP_NOZORDER or
+      SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE or SWP_HIDEWINDOW);
+    FDroppedDown := False;
+    InvalidateItem;
+    if Accept then begin
+      if (ListBox.ItemIndex > -1) and Assigned(EditCtrl) then
+        EditCtrl.Text := ListBox.Items[ListBox.ItemIndex];
+      Apply;
+    end;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.DoDropDownKeys(var Key: Word; Shift: TShiftState);
+begin
+  case Key of
+    VK_UP, VK_DOWN, VK_F4:
+      { Up and Down toggle the dropdown with Alt, F4 without }
+      if (ssAlt in Shift) xor (Key = VK_F4) then begin
+        if DroppedDown then
+          CloseUp(True)
+        else
+          DropDown;
+        Key := 0;
+      end;
+    VK_RETURN, VK_ESCAPE:
+      if DroppedDown and not (ssAlt in Shift) then begin
+        CloseUp(Key = VK_RETURN);
+        Key := 0;
+      end;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.DropDown;
+const
+  DropDownCount = 8;
+var
+  ListCount: Integer;
+  P: TPoint;
+  Y: Integer;
+  J: Integer;
+  I: Integer;
+  R: TRect;
+  EditMonitor: TMonitor;
+begin
+  if (not DroppedDown) and (ListBox <> nil) then begin
+    ListBox.Width := Abs(Rects[iprValueArea].Width);
+    ListBox.Font := EditCtrl.Font;
+    // Fill the value list unless an earlier fill is still valid
+    if not FListBoxFilled then begin
+      ListBox.Items.Clear;
+      GetValueList(ListBox.Items);
+      FListBoxFilled := True;
+    end;
+    if ListBox.Items.Count < DropDownCount then
+      ListCount := ListBox.Items.Count
+    else
+      ListCount := DropDownCount;
+    if ListCount = 0 then
+      ListCount := 1;
+    ListBox.Height := ListCount * ListBox.ItemHeight + 4;
+    if ListBox.Height > Screen.DesktopHeight then begin
+      ListCount := (Screen.DesktopHeight - 4) div ListBox.ItemHeight;
+      ListBox.Height := ListCount * ListBox.ItemHeight + 4;
+    end;
+    ListBox.ItemIndex := ListBox.Items.IndexOf(EditCtrl.Text);
+    J := ListBox.ClientWidth;
+    if ListBox.Items.Count > ListCount then
+      Dec(J, GetSystemMetrics(SM_CXVSCROLL));
+    ListBox.Canvas.Font := ListBox.Font;
+    for I := 0 to ListBox.Items.Count - 1 do begin
+      Y := ListBox.Canvas.TextWidth(ListBox.Items[I]) + 4;
+      if Y > J then
+        J := Y;
+    end;
+    if ListBox.Items.Count > ListCount then
+      Inc(J, GetSystemMetrics(SM_CXVSCROLL));
+    ListBox.ClientWidth := J;
+    if ListBox.Width > Screen.DesktopWidth then
+      ListBox.Width := Screen.DesktopWidth;
+    P := Inspector.ClientToScreen(Point(Rects[iprValueArea].Right - ListBox.Width, EditCtrl.Top));
+    if P.X < 0 then
+      P := Inspector.ClientToScreen(Point(Rects[iprValueArea].Left, EditCtrl.Top));
+
+    Y := P.Y + Rects[iprValueArea].Height;
+    GetWindowRect(EditCtrl.Handle, R);
+    EditMonitor := Screen.MonitorFromRect(R);
+    if EditMonitor <> nil then begin
+      R := EditMonitor.BoundsRect;
+      if P.X + ListBox.Width > R.Right then
+        P.X := R.Right - ListBox.Width;
+      if P.X < R.Left then
+        P.X := R.Left;
+      if Y + ListBox.Height > R.Bottom then
+        Y := P.Y - ListBox.Height;
+      if Y < R.Top then
+        Y := R.Top;
+    end else begin
+      if Y + ListBox.Height > Screen.DesktopHeight then
+        Y := P.Y - ListBox.Height;
+      if P.X + ListBox.Width > Screen.DesktopWidth then
+        P.X := Screen.DesktopWidth - ListBox.Width;
+    end;
+    SetWindowPos(ListBox.Handle, HWND_TOP, P.X, Y, 0, 0,
+      SWP_NOSIZE or {SWP_NOACTIVATE or }SWP_SHOWWINDOW);
+    InvalidateItem;
+    EditCtrl.SetFocus;
+    FDroppedDown := True; // must be after EditCtrl.SetFocus
+  end;
+end;
+
+procedure TJvCustomInspectorItem.EditButtonClick;
+begin
+  if Editing and (EditCtrl <> nil) and Assigned(Inspector.FOnEditButtonClick) then begin
+    var Value: String := EditCtrl.Text;
+    Inspector.FOnEditButtonClick(Self, Value);
+    if Editing and (EditCtrl <> nil) then begin
+      EditCtrl.Text := Value;
+      Apply;
+    end;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.EditFocusLost(Sender: TObject);
+begin
+  if Inspector.HandleAllocated and not Inspector.Focused then begin
+    // Mantis 3391: When the focus is lost, the editing is finished, so that
+    // moving to another item or another control always updates the value.
+    try
+      Apply;
+    except
+      Application.HandleException(Self);
+      if (EditCtrl <> nil) and EditCtrl.CanFocus then
+        EditCtrl.SetFocus;
+    end;
+    InvalidateItem;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.AutoComplete(var Key: Char);
+var
+  StartPos, EndPos: Integer;
+  SaveText, OldText: string;
+  Filter: string;
+
+  function HasSelectedText(var StartPos, EndPos: Integer): Boolean;
+  begin
+    StartPos := EditCtrl.SelStart;
+    EndPos := StartPos + EditCtrl.SelLength;
+    Result := EndPos > StartPos;
+  end;
+
+  procedure DeleteSelectedText;
+  var
+    StartPos, EndPos: Integer;
+    OldText: string;
+  begin
+    OldText := EditCtrl.Text;
+    StartPos := EditCtrl.SelStart;
+    EndPos := StartPos + EditCtrl.SelLength;
+    System.Delete(OldText, StartPos + 1, EndPos - StartPos);
+    ListBox.ItemIndex := -1;
+    EditCtrl.Text := OldText;
+    EditCtrl.SelStart := StartPos;
+    EditCtrl.SelLength := 0;
+  end;
+
+  function FindItemPrefix(const Prefix: string): Integer;
+  begin
+    for Result := 0 to ListBox.Items.Count - 1 do
+      if PathStartsWith(ListBox.Items[Result], Prefix) then
+        Exit;
+    Result := -1;
+  end;
+
+  function SelectItem(const AnItem: string): Boolean;
+  var
+    Idx: Integer;
+  begin
+    Result := False;
+    if AnItem = '' then begin
+      ListBox.ItemIndex := -1;
+      Exit;
+    end;
+    Idx := FindItemPrefix(AnItem);
+    if Idx < 0 then
+      Exit;
+    Result := True;
+    ListBox.ItemIndex := Idx;
+    EditCtrl.Text := AnItem + Copy(ListBox.Items[Idx], Length(AnItem) + 1, MaxInt);
+    EditCtrl.SelStart := Length(AnItem);
+    EditCtrl.SelLength := Length(EditCtrl.Text) - Length(AnItem);
+  end;
+
+begin
+  Filter := EditCtrl.Text;
+
+  case Key of
+    Esc {VK_ESCAPE}:
+      Exit;
+    BackSpace {VK_BACK}:
+      begin
+        if HasSelectedText(StartPos, EndPos) then
+          DeleteSelectedText
+        else if EditCtrl.Text <> '' then begin
+          SaveText := EditCtrl.Text;
+          var LastCharIndex := StartPos;
+          while (LastCharIndex > 0) and SaveText[LastCharIndex].IsLowSurrogate do
+            Dec(LastCharIndex);
+          OldText := Copy(SaveText, 1, LastCharIndex - 1);
+          ListBox.ItemIndex := -1;
+          EditCtrl.Text := OldText + Copy(SaveText, EndPos + 1, MaxInt);
+          EditCtrl.SelStart := LastCharIndex - 1;
+          EditCtrl.SelLength := 0;
+        end;
+        Key := #0;
+      end;
+  else
+    if not FListBoxFilled then begin
+      ListBox.Items.Clear;
+      GetValueList(ListBox.Items);
+      FListBoxFilled := True;
+    end;
+
+    if HasSelectedText(StartPos, EndPos) then
+      SaveText := Copy(Filter, 1, StartPos) + Key
+    else
+      SaveText := Filter + Key;
+
+    if SelectItem(SaveText) then
+      Key := #0;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.CancelPress;
+begin
+end;
+
+procedure TJvCustomInspectorItem.EditKeyPress(Sender: TObject; var Key: Char);
+begin
+  if (iifValueList in Flags) and not ReadOnly and (ListBox <> nil) then
+    AutoComplete(Key);
+end;
+
+procedure TJvCustomInspectorItem.EditKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Assigned(Inspector.FOnEditorKeyDown) then
+    Inspector.FOnEditorKeyDown(Inspector, Key, Shift);
+
+  if Shift = [] then begin
+    case Key of
+      VK_RETURN:
+        Apply;
+      VK_ESCAPE:
+        Undo;
+    end;
+    if (Key = VK_RETURN) or (Key = VK_ESCAPE) then
+      Key := VK_RIGHT;
+  end else if Shift = [ssCtrl] then
+    case Key of
+      VK_UP:
+        if iifValueList in Flags then begin
+          SelectValue(-1);
+          Key := 0;
+        end;
+      VK_DOWN, VK_RETURN:
+        if iifValueList in Flags then begin
+          SelectValue(1);
+          Key := 0;
+        end;
+      VK_ADD:
+        if (Count > 0) and not Expanded then begin
+          Expanded := True;
+          Key := 0;
+        end;
+      VK_SUBTRACT:
+        if Expanded then begin
+          Expanded := False;
+          Key := 0;
+        end;
+    end;
+end;
+
+procedure TJvCustomInspectorItem.EditKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+end;
+
+procedure TJvCustomInspectorItem.EditMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if (Button = mbLeft) and (ssDouble in Shift) and (iifValueList in Flags) then
+    SelectValue(1);
+end;
+
+procedure TJvCustomInspectorItem.Edit_WndProc(var Msg: TMessage);
+var
+  ExecInherited: Boolean;
+  PostToInsp: Boolean;
+begin
+  ExecInherited := True;
+  case Msg.Msg of
+    WM_KEYDOWN, WM_SYSKEYDOWN, WM_CHAR:
+      begin
+        if iifValueList in Flags then begin
+          if Msg.Msg <> WM_CHAR then
+            DoDropDownKeys(TWMKeyDown(Msg).CharCode, KeyDataToShiftState(TWMKeyDown(Msg).KeyData));
+          if (Msg.Msg = WM_CHAR) or (TWMKeyDown(Msg).CharCode <> 0) then begin
+            if DroppedDown and ((Msg.Msg = WM_CHAR) or
+               (TWMKeyDown(Msg).CharCode in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT])) then
+              SendMessage(ListBox.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
+            // Only Up/Down/PgUp/PgDn navigate the value list and only WM_CHAR
+            // feeds its type-search; caret keys just move the edit's caret,
+            // and any other key the drop-down logic did not consume keeps its
+            // normal meaning, such as Alt+F4
+            if (Msg.Msg = WM_KEYDOWN) and
+              (TWMKeyDown(Msg).CharCode in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT]) then
+              ExecInherited := False;
+          end;
+        end else if (iifEditButton in Flags) and (Msg.Msg <> WM_CHAR) then begin
+          const Key = TWMKeyDown(Msg).CharCode;
+          const KeyShift = KeyDataToShiftState(TWMKeyDown(Msg).KeyData);
+          if ((Key = VK_F4) and not (ssAlt in KeyShift)) or
+             ((Key = VK_DOWN) and (ssAlt in KeyShift)) then begin
+            EditButtonClick;
+            TWMKeyDown(Msg).CharCode := 0;
+          end;
+        end;
+        PostToInsp :=
+          (Msg.Msg = WM_KEYDOWN) and (KeyDataToShiftState(TWMKeyDown(Msg).KeyData) = []) and
+          (not DroppedDown and (TWMKeyDown(Msg).CharCode in [VK_NEXT, VK_PRIOR, VK_DOWN, VK_UP]));
+        if PostToInsp then begin
+          PostMessage(Inspector.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
+          Msg.Result := 1;
+          ExecInherited := False;
+        end;
+      end;
+  end;
+
+  if (Msg.Msg = WM_CHAR) and (Msg.WParam = VK_RETURN) then begin
+    ExecInherited := False;
+    EditCtrl.SelectAll;
+  end;
+  if DroppedDown then
+    // be like standard combobox (this doesn't break click+drag)
+    case Msg.Msg of
+      WM_LBUTTONDOWN:
+        CloseUp(False);
+      WM_RBUTTONDOWN, WM_RBUTTONUP, WM_RBUTTONDBLCLK,
+      WM_MBUTTONDOWN, WM_MBUTTONUP, WM_MBUTTONDBLCLK:
+        begin
+          Msg.Result := 0;
+          ExecInherited := False;
+        end;
+    end;
+  if ExecInherited then
+    EditWndPrc(Msg);
+  if (Msg.Msg = WM_KILLFOCUS) and DroppedDown then
+    CloseUp(False);
+  if Msg.Msg = WM_SETFOCUS then begin
+    { Changing the focus to another Control in the same form via Mouse-Click, if a
+      property-editor is active has no effect until you clicked twice on the control.
+      Telling the VCL that this control has the focus, fixes the problem. }
+    SetFocus;
+    { Clicking the already selected row focuses the editor directly, so the
+      inspector gets no WM_SETFOCUS of its own to repaint the row on }
+    if HWND(Msg.WParam) <> Inspector.Handle then
+      InvalidateItem;
+  end;
+end;
+
+function TJvCustomInspectorItem.GetBaseCategory: TJvCustomInspectorItem;
+begin
+  if IsCategory then
+    Result := Self
+  else begin
+    Result := Parent;
+    while (Result <> nil) and not Result.IsCategory do
+      Result := Result.Parent;
+  end;
+end;
+
+function TJvCustomInspectorItem.GetCount: NativeInt;
+begin
+  Result := FItems.Count;
+end;
+
+function TJvCustomInspectorItem.GetDisplayValue: string;
+begin
+  Result := '';
+end;
+
+function TJvCustomInspectorItem.GetExpanded: Boolean;
+begin
+  Result := iifExpanded in Flags;
+end;
+
+function TJvCustomInspectorItem.GetItems(const I: NativeInt): TJvCustomInspectorItem;
+begin
+  Result := FItems[I];
+end;
+
+function TJvCustomInspectorItem.GetLevel: Integer;
+var
+  Item: TJvCustomInspectorItem;
+begin
+  Result := -1;
+  Item := Parent;
+  while Item <> nil do begin
+    Inc(Result);
+    Item := Item.Parent;
+  end;
+end;
+
+function TJvCustomInspectorItem.GetReadOnly: Boolean;
+begin
+  Result := (iifReadonly in Flags);
+end;
+
+function TJvCustomInspectorItem.GetRects(const RectKind: TInspectorPaintRect): TRect;
+begin
+  if LastPaintGeneration = Inspector.PaintGeneration then
+    Result := FRects[RectKind]
+  else
+    Result := TRect.Empty;
+end;
+
+function TJvCustomInspectorItem.GetValueEditHitRect: TRect;
+{ Ensures edit hit testing is not affected by any glyph (which sits to the left
+  of the edit) }
+begin
+  Result := Rects[iprValueEdit];
+  const GlyphRect = Rects[iprValueGlyph];
+  if not IsRectEmpty(Result) and not IsRectEmpty(GlyphRect) then
+    Result.Left := GlyphRect.Left;
+end;
+
+procedure TJvCustomInspectorItem.GetValueList(const Strings: TStrings);
+begin
+  if Assigned(FOnGetValueList) then
+    FOnGetValueList(Self, Strings)
+  else if Assigned(Inspector.FOnGetValueList) then
+    Inspector.FOnGetValueList(Self, Strings);
+end;
+
+function TJvCustomInspectorItem.GetGlyph(
+  const AEvent: TInspectorItemGetGlyphEvent): TInspectorGlyph;
+begin
+  Result := Default(TInspectorGlyph);
+  if Assigned(AEvent) then begin
+    try
+      AEvent(Self, Result);
+      if (Result.Kind = igkImage) and
+         ((Result.ImageList = nil) or
+          (Result.ImageList.GetIndexByName(Result.ImageName) < 0)) then
+        Result.Kind := igkNone;
+    except
+      Result := Default(TInspectorGlyph); { Don't allow exceptions, like DrawValue }
+    end;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.DrawGlyph(const ACanvas: TCanvas;
+  const AGlyph: TInspectorGlyph; const AGlyphRect, AClipRect: TRect);
+begin
+  if AGlyph.Kind = igkNone then
+    Exit;
+
+  const SaveIndex = SaveDC(ACanvas.Handle);
+  try
+    IntersectClipRect(ACanvas.Handle, AClipRect.Left, AClipRect.Top,
+      AClipRect.Right, AClipRect.Bottom);
+    if AGlyph.Kind = igkImage then
+      AGlyph.ImageList.Draw(ACanvas, AGlyphRect.Left, AGlyphRect.Top,
+        AGlyph.ImageList.GetIndexByName(AGlyph.ImageName))
+    else begin
+      const SaveBrushColor = ACanvas.Brush.Color;
+      try
+        { FrameRect's border is always one pixel, so we don't use it }
+        ACanvas.Brush.Color := ACanvas.Font.Color;
+        ACanvas.FillRect(AGlyphRect);
+        var InnerRect := AGlyphRect;
+        const BorderWidth = MulDiv(1, Inspector.CurrentPPI, 96);
+        InflateRect(InnerRect, -BorderWidth, -BorderWidth);
+        ACanvas.Brush.Color := AGlyph.Color;
+        ACanvas.FillRect(InnerRect);
+      finally
+        ACanvas.Brush.Color := SaveBrushColor;
+      end;
+    end;
+  finally
+    RestoreDC(ACanvas.Handle, SaveIndex);
+  end;
+end;
+
+procedure TJvCustomInspectorItem.InvalidateList;
+begin
+  if Inspector <> nil then
+    Inspector.InvalidateList;
+end;
+
+procedure TJvCustomInspectorItem.InvalidateItem;
+begin
+  if Inspector <> nil then
+    Inspector.InvalidateItem(Self);
+end;
+
+function TJvCustomInspectorItem.IsCategory: Boolean;
+begin
+  Result := False;
+end;
+
+procedure TJvCustomInspectorItem.ListValueSelect(Sender: TObject);
+begin
+  CloseUp(True);
+end;
+
+procedure TJvCustomInspectorItem.ListDeactivate(Sender: TObject);
+begin
+  CloseUp(False);
+end;
+
+procedure TJvCustomInspectorItem.MouseDown(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if (Button = mbLeft) and PtInRect(Rects[iprValueButton], Point(X, Y)) then begin
+    if iifEditButton in Flags then begin
+      Tracking := True;
+      TrackButton(X, Y);
+    end else if DroppedDown then
+      CloseUp(False)
+    else begin
+      Tracking := True;
+      TrackButton(X, Y);
+      DropDown;
+    end;
+  end else if (Button = mbLeft) and (ssDouble in Shift) then
+    if (iifValueList in Flags) and
+       (PtInRect(Rects[iprValueArea], Point(X, Y))) then
+      SelectValue(1);
+end;
+
+procedure TJvCustomInspectorItem.MouseMove(Shift: TShiftState; X, Y: Integer);
+var
+  ListPos: TPoint;
+  MousePos: TSmallPoint;
+begin
+  if Tracking then begin
+    TrackButton(X, Y);
+    if DroppedDown then begin
+      ListPos := ListBox.ScreenToClient(Inspector.ClientToScreen(Point(X, Y)));
+      if PtInRect(ListBox.ClientRect, ListPos) then begin
+        StopTracking;
+        Inspector.FPressedItem := nil;
+        MousePos := PointToSmallPoint(ListPos);
+        SendMessage(ListBox.Handle, WM_LBUTTONDOWN, 0, PointToLParam(MousePos));
+        Exit;
+      end;
+    end;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  const FireEditButtonClick = (Button = mbLeft) and Tracking and
+    (iifEditButton in Flags) and PtInRect(Rects[iprValueButton], Point(X, Y));
+  StopTracking;
+  if FireEditButtonClick then
+    EditButtonClick;
+end;
+
+procedure TJvCustomInspectorItem.SelectValue(const Delta: Integer);
+var
+  SL: TStrings;
+  I: Integer;
+begin
+  if Editing and (EditCtrl <> nil) then begin // also see Apply
+    SL := TStringList.Create;
+    try
+      GetValueList(SL);
+      if SL.Count > 0 then begin
+        I := SL.IndexOf(DisplayValue);
+        Inc(I, Delta);
+        while I < 0 do
+          I := I + SL.Count;
+        while I >= SL.Count do
+          I := I - SL.Count;
+        EditCtrl.Text := SL[I];
+        Apply;
+      end;
+    finally
+      SL.Free;
+    end;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.SetDisplayValue(const Value: string);
+begin
+end;
+
+procedure TJvCustomInspectorItem.SetEditCtrl(const Value: TEdit);
+begin
+  if EditCtrl <> Value then begin
+    if EditCtrl <> nil then begin
+      FEditCtrlDestroying := True;
+      try
+        if Inspector.CanFocus and (EditCtrl.Focused or Inspector.Focused) then // Without "Inspector.Focused" every second click looses the focus
+          Inspector.SetFocus;
+
+        // Following Mantis 3391, setting the Focus may set EditCtrl to nil
+        if Assigned(EditCtrl) then begin
+          if EditCtrl.HandleAllocated then
+            SetOrClearNameForMSAA(EditCtrl.Handle, '');
+          EditCtrl.Free;
+        end;
+      finally
+        FEditCtrlDestroying := False;
+      end;
+    end;
+    FEditCtrl := Value;
+
+    if EditCtrl <> nil then begin
+      EditCtrl.Ctl3D := False;
+      EditCtrl.BorderStyle := bsNone;
+      EditCtrl.Parent := TWinControl(EditCtrl.Owner);
+    end;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.SetExpanded(Value: Boolean);
+begin
+  if Value <> Expanded then begin
+    if Value then
+      Flags := Flags + [iifExpanded]
+    else
+      Flags := Flags - [iifExpanded];
+  end;
+end;
+
+procedure TJvCustomInspectorItem.SetFlags(const Value: TInspectorItemFlags);
+var
+  NewFlags: TInspectorItemFlags;
+  OldFlags: TInspectorItemFlags;
+begin
+  NewFlags := Value;
+  if Flags <> NewFlags then begin
+    OldFlags := Flags;
+    FFlags := NewFlags;
+    OldFlags := OldFlags * [iifExpanded];
+    NewFlags := NewFlags * [iifExpanded];
+    if NewFlags <> OldFlags then begin
+      InvalidateList;
+      if Inspector <> nil then
+        Inspector.AnnounceStateChangeToMSAA(Integer(Inspector.FVisibleList.IndexOf(Self)));
+    end else
+      InvalidateItem;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.SetFocus;
+begin
+  if (EditCtrl <> nil) and EditCtrl.CanFocus then
+    EditCtrl.SetFocus
+  else
+    Inspector.SetFocus;
+end;
+
+procedure TJvCustomInspectorItem.SetRects(const RectKind: TInspectorPaintRect;
+  Value: TRect);
+begin
+  FLastPaintGen := Inspector.PaintGeneration;
+  if not EqualRect(Rects[RectKind], Value) then begin
+    FRects[RectKind] := Value;
+    if (RectKind = iprValueEdit) and (EditCtrl <> nil) then begin
+      EditCtrl.BoundsRect := Rects[iprValueEdit];
+      if DroppedDown then
+        CloseUp(False);
+    end;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.StopTracking;
+begin
+  if Tracking then begin
+    TrackButton(-1, -1);
+    Tracking := False;
+    Inspector.MouseCapture := False;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.TrackButton(X, Y: Integer);
+var
+  NewState: Boolean;
+  R: TRect;
+begin
+  R := Rects[iprValueButton];
+  NewState := PtInRect(R, Point(X, Y));
+  if Pressed <> NewState then begin
+    Pressed := NewState;
+    Windows.InvalidateRect(Inspector.Handle, @R, False);
+  end;
+end;
+
+procedure TJvCustomInspectorItem.Undo;
+begin
+  if Editing and Assigned(EditCtrl) then begin
+    EditCtrl.Text := DisplayValue;
+    EditCtrl.Modified := False;
+    EditCtrl.SelectAll;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.BeforeDestruction;
+begin
+  inherited;
+  if Parent <> nil then
+    Parent.FItems.Extract(Self); // FItems owns the items
+  if (Inspector <> nil) and (Inspector.FMarkedItem = Self) then
+    Inspector.FMarkedItem := nil;
+  if (Inspector <> nil) and (Inspector.FPressedItem = Self) then
+    Inspector.FPressedItem := nil;
+  if (Inspector <> nil) and (Inspector.Root <> Self) then
+    DoneEdit(True);
+  FItems.Free;
+  FItems := nil;
+end;
+
+procedure TJvCustomInspectorItem.DrawValue(const ACanvas: TCanvas);
+var
+  S: string;
+  ARect: TRect;
+begin
+  try
+    S := DisplayValue;
+  except
+    S := RsJvInspItemValueException + ExceptObject.ClassName + ': ' +
+      Exception(ExceptObject).Message;
+  end;
+  ARect := Rects[iprValueText];
+  if Editing then begin
+    ACanvas.Brush.Color := Inspector.BackgroundColor;
+    ACanvas.FillRect(Rects[iprValueArea]);
+  end;
+  DrawGlyph(ACanvas, ValueGlyph, Rects[iprValueGlyph], Rects[iprValueArea]);
+  if not Editing then
+    ACanvas.TextRect(ARect, ARect.Left, ARect.Top, S)
+  else begin
+    // Reposition the editor if the layout changed since InitEdit placed it,
+    // for example when InitEdit ran before the item was first painted
+    if (EditCtrl <> nil) and (EditCtrl.BoundsRect <> Rects[iprValueEdit]) then
+      EditCtrl.BoundsRect := Rects[iprValueEdit];
+    // This reduces the flickering when dragging the divider bar
+    if EditCtrl <> nil then
+      EditCtrl.PaintTo(ACanvas.Handle, EditCtrl.Left, EditCtrl.Top);
+    ARect := Rects[iprValueButton];
+    if not IsRectEmpty(ARect) then begin
+      if iifEditButton in Flags then begin
+        var BFlags: UINT := DFCS_BUTTONPUSH;
+        if Pressed then
+          BFlags := BFlags or DFCS_PUSHED;
+        DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
+        const ButtonText = '...';
+        // Undoes any OnCustomizeItemCanvas change such as a bold style
+        Inspector.ApplyValueFont(ACanvas);
+        const SaveBrushStyle = ACanvas.Brush.Style;
+        ACanvas.Brush.Style := bsClear;
+        try
+          ACanvas.TextOut(
+            ARect.Left + (ARect.Width - ACanvas.TextWidth(ButtonText)) div 2,
+            ARect.Top + (ARect.Height - ACanvas.TextHeight(ButtonText)) div 2,
+            ButtonText);
+        finally
+          ACanvas.Brush.Style := SaveBrushStyle;
+        end;
+      end else begin
+        var BFlags: UINT := 0;
+        if Pressed then
+          BFlags := DFCS_FLAT or DFCS_PUSHED;
+        DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_SCROLL, BFlags or DFCS_SCROLLCOMBOBOX, Inspector.CurrentPPI);
+      end;
+    end;
+  end;
+end;
+
+//=== { TJvInspectorListBox } ================================================
+
+procedure TJvInspectorListBox.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  with Params do begin
+    Style := Style or WS_BORDER;
+    ExStyle := WS_EX_TOOLWINDOW or WS_EX_TOPMOST;
+    AddBiDiModeExStyle(ExStyle);
+    WindowClass.Style := CS_SAVEBITS;
+  end;
+end;
+
+procedure TJvInspectorListBox.CreateWnd;
+begin
+  inherited;
+  Windows.SetParent(Handle, 0);
+end;
+
+procedure TJvInspectorListBox.KeyPress(var Key: Char);
+begin
+  case Key of
+    BackSpace, Esc:
+      FSearchText := '';
+    #32..High(Char):
+      begin
+        const TickCount = GetTickCount64;
+        if ((TickCount - FSearchTickCount >= 4000) and (FSearchText <> '')) then
+          FSearchText := '';
+        FSearchTickCount := TickCount;
+        if Length(FSearchText) < 32 then
+          FSearchText := FSearchText + Key;
+        SendMessage(Handle, LB_SELECTSTRING, -1, LPARAM(PChar(FSearchText)));
+        Key := #0;
+      end;
+  end;
+  inherited;
+end;
+
+procedure TJvInspectorListBox.MouseDown(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+var
+  R: TRect;
+  Pt: TPoint;
+begin
+  R := Rect(0, 0, Width, Height);
+  Pt := Point(X, Y);
+
+  if PtInRect(R, Pt) then begin
+    if not PtInRect(ClientRect, Pt) then
+      FNCClick := True;
+    FClicking := True;
+    inherited;
+  end else
+    FOnDeactivate(Self);
+end;
+
+procedure TJvInspectorListBox.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  UpdateSelectedItem(Point(X, Y));
+end;
+
+procedure TJvInspectorListBox.UpdateSelectedItem(const ClientPos: TPoint);
+begin
+  { Auto-update selection, like a standard combobox. Doesn't actually commit
+    selection item. }
+  const Index = ItemAtPos(ClientPos, True);
+  if Index >= 0 then
+    ItemIndex := Index;
+end;
+
+procedure TJvInspectorListBox.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+var
+  R: TRect;
+  Pt: TPoint;
+begin
+  R := Rect(0, 0, Width, Height);
+  Pt := Point(X, Y);
+
+  if FNCClick then
+    inherited
+  else if FClicking then begin
+    if PtInRect(ClientRect, Pt) then
+      FOnValueSelect(Self)
+    else
+      FOnDeactivate(Self);
+  end else
+    // MouseUps where FClicking is False
+    // have originated in the item that
+    // opened the list, let it know that
+    // the mouse has gone up again.
+    FItem.MouseUp(Button, Shift, X, Y);
+
+  FClicking := False;
+  FNCClick := False;
+end;
+
+procedure TJvInspectorListBox.WMMouseWheel(var Msg: TWMMouseWheel);
+begin
+  { Scroll ourselves, exactly like TJvInspector.DoMouseWheel does }
+  const NewTopIndex = WheelScrollTopIndex(FMouseWheelAccum, Msg.WheelDelta,
+    TopIndex, ClientHeight div ItemHeight);
+  if NewTopIndex <> TopIndex then begin
+    TopIndex := NewTopIndex;
+    { Scrolling puts another item under the mouse but sends no WM_MOUSEMOVE }
+    UpdateSelectedItem(ScreenToClient(SmallPointToPoint(Msg.Pos)));
+  end;
+end;
+
+procedure TJvCustomInspectorItem.InitEdit;
+var
+  Edit: TEdit;
+begin
+  { The editor is placed on the item's rects, which are normally set up while
+    painting. Without them it is created with an empty rect and Windows scrolls
+    the start of its text out of view, which the later reposition does not undo.
+    So ensure the rect is set to avoid this. }
+  if CanEdit and IsRectEmpty(Rects[iprValueEdit]) then begin
+    const ViewIdx = Integer(Inspector.FVisibleList.IndexOf(Self));
+    if ViewIdx >= 0 then begin
+      var PaintRect := Inspector.ClientRect;
+      PaintRect.Top := Inspector.IdxToY(ViewIdx - Inspector.TopIndex);
+      Inspector.SetupRects(Self, PaintRect);
+    end;
+  end;
+  FEditing := CanEdit;
+  if Editing and (FUpdateEditCtrl = 0) then begin
+    Edit := TEdit.Create(Inspector);
+    Edit.Visible := False;
+    Edit.OnExit := EditFocusLost;
+    SetEditCtrl(Edit);
+    EditCtrl.Color := Inspector.BackgroundColor;
+    // The editor shows the text the value was painted with, so it must use
+    // the exact font it was painted with: any metric difference makes the
+    // text visibly shift when editing starts or ends
+    EditCtrl.Font.Assign(Inspector.Font);
+    EditCtrl.Font.Color := Inspector.ValueColor;
+    // BeforeEdit is fired here, after the editor's font has been assigned, so a
+    // handler can still customize that font, and before Edit_WndProc is
+    // installed, so a WindowProc set by a handler gets wrapped instead of
+    // replacing the wrapper
+    if Assigned(Inspector.BeforeEdit) then
+      Inspector.BeforeEdit(Inspector as TObject, Self, EditCtrl);
+    FEditWndPrc := EditCtrl.WindowProc;
+    EditCtrl.WindowProc := Edit_WndProc;
+    EditCtrl.AutoSize := False;
+    EditCtrl.AutoSelect := not (csLButtonDown in Inspector.ControlState);
+    if iifValueList in Flags then begin
+      FListBox := TJvInspectorListBox.Create(Inspector);
+      FListBoxFilled := False;
+      ListBox.Visible := False;
+      ListBox.Parent := EditCtrl;
+      ListBox.IntegralHeight := True;
+      ListBox.OnValueSelect := ListValueSelect;
+      ListBox.OnDeactivate := ListDeactivate;
+      ListBox.Item := Self;
+    end;
+    EditCtrl.BoundsRect := Rects[iprValueEdit];
+    EditCtrl.OnKeyDown := EditKeyDown;
+    EditCtrl.OnKeyUp := EditKeyUp;
+    EditCtrl.OnKeyPress := EditKeyPress;
+    EditCtrl.OnMouseDown := EditMouseDown;
+    EditCtrl.Text := DisplayValue;
+    EditCtrl.Modified := False;
+    EditCtrl.Visible := True;
+    SetOrClearNameForMSAA(EditCtrl.Handle, DisplayName); { Must be done before focus }
+    if EditCtrl.CanFocus and Inspector.Focused then
+      EditCtrl.SetFocus;
+  end;
+end;
+
+procedure TJvCustomInspectorItem.DoneEdit(const CancelEdits: Boolean);
+begin
+  if Editing and (FUpdateEditCtrl = 0) then begin
+    if DroppedDown then
+      CloseUp(False);
+    if not CancelEdits and (DisplayValue <> EditCtrl.Text) then begin
+      Apply;
+      InvalidateItem;
+    end;
+    FreeAndNil(FListBox);
+
+    SetEditCtrl(nil);
+    FEditWndPrc := nil;
+  end;
+  FEditing := False;
+end;
+
+procedure TJvCustomInspectorItem.ScrollInView(const ACenter: Boolean);
+var
+  ViewIdx: Integer;
+  YDelta: Integer;
+begin
+  if not Assigned(Inspector) then
+    Exit;
+  if csDestroying in Inspector.ComponentState then
+    Exit; // bugfix attempt. WAP.Self
+
+  ViewIdx := Integer(Inspector.FVisibleList.IndexOf(Self));
+  if ViewIdx < 0 then
+    Exit;
+  const Above = Inspector.TopIndex > ViewIdx;
+  const Below = not Above and
+    (Inspector.IdxToY(ViewIdx - Inspector.TopIndex) + Inspector.GetItemHeight > Inspector.ClientHeight);
+  if ACenter then begin
+    if Above or Below then
+      Inspector.TopIndex := ViewIdx - (Inspector.ClientHeight div Inspector.GetItemHeight) div 2;
+  end else if Above then
+    Inspector.TopIndex := ViewIdx
+  else if Below then begin
+    YDelta := Inspector.IdxToY(ViewIdx - Inspector.TopIndex) + Inspector.GetItemHeight - Inspector.ClientHeight;
+    ViewIdx := Inspector.TopIndex + (YDelta + Inspector.GetItemHeight - 1) div Inspector.GetItemHeight;
+    if ViewIdx < Inspector.GetVisibleCount then
+      Inspector.TopIndex := ViewIdx;
+  end;
+end;
+
+//=== { TJvInspectorCustomCategoryItem } =====================================
+
+function TJvInspectorCustomCategoryItem.IsCategory: Boolean;
+begin
+  Result := True;
+end;
+
+procedure TJvInspectorCustomCategoryItem.SetFlags(const Value: TInspectorItemFlags);
+var
+  NewFlags: TInspectorItemFlags;
+begin
+  NewFlags := Value - [iifValueList] + [iifReadonly];
+  inherited SetFlags(NewFlags);
+end;
+
+//=== { TJvInspectorStringItem } =============================================
+
+function TJvInspectorStringItem.GetDisplayValue: string;
+begin
+  Result := AsString;
+end;
+
+procedure TJvInspectorStringItem.SetDisplayValue(const Value: string);
+begin
+  AsString := Value;
+end;
+
+//=== { TJvInspectorBooleanItem } ============================================
+
+procedure TJvInspectorBooleanItem.Toggle;
+begin
+  { Unchecked and indeterminate both toggle to checked }
+  const Bool = AsOrdinal <> Ord(True);
+  AsOrdinal := Ord(Bool);
+  InvalidateItem;
+  if Inspector <> nil then
+    Inspector.AnnounceStateChangeToMSAA(Integer(Inspector.FVisibleList.IndexOf(Self)));
+end;
+
+procedure TJvInspectorBooleanItem.EditKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Editing and (Shift = []) and (Key = VK_SPACE) then begin
+    if not FCheckKeyPressed then begin
+      FCheckKeyPressed := True;
+      FCheckPressed := True;
+      InvalidateItem;
+    end;
+  end else if FCheckKeyPressed then begin
+    FCheckKeyPressed := False;
+    if FCheckPressed and not FCheckTracking then begin
+      FCheckPressed := False;
+      InvalidateItem;
+    end;
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.EditKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if FCheckKeyPressed and (Key = VK_SPACE) then begin
+    FCheckKeyPressed := False;
+    FCheckPressed := False;
+    Toggle;
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.MouseDown(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if ssDouble in Shift then
+    Shift := Shift - [ssDouble];
+  if PtInRect(FClickRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then begin
+    FCheckTracking := True;
+    FCheckPressed := True;
+    InvalidateItem;
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  if FCheckTracking then begin
+    const NewPressed = PtInRect(FClickRect, Point(X, Y));
+    if FCheckPressed <> NewPressed then begin
+      FCheckPressed := NewPressed;
+      InvalidateItem;
+    end;
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.MouseUp(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  if FCheckTracking then begin
+    FCheckTracking := False;
+    FCheckPressed := False;
+    if PtInRect(FClickRect, Point(X, Y)) then
+      Toggle
+    else
+      InvalidateItem;
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.CancelPress;
+begin
+  if FCheckKeyPressed or FCheckTracking or FCheckPressed then begin
+    FCheckKeyPressed := False;
+    FCheckTracking := False;
+    FCheckPressed := False;
+    InvalidateItem;
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.DoneEdit(const CancelEdits: Boolean = False);
+begin
+  FCheckKeyPressed := False;
+  FCheckTracking := False;
+  FCheckPressed := False;
+  FEditing := False;
+end;
+
+procedure TJvInspectorBooleanItem.DrawValue(const ACanvas: TCanvas);
+var
+  ARect: TRect;
+  SaveIndex: Integer;
+  BoxSize: Integer;
+  BFlags: UINT;
+  LabelText: string;
+  LabelRect: TRect;
+begin
+  const Ordinal = AsOrdinal;
+  const IsMixed = Ordinal = IndeterminateOrdinal;
+  const IsTrue = Ordinal = Ord(True);
+
+  if Editing then
+    ACanvas.Brush.Color := Inspector.BackgroundColor;
+  ACanvas.FillRect(Rects[iprValueArea]);
+  BoxSize := MulDiv(CheckBoxSize, Inspector.CurrentPPI, 96);
+  ARect := Rects[iprValueArea];
+  Inc(ARect.Left, MulDiv(2, Inspector.CurrentPPI, 96));
+  Inc(ARect.Top, (ARect.Height - BoxSize) div 2);
+  ARect.Right := ARect.Left + BoxSize;
+  ARect.Bottom := ARect.Top + BoxSize;
+  { Clip all outside of the item rectangle }
+  var CheckRect: TRect;
+  IntersectRect(CheckRect, ARect, Rects[iprValueArea]);
+  SaveIndex := SaveDC(ACanvas.Handle);
+  try
+    IntersectClipRect(ACanvas.Handle, CheckRect.Left, CheckRect.Top,
+      CheckRect.Right, CheckRect.Bottom);
+    if IsMixed then
+      BFlags := DFCS_BUTTON3STATE or DFCS_CHECKED
+    else begin
+      BFlags := DFCS_BUTTONCHECK;
+      if IsTrue then
+        BFlags := BFlags or DFCS_CHECKED;
+    end;
+    if FCheckPressed then
+      BFlags := BFlags or DFCS_PUSHED; { See DrawThemedFrameControl for VCL Styles limitation }
+    DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
+  finally
+    RestoreDC(ACanvas.Handle, SaveIndex);
+  end;
+  if IsMixed then
+    LabelText := ''
+  else if IsTrue then
+    LabelText := 'yes'
+  else
+    LabelText := 'no';
+  LabelRect := Rects[iprValueArea];
+  LabelRect.Left := ARect.Right + MulDiv(CheckBoxLabelGap, Inspector.CurrentPPI, 96);
+  FClickRect := CheckRect;
+  FClickRect.Right := LabelRect.Left + ACanvas.TextWidth(LabelText);
+  IntersectRect(FClickRect, FClickRect, Rects[iprValueArea]);
+  const TextTop = LabelRect.Top + (LabelRect.Height - ACanvas.TextHeight(LabelText)) div 2;
+  const SaveBrushStyle = ACanvas.Brush.Style;
+  ACanvas.Brush.Style := bsClear;
+  try
+    ACanvas.TextOut(LabelRect.Left, TextTop, LabelText);
+  finally
+    ACanvas.Brush.Style := SaveBrushStyle;
+  end;
+  if (LabelText <> '') and Inspector.Focused and (Inspector.Selected = Self) and
+     (SendMessage(Inspector.Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS = 0) then begin
+    var FocusRect := Rect(LabelRect.Left, TextTop,
+      LabelRect.Left + ACanvas.TextWidth(LabelText), TextTop + ACanvas.TextHeight(LabelText));
+    InflateRect(FocusRect, MulDiv(1, Inspector.CurrentPPI, 96), MulDiv(1, Inspector.CurrentPPI, 96));
+    IntersectRect(FocusRect, FocusRect, Rects[iprValueArea]);
+    ACanvas.DrawFocusRect(FocusRect);
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.InitEdit;
+begin
+  FEditing := CanEdit;
+end;
+
+end.

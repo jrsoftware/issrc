@@ -18,20 +18,19 @@ uses
 type
   TLZMACustomDecompressor = class(TCustomDecompressor)
   private
-    FReachedEnd: Boolean;
     FHeaderProcessed: Boolean;
     FNextIn: PByte;
     FAvailIn: Cardinal;
-    FBuffer: array[0..65535] of Byte;
+    FInBuffer: array[0..65535] of Byte;
   protected
     function DecodeToBuf(var Dest; var DestLen: Cardinal; const Src;
       var SrcLen: Cardinal; var Status: Integer): Integer; virtual; abstract;
+    procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
+    procedure DoReset; override;
     procedure FreeDecoder; virtual; abstract;
     procedure ProcessHeader; virtual; abstract;
   public
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Cardinal); override;
-    procedure Reset; override;
   end;
 
 type
@@ -176,7 +175,7 @@ begin
   inherited;
 end;
 
-procedure TLZMACustomDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+procedure TLZMACustomDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
 var
   NextOut: PByte;
   OutBytes, InBytes: Cardinal;
@@ -185,7 +184,7 @@ var
 begin
   if not FHeaderProcessed then begin
     { Reset these following a reset }
-    FNextIn := PByte(@FBuffer);
+    FNextIn := PByte(@FInBuffer);
     FAvailIn := 0;
     ProcessHeader;
     FHeaderProcessed := True;
@@ -193,11 +192,9 @@ begin
   NextOut := @Buffer;
   var AvailOut := Count;
   while AvailOut > 0 do begin
-    if (FAvailIn = 0) and not FReachedEnd then begin
-      FNextIn := PByte(@FBuffer);
-      FAvailIn := ReadProc(FBuffer, SizeOf(FBuffer));
-      if FAvailIn = 0 then
-        FReachedEnd := True;  { not really necessary, but for consistency }
+    if FAvailIn = 0 then begin
+      FNextIn := PByte(@FInBuffer);
+      FAvailIn := ReadInput(FInBuffer, SizeOf(FInBuffer));
     end;
     OutBytes := AvailOut;
     InBytes := FAvailIn;
@@ -222,10 +219,9 @@ begin
   end;
 end;
 
-procedure TLZMACustomDecompressor.Reset;
+procedure TLZMACustomDecompressor.DoReset;
 begin
   FHeaderProcessed := False;
-  FReachedEnd := False;
 end;
 
 { TLZMA1Decompressor }
@@ -243,7 +239,7 @@ var
   end;
 begin
   { Read header fields }
-  if ReadProc(Props, SizeOf(Props)) <> SizeOf(Props) then
+  if ReadInput(Props, SizeOf(Props)) <> SizeOf(Props) then
     LZMADecompDataError(1);
 
   if Props.DictionarySize > MaxDictionarySize then
@@ -296,7 +292,7 @@ var
   Prop: Byte;
 begin
   { Read header fields }
-  if ReadProc(Prop, SizeOf(Prop)) <> SizeOf(Prop) then
+  if ReadInput(Prop, SizeOf(Prop)) <> SizeOf(Prop) then
     LZMADecompDataError(1);
 
   if Prop > 40 then

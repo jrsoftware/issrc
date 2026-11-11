@@ -121,7 +121,7 @@ type
   PUninstallLogFlags = ^TUninstallLogFlags;
   TUninstallLogFlags = set of (ufAdminInstalled, ufDontCheckRecCRCs,
     ufDoNotUse0, ufAlwaysRestart, ufChangesEnvironment, ufWin64,
-    ufPowerUserInstalled, ufAdminInstallMode,
+    ufPowerUserInstalled { no longer written }, ufAdminInstallMode,
     ufDoNotUse1, ufDoNotUse2, ufDoNotUse3, ufDoNotUse4, ufDoNotUse5,
     { ^ these and also ufDoNotUse0 cannot be used again, were used for ufWizardModern,
         ufWizardDarkStyleDark, ufWizardDarkStyleDynamic, ufWizardBorderStyled,

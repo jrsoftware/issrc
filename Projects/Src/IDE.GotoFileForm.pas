@@ -12,7 +12,7 @@ unit IDE.GotoFileForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls,
+  Types, Classes, Controls, StdCtrls,
   IDE.IDEForm;
 
 type
@@ -23,11 +23,14 @@ type
     GotoFileEdit: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure GotoFileListBoxDblClick(Sender: TObject);
+    procedure GotoFileListBoxDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
+      State: TOwnerDrawState);
     procedure GotoFileEditOrListBoxKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure GotoFileEditChange(Sender: TObject);
     procedure OKButtonClick(Sender: TObject);
   private
     FFiles: TStrings;
+    FImageNames: TStrings;
     FFileIndex: Integer;
     procedure SetFiles(Value: TStrings);
     procedure UpdateGotoFileListBox;
@@ -36,14 +39,16 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
   public
     property Files: TStrings write SetFiles;
+    property ImageNames: TStrings write FImageNames;
     property FileIndex: Integer read FFileIndex;
   end;
 
 implementation
 
 uses
-  Windows, Messages,
-  PathFunc;
+  Windows, Messages, Math, Graphics,
+  PathFunc,
+  IDE.HelperFunc, IDE.ImagesModule;
 
 {$R *.DFM}
 
@@ -51,6 +56,11 @@ procedure TGotoFileForm.FormCreate(Sender: TObject);
 begin
   { Finish localization }
   SizeBottomButtons(OKButton, CancelButton);
+
+  { Make items tall enough for the icons }
+  GotoFileListBox.Canvas.Font.Assign(GotoFileListBox.Font);
+  GotoFileListBox.ItemHeight := Max(GotoFileListBox.Canvas.TextHeight('0') + 1,
+    ToCurrentPPI(16) + 2);
 end;
 
 procedure TGotoFileForm.SetFiles(Value: TStrings);
@@ -117,6 +127,26 @@ begin
       Key := 0;
     end;
   end;
+end;
+
+procedure TGotoFileForm.GotoFileListBoxDrawItem(Control: TWinControl; Index: Integer;
+  Rect: TRect; State: TOwnerDrawState);
+begin
+  const Canvas = GotoFileListBox.Canvas;
+  const S = GotoFileListBox.Items[Index];
+  const FileIndex = Integer(GotoFileListBox.Items.Objects[Index]);
+
+  Canvas.FillRect(Rect);
+  const WH = ToCurrentPPI(16);
+  const R = TRect.Create(TPoint.Create(Rect.Left + ToCurrentPPI(2),
+    Rect.Top + (Rect.Height - WH) div 2), WH, WH);
+  if (FImageNames <> nil) and (FileIndex < FImageNames.Count) then
+    ImagesModule.ListImageCollection[InitFormThemeIsDark].Draw(Canvas, R, FImageNames[FileIndex]);
+  Canvas.TextOut(R.Right + ToCurrentPPI(4), R.Top + (R.Height - Canvas.TextHeight(S)) div 2, S);
+  { TCustomListBox.CNDrawItem doesn't call DrawFocusRect when a custom style is active }
+  if (odFocused in State) and not (odNoFocusRect in State) and
+     GotoFileListBox.IsCustomStyleActive then
+    Canvas.DrawFocusRect(Rect);
 end;
 
 procedure TGotoFileForm.GotoFileListBoxDblClick(Sender: TObject);

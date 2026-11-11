@@ -16,7 +16,14 @@ uses
   Windows,
   Compression.Base in 'Src\Compression.Base.pas',
   ISPP.Consts in 'Src\ISPP.Consts.pas',
+  isxclasses_wordlists_generated in '..\ISHelp\isxclasses_wordlists_generated.pas',
+  Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
+  Shared.LangOptionsSectionDirectives in 'Src\Shared.LangOptionsSectionDirectives.pas',
+  Shared.ScriptFunc in 'Src\Shared.ScriptFunc.pas',
+  Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
+  Shared.SetupSectionDirectives in 'Src\Shared.SetupSectionDirectives.pas',
+  Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
   Shared.Struct in 'Src\Shared.Struct.pas',
   ECDSA in '..\Components\ECDSA.pas',
@@ -26,6 +33,12 @@ uses
   ChaCha20.Test in '..\Components\ChaCha20.Test.pas',
   Compiler.StringLists in 'Src\Compiler.StringLists.pas',
   Compiler.StringLists.Test in 'Src\Compiler.StringLists.Test.pas',
+  IDE.ScriptModel in 'Src\IDE.ScriptModel.pas',
+  IDE.ScriptModel.Metadata in 'Src\IDE.ScriptModel.Metadata.pas',
+  IDE.ScriptModel.Metadata.Extra in 'Src\IDE.ScriptModel.Metadata.Extra.pas',
+  IDE.ScriptModel.Metadata.Extra.FunctionDefinitions in 'Src\IDE.ScriptModel.Metadata.Extra.FunctionDefinitions.pas',
+  IDE.ScriptModel.Metadata.Extra.WordLists in 'Src\IDE.ScriptModel.Metadata.Extra.WordLists.pas',
+  IDE.ScriptModel.Test in 'Src\IDE.ScriptModel.Test.pas',
   ISPP.CTokenizer in 'Src\ISPP.CTokenizer.pas',
   ISPP.CTokenizer.Test in 'Src\ISPP.CTokenizer.Test.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
@@ -357,6 +370,7 @@ begin
     BidiUtilsRunTests;
     ChaCha20RunTests;
     CompilerStringListsRunTests;
+    IDEScriptModelRunTests;
     ISPPCTokenizerRunTests;
     ISSigFuncRunTests;
     MD5RunTests;

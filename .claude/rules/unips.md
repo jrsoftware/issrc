@@ -3,15 +3,14 @@ paths: ["Components/UniPs/**"]
 ---
 # Instructions for UniPs (Pascal Script) components
 
-## Upstream origin
+## Origin
 
-These files are copies of the RemObjects Pascal Script `stable` branch (see `rev.txt` for the commit hash).
+These files are Inno Setup's own version of RemObjects Pascal Script. Inno Setup no longer follows the upstream repository.
 
-You may still edit them, but:
+When you edit them:
 - Do not refactor the code style to match Inno Setup conventions.
-- Keep changes minimal and focused. Even though Inno Setup is a Delphi Windows codebase, the Pascal Script code is cross-platform: it compiles under multiple compilers (Delphi and FPC), operating systems (Windows and others), and CPU bitnesses (32- and 64-bit). A change must either be correct on every combination, or be guarded so it only affects the ones you have verified. Useful guards: `{$IFDEF DELPHI}` / `{$IFDEF FPC}` (compiler), `{$IFDEF MSWINDOWS}` (OS), and `{$IFDEF CPU64}` (bitness).
-  Inno Setup always builds with Delphi on Windows, in both 32- and 64-bit, so your change must be correct there. Improving support for the platforms Inno Setup does not use (FPC, non-Windows) is a bonus, but extend a change to them only when it is easy and correctness is easy to confirm; otherwise guard the change.
-- Don't edit or inspect `rev.txt` as it is an auto-generated bookkeeping file.
+- Keep changes minimal and focused. Inno Setup always builds with Delphi on Windows, in both 32- and 64-bit, so a change must be correct on both. Use `{$IFDEF CPU64}` for code that differs by bitness.
+- Code for compilers and platforms that Inno Setup does not use (FPC, non-Windows) is dead code, see `Components/UniPs/README.md`. Do not extend a change to it, and do not add new guards for it.
 
 ## Registration: compile-time (uPSC_) vs runtime (uPSR_)
 

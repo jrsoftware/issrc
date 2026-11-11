@@ -19,9 +19,12 @@ type
     English, Localized: String;
   end;
 
-  TIDELanguage = (ilEnglish, ilCzech, ilDutch, ilGerman, ilJapanese);
+  TIDELanguage = (ilEnglish, ilCzech, ilDutch, ilGerman, ilJapanese, ilFrench,
+    ilSpanish, ilItalian, ilChineseSimplified, ilChineseTraditional, ilKorean);
 
 procedure InitLocalization(const Lang: TIDELanguage; const Reverse: Boolean = False);
+
+function GetActiveLanguage: TIDELanguage;
 
 function LFmtMessage(const Str: String; const AllowEmpty: Boolean = False): String; overload;
 function LFmtMessage(const Str: String; const Args: array of const;
@@ -29,18 +32,29 @@ function LFmtMessage(const Str: String; const Args: array of const;
 function LFmtMessage(const Language: TIDELanguage; const Str: String;
   const Args: array of const; const AllowEmpty: Boolean = False): String; overload;
 
+function LCompareText(const S1, S2: String): Integer;
+
 procedure LocalizeComponent(const Component: TComponent);
 
 implementation
 
 uses
+  Windows,
   SysUtils, Actions, Controls, StdCtrls, Menus, Generics.Collections,
   NewTabSet, ScintEdit,
-  IDE.LocalizeFunc.Czech, IDE.LocalizeFunc.Dutch, IDE.LocalizeFunc.German,
-  IDE.LocalizeFunc.Japanese;
+  IDE.LocalizeFunc.ChineseSimplified, IDE.LocalizeFunc.ChineseTraditional,
+  IDE.LocalizeFunc.Czech, IDE.LocalizeFunc.Dutch, IDE.LocalizeFunc.French,
+  IDE.LocalizeFunc.German, IDE.LocalizeFunc.Italian, IDE.LocalizeFunc.Japanese,
+  IDE.LocalizeFunc.Korean, IDE.LocalizeFunc.Spanish;
+
+const
+  IDELocaleIDs: array [TIDELanguage] of TLocaleID =
+    ($0409, $0405, $0413, $0407, $0411, $040C, $0C0A, $0410, $0804, $0404, $0412);
 
 var
   TranslationDictionary: TDictionary<String, String>;
+  TranslationLanguage: TIDELanguage;
+  TranslationLocaleID: TLocaleID;
   ResourceStringHookInstalled: Boolean;
   OrgLoadResStringFunc: function(ResStringRec: PResStringRec): String;
 
@@ -53,6 +67,17 @@ end;
 function NewLoadResStringFunc(ResStringRec: PResStringRec): String;
 begin
   Result := TranslateMessage(OrgLoadResStringFunc(ResStringRec));
+end;
+
+function GetSafeLocaleID(const Lang: TIDELanguage): TLocaleID;
+begin
+  Result := IDELocaleIDs[Lang];
+  { Windows should have the data for all our languages built in but Wine might not,
+    and a locale rejected by CompareString would make LCompareText fail always,
+    which breaks any sort using it. }
+  if not IsValidLocale(Result, LCID_SUPPORTED) or
+     (String.Compare('a', 'b', [coIgnoreCase], Result) <> -1) then { paranoia }
+    Result := LOCALE_INVARIANT;
 end;
 
 procedure InitLocalization(const Lang: TIDELanguage; const Reverse: Boolean);
@@ -83,8 +108,24 @@ begin
     ilDutch: AddTranslations(DutchIDETranslations);
     ilGerman: AddTranslations(GermanIDETranslations);
     ilJapanese: AddTranslations(JapaneseIDETranslations);
+    ilFrench: AddTranslations(FrenchIDETranslations);
+    ilSpanish: AddTranslations(SpanishIDETranslations);
+    ilItalian: AddTranslations(ItalianIDETranslations);
+    ilChineseSimplified: AddTranslations(ChineseSimplifiedIDETranslations);
+    ilChineseTraditional: AddTranslations(ChineseTraditionalIDETranslations);
+    ilKorean: AddTranslations(KoreanIDETranslations);
   end;
+  if Reverse then
+    TranslationLanguage := ilEnglish
+  else
+    TranslationLanguage := Lang;
+  TranslationLocaleID := GetSafeLocaleID(TranslationLanguage);
   InstallResourceStringHook;
+end;
+
+function GetActiveLanguage: TIDELanguage;
+begin
+  Result := TranslationLanguage;
 end;
 
 function FmtIDEMessage(S: PChar; const Args: array of const): String;
@@ -187,6 +228,12 @@ function LFmtMessage(const Language: TIDELanguage; const Str: String;
       ilDutch: Result := GetTranslationFrom(DutchIDETranslations, Localized);
       ilGerman: Result := GetTranslationFrom(GermanIDETranslations, Localized);
       ilJapanese: Result := GetTranslationFrom(JapaneseIDETranslations, Localized);
+      ilFrench: Result := GetTranslationFrom(FrenchIDETranslations, Localized);
+      ilSpanish: Result := GetTranslationFrom(SpanishIDETranslations, Localized);
+      ilItalian: Result := GetTranslationFrom(ItalianIDETranslations, Localized);
+      ilChineseSimplified: Result := GetTranslationFrom(ChineseSimplifiedIDETranslations, Localized);
+      ilChineseTraditional: Result := GetTranslationFrom(ChineseTraditionalIDETranslations, Localized);
+      ilKorean: Result := GetTranslationFrom(KoreanIDETranslations, Localized);
     else
       Result := False;
     end;
@@ -198,6 +245,11 @@ begin
   if not GetTranslationForLanguage(Result) then
     Result := Str;
   Result := FmtIDEMessage(PChar(Result), Args);
+end;
+
+function LCompareText(const S1, S2: String): Integer;
+begin
+  Result := String.Compare(S1, S2, [coIgnoreCase], TranslationLocaleID);
 end;
 
 type
@@ -243,6 +295,12 @@ begin
       const ControlAccess = TControlAccess(Control);
       if ControlAccess.Text <> '' then { This is both Caption and Text }
         ControlAccess.Text := LFmtMessage(ControlAccess.Text);
+
+      if Control is TCustomEdit then begin
+        const Edit = TCustomEdit(Control);
+        if Edit.TextHint <> '' then
+          Edit.TextHint := LFmtMessage(Edit.TextHint);
+      end;
     end;
 
     { Of the following, only TNewTabSet.Tabs is currently actually
@@ -274,6 +332,7 @@ end;
 
 initialization
   TranslationDictionary := TDictionary<String, String>.Create;
+  TranslationLocaleID := GetSafeLocaleID(TranslationLanguage);
 finalization
   if ResourceStringHookInstalled then
     LoadResStringFunc := OrgLoadResStringFunc;

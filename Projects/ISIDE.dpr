@@ -20,12 +20,19 @@ uses
   Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   IDE.HelperFunc in 'Src\IDE.HelperFunc.pas',
+  IDE.HelperFunc.Test in 'Src\IDE.HelperFunc.Test.pas',
   IDE.Messages in 'Src\IDE.Messages.pas',
   IDE.LocalizeFunc in 'Src\IDE.LocalizeFunc.pas',
+  IDE.LocalizeFunc.ChineseSimplified in 'Src\IDE.LocalizeFunc.ChineseSimplified.pas',
+  IDE.LocalizeFunc.ChineseTraditional in 'Src\IDE.LocalizeFunc.ChineseTraditional.pas',
   IDE.LocalizeFunc.Czech in 'Src\IDE.LocalizeFunc.Czech.pas',
   IDE.LocalizeFunc.Dutch in 'Src\IDE.LocalizeFunc.Dutch.pas',
+  IDE.LocalizeFunc.French in 'Src\IDE.LocalizeFunc.French.pas',
   IDE.LocalizeFunc.German in 'Src\IDE.LocalizeFunc.German.pas',
+  IDE.LocalizeFunc.Italian in 'Src\IDE.LocalizeFunc.Italian.pas',
   IDE.LocalizeFunc.Japanese in 'Src\IDE.LocalizeFunc.Japanese.pas',
+  IDE.LocalizeFunc.Korean in 'Src\IDE.LocalizeFunc.Korean.pas',
+  IDE.LocalizeFunc.Spanish in 'Src\IDE.LocalizeFunc.Spanish.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
   Shared.CompilerInt.Struct in 'Src\Shared.CompilerInt.Struct.pas',
   IDE.OptionsForm in 'Src\IDE.OptionsForm.pas' {OptionsForm},
@@ -92,6 +99,20 @@ uses
   Resample in '..\Components\Resample.pas',
   UnsignedFunc in '..\Components\UnsignedFunc.pas',
   Toolbar.Accessibility in '..\Components\Toolbar.Accessibility.pas',
+  JvInspector in '..\Components\JvInspector.pas',
+  JvInspector.MSAA in '..\Components\JvInspector.MSAA.pas',
+  uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas',
+  IDE.ScriptModel in 'Src\IDE.ScriptModel.pas',
+  IDE.ScriptModel.Metadata in 'Src\IDE.ScriptModel.Metadata.pas',
+  IDE.ScriptModel.Metadata.Extra in 'Src\IDE.ScriptModel.Metadata.Extra.pas',
+  IDE.ScriptModel.Metadata.Extra.FunctionDefinitions in 'Src\IDE.ScriptModel.Metadata.Extra.FunctionDefinitions.pas',
+  IDE.ScriptModel.Metadata.Extra.WordLists in 'Src\IDE.ScriptModel.Metadata.Extra.WordLists.pas',
+  IDE.ScriptModel.Test in 'Src\IDE.ScriptModel.Test.pas',
+  IDE.LiveScriptObjectFactory in 'Src\IDE.LiveScriptObjectFactory.pas',
+  IDE.LiveScriptObjectFactory.Test in 'Src\IDE.LiveScriptObjectFactory.Test.pas',
+  IDE.Inspector in 'Src\IDE.Inspector.pas',
+  IDE.Navigator in 'Src\IDE.Navigator.pas',
+  IDE.Minimap in 'Src\IDE.Minimap.pas',
   VCL.Styles,
   VCL.Themes,
   IDE.MainForm.MRUHelper in 'Src\IDE.MainForm.MRUHelper.pas',
@@ -159,7 +180,13 @@ begin
         CommandLine := '-cc ' + CommandLine;
     end;
 
-    if Length(CommandLine) > RESTART_MAX_CMD_LINE then
+    if CommandLineLanguageSet then
+      CommandLine := TrimRight('-lang ' + IDELanguageTags[CommandLineLanguage] + ' ' + CommandLine);
+
+    if CommandLineNoRecentlyOpened then
+      CommandLine := TrimRight('-norecent ' + CommandLine);
+
+    if Length(CommandLine) >= RESTART_MAX_CMD_LINE then
       CommandLine := '';
 
     Func(PWideChar(CommandLine), RESTART_NO_CRASH or RESTART_NO_HANG or RESTART_NO_REBOOT);
@@ -186,13 +213,27 @@ var
 
 procedure CheckParams;
 
+  function LanguageTags: String;
+  begin
+    Result := '';
+    for var Language := Low(TIDELanguage) to High(TIDELanguage) do begin
+      if Result <> '' then
+        Result := Result + '|';
+      Result := Result + IDELanguageTags[Language];
+    end;
+  end;
+
   procedure Error;
   begin
     const CommandLineHelp = '%s' + SNewLine2 +
       'iside -cc <%s>' + SNewLine +
       'iside --compile <%1:s>' + SNewLine +
       'iside -wizard <%s> <%1:s>' + SNewLine +
-      'iside --new-script-wizard <%2:s> <%1:s>' + SNewLine2 +
+      'iside --new-script-wizard <%2:s> <%1:s>' + SNewLine +
+      'iside -lang <' + LanguageTags + '>' + SNewLine +
+      'iside --language <' + LanguageTags + '>' + SNewLine +
+      'iside -norecent <%1:s>' + SNewLine +
+      'iside --no-recently-opened <%1:s>' + SNewLine2 +
       '%3:s' + SNewLine +
       'iside -cc "C:\Inno Setup\Sample32\%s.iss"' + SNewLine +
       'iside -wizard "%s" c:\temp.iss';
@@ -230,6 +271,16 @@ begin
       CommandLineWizardName := NewParamStr(I+1);
       Inc(I);
     end
+    else if IsParam(S, 'lang', 'language') then begin
+      if I = P then
+        Error;
+      if not TryStrToLanguage(NewParamStr(I+1), CommandLineLanguage) then
+        Error;
+      CommandLineLanguageSet := True;
+      Inc(I);
+    end
+    else if IsParam(S, 'norecent', 'no-recently-opened') then
+      CommandLineNoRecentlyOpened := True
     else if IsParam(S, 'assoc', 'associate') then begin
       try
         RegisterISSFileAssociation(False, Dummy);

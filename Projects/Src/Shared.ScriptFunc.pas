@@ -116,7 +116,7 @@ var
     'function TestInnerfuse_ReturnSet6StdCall(A, B: Integer): TTestHandlerSet6;'
   ];
 
-{$IFDEF ISIDEPROJ}
+{$IF DEFINED(ISIDEPROJ) OR DEFINED(ISTESTTOOLPROJ)}
 
   { These are just for ISIDE and should not be used by ISCmplr or Setup because
     they're already registered by TPSPascalCompiler.DefineStandardProcedures and
@@ -437,7 +437,6 @@ initialization
     //
     'function IsAdmin: Boolean;',
     'function IsAdminLoggedOn: Boolean;', { old name of IsAdmin }
-    'function IsPowerUserLoggedOn: Boolean;',
     'function IsAdminInstallMode: Boolean;',
     'function FontExists(const FaceName: String): Boolean;',
     'function GetUILanguage: Integer;',
@@ -699,6 +698,7 @@ initialization
     'function GetUninstallProgressForm: TUninstallProgressForm;',
     'function CreateCallback(Method: AnyMethod): NativeInt;',
     'function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;',
+    'function IsDotNetRuntimeInstalled(const Runtime: String; const PackedMinVersion: Int64; const Architecture: TSetupProcessorArchitecture): Boolean;',
     'function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;',
     'function InitializeBitmapButtonFromIcon(const BitmapButton: TBitmapButton; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
     'function InitializeBitmapImageFromIcon(const BitmapImage: TBitmapImage; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;',
