@@ -1188,6 +1188,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel and HUnregisterClick }
           LFmtMessage(SUpdatePanelUsingCommercially, ['hpurchase']), BannerBlue, True);
       end;
+      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create('Do not use this preview to build installers you will use in production.', '', 0, BannerRed, False));
       UpdateUpdatePanel;
 
       { Debug options }
