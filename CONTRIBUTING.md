@@ -8,7 +8,7 @@ For conditions of distribution and use, see LICENSE.TXT.
 Contributing issues
 -------------------
 
-To report bugs or request new features use the [forum](https://jrsoftware.org/forums.php).
+To report bugs or request new features use the [forum](https://jrsoftware.org/inno-setup/forums).
 
 Contributing new code or documentation updates
 ----------------------------------------------
@@ -54,4 +54,4 @@ https://git-scm.com/
 Contributing translations
 -------------------------
 
-To contribute translations please see https://jrsoftware.org/files/istrans/send.php.
+To contribute translations please see https://jrsoftware.org/inno-setup/translations/submit.

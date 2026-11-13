@@ -362,12 +362,12 @@ end;
 
 procedure OpenDonateSite;
 begin
-  LaunchFileOrURL('https://jrsoftware.org/isdonate.php');
+  LaunchFileOrURL('https://jrsoftware.org/inno-setup/donate');
 end;
 
 procedure OpenMailingListSite;
 begin
-  LaunchFileOrURL('https://jrsoftware.org/ismail.php');
+  LaunchFileOrURL('https://jrsoftware.org/inno-setup/mailing-list');
 end;
 
 procedure LoadConfigIniList(const AIni: TConfigIniFile; const ASection, AIdent: String;

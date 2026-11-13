@@ -112,7 +112,7 @@
 <b>Inno Setup version 7.2.0-dev</b><br/>
 <b>Copyright &copy; 1997-2026 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2026 Martijn Laan. All rights reserved.</b><br/>
-<extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
+<extlink href="https://jrsoftware.org/inno-setup">Inno Setup home page</extlink>
 </p>
 
 <p>Inno Setup is an open-source installation builder for Windows applications by Jordan Russell and Martijn Laan. Since its introduction in 1997, Inno Setup has been trusted by developers and organizations of all sizes to reliably deploy software to millions of PCs worldwide.</p>
@@ -172,7 +172,7 @@ Includes integrated support for zlib (zip), bzip2, Zstandard (zstd), and 7-Zip L
 
 <p>Inno Setup is copyrighted software. There are some restrictions on distribution and use; see the <extlink href="https://jrsoftware.org/files/is/license.txt"><tt>LICENSE.TXT</tt></extlink> file for details.</p>
 
-<p>All commercial users of Inno Setup are requested to <extlink href="https://jrsoftware.org/isorder.php">purchase a commercial license</extlink>.</p>
+<p>All commercial users of Inno Setup are requested to <extlink href="https://jrsoftware.org/inno-setup/purchase">purchase a commercial license</extlink>.</p>
 
 </body>
 </topic>
@@ -3234,7 +3234,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 
 <p>The Frequently Asked Questions is now located in a separate document. Please click the "Inno Setup FAQ" shortcut created in the Start menu when you installed Inno Setup, or open the <tt>isfaq.url</tt> file in your Inno Setup directory.</p>
 
-<p>For the most recent Frequently Asked Questions, go to <extlink href="https://jrsoftware.org/isfaq.php">https://jrsoftware.org/isfaq.php</extlink></p>
+<p>For the most recent Frequently Asked Questions, go to <extlink href="https://jrsoftware.org/inno-setup/faq">https://jrsoftware.org/inno-setup/faq</extlink>.</p>
 
 </body>
 </topic>
@@ -4307,7 +4307,7 @@ iside --no-recently-opened <i>&lt;script name&gt;</i></precode>
 <li>The Inno Setup source code is self-contained and no external dependencies are pulled in when a release is built.</li>
 <li>Precompiled files included in Inno Setup's source code are code signed and are accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files to detect corruption or tampering before using them to build a release.</li>
 <li>Vendor updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Zstandard, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available. Of the named sources, only LZMA SDK is an integral part of the Setup program, and only in a reduced form.</li>
-<li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files you can use to detect corruption or tampering before running them. For more details, see <extlink href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</extlink>.</li>
+<li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files you can use to detect corruption or tampering before running them. For more details, see <extlink href="https://jrsoftware.org/inno-setup/downloads/verify">Verifying Inno Setup Downloads</extlink>.</li>
 <li>Our GitHub repositories require signed commits on all branches, have GitHub Actions disabled, and do not allow any workflows to run.</li>
 </ul>
 
@@ -4316,7 +4316,7 @@ iside --no-recently-opened <i>&lt;script name&gt;</i></precode>
 <p>We welcome good-faith security reports:</p>
 
 <ul>
-<li>If you discover a security vulnerability in Inno Setup, please <extlink href="https://jrsoftware.org/contact.php">contact us</extlink> privately before making it public.</li>
+<li>If you discover a security vulnerability in Inno Setup, please <extlink href="https://jrsoftware.org/contact">contact us</extlink> privately before making it public.</li>
 <li>Before reporting, make sure you fully understand the issue yourself and can explain it in your own words.</li>
 <li>We have extensive knowledge of what constitutes a security vulnerability in Windows, and what does not. When you are unsure, please reframe your report as a request for defense-in-depth.</li>
 <li>For example, <extlink href="https://learn.microsoft.com/en-us/previous-versions/technet-magazine/dd822916(v=msdn.10)">as Microsoft points out</extlink>, User Account Control (UAC) elevation is a convenience feature, not a security boundary.</li>
@@ -5127,7 +5127,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="License key" />
 <body>
 
-<p>To support our development efforts, we request that all commercial users of Inno Setup <extlink href="https://jrsoftware.org/isorder.php">purchase licenses</extlink>, regardless of the version being used.</p>
+<p>To support our development efforts, we request that all commercial users of Inno Setup <extlink href="https://jrsoftware.org/inno-setup/purchase">purchase licenses</extlink>, regardless of the version being used.</p>
 
 <p>Thank you for helping ensure the continued development of this software.</p>
 
@@ -5147,7 +5147,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <p>A license key is a string of at least 108 characters. It always starts with <tt>in</tt> and ends with <tt>no</tt>. To users the key is presented as multiple lines of 28 characters per line.</p>
 
-<p>Please note that installers built without a license are not explicitly marked as unlicensed. This means you may choose not to install the license key on CI machines, even though we ask you to <extlink href="https://jrsoftware.org/isorder.php#howmanylicenses">assign licenses to them</extlink>.</p>
+<p>Please note that installers built without a license are not explicitly marked as unlicensed. This means you may choose not to install the license key on CI machines, even though we ask you to <extlink href="https://jrsoftware.org/inno-setup/purchase#howmanylicenses">assign licenses to them</extlink>.</p>
 
 <p>Also see <link topic="donate">Donate to Inno Setup</link>.</p>
 
@@ -5162,7 +5162,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="Non-commercial use" />
 <body>
 
-<p>We're not requesting that non-commercial users purchase licenses - but <extlink href="https://jrsoftware.org/isdonate.php">donations</extlink> of any amount, from both non-commercial and commercial users, are accepted and appreciated.</p>
+<p>We're not requesting that non-commercial users purchase licenses - but <extlink href="https://jrsoftware.org/inno-setup/donate">donations</extlink> of any amount, from both non-commercial and commercial users, are accepted and appreciated.</p>
 
 <p>Thank you for helping ensure the continued development of this software.</p>
 

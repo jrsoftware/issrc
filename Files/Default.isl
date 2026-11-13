@@ -1,7 +1,7 @@
 ; *** Inno Setup version 6.5.0+ English messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   https://jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/inno-setup/translations
 ;
 ; Note: When translating this text:
 ; - All translations should back-translate to the same meaning.
