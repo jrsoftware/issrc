@@ -39,7 +39,7 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 ; These files will be downloaded and verified during the actual installation
 Source: "https://files.jrsoftware.org/is/misc/ISSigTool.exe"; DestName: "ISSigTool-latest.exe"; DestDir: "{app}"; \
   ExternalSize: 1_000_000; Flags: external download ignoreversion issigverify
-Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName: "ISCrypt.dll"; DestDir: "{app}"; \
+Source: "https://jrsoftware.org/download/iscrypt.dll"; DestName: "ISCrypt.dll"; DestDir: "{app}"; \
   Hash: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"; \
   ExternalSize: 2560; Flags: external download ignoreversion
 ; This archive will be downloaded and verified at the start of the Preparing to Install Step

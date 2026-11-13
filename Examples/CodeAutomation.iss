@@ -191,7 +191,7 @@ end;
 {--- Unzip ---}
 
 const
-  ZipURL = 'https://jrsoftware.org/download.php/iscrypt.zip';
+  ZipURL = 'https://jrsoftware.org/download/iscrypt.zip';
   ZipFileName = 'iscrypt.zip';
   ZipSHA256 = '0569ffe1677ba699d07063a902d48c2f92c8e88669bdc13118f5808c30e998bc';
   SHCONTCH_NOPROGRESSBOX = 4;

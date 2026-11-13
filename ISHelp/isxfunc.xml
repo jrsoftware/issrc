@@ -2137,7 +2137,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <key>begin</key>
   <key>try</key>
     DownloadTemporaryFile(<str>'https://files.jrsoftware.org/is/misc/ISSigTool.exe'</str>, <str>'ISSigTool-latest.exe'</str>, <str>''</str>, @OnDownloadProgress);
-    DownloadTemporaryFile(<str>'https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1'</str>, <str>'ISCrypt.dll'</str>, <str>'2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc'</str>, @OnDownloadProgress);
+    DownloadTemporaryFile(<str>'https://jrsoftware.org/download/iscrypt.dll'</str>, <str>'ISCrypt.dll'</str>, <str>'2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc'</str>, @OnDownloadProgress);
     Result := True;
   <key>except</key>
     Log(GetExceptionMessage);
