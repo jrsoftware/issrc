@@ -3138,7 +3138,7 @@ var
   ParamName, ParamValue: String;
   ParamIsAutomaticInternal: Boolean;
   StartParam: Integer;
-  IsRespawnedProcess, EnableLogging, WantToSuppressMsgBoxes, Res: Boolean;
+  IsRespawnedProcess, EnableLogging, AppendToLog, WantToSuppressMsgBoxes, Res: Boolean;
   DebugServerWnd: HWND;
   LogFilename: String;
   SetupFile: TFile;
@@ -3176,6 +3176,7 @@ begin
 
   IsRespawnedProcess := False;
   EnableLogging := False;
+  AppendToLog := False;
   WantToSuppressMsgBoxes := False;
   DebugServerWnd := 0;
   for var I := StartParam to NewParamCount do begin
@@ -3187,6 +3188,11 @@ begin
     end else if SameText(ParamName, '/Log=') then begin
       EnableLogging := True;
       LogFilename := ParamValue;
+      AppendToLog := False;
+    end else if SameText(ParamName, '/LogAppend=') then begin
+      EnableLogging := True;
+      LogFilename := ParamValue;
+      AppendToLog := True;
     end else if SameText(ParamName, '/Silent') then
       InitSilent := True
     else if SameText(ParamName, '/VerySilent') then
@@ -3451,7 +3457,7 @@ begin
             if LogFilename = '' then
               StartLogging('Setup')
             else
-              StartLoggingWithFixedFilename(LogFilename);
+              StartLoggingWithFixedFilename(LogFilename, AppendToLog);
           except
             on E: Exception do begin
               E.Message := 'Error creating log file:' + SNewLine2 + E.Message;

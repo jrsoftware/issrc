@@ -227,6 +227,7 @@ type
     procedure ClickThroughPages;
     procedure DirTreeRename(Sender: TCustomFolderTreeView; var NewName: string; var Accept: Boolean);
     procedure GetComponents(SelectedComponents, DeselectedComponents: TStringList);
+    function GetResumeParams: String;
     procedure GetSelectedComponents(Components: TStringList; const Descriptions, IndentDescriptions: Boolean);
     procedure GetSelectedTasks(Tasks: TStringList; const Descriptions, IndentDescriptions, GroupDescriptions: Boolean);
     function GetSetupType: PSetupTypeEntry;
@@ -1552,6 +1553,81 @@ begin
     Result := PSetupTypeEntry(TypesCombo.Items.Objects[TypesCombo.ItemIndex])
   else
     Result := nil;
+end;
+
+function TWizardForm.GetResumeParams: String;
+{ Returns the command-line parameters which make Setup continue with the current
+  selections and options, for example after a restart. Doesn't include /PASSWORD
+  because the result usually ends up in the registry. }
+var
+  Params: String;
+
+  procedure AddFlag(const Flag: String; const Add: Boolean);
+  begin
+    if Add then
+      Params := Params + ' ' + Flag;
+  end;
+
+  procedure AddValue(const Param, Value: String);
+  begin
+    Params := Params + ' ' + Param + '="' + Value + '"';
+  end;
+
+begin
+  Params := '';
+  AddValue('/LANG', ExpandConst('{language}'));
+  AddFlag('/SP-', not (shDisableStartupPrompt in SetupHeader.Options));
+  if DirEdit.Text <> '' then
+    AddValue('/DIR', RemoveBackslashUnlessRoot(DirEdit.Text));
+  if GroupEdit.Text <> '' then
+    AddValue('/GROUP', RemoveBackslashUnlessRoot(GroupEdit.Text));
+  AddFlag('/NOICONS', NoIconsCheck.Checked);
+
+  const TypeEntry = GetSetupType;
+  if TypeEntry <> nil then
+    AddValue('/TYPE', TypeEntry.Name);
+
+  { Components and tasks are also added if none are selected, because otherwise
+    the defaults would be selected again }
+  const SelectedNames = TStringList.Create;
+  try
+    if HasComponents then begin
+      GetSelectedComponents(SelectedNames, False, False);
+      AddValue('/COMPONENTS', StringsToCommaString(SelectedNames));
+      SelectedNames.Clear;
+    end;
+    if HasTasks then begin
+      GetSelectedTasks(SelectedNames, False, False, False);
+      AddValue('/TASKS', StringsToCommaString(SelectedNames));
+    end;
+  finally
+    SelectedNames.Free;
+  end;
+
+  AddFlag('/SILENT', InitSilent);
+  AddFlag('/VERYSILENT', InitVerySilent);
+  AddFlag('/SUPPRESSMSGBOXES', InitSuppressMsgBoxes);
+  AddFlag('/NOCANCEL', InitNoCancel);
+  AddFlag('/NORESTART', InitNoRestart);
+  AddFlag('/CLOSEAPPLICATIONS', InitCloseApplications);
+  AddFlag('/NOCLOSEAPPLICATIONS', InitNoCloseApplications);
+  AddFlag('/FORCECLOSEAPPLICATIONS', InitForceCloseApplications);
+  AddFlag('/NOFORCECLOSEAPPLICATIONS', InitNoForceCloseApplications);
+  AddFlag('/LOGCLOSEAPPLICATIONS', InitLogCloseApplications);
+  AddFlag('/RESTARTAPPLICATIONS', InitRestartApplications);
+  AddFlag('/NORESTARTAPPLICATIONS', InitNoRestartApplications);
+  AddFlag('/NOSTYLE', InitNoStyle);
+  AddFlag('/REDIRECTIONGUARD', InitRedirectionGuard);
+  AddFlag('/NOREDIRECTIONGUARD', InitNoRedirectionGuard);
+  AddFlag('/ALLUSERS', HasInitPrivilegesRequired and (InitPrivilegesRequired = prAdmin));
+  AddFlag('/CURRENTUSER', HasInitPrivilegesRequired and (InitPrivilegesRequired = prLowest));
+  AddFlag('/RESTARTEXITCODE=' + IntToStr(InitRestartExitCode), InitRestartExitCode <> 0);
+  if InitSaveInf <> '' then
+    AddValue('/SAVEINF', InitSaveInf);
+  if GetLogFileName <> '' then
+    AddValue('/LOGAPPEND', GetLogFileName);
+
+  Result := Trim(Params);
 end;
 
 procedure TWizardForm.SelectComponents(const SelectComponents, DeselectComponents: TStringList; const KeepFixedComponents: Boolean);

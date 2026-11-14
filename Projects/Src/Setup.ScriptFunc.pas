@@ -1775,6 +1775,10 @@ var
     begin
       Stack.SetBool(PStart, InstallMode <> imNormal);
     end);
+    RegisterScriptFunc('WizardResumeParams', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, GetWizardForm.GetResumeParams);
+    end);
     RegisterScriptFunc('ISUNINSTALLER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetBool(PStart, IsUninstaller);

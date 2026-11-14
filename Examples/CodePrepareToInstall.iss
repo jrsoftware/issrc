@@ -63,36 +63,11 @@ begin
     RestartReplace(ParamStr(0), '');
 end;
 
-function Quote(const S: String): String;
-begin
-  Result := '"' + S + '"';
-end;
-
-function AddParam(const S, P, V: String): String;
-begin
-  Result := S;
-  if V <> '""' then
-    Result := Result + ' /' + P + '=' + V;
-end;
-
-function AddSimpleParam(const S, P: String): String;
-begin
- Result := S + ' /' + P;
-end;
-
 procedure CreateRunOnceEntry;
 var
   RunOnceData: String;
 begin
-  RunOnceData := Quote(ExpandConstant('{srcexe}')) + ' /restart=1';
-  RunOnceData := AddParam(RunOnceData, 'LANG', ExpandConstant('{language}'));
-  RunOnceData := AddParam(RunOnceData, 'DIR', Quote(WizardDirValue));
-  RunOnceData := AddParam(RunOnceData, 'GROUP', Quote(WizardGroupValue));
-  if WizardNoIcons then
-    RunOnceData := AddSimpleParam(RunOnceData, 'NOICONS');
-  RunOnceData := AddParam(RunOnceData, 'TYPE', Quote(WizardSetupType(False)));
-  RunOnceData := AddParam(RunOnceData, 'COMPONENTS', Quote(WizardSelectedComponents(False)));
-  RunOnceData := AddParam(RunOnceData, 'TASKS', Quote(WizardSelectedTasks(False)));
+  RunOnceData := '"' + ExpandConstant('{srcexe}') + '" /restart=1 ' + WizardResumeParams;
 
   (*** Place any custom user selection you want to remember below. ***)
 
