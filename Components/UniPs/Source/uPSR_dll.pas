@@ -17,11 +17,7 @@ function UnloadProc(Caller: TPSExec; p: TPSExternalProcRec; Global, Stack: TPSSt
 implementation
 uses
   {$IFDEF UNIX}
-  {$IFDEF FPC}
-  SysUtils, Unix, baseunix, dynlibs, termio, sockets;
-  {$ELSE}
   Unix, baseunix, dynlibs, termio, sockets;
-  {$ENDIF}
   {$ELSE}
   {$IFDEF MSWINDOWS}
   SysUtils, Windows;
@@ -144,7 +140,7 @@ begin
       if dllhandle = 0 then
       begin
         p.Ext2 := Pointer(1);
-        ErrorCode := {$IFDEF MSWINDOWS}GetLastError{$ELSE}{$IFDEF FPC}GetLastOSError{$ELSE}ERROR_MOD_NOT_FOUND+1{$ENDIF}{$ENDIF};
+        ErrorCode := {$IFDEF MSWINDOWS}GetLastError{$ELSE}ERROR_MOD_NOT_FOUND+1{$ENDIF};
         Result := False;
         exit;
       end;
@@ -163,7 +159,7 @@ begin
   if p.Ext1 = nil then
   begin
     p.Ext2 := Pointer(1);
-    ErrorCode := {$IFDEF MSWINDOWS}GetLastError{$ELSE}{$IFDEF FPC}GetLastOSError{$ELSE}ERROR_MOD_NOT_FOUND+2{$ENDIF}{$ENDIF};
+    ErrorCode := {$IFDEF MSWINDOWS}GetLastError{$ELSE}ERROR_MOD_NOT_FOUND+2{$ENDIF};
     Result := false;
     exit;
   end;

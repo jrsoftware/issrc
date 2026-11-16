@@ -67,10 +67,8 @@ begin
     RegisterMethod('function Dragging: Boolean;');
     RegisterMethod('function HasParent: Boolean');
     RegisterMethod('function ClientToScreen(Point: TPoint): TPoint');
-    {$IFNDEF FPC}
     RegisterMethod('procedure BeginDrag(Immediate: Boolean)');
     RegisterMethod('procedure EndDrag(Drop: Boolean)');
-    {$ENDIF}
     {$IFNDEF CLX}
     RegisterMethod('function GetTextBuf(Buffer: PChar; BufSize: Integer): Integer');
     RegisterMethod('function GetTextLen: Integer');
@@ -108,13 +106,11 @@ begin
     RegisterMethod('procedure HandleNeeded;');
     RegisterMethod('procedure EnableAlign;');
     RegisterMethod('procedure RemoveControl(AControl: TControl);');
-    {$IFNDEF FPC}
     RegisterMethod('procedure InsertControl(AControl: TControl);');
     RegisterMethod('procedure ScaleBy(M, D: Integer);');
     RegisterMethod('procedure ScrollBy(DeltaX, DeltaY: Integer);');
     {$IFNDEF CLX}
     RegisterMethod('procedure PaintTo(DC: HDC; X,Y: Integer)');
-    {$ENDIF}
     {$ENDIF}
     RegisterMethod('procedure Realign;');
     RegisterMethod('procedure SetFocus; virtual;');
@@ -140,12 +136,7 @@ end;
 
 procedure SIRegister_Controls_TypesAndConsts(Cl: TPSPascalCompiler);
 begin
-{$IFNDEF FPC}
   Cl.addTypeS('TEShiftState','(ssShift, ssAlt, ssCtrl, ssLeft, ssRight, ssMiddle, ssDouble)');
-  {$ELSE}
-  Cl.addTypeS('TEShiftState','(ssShift, ssAlt, ssCtrl, ssLeft, ssRight, ssMiddle, ssDouble,' +
-  'ssMeta, ssSuper, ssHyper, ssAltGr, ssCaps, ssNum,ssScroll,ssTriple,ssQuad)');
-  {$ENDIF}
   Cl.addTypeS('TShiftState','set of TEShiftState');
   cl.AddTypeS('TMouseButton', '(mbLeft, mbRight, mbMiddle)');
   cl.AddTypeS('TDragMode', '(dmManual, dmAutomatic)');
@@ -162,10 +153,8 @@ begin
   if cl.FindType('HDC') = nil then
     cl.AddTypeS('HDC', 'NativeUInt');
   {$IFNDEF PS_MINIVCL}
-  {$IFNDEF FPC}
   if cl.FindType('THandle') = nil then
     cl.AddTypeS('THandle', 'NativeUInt');
-  {$ENDIF}
   {$ENDIF}
 
   cl.AddTypeS('TEndDragEvent', 'procedure(Sender, Target: TObject; X, Y: Integer)');
@@ -179,10 +168,6 @@ begin
 
   {$IFDEF DELPHI4UP}
   cl.addTypeS('TAnchorKind', '(akLeft, akTop, akRight, akBottom)');
-  cl.addTypeS('TAnchors','set of TAnchorKind');
-  {$ENDIF}
-  {$IFDEF FPC}
-  cl.addTypeS('TAnchorKind', '(akTop, akLeft, akRight, akBottom)');
   cl.addTypeS('TAnchors','set of TAnchorKind');
   {$ENDIF}
   cl.AddTypeS('TModalResult', 'Integer');
@@ -239,10 +224,8 @@ begin
 {$IFDEF DELPHI4UP}
     RegisterMethod('procedure Assign(Source: TDragObject)');
 {$ENDIF}
-{$IFNDEF FPC}
     RegisterMethod('function GetName: string');
     RegisterMethod('function Instance: THandle');
-{$ENDIF}
     RegisterMethod('procedure HideDragImage');
     RegisterMethod('procedure ShowDragImage');
 {$IFDEF DELPHI4UP}

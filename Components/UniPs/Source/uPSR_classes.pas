@@ -238,30 +238,16 @@ begin
   end;
 end;
 
-{$IFDEF FPC}
-// mh: because FPC doesn't handle pointers to overloaded functions
-function TFileStreamCreate(filename: string; mode: word): TFileStream;
-begin
-  result := TFilestream.Create(filename, mode);
-end;
-{$ENDIF}
-
 procedure RIRegisterTFILESTREAM(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TFILESTREAM) do
   begin
-    {$IFDEF FPC}
-    RegisterConstructor(@TFileStreamCreate, 'Create');
-    {$ELSE}
     RegisterConstructor(@TFILESTREAM.CREATE, 'Create');
-    {$ENDIF}
   end;
 end;
 
 {$IFDEF UNICODE}
-  {$IFNDEF FPC}
-    {$DEFINE STRINGSTREAMFIX}
-  {$ENDIF}
+  {$DEFINE STRINGSTREAMFIX}
 {$ENDIF}
 
 {$IFDEF STRINGSTREAMFIX}
@@ -390,7 +376,7 @@ Begin
 with Cl.Add(TCOLLECTION) do
   begin
   RegisterConstructor(@TCOLLECTION.CREATE, 'Create');
-{$IFDEF DELPHI6UP}  {$IFNDEF FPC} RegisterMethod(@TCOLLECTION.OWNER, 'Owner'); {$ENDIF} {$ENDIF} // no owner in FPC
+{$IFDEF DELPHI6UP} RegisterMethod(@TCOLLECTION.OWNER, 'Owner'); {$ENDIF}
   RegisterMethod(@TCOLLECTION.ADD, 'Add');
   RegisterVirtualMethod(@TCOLLECTION.BEGINUPDATE, 'BeginUpdate');
   RegisterMethod(@TCOLLECTION.CLEAR, 'Clear');

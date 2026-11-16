@@ -23,21 +23,9 @@ const
 
   PSAddrNegativeStackStart = 1073741824;
 type
-  {$IFDEF FPC}
-    {$IFDEF FPC_UNICODE}
-    tbtString = AnsiString;
-    tbtPChar  = PAnsiChar;
-    tbtChar   = AnsiChar;
-    {$ELSE}
-    tbtString = string;
-    tbtPChar  = PChar;
-    tbtChar   = Char;
-    {$ENDIF}
-  {$ELSE}
   tbtString = {$IFDEF DELPHI2009UP}AnsiString{$ELSE}string{$ENDIF};
   tbtPChar  = {$IFDEF DELPHI2009UP}PAnsiChar{$ELSE}PChar{$ENDIF};
   tbtChar   = {$IFDEF DELPHI4UP}AnsiChar{$ELSE}CHAR{$ENDIF};
-  {$ENDIF}
 
   TPSBaseType = Byte;
 
@@ -333,23 +321,15 @@ type
   tbtWideString = WideString;
 
   tbtUnicodeString =
-    {$IFDEF FPC}
-      UnicodeString
-    {$ELSE}
-      {$IFDEF UNICODE}UnicodeString{$ELSE}WideString{$ENDIF}
-    {$ENDIF};
+    {$IFDEF UNICODE}UnicodeString{$ELSE}WideString{$ENDIF};
 
   tbtWideChar = WideChar;
   tbtNativeString = {$IFDEF DELPHI2009UP}tbtUnicodeString{$ELSE}tbtString{$ENDIF};
 {$ENDIF}
-{$IFDEF FPC}
-  IPointer = PtrUInt;
+{$IFDEF DELPHI2009UP}
+  IPointer = NativeUInt;
 {$ELSE}
-  {$IFDEF DELPHI2009UP}
-    IPointer = NativeUInt;
-  {$ELSE}
-    IPointer = Cardinal;
-  {$ENDIF}
+  IPointer = Cardinal;
 {$ENDIF}
   TPSCallingConvention = (cdRegister, cdPascal, cdCdecl, cdStdCall, cdSafeCall);
 
@@ -767,7 +747,6 @@ begin
 end;
 //-------------------------------------------------------------------
 
-{$IFDEF FPC}{$DEFINE PS_HAVEFORMATSETTINGS}{$ENDIF}
 {$IFDEF DELPHIXEUP}{$DEFINE PS_HAVEFORMATSETTINGS}{$ENDIF}
 
 {$IFDEF PS_HAVEFORMATSETTINGS}
@@ -1781,7 +1760,7 @@ end;
 
 {$IFDEF PS_HAVEFORMATSETTINGS}
 initialization
-  DotFormatSettings := {$IFDEF FPC}DefaultFormatSettings{$ELSE}FormatSettings{$ENDIF};
+  DotFormatSettings := FormatSettings;
   { Always use a dot, like Str and Val do }
   DotFormatSettings.DecimalSeparator := '.';
   { FPC's FloatToStr and CurrToStr use ThousandSeparator to decide whether to remove

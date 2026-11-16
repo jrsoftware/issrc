@@ -19,20 +19,15 @@ procedure RIRegisterTPicture(CL: TPSRuntimeClassImporter);
 procedure RIRegister_Graphics(Cl: TPSRuntimeClassImporter; Streams: Boolean);
 
 implementation
-{$IFNDEF FPC}
 uses
   Classes{$IFDEF CLX}, QGraphics{$ELSE}, Windows, Graphics{$ENDIF} {$IFDEF DELPHI_TOKYO_UP}, UITypes {$ENDIF};
-{$ELSE}
-uses
-  Classes, Graphics,LCLType;
-{$ENDIF}
 
 {$IFNDEF CLX}
 procedure TFontHandleR(Self: TFont; var T: HFONT); begin T := Self.Handle; end;
 procedure TFontHandleW(Self: TFont; T: HFONT); begin Self.Handle := T; end;
 {$ENDIF}
 procedure TFontPixelsPerInchR(Self: TFont; var T: Longint); begin T := Self.PixelsPerInch; end;
-procedure TFontPixelsPerInchW(Self: TFont; T: Longint); begin {$IFNDEF FPC} Self.PixelsPerInch := T;{$ENDIF} end;
+procedure TFontPixelsPerInchW(Self: TFont; T: Longint); begin Self.PixelsPerInch := T; end;
 procedure TFontStyleR(Self: TFont; var T: TFontStyles); begin T := Self.Style; end;
 procedure TFontStyleW(Self: TFont; T: TFontStyles); begin Self.Style:= T; end;
 
@@ -55,38 +50,19 @@ procedure TCanvasHandleW(Self: TCanvas; T: HDC); begin Self.Handle:= T; end;
 
 procedure TCanvasPixelsR(Self: TCanvas; var T: Longint; X,Y: Longint); begin T := Self.Pixels[X,Y]; end;
 procedure TCanvasPixelsW(Self: TCanvas; T, X, Y: Longint); begin Self.Pixels[X,Y]:= T; end;
-{$IFDEF FPC}
-procedure TCanvasArc(Self : TCanvas; X1, Y1, X2, Y2, X3, Y3, X4, Y4: Integer); begin Self.Arc(X1, Y1, X2, Y2, X3, Y3, X4, Y4); end;
-procedure TCanvasChord(Self : TCanvas; X1, Y1, X2, Y2, X3, Y3, X4, Y4: Integer); begin self.Chord(X1, Y1, X2, Y2, X3, Y3, X4, Y4); end;
-procedure TCanvasRectangle(Self : TCanvas; X1,Y1,X2,Y2 : integer); begin self.Rectangle(x1,y1,x2,y2); end;
-procedure TCanvasRoundRect(Self : TCanvas; X1, Y1, X2, Y2, X3, Y3 : integer); begin self.RoundRect(X1, Y1, X2, Y2, X3, Y3); end;
-procedure TCanvasEllipse(Self : TCanvas;X1, Y1, X2, Y2: Integer); begin self.Ellipse(X1, Y1, X2, Y2); end;
-procedure TCanvasFillRect(Self : TCanvas; const Rect: TRect); begin self.FillRect(rect); end;
-procedure TCanvasFloodFill(Self : TCanvas; X, Y: Integer; Color: TColor; FillStyle: TFillStyle); begin self.FloodFill(x,y,color,fillstyle); end;
-{$ENDIF}
 
 procedure RIRegisterTCanvas(cl: TPSRuntimeClassImporter); // requires TPersistent
 begin
   with Cl.Add(TCanvas) do
   begin
-{$IFDEF FPC}
-    RegisterMethod(@TCanvasArc, 'Arc');
-    RegisterMethod(@TCanvasChord, 'Chord');
-    RegisterMethod(@TCanvasRectangle, 'Rectangle');
-    RegisterMethod(@TCanvasRoundRect, 'RoundRect');
-    RegisterMethod(@TCanvasEllipse, 'Ellipse');
-    RegisterMethod(@TCanvasFillRect, 'FillRect');
-    RegisterMethod(@TCanvasFloodFill, 'FloodFill');
-{$ELSE}  
-    RegisterMethod(@TCanvas{$IFNDEF FPC}.{$ENDIF}Arc, 'Arc');
-    RegisterMethod(@TCanvas{$IFNDEF FPC}.{$ENDIF}Chord, 'Chord');
-    RegisterMethod(@TCanvas{$IFNDEF FPC}.{$ENDIF}Rectangle, 'Rectangle');
-    RegisterMethod(@TCanvas{$IFNDEF FPC}.{$ENDIF}RoundRect, 'RoundRect');
-    RegisterMethod(@TCanvas{$IFNDEF FPC}.{$ENDIF}Ellipse, 'Ellipse');
-    RegisterMethod(@TCanvas{$IFNDEF FPC}.{$ENDIF}FillRect, 'FillRect');
+    RegisterMethod(@TCanvas.Arc, 'Arc');
+    RegisterMethod(@TCanvas.Chord, 'Chord');
+    RegisterMethod(@TCanvas.Rectangle, 'Rectangle');
+    RegisterMethod(@TCanvas.RoundRect, 'RoundRect');
+    RegisterMethod(@TCanvas.Ellipse, 'Ellipse');
+    RegisterMethod(@TCanvas.FillRect, 'FillRect');
 {$IFNDEF CLX}
-    RegisterMethod(@TCanvas{$IFNDEF FPC}.{$ENDIF}FloodFill, 'FloodFill');
-{$ENDIF}
+    RegisterMethod(@TCanvas.FloodFill, 'FloodFill');
 {$ENDIF}
     RegisterMethod(@TCanvas.Draw, 'Draw');
 
@@ -163,10 +139,8 @@ end;
 
 procedure TBitmapTransparentColor_R(Self: TBitmap; var T: TColor); begin T := Self.TransparentColor; end;
 {$IFNDEF CLX}
-{$IFNDEF FPC}
 procedure TBitmapIgnorePalette_W(Self: TBitmap; const T: Boolean); begin Self.IgnorePalette := T; end;
 procedure TBitmapIgnorePalette_R(Self: TBitmap; var T: Boolean); begin T := Self.IgnorePalette; end;
-{$ENDIF}
 procedure TBitmapPalette_W(Self: TBitmap; const T: HPALETTE); begin Self.Palette := T; end;
 procedure TBitmapPalette_R(Self: TBitmap; var T: HPALETTE); begin T := Self.Palette; end;
 {$ENDIF}
@@ -192,9 +166,7 @@ begin
 {$ENDIF}
 
     {$IFNDEF PS_MINIVCL}
-{$IFNDEF FPC}
     RegisterMethod(@TBitmap.Dormant, 'Dormant');
-{$ENDIF}
     RegisterMethod(@TBitmap.FreeImage, 'FreeImage');
 {$IFNDEF CLX}
     RegisterMethod(@TBitmap.LoadFromClipboardFormat, 'LoadFromClipboardFormat');
@@ -207,9 +179,7 @@ begin
     RegisterMethod(@TBitmap.SaveToClipboardFormat, 'SaveToClipboardFormat');
     RegisterPropertyHelper(@TBitmapMonochrome_R,@TBitmapMonochrome_W,'Monochrome');
     RegisterPropertyHelper(@TBitmapPalette_R,@TBitmapPalette_W,'Palette');
-{$IFNDEF FPC}
     RegisterPropertyHelper(@TBitmapIgnorePalette_R,@TBitmapIgnorePalette_W,'IgnorePalette');
-{$ENDIF}
 {$ENDIF}
     RegisterPropertyHelper(@TBitmapTransparentColor_R,nil,'TransparentColor');
     {$ENDIF}

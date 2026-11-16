@@ -11,8 +11,6 @@
 
 {$INCLUDE eDefines.inc}
 
-{$IFDEF FPC}{$MODE DELPHI}{$H+}{$ENDIF}
-
 {$IFDEF VER125}{C4}{$B-}{$X+}{$T-}{$H+}{$ENDIF}
 {$IFDEF VER110}{C3}{$B-}{$X+}{$T-}{$H+}{$ENDIF}
 {$IFDEF VER93}{C1}{$B-}{$X+}{$T-}{$H+}{$ENDIF}
@@ -22,13 +20,8 @@
   {$DEFINE PS_DYNARRAY}
 {$ENDIF}
 
-{$IFNDEF FPC}
-  {$B-}{$X+}{$T-}{$H+}
-{$ELSE}
-  {$R-}{$Q-}
-{$ENDIF}
+{$B-}{$X+}{$T-}{$H+}
 
-{$IFNDEF FPC}
 {$IFNDEF DELPHI4UP}
 {$IFNDEF LINUX}
   {$DEFINE PS_NOINT64}
@@ -42,7 +35,6 @@
 {$ENDIF}
 
 {$IFDEF LINUX}{KYLIX}{$DEFINE CLX}{$DEFINE DELPHI3UP}{$DEFINE DELPHI6UP}{$ENDIF}
-{$ENDIF}
 {$R-}{$Q-}
 
 
@@ -61,17 +53,8 @@ Defines:
 {$DEFINE PS_NOIDISPATCH} // not implemented
 {$ENDIF}
 
-{$IFDEF FPC}
-  {$I PascalScriptFPC.inc}
-{$ENDIF}
-
 {$IFDEF DELPHI16UP}
   {$DEFINE TExtended80Rec_present}
-{$ENDIF}
-{$IFDEF FPC}
-{$IFDEF FPC_HAS_TYPE_EXTENDED}
-  {$DEFINE TExtended80Rec_present}
-{$ENDIF}
 {$ENDIF}
 
 {$IFDEF DELPHI26UP}

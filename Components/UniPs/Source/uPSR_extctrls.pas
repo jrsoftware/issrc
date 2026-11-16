@@ -19,7 +19,7 @@ procedure RIRegisterTPANEL(Cl: TPSRuntimeClassImporter);
 {$IFNDEF CLX}
 procedure RIRegisterTPAGE(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTNOTEBOOK(Cl: TPSRuntimeClassImporter);
-{$IFNDEF FPC}procedure RIRegisterTHEADER(Cl: TPSRuntimeClassImporter);{$ENDIF}
+procedure RIRegisterTHEADER(Cl: TPSRuntimeClassImporter);
 {$ENDIF}
 procedure RIRegisterTCUSTOMRADIOGROUP(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTRADIOGROUP(Cl: TPSRuntimeClassImporter);
@@ -97,7 +97,6 @@ begin
   Cl.Add(TNOTEBOOK);
 end;
 
-{$IFNDEF FPC}
 procedure THEADERSECTIONWIDTH_R(Self: THEADER; var T: INTEGER; t1: INTEGER); begin T := Self.SECTIONWIDTH[t1]; end;
 procedure THEADERSECTIONWIDTH_W(Self: THEADER; T: INTEGER; t1: INTEGER); begin Self.SECTIONWIDTH[t1] := T; end;
 
@@ -108,7 +107,6 @@ begin
 		RegisterPropertyHelper(@THEADERSECTIONWIDTH_R, @THEADERSECTIONWIDTH_W, 'SectionWidth');
 	end;
 end;
-{$ENDIF}
 {$ENDIF}
 
 procedure RIRegisterTCUSTOMRADIOGROUP(Cl: TPSRuntimeClassImporter);
@@ -171,9 +169,7 @@ begin
   {$IFNDEF CLX}
   RIRegisterTPAGE(Cl);
 	RIRegisterTNOTEBOOK(Cl);
-  {$IFNDEF FPC}
 	RIRegisterTHEADER(Cl);
-  {$ENDIF}{FPC}
   {$ENDIF}
   RIRegisterTCUSTOMRADIOGROUP(Cl);
   RIRegisterTRADIOGROUP(Cl);

@@ -11,16 +11,10 @@ uses
 procedure RIRegister_ComObj(cl: TPSExec);
 
 implementation
-{$IFDEF FPC}
-  {$IFDEF PS_FPC_HAS_COM}
-   uses SysUtils, ComObj;
-  {$ENDIF}
+{$IFDEF DELPHI3UP}
+ uses ComObj;
 {$ELSE}
-  {$IFDEF DELPHI3UP}
-   uses ComObj;
-  {$ELSE}
-   uses SysUtils, Ole2;
-  {$ENDIF}
+ uses SysUtils, Ole2;
 {$ENDIF}
 {$IFNDEF DELPHI3UP}
 
@@ -89,15 +83,6 @@ end;
 
 procedure RIRegister_ComObj(cl: TPSExec);
 begin
-{$IFDEF FPC}
-    {$IFDEF PS_FPC_HAS_COM}
-    cl.RegisterDelphiFunction(@OleCheck, 'OleCheck', cdRegister);
-    cl.RegisterDelphiFunction(@StringToGUID, 'StringToGUID', cdRegister);
-    cl.RegisterDelphiFunction(@CreateComObject, 'CreateComObject', cdRegister);
-    cl.RegisterDelphiFunction(@CreateOleObject, 'CreateOleObject', cdRegister);
-    cl.RegisterDelphiFunction(@GetActiveOleObject, 'GetActiveOleObject', cdRegister);
-    {$ENDIF}
-{$ELSE}
   cl.RegisterDelphiFunction(@OleCheck, 'OleCheck', cdRegister);
 {$IFNDEF PS_NOINTERFACES}
 {$IFDEF DELPHI3UP}
@@ -107,7 +92,6 @@ begin
 {$ENDIF}
   cl.RegisterDelphiFunction(@CreateOleObject, 'CreateOleObject', cdRegister);
   cl.RegisterDelphiFunction(@GetActiveOleObject, 'GetActiveOleObject', cdRegister);
-{$ENDIF}  
 end;
 
 end.

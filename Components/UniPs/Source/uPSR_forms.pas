@@ -7,7 +7,7 @@ uses
   uPSRuntime, uPSUtils;
 
 procedure RIRegisterTCONTROLSCROLLBAR(Cl: TPSRuntimeClassImporter);
-{$IFNDEF FPC} procedure RIRegisterTSCROLLINGWINCONTROL(Cl: TPSRuntimeClassImporter);{$ENDIF}
+procedure RIRegisterTSCROLLINGWINCONTROL(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTSCROLLBOX(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTFORM(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTAPPLICATION(Cl: TPSRuntimeClassImporter);
@@ -30,7 +30,6 @@ begin
   end;
 end;
 
-{$IFNDEF FPC}
 procedure RIRegisterTSCROLLINGWINCONTROL(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TSCROLLINGWINCONTROL) do
@@ -38,13 +37,11 @@ begin
     RegisterMethod(@TSCROLLINGWINCONTROL.SCROLLINVIEW, 'ScrollInView');
   end;
 end;
-{$ENDIF}
 
 procedure RIRegisterTSCROLLBOX(Cl: TPSRuntimeClassImporter);
 begin
   Cl.Add(TSCROLLBOX);
 end;
-{$IFNDEF FPC}
 {$IFNDEF CLX}
 procedure TFORMACTIVEOLECONTROL_W(Self: TFORM; T: TWINCONTROL); begin Self.ACTIVEOLECONTROL := T; end;
 procedure TFORMACTIVEOLECONTROL_R(Self: TFORM; var T: TWINCONTROL); begin T := Self.ACTIVEOLECONTROL; 
@@ -58,7 +55,6 @@ procedure TFORMDROPTARGET_R(Self: TFORM; var T: BOOLEAN); begin T := Self.DROPTA
 procedure TFORMMDICHILDCOUNT_R(Self: TFORM; var T: INTEGER); begin T := Self.MDICHILDCOUNT; end;
 procedure TFORMMDICHILDREN_R(Self: TFORM; var T: TFORM; t1: INTEGER); begin T := Self.MDICHILDREN[T1]; 
 end;
-{$ENDIF}{FPC}
 
 procedure TFORMMODALRESULT_W(Self: TFORM; T: TMODALRESULT); begin Self.MODALRESULT := T; end;
 procedure TFORMMODALRESULT_R(Self: TFORM; var T: TMODALRESULT); begin T := Self.MODALRESULT; end;
@@ -91,7 +87,6 @@ begin
     RegisterPropertyHelper(@TFORMACTIVE_R, nil, 'Active');
 
     {$IFNDEF PS_MINIVCL}
- {$IFNDEF FPC}
 {$IFNDEF CLX} 
     RegisterMethod(@TFORM.ARRANGEICONS, 'ArrangeIcons');
     RegisterMethod(@TFORM.PRINT, 'Print');
@@ -108,7 +103,6 @@ begin
     RegisterPropertyHelper(@TFORMDROPTARGET_R, @TFORMDROPTARGET_W, 'DropTarget');
     RegisterPropertyHelper(@TFORMMDICHILDCOUNT_R, nil, 'MDIChildCount');
     RegisterPropertyHelper(@TFORMMDICHILDREN_R, nil, 'MDIChildren');
- {$ENDIF}{FPC}
     RegisterMethod(@TFORM.CLOSEQUERY, 'CloseQuery');
     RegisterMethod(@TFORM.DEFOCUSCONTROL, 'DefocusControl');
     RegisterMethod(@TFORM.FOCUSCONTROL, 'FocusControl');
@@ -119,7 +113,6 @@ begin
   end;
 end;
 
-{$IFNDEF FPC}
 procedure TAPPLICATIONACTIVE_R(Self: TAPPLICATION; var T: BOOLEAN); begin T := Self.ACTIVE; end;
 {$IFNDEF CLX}
 procedure TAPPLICATIONDIALOGHANDLE_R(Self: TAPPLICATION; var T: HWND); begin T := Self.DIALOGHANDLE; end;
@@ -129,7 +122,6 @@ procedure TAPPLICATIONHANDLE_W(Self: TAPPLICATION; T: HWND); begin Self.HANDLE :
 procedure TAPPLICATIONUPDATEFORMATSETTINGS_R(Self: TAPPLICATION; var T: BOOLEAN); begin T := Self.UPDATEFORMATSETTINGS; end;
 procedure TAPPLICATIONUPDATEFORMATSETTINGS_W(Self: TAPPLICATION; T: BOOLEAN); begin Self.UPDATEFORMATSETTINGS := T; end;
 {$ENDIF}
-{$ENDIF}{FPC}
 
 
 procedure TAPPLICATIONEXENAME_R(Self: TAPPLICATION; var T: STRING); begin T := Self.EXENAME; end;
@@ -154,12 +146,10 @@ procedure TAPPLICATIONTERMINATED_R(Self: TAPPLICATION; var T: BOOLEAN); begin T 
 procedure TAPPLICATIONTITLE_R(Self: TAPPLICATION; var T: STRING); begin T := Self.TITLE; end;
 procedure TAPPLICATIONTITLE_W(Self: TAPPLICATION; T: STRING); begin Self.TITLE := T; end;
 
-{$IFNDEF FPC}
 procedure TAPPLICATIONONACTIVATE_R(Self: TAPPLICATION; var T: TNOTIFYEVENT); begin T := Self.ONACTIVATE; end;
 procedure TAPPLICATIONONACTIVATE_W(Self: TAPPLICATION; T: TNOTIFYEVENT); begin Self.ONACTIVATE := T; end;
 procedure TAPPLICATIONONDEACTIVATE_R(Self: TAPPLICATION; var T: TNOTIFYEVENT); begin T := Self.ONDEACTIVATE; end;
 procedure TAPPLICATIONONDEACTIVATE_W(Self: TAPPLICATION; T: TNOTIFYEVENT); begin Self.ONDEACTIVATE := T; end;
-{$ENDIF}
 
 procedure TAPPLICATIONONIDLE_R(Self: TAPPLICATION; var T: TIDLEEVENT); begin T := Self.ONIDLE; end;
 procedure TAPPLICATIONONIDLE_W(Self: TAPPLICATION; T: TIDLEEVENT); begin Self.ONIDLE := T; end;
@@ -168,19 +158,16 @@ procedure TAPPLICATIONONHELP_W(Self: TAPPLICATION; T: THELPEVENT); begin Self.ON
 procedure TAPPLICATIONONHINT_R(Self: TAPPLICATION; var T: TNOTIFYEVENT); begin T := Self.ONHINT; end;
 procedure TAPPLICATIONONHINT_W(Self: TAPPLICATION; T: TNOTIFYEVENT); begin Self.ONHINT := T; end;
 
-{$IFNDEF FPC}
 procedure TAPPLICATIONONMINIMIZE_R(Self: TAPPLICATION; var T: TNOTIFYEVENT); begin T := Self.ONMINIMIZE; end;
 procedure TAPPLICATIONONMINIMIZE_W(Self: TAPPLICATION; T: TNOTIFYEVENT); begin Self.ONMINIMIZE := T; end;
 
 procedure TAPPLICATIONONRESTORE_R(Self: TAPPLICATION; var T: TNOTIFYEVENT); begin T := Self.ONRESTORE; end;
 procedure TAPPLICATIONONRESTORE_W(Self: TAPPLICATION; T: TNOTIFYEVENT); begin Self.ONRESTORE := T; end;
-{$ENDIF}
 
 procedure RIRegisterTAPPLICATION(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TAPPLICATION) do
   begin
- {$IFNDEF FPC}
     RegisterMethod(@TAPPLICATION.MINIMIZE, 'Minimize');
     RegisterMethod(@TAPPLICATION.RESTORE, 'Restore');
     RegisterPropertyHelper(@TAPPLICATIONACTIVE_R, nil, 'Active');
@@ -196,7 +183,6 @@ begin
     RegisterPropertyHelper(@TAPPLICATIONHANDLE_R, @TAPPLICATIONHANDLE_W, 'Handle');
     RegisterPropertyHelper(@TAPPLICATIONUPDATEFORMATSETTINGS_R, @TAPPLICATIONUPDATEFORMATSETTINGS_W, 'UpdateFormatSettings');
     {$ENDIF}
- {$ENDIF}
     RegisterMethod(@TAPPLICATION.BRINGTOFRONT, 'BringToFront');
     RegisterMethod(@TAPPLICATION.MESSAGEBOX, 'MessageBox');
     RegisterMethod(@TAPPLICATION.PROCESSMESSAGES, 'ProcessMessages');
@@ -214,13 +200,9 @@ begin
     RegisterMethod(@TAPPLICATION.CONTROLDESTROYED, 'ControlDestroyed');
     RegisterMethod(@TAPPLICATION.CANCELHINT, 'CancelHint');
     {$IFNDEF CLX}
-    {$IFNDEF FPC}
     RegisterMethod(@TAPPLICATION.HELPCOMMAND, 'HelpCommand');
-    {$ENDIF}
     RegisterMethod(@TAPPLICATION.HELPCONTEXT, 'HelpContext');
-    {$IFNDEF FPC}
     RegisterMethod(@TAPPLICATION.HELPJUMP, 'HelpJump');
-    {$ENDIF}
     {$ENDIF}
     RegisterMethod(@TAPPLICATION.HANDLEMESSAGE, 'HandleMessage');
     RegisterMethod(@TAPPLICATION.HIDEHINT, 'HideHint');
@@ -242,7 +224,7 @@ begin
   RIRegisterTCONTROLSCROLLBAR(cl);
   RIRegisterTSCROLLBOX(cl);
   {$ENDIF}
-{$IFNDEF FPC}  RIRegisterTScrollingWinControl(cl);{$ENDIF}
+  RIRegisterTScrollingWinControl(cl);
   RIRegisterTForm(Cl);
   {$IFNDEF PS_MINIVCL}
   RIRegisterTApplication(Cl);
@@ -251,7 +233,6 @@ end;
 
 
 // PS_MINIVCL changes by Martijn Laan
-// FPC changes by Boguslaw brandys (brandys at o2 _dot_ pl)
 
 end.
 

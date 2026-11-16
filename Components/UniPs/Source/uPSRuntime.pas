@@ -1122,7 +1122,7 @@ function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: tbtS
 
 implementation
 uses
-  TypInfo {$IFDEF DELPHI3UP}{$IFNDEF FPC}{$IFNDEF KYLIX} , ComObj {$ENDIF}{$ENDIF}{$ENDIF}{$IFDEF PS_FPC_HAS_COM}, ComObj{$ENDIF} {$IFDEF DELPHI_TOKYO_UP}, AnsiStrings{$ENDIF};
+  TypInfo {$IFDEF DELPHI3UP}{$IFNDEF KYLIX} , ComObj {$ENDIF}{$ENDIF} {$IFDEF DELPHI_TOKYO_UP}, AnsiStrings{$ENDIF};
 
 {$IFDEF DELPHI3UP }
 resourceString
@@ -1552,7 +1552,7 @@ begin
     case pp^.PropType^.Kind of
       tkInteger: begin Result := IntToStr(GetOrdProp(Instance, pp)); exit; end;
       tkChar, tkWChar: begin Result := '#'+IntToStr(GetOrdProp(Instance, pp)); exit; end;
-      tkEnumeration: begin Result := tbtstring(GetEnumName(pp^.PropType{$IFNDEF FPC}{$IFDEF DELPHI3UP}^{$ENDIF}{$ENDIF}, GetOrdProp(Instance, pp))); exit; end;
+      tkEnumeration: begin Result := tbtstring(GetEnumName(pp^.PropType{$IFDEF DELPHI3UP}^{$ENDIF}, GetOrdProp(Instance, pp))); exit; end;
       {$IFNDEF PS_NOINT64}
       tkInt64: begin Result := tbtString(SysUtils.IntToStr(GetInt64Prop(Instance, pp))); exit; end;
      {$ENDIF}
@@ -1866,10 +1866,6 @@ const
 
 type
   TDynArrayRecHeader = packed record
-    {$ifdef FPC}
-    refCnt : ptrint;
-    high : tdynarrayindex;
-    {$else}
     {$ifdef CPUX64}
     _Padding: LongInt; // Delphi XE2+ expects 16 byte align
     {$endif}
@@ -1878,7 +1874,6 @@ type
     /// length in element count
     // - size in bytes = length*ElemSize
     length: IPointer;
-    {$endif}
   end;
   TDynArrayRec = packed record
     header : TDynArrayRecHeader;
@@ -1963,11 +1958,7 @@ begin
         if darr^.header.refCnt <> 0 then exit;
         t := TPSTypeRec_Array(aType).ArrayType;
         elsize := t.RealSize;
-        {$IFDEF FPC}
-        l := darr^.header.high + 1;
-        {$ELSE}
         l := darr^.header.length;
-        {$ENDIF FPC}
         darr := @darr^.datas;
         case t.BaseType of
           btString, {$IFNDEF PS_NOWIDESTRING}
@@ -4329,7 +4320,7 @@ end;
 function PSDynArrayGetLength(arr: Pointer; aType: TPSTypeRec): Longint;
 begin
   if aType.BaseType <> btArray then raise Exception.Create(RPS_InvalidArray);
-  if arr = nil then Result := 0 else result:=PDynArrayRec(PAnsiChar(arr) - SizeOf(TDynArrayRecHeader))^.header.{$IFDEF FPC}high + 1{$ELSE}length{$ENDIF FPC};
+  if arr = nil then Result := 0 else result:=PDynArrayRec(PAnsiChar(arr) - SizeOf(TDynArrayRecHeader))^.header.length;
 end;
 
 procedure PSDynArraySetLength(var arr: Pointer; aType: TPSTypeRec; NewLength: Longint);
@@ -4359,11 +4350,7 @@ begin
       exit;
     end;
     ReallocMem(darr, Longint(NewLength * elSize) + SizeOf(TDynArrayRecHeader));
-    {$IFDEF FPC}
-    darr^.header.high := NewLength  -1;
-    {$ELSE}
     darr^.header.length := NewLength;
-    {$ENDIF}
     arr := @darr^.datas;
     for i := OldLen to NewLength -1 do
     begin
@@ -4379,14 +4366,10 @@ begin
     end;
     GetMem(darr, Longint(NewLength * elSize) + SizeOf(TDynArrayRecHeader));
     darr^.header.refCnt:=1;
-    {$IFDEF FPC}
-    darr^.header.high := NewLength - 1;
-    {$ELSE}
     {$IFDEF CPUX64}
     darr^.header._Padding:=0;
     {$ENDIF CPUX64}
     darr^.header.length := NewLength;
-    {$ENDIF FPC}
     for i := 0 to NewLength -1 do
     begin
       InitializeVariant(Pointer(IPointer(@darr^.datas) + Cardinal(elsize * i)), TPSTypeRec_Array(aType).ArrayType);
@@ -4404,9 +4387,6 @@ begin
 end;
 
 
-{$IFDEF FPC}
-{$DEFINE FPC_OR_KYLIX}
-{$ENDIF}
 {$IFDEF KYLIX}
 {$DEFINE FPC_OR_KYLIX}
 {$ENDIF}
@@ -6747,11 +6727,7 @@ begin
   end;
   VarType := FData^[FCurrentPosition];
   Inc(FCurrentPosition);
-  {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-  Param := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-  {$else}
   Param := Cardinal((@FData^[FCurrentPosition])^);
-  {$endif}
   Inc(FCurrentPosition, 4);
   case VarType of
     0:
@@ -6856,11 +6832,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              tbtu16(dest.p^) := unaligned(tbtu16((@FData^[FCurrentPosition])^));
-	      {$else}
               tbtu16(dest.p^) := tbtu16((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 2);
             end;
           bts32, btU32:
@@ -6872,11 +6844,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              tbtu32(dest.p^) := unaligned(tbtu32((@FData^[FCurrentPosition])^));
-	      {$else}
               tbtu32(dest.p^) := tbtu32((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
             end;
           btProcPtr:
@@ -6888,11 +6856,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              tbtu32(dest.p^) := unaligned(tbtu32((@FData^[FCurrentPosition])^));
-	      {$else}
               tbtu32(dest.p^) := tbtu32((@FData^[FCurrentPosition])^);
-	      {$endif}
               Pointer(Pointer(IPointer(dest.p)+PointerSize)^) := nil;
               Pointer(Pointer(IPointer(dest.p)+PointerSize2)^) := nil;
               Inc(FCurrentPosition, 4);
@@ -6907,11 +6871,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              tbts64(dest.p^) := unaligned(tbts64((@FData^[FCurrentPosition])^));
-	      {$else}
               tbts64(dest.p^) := tbts64((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 8);
             end;
           btU64:
@@ -6923,11 +6883,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              tbtu64(dest.p^) := unaligned(tbtu64((@FData^[FCurrentPosition])^));
-	      {$else}
               tbtu64(dest.p^) := tbtu64((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 8);
             end;
           {$ENDIF}
@@ -6940,11 +6896,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              tbtsingle(dest.p^) := unaligned(tbtsingle((@FData^[FCurrentPosition])^));
-	      {$else}
               tbtsingle(dest.p^) := tbtsingle((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, Sizeof(Single));
             end;
           btDouble:
@@ -6956,11 +6908,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              tbtdouble(dest.p^) := unaligned(tbtdouble((@FData^[FCurrentPosition])^));
-	      {$else}
               tbtdouble(dest.p^) := tbtdouble((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, Sizeof(double));
             end;
 
@@ -6973,11 +6921,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              tbtextended(dest.p^) := unaligned(tbtextended((@FData^[FCurrentPosition])^));
-	      {$else}
               tbtextended(dest.p^) := tbtextended((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, sizeof(Extended));
             end;
           btCurrency:
@@ -6989,11 +6933,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              tbtcurrency(dest.p^) := unaligned(tbtcurrency((@FData^[FCurrentPosition])^));
-	      {$else}
               tbtcurrency(dest.p^) := tbtcurrency((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, SizeOf(Currency));
             end;
           btPchar, btString:
@@ -7005,11 +6945,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              Param := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	      {$else}
               Param := Cardinal((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
               Pointer(Dest.P^) := nil;
               SetLength(tbtstring(Dest.P^), Param);
@@ -7034,11 +6970,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              Param := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	      {$else}
               Param := Cardinal((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
               Pointer(Dest.P^) := nil;
               SetLength(tbtwidestring(Dest.P^), Param);
@@ -7059,11 +6991,7 @@ begin
                 Result := False;
                 exit;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              Param := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	      {$else}
               Param := Cardinal((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
               Pointer(Dest.P^) := nil;
               SetLength(tbtUnicodestring(Dest.P^), Param);
@@ -7127,11 +7055,7 @@ begin
           Result := False;
           exit;
         end;
-	{$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-        Param := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	{$else}
         Param := Cardinal((@FData^[FCurrentPosition])^);
-	{$endif}
         Inc(FCurrentPosition, 4);
         case Dest.aType.BaseType of
           btRecord:
@@ -7232,11 +7156,7 @@ begin
           Result := False;
           exit;
         end;
-	{$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-        Param := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	{$else}
         Param := Cardinal((@FData^[FCurrentPosition])^);
-	{$endif}
         Inc(FCurrentPosition, 4);
         if Param < PSAddrNegativeStackStart then
         begin
@@ -7445,11 +7365,7 @@ end;
 function TPSExec.ReadLong(var b: Cardinal): Boolean;
 begin
   if FCurrentPosition + 3 < FDataLength then begin
-    {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-    b := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-    {$else}
     b := Cardinal((@FData^[FCurrentPosition])^);
-    {$endif}
     Inc(FCurrentPosition, 4);
     Result := True;
   end
@@ -8298,11 +8214,7 @@ begin
                 Cmd_Err(erOutOfRange);
                 Break;
               end;
-              {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              p := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-              {$else}
               p := Cardinal((@FData^[FCurrentPosition])^);
-              {$endif}
               Inc(FCurrentPosition, 4);
               if p >= FProcs.Count then begin
                 CMD_Err(erOutOfProcRange);
@@ -8385,11 +8297,7 @@ begin
                 Cmd_Err(erOutOfRange);
                 Break;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              p := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	      {$else}
               p := Cardinal((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
               FCurrentPosition := FCurrentPosition + p;
             end;
@@ -8406,11 +8314,7 @@ begin
                 Cmd_Err(erOutOfRange);
                 Break;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              p := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	      {$else}
               p := Cardinal((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
               FCurrentPosition := FCurrentPosition + p;
             end;
@@ -8425,11 +8329,7 @@ begin
                 Cmd_Err(erOutOfRange);
                 Break;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              p := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	      {$else}
               p := Cardinal((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
               FCurrentPosition := FCurrentPosition + p;
             end;
@@ -8445,11 +8345,7 @@ begin
                 Cmd_Err(erOutOfRange);
                 Break;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              p := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	      {$else}
               p := Cardinal((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
               btemp := true;
               if not ReadVariable(vs, btemp) then
@@ -8492,11 +8388,7 @@ begin
                 Cmd_Err(erOutOfRange);
                 Break;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              p := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	      {$else}
               p := Cardinal((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
               btemp := true;
               if not ReadVariable(vs, BTemp) then
@@ -8599,11 +8491,7 @@ begin
                 Cmd_Err(erOutOfRange);
                 Break;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              p := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	      {$else}
               p := Cardinal((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
               if p >= FTypes.Count then
               begin
@@ -8702,11 +8590,7 @@ begin
                 Cmd_Err(erOutOfRange);
                 Break;
               end;
-	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-              p := unaligned(Cardinal((@FData^[FCurrentPosition])^));
-	      {$else}
               p := Cardinal((@FData^[FCurrentPosition])^);
-	      {$endif}
               Inc(FCurrentPosition, 4);
               if FJumpFlag then
                 FCurrentPosition := FCurrentPosition + p;
@@ -10032,7 +9916,7 @@ begin
   {$ENDIF}
   RegisterDelphiFunction(@Null, 'Null', cdRegister);
   RegisterDelphiFunction(@VarIsNull, 'VarIsNull', cdRegister);
-  RegisterDelphiFunction(@{$IFDEF FPC}variants.{$ENDIF}VarType, 'VarType', cdRegister);
+  RegisterDelphiFunction(@VarType, 'VarType', cdRegister);
   {$IFNDEF PS_NOIDISPATCH}
   RegisterDelphiFunction(@IDispatchInvoke, 'IdispatchInvoke', cdregister);
   {$ENDIF}
@@ -10488,7 +10372,6 @@ begin
 end;
 
 
-{$ifndef FPC}
 {$IFDEF Delphi6UP}
   {$IFDEF CPUX64}
     {$include x64.inc}
@@ -10498,25 +10381,6 @@ end;
 {$ELSE}
   {$include x86.inc}
 {$ENDIF}
-{$else}
-{$IFDEF Delphi6UP}
-  {$if defined(cpu86)}
-    {$include x86.inc}
-  {$elseif defined(cpupowerpc)}
-    {$include powerpc.inc}
-  {$elseif defined(cpuaarch64)}
-    {$include arm64.inc}
-  {$elseif defined(cpuarm)}
-    {$include arm.inc}
-  {$elseif defined(CPUX86_64)}
-    {$include x64.inc}
-  {$else}
-    {$fatal Pascal Script is not supported for your architecture at the moment!}
-  {$ifend}
-{$ELSE}
-{$include x86.inc}
-{$ENDIF}
-{$endif}
 
 type
   PScriptMethodInfo = ^TScriptMethodInfo;
@@ -10583,31 +10447,13 @@ type
 
 
 function VirtualMethodPtrToPtr(Ptr, FSelf: Pointer): Pointer;
-{$IFDEF FPC}
-var
- x : PPtrArr;
-{$ENDIF}
 begin
- {$IFDEF FPC}
- x := Pointer(TObject(FSelf).ClassType) + vmtMethodStart;
- Result := x^[Longint(Ptr)];
- {$ELSE}
  Result := PPtrArr(PPointer(FSelf)^)^[Longint(Ptr)];
- {$ENDIF}
 end;
 
 function VirtualClassMethodPtrToPtr(Ptr, FSelf: Pointer): Pointer;
-{$IFDEF FPC}
-var
- x : PPtrArr;
-{$ENDIF}
 begin
-  {$IFDEF FPC}
-  x := Pointer(FSelf) + vmtMethodStart;
-  Result := x^[Longint(Ptr)];
-  {$ELSE}
   Result := PPtrArr(FSelf)^[Longint(Ptr)];
-  {$ENDIF}
 end;
 
 
@@ -10628,9 +10474,6 @@ begin
 end;
 
 {$IFDEF VER90}{$DEFINE NO_vmtSelfPtr}{$ENDIF}
-{$IFDEF FPC}{$DEFINE NO_vmtSelfPtr}{$ENDIF}
-
-{$IFNDEF FPC}
 
 function FindVirtualMethodPtr(Ret: TPSRuntimeClass; FClass: TClass; Ptr: Pointer): Pointer;
 // Idea of getting the number of VMT items from GExperts
@@ -10679,33 +10522,6 @@ begin
   end;
   Result := nil;
 end;
-
-{$ELSE}
-
-function FindVirtualMethodPtr(Ret: TPSRuntimeClass; FClass: TClass; Ptr: Pointer): Pointer;
-var
-  x,p: PPtrArr;
-  I: Longint;
-  t : Pointer;
-begin
-  p := Pointer(FClass) + vmtMethodStart;
-  I := 0;
-  while (p^[I]<>nil) and (I < 10000) do
-  begin
-    if p^[I] = Ptr then
-    begin
-      Result := Pointer(I);
-      x := Pointer(FClass) + vmtMethodStart;
-      t := x^[I];
-      Assert(t=Ptr,'Computation of virtual method pointer fail : t<>Ptr');
-      exit;
-    end;
-    I := I + 1;
-  end;
-  Result := nil;
-end;
-
-{$ENDIF}
 
 
 function NewTPSVariantIFC(avar: PPSVariant; varparam: boolean): TPSVariantIFC;
@@ -10940,19 +10756,7 @@ begin
     Result := False;
     exit;
   end;
-  {$IFDEF FPC}
-  // under FPC a constructor it's called with self=0 (EAX) and
-  // the VMT class pointer in EDX so they are effectively swaped
-  // using register calling convention
-  {$IFDEF CPU64}
-  PPSVariantS64(IntVal).Data := Int64(FSelf);
-  {$ELSE}
-  PPSVariantU32(IntVal).Data := Cardinal(FSelf);
-  {$ENDIF}
-  FSelf := pointer(1);
-  {$ELSE}
   PPSVariantU32(IntVal).Data := 1;
-  {$ENDIF}
   MyList := TPSList.Create;
   MyList.Add(NewPPSVariantIFC(intval, false));
   for i := 2 to length(s) do
@@ -10974,7 +10778,7 @@ begin
     v := NewPPSVariantIFC(Stack[CurrStack + 1], True);
   end else v := nil;
   try
-    Result := Caller.InnerfuseCall(FSelf, p.Ext1, {$IFDEF FPC}TPSCallingConvention(Integer(cc) or 64){$ELSE}cc{$ENDIF}, MyList, v);
+    Result := Caller.InnerfuseCall(FSelf, p.Ext1, cc, MyList, v);
   finally
     DisposePPSVariantIFC(v);
     DisposePPSVariantIFCList(mylist);
@@ -11059,7 +10863,7 @@ begin
     v := NewPPSVariantIFC(Stack[CurrStack + 1], True);
   end else v := nil;
   try
-    Result := Caller.InnerfuseCall(FSelf, VirtualClassMethodPtrToPtr(p.Ext1, FSelf), {$IFDEF FPC}TPSCallingConvention(Integer(cc) or 128){$ELSE}cc{$ENDIF}, MyList, v);
+    Result := Caller.InnerfuseCall(FSelf, VirtualClassMethodPtrToPtr(p.Ext1, FSelf), cc, MyList, v);
   finally
     DisposePPSVariantIFC(v);
     DisposePPSVariantIFCList(mylist);
@@ -12314,15 +12118,9 @@ begin
   Result := (Modifier = '%') or (Modifier = '!') or AlwaysAsVariable(aType);
 end;
 
-{$ifdef fpc}
-  {$if defined(cpupowerpc) or defined(cpuarm) or defined(cpu64)}
-    {$define empty_methods_handler}
-  {$ifend}
-{$else}
-  {$if defined(cpuarm) or defined(cpuarm64)}
-    {$define empty_methods_handler}
-  {$ifend}
-{$endif}
+{$if defined(cpuarm) or defined(cpuarm64)}
+  {$define empty_methods_handler}
+{$ifend}
 
 {$ifdef empty_methods_handler}
 procedure MyAllMethodsHandler;
@@ -12471,9 +12269,6 @@ begin
     btu16,
     bts32,
     btu32,
-{$IFDEF PS_FPCSTRINGWORKAROUND}
-    btString,
-{$ENDIF}
 {$IFNDEF PS_NOINT64}
     bts64,
     btU64,
@@ -13741,11 +13536,7 @@ begin
        if not Succeeded(i) then
        begin
          if i = DISP_E_EXCEPTION then
-           {$IFDEF FPC}
-           raise Exception.Create(ExceptInfo.Source+': '+ExceptInfo.Description)
-           {$ELSE}
            raise Exception.Create(ExceptInfo.bstrSource+': '+ExceptInfo.bstrDescription)
-           {$ENDIF}
          else
            raise Exception.Create(SysErrorMessage(i));
        end;

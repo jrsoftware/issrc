@@ -1,7 +1,4 @@
 { implementation of x86         abi }
-{$ifdef FPC}
-{$define PS_ARRAY_ON_STACK}
-{$endif}
 { Pure assembler: Delphi 12.3 sometimes generates a bad instruction for the
   Result of a float function that contains an asm block }
 function RealFloatCall_Register(p: Pointer;
@@ -243,10 +240,6 @@ var
   RegUsage: Byte;
   CallData: TPSList;
   pp: ^Byte;
-{$IFDEF FPC}
-  IsConstructor,IsVirtualCons: Boolean;
-  MethodData: TMethod;
-{$ENDIF}
 
   EAX, EDX, ECX: Longint;
 
@@ -458,9 +451,6 @@ var
             {$IFDEF PS_DYNARRAY}
               TempStr := StringOfChar(AnsiChar(#0),4);
               Pointer((@TempStr[1])^) := Pointer(fvar.Dta^);
-            {$IFDEF PS_ARRAY_ON_STACK}
-            UseReg := false;
-            {$ENDIF}
             {$ELSE}
               Exit;
             {$ENDIF}
@@ -557,15 +547,9 @@ var
 
         btProcPtr:
           begin
-{$IFDEF FPC}
-            MethodData := MKMethod(Self, Longint(FVar.Dta^));
-            TempStr := StringOfChar(AnsiChar(#0),4);
-            Pointer((@TempStr[1])^) := @MethodData;
-{$ELSE}
             TempStr := StringOfChar(AnsiChar(#0),8);
             TMethod((@TempStr[1])^) := MKMethod(Self, Longint(FVar.Dta^));
             UseReg := false;
-{$ENDIF}
           end;
 
         {$IFNDEF PS_NOINT64}bts64:
@@ -588,38 +572,16 @@ var
           1: begin EDX := Longint((@Tempstr[1])^); Inc(RegUsage); end;
           2: begin ECX := Longint((@Tempstr[1])^); Inc(RegUsage); end;
           else begin
-          {$IFDEF FPC_OLD_FIX}
-            if CallingConv = cdRegister then
-            Stack := Stack + TempStr
-          else
-          {$ENDIF}
             Stack := TempStr + Stack;
           end;
         end;
       end else begin
-        {$IFDEF FPC_OLD_FIX}
-            if CallingConv = cdRegister then
-            Stack := Stack + TempStr
-          else
-        {$ENDIF}
-          Stack := TempStr + Stack;
+        Stack := TempStr + Stack;
       end;
     end;
     Result := True;
   end;
 begin
-  {$IFDEF FPC}
-  if (Integer(CallingConv) and 128) <> 0 then begin
-    IsVirtualCons := true;
-    CAllingConv := TPSCallingConvention(Integer(CallingConv) and not 128);
-  end else
-    IsVirtualCons:= false;
-  if (Integer(CallingConv) and 64) <> 0 then begin
-    IsConstructor := true;
-    CAllingConv := TPSCallingConvention(Integer(CallingConv) and not 64);
-  end else
-    IsConstructor := false;
-  {$ENDIF}
   InnerfuseCall := False;
   if Address = nil then
     exit; // need address
@@ -636,15 +598,6 @@ begin
           ECX := 0;
           RegUsage := 0;
 
-{$IFDEF FPC} // FIX FOR FPC constructor calls
-          if IsConstructor then begin
-            if not GetPtr(rp(Params[0])) then exit; // this goes first
-            RegUsage := 2;
-            EDX := Longint(_Self);
-            DisposePPSVariantIFC(Params[0]);
-            Params.Delete(0);
-          end else
-{$ENDIF}
           if assigned(_Self) then begin
             RegUsage := 1;
             EAX := Longint(_Self);
@@ -658,7 +611,7 @@ begin
           if assigned(res) then begin
             case res^.aType.BaseType of
               {$IFNDEF PS_NOWIDESTRING}btWideString, btUnicodeString, {$ENDIF}
-              btInterface, {$IFNDEF FPC} btArray, {$ENDIF}{$IFNDEF PS_FPCSTRINGWORKAROUND}btstring, {$ENDIF}btVariant{$IFNDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}: GetPtr(res);
+              btInterface, btArray, btstring, btVariant{$IFNDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}: GetPtr(res);
               btRecord{$IFDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}:
                 begin
                   if ResultUsesResultPointer(res) then GetPtr(res);
@@ -694,17 +647,11 @@ begin
               {$IFNDEF PS_NOWIDESTRING}btWideChar, {$ENDIF}btu16, bts16:  tbtu16(res.dta^) := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
               btClass :
               begin
-              {$IF DEFINED (fpc) and (fpc_version < 3)}
-                if IsConstructor or IsVirtualCons then
-                  tbtu32(res.dta^) := RealCall_Register(Address, EDX, EAX, ECX,
-                  @Stack[Length(Stack) - 3], Length(Stack) div 4, 4, nil)
-                else
-             {$IFEND}
-                  tbtu32(res.dta^) := RealCall_Register(Address, EAX, EDX, ECX,
-                  @Stack[Length(Stack) - 3], Length(Stack) div 4, 4, nil);
+                tbtu32(res.dta^) := RealCall_Register(Address, EAX, EDX, ECX,
+                @Stack[Length(Stack) - 3], Length(Stack) div 4, 4, nil);
               end;
 
-              btu32,bts32{$IFDEF FPC},btArray{$ENDIF}:   tbtu32(res.dta^) := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
+              btu32,bts32:   tbtu32(res.dta^) := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
               btPChar:       pansichar(res.dta^) := Pansichar(RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil));
               {$IFNDEF PS_NOINT64}bts64, btU64:
                 begin
@@ -718,7 +665,7 @@ begin
               btCurrency:    tbtCurrency(res.Dta^) := RealFloatCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4) / 10000;
               btInterface,
               {$IFNDEF PS_NOWIDESTRING}btWidestring,btUnicodestring, {$ENDIF}
-              btVariant{$IFNDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}{$IFNDEF FPC}, btArray{$ENDIF}{$IFNDEF PS_FPCSTRINGWORKAROUND}, btstring{$ENDIF}: RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+              btVariant{$IFNDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}, btArray, btstring: RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
               btRecord{$IFDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}:
                 begin
                   if not ResultUsesResultPointer(res) then
@@ -731,12 +678,6 @@ begin
                   else
                     RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
                 end;
-              {$IFDEF PS_FPCSTRINGWORKAROUND}
-              btstring: begin
-                 eax := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
-                 Longint(res.dta^) := eax;
-              end;
-              {$ENDIF}
             else
               exit;
             end;

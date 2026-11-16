@@ -7,9 +7,6 @@
 //procedure DebugBreak; external 'Kernel32.dll';
 const
   EmptyPchar: array[0..0] of char = #0;
-{$IFDEF FPC}
-{$ASMMODE INTEL}
-{$ENDIF}
 {$IFDEF MSWINDOWS}{$DEFINE WINDOWS}{$ENDIF}
 
 {$UNDEF REG_STACK_PTR_OFFSET0}
@@ -25,7 +22,7 @@ type
     _XMM2,                 // 40
     _XMM3: Double;         // 48
     Stack: Pointer;        // 56
-    Items: {$IFDEF FPC}PtrUInt{$ELSE}IntPtr{$ENDIF}; // 64
+    Items: IntPtr; // 64
     SingleBits: Integer; // 72
   end;
 
@@ -38,7 +35,7 @@ type
   EInvocationError = class(Exception);
 
 procedure x64call({RCX}Address: Pointer;out {RDX}_RAX: IPointer;var {R8}_XMM0: Double; var {R9}RegInfo: TRegisters);
-assembler; {$ifdef FPC}nostackframe;{$endif}
+assembler;
 
   procedure InvokeErrorParamCount; // The number of parameters exceeded 64 (c_par_max_count)
   begin
@@ -194,7 +191,7 @@ procedure x64call(
   Address: Pointer;
   out _RAX: IPointer;
   var _XMM0: Double;
-  var Registers: TRegisters); assembler; {$IFDEF FPC}nostackframe;{$ENDIF}
+  var Registers: TRegisters); assembler;
 asm
 (* Registers:
     RCX: Address
@@ -218,11 +215,7 @@ asm
   mov rdx, [rax+56] // stack
   jmp @compareitems
 @work:
-{$IFDEF FPC}
-  push qword ptr [rdx]
-{$ELSE}
   push [rdx]
-{$ENDIF}
   dec rcx
   sub rdx,8
 @compareitems:
@@ -368,11 +361,7 @@ asm
   mov rax, rdx
   jmp @compareitems
 @work:
-{$IFDEF FPC}
-  push qword ptr [rcx]
-{$ELSE} 
   push [rcx]
-{$ENDIF}  
   dec r8
   sub rcx,8
 @compareitems:
@@ -513,9 +502,6 @@ _XMM0: Double;
   Registers: TRegisters;
 {$IFNDEF WINDOWS}
   RegUsageFloat: Byte;
-{$ENDIF}
-{$IFDEF FPC}
-  IsConstructor,IsVirtualCons: Boolean;
 {$ENDIF}
   RegUsage: Byte;
   CallData: TPSList;
@@ -760,11 +746,7 @@ _XMM0: Double;
               Result := True;
               exit;
             end else begin
-            {$IFDEF FPC}
-              StoreReg(IPointer(FVar.Dta));
-            {$ELSE}
               StoreReg(IPointer(FVar.Dta^));
-            {$ENDIF}
             end;
           end;
         btSet,
@@ -897,18 +879,6 @@ _XMM0: Double;
     Result := True;
   end;
 begin
-  {$IFDEF FPC}
-  if (Integer(CallingConv) and 128) <> 0 then begin
-    IsVirtualCons := true;
-    CAllingConv := TPSCallingConvention(Integer(CallingConv) and not 128);
-  end else
-    IsVirtualCons:= false;
-  if (Integer(CallingConv) and 64) <> 0 then begin
-    IsConstructor := true;
-    CAllingConv := TPSCallingConvention(Integer(CallingConv) and not 64);
-  end else
-    IsConstructor := false;
-  {$ENDIF}
   IsSafeCall := CallingConv = cdSafeCall;
 
   InnerfuseCall := False;
@@ -933,13 +903,6 @@ begin
   FillChar(Registers, Sizeof(REgisters), 0);
     _RAX := 0;
     RegUsage := 0;
-    {$IF DEFINED (fpc) and (fpc_version >= 3)} // FIX FOR FPC constructor calls
-    if IsConstructor then begin
-      if not GetPtr(rp(Params[0])) then exit; // this goes first
-      DisposePPSVariantIFC(Params[0]);
-      Params.Delete(0);
-    end;
-    {$ENDIF}
     if assigned(_Self) then begin
       StoreReg(IPointer(_Self));
     end;

@@ -21,13 +21,8 @@ procedure RIRegisterTSizeConstraints(cl: TPSRuntimeClassImporter);
 procedure RIRegister_Controls(Cl: TPSRuntimeClassImporter);
 
 implementation
-{$IFNDEF FPC}
 uses
   Classes{$IFDEF CLX}, QControls, QGraphics{$ELSE}, Controls, Graphics, Windows{$ENDIF};
-{$ELSE}
-uses
-  Classes, Controls, Graphics;
-{$ENDIF}
 
 procedure TControlAlignR(Self: TControl; var T: Byte); begin T := Byte(Self.Align); end;
 procedure TControlAlignW(Self: TControl; T: Byte); begin Self.Align:= TAlign(T); end;
@@ -95,10 +90,8 @@ begin
     RegisterMethod(@TControl.Dragging, 'Dragging');
     RegisterMethod(@TControl.HasParent, 'HasParent');
     RegisterMethod(@TCONTROL.CLIENTTOSCREEN, 'ClientToScreen');
-   {$IFNDEF FPC}
     RegisterMethod(@TCONTROL.BEGINDRAG, 'BeginDrag');
     RegisterMethod(@TCONTROL.ENDDRAG, 'EndDrag');
-   {$ENDIF}
     {$IFNDEF CLX}
     RegisterMethod(@TCONTROL.GETTEXTBUF, 'GetTextBuf');
     RegisterMethod(@TCONTROL.GETTEXTLEN, 'GetTextLen');
@@ -143,14 +136,12 @@ begin
     RegisterMethod(@TWinControl.HandleNeeded, 'HandleNeeded');
     RegisterMethod(@TWinControl.EnableAlign, 'EnableAlign');
 		RegisterMethod(@TWinControl.RemoveControl, 'RemoveControl');
-		{$IFNDEF FPC}
 		RegisterMethod(@TWinControl.InsertControl, 'InsertControl');
 		RegisterMethod(@TWinControl.ScaleBy, 'ScaleBy');
 		RegisterMethod(@TWinControl.ScrollBy, 'ScrollBy');
 		{$IFNDEF CLX}
 		 RegisterMethod(@TWINCONTROL.PAINTTO, 'PaintTo');
 		{$ENDIF}
-		{$ENDIF}{FPC}
 		RegisterMethod(@TWinControl.Realign, 'Realign');
 		RegisterVirtualMethod(@TWinControl.SetFocus, 'SetFocus');
 		RegisterMethod(@TWINCONTROL.CONTAINSCONTROL, 'ContainsControl');
@@ -221,10 +212,8 @@ begin
 {$IFDEF DELPHI4UP}
     RegisterVirtualMethod(@TDragObject.Assign, 'Assign');
 {$ENDIF}
-{$IFNDEF FPC}
     RegisterVirtualMethod(@TDragObject.GetName, 'GetName');
     RegisterVirtualMethod(@TDragObject.Instance, 'Instance');
-{$ENDIF}    
     RegisterVirtualMethod(@TDragObject.HideDragImage, 'HideDragImage');
     RegisterVirtualMethod(@TDragObject.ShowDragImage, 'ShowDragImage');
 {$IFDEF DELPHI4UP}

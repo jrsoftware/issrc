@@ -1773,7 +1773,7 @@ procedure DisposeVariant(p: PIfRVariant);
 
 implementation
 
-uses {$IFDEF DELPHI5}ComObj, {$ENDIF}{$IFDEF PS_FPC_HAS_COM}ComObj, {$ENDIF}Classes, typInfo;
+uses {$IFDEF DELPHI5}ComObj, {$ENDIF}Classes, typInfo;
 
 {$IFDEF DELPHI3UP}
 resourceString
@@ -2002,10 +2002,8 @@ begin
   btU64: BlockWriteData(BlockInfo, p^.tu64, SizeOf(tbtu64));
   {$ENDIF}
   {$IFDEF DEBUG}
-  {$IFNDEF FPC}
   else
       asm int 3; end;
-  {$ENDIF}
   {$ENDIF}
   end;
 end;
@@ -4887,16 +4885,7 @@ begin
   {$ENDIF}
   if @FOnTranslateLineInfo <> nil then
     FOnTranslateLineInfo(Self, Pos, Row, Col, S);
-  {$IFDEF FPC}
-  WriteDebugData(#4 + s + #1);
-  WriteDebugData(Ps_mi2s(ProcNo));
-  WriteDebugData(Ps_mi2s(Length(Proc.Data)));
-  WriteDebugData(Ps_mi2s(Pos));
-  WriteDebugData(Ps_mi2s(Row));
-  WriteDebugData(Ps_mi2s(Col));
-  {$ELSE}
   WriteDebugData(#4 + s + #1 + PS_mi2s(ProcNo) + PS_mi2s(Length(Proc.Data)) + PS_mi2s(Pos) + PS_mi2s(Row)+ PS_mi2s(Col));
-  {$ENDIF}
 end;
 
 procedure TPSPascalCompiler.Debug_WriteParams(ProcNo: Cardinal; Proc: TPSInternalProcedure);
@@ -6252,11 +6241,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
       AfterWriteOutRec(BVal.FVal2);
       if FBooleanShortCircuit and (IsBoolean(BVal.aType)) and (JOver <> JEnd) then
       begin
-        {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-        unaligned(Cardinal((@BlockInfo.Proc.FData[jover+1])^)) := Cardinal(Length(BlockInfo.Proc.FData)) - jend;
-	{$else}
         Cardinal((@BlockInfo.Proc.FData[jover+1])^) := Cardinal(Length(BlockInfo.Proc.FData)) - jend;
-	{$endif}
       end;
       AfterWriteOutRec(Output);
     end;
@@ -10471,36 +10456,20 @@ begin
     AfterWriteOutRec(VariableVar);
     BlockWriteByte(BlockInfo, Cm_G);
     BlockWriteLong(BlockInfo, Longint(NPos - Length(BlockInfo.Proc.Data) - 4));
-    {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-    unaligned(Longint((@BlockInfo.Proc.Data[EPos + 1])^)) := Length(BlockInfo.Proc.Data) - RPos;
-    {$else}
     Longint((@BlockInfo.Proc.Data[EPos + 1])^) := Length(BlockInfo.Proc.Data) - RPos;
-    {$endif}
     if ExitCheckEmitted then
     begin
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Longint((@BlockInfo.Proc.Data[EPos2 + 1])^)) := Length(BlockInfo.Proc.Data) - RPos2;
-      {$else}
       Longint((@BlockInfo.Proc.Data[EPos2 + 1])^) := Length(BlockInfo.Proc.Data) - RPos2;
-      {$endif}
     end;
     for i := 0 to FBreakOffsets.Count -1 do
     begin
       EPos := IPointer(FBreakOffsets[I]);
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Longint((@BlockInfo.Proc.Data[EPos - 3])^)) := Length(BlockInfo.Proc.Data) - Longint(EPos);
-      {$else}
       Longint((@BlockInfo.Proc.Data[EPos - 3])^) := Length(BlockInfo.Proc.Data) - Longint(EPos);
-      {$endif}
     end;
     for i := 0 to FContinueOffsets.Count -1 do
     begin
       EPos := IPointer(FContinueOffsets[I]);
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Longint((@BlockInfo.Proc.Data[EPos - 3])^)) := Longint(FPos) - Longint(EPos);
-      {$else}
       Longint((@BlockInfo.Proc.Data[EPos - 3])^) := Longint(FPos) - Longint(EPos);
-      {$endif}
     end;
     FBreakOffsets.Free;
     FContinueOffsets.Free;
@@ -10608,28 +10577,16 @@ begin
     Debug_WriteLine(BlockInfo);
     BlockWriteByte(BlockInfo, Cm_G);
     BlockWriteLong(BlockInfo, Longint(SPos) - Length(BlockInfo.Proc.Data) - 4);
-    {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-    unaligned(Longint((@BlockInfo.Proc.Data[EPos - 3])^)) := Length(BlockInfo.Proc.Data) - Longint(EPos) - 5;
-    {$else}
     Longint((@BlockInfo.Proc.Data[EPos - 3])^) := Length(BlockInfo.Proc.Data) - Longint(EPos) - 5;
-    {$endif}
     for i := 0 to FBreakOffsets.Count -1 do
     begin
       EPos := Cardinal(FBreakOffsets[I]);
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Longint((@BlockInfo.Proc.Data[EPos - 3])^)) := Length(BlockInfo.Proc.Data) - Longint(EPos);
-      {$else}
       Longint((@BlockInfo.Proc.Data[EPos - 3])^) := Length(BlockInfo.Proc.Data) - Longint(EPos);
-      {$endif}
     end;
     for i := 0 to FContinueOffsets.Count -1 do
     begin
       EPos := Cardinal(FContinueOffsets[I]);
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Longint((@BlockInfo.Proc.Data[EPos - 3])^)) := Longint(SPos) - Longint(EPos);
-      {$else}
       Longint((@BlockInfo.Proc.Data[EPos - 3])^) := Longint(SPos) - Longint(EPos);
-      {$endif}
     end;
     FBreakOffsets.Free;
     FContinueOffsets.Free;
@@ -10750,30 +10707,17 @@ begin
 
       exit;
     end;
-    {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-    unaligned(Longint((@BlockInfo.Proc.Data[EPos - 3])^)) := Longint(SPos) -
-      Length(BlockInfo.Proc.Data);
-    {$else}
     Longint((@BlockInfo.Proc.Data[EPos - 3])^) := Longint(SPos) -
       Length(BlockInfo.Proc.Data);
-    {$endif}
     for i := 0 to FBreakOffsets.Count -1 do
     begin
       EPos := Cardinal(FBreakOffsets[I]);
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Longint((@BlockInfo.Proc.Data[EPos - 3])^)) := Length(BlockInfo. Proc.Data) - Longint(EPos);
-      {$else}
       Longint((@BlockInfo.Proc.Data[EPos - 3])^) := Length(BlockInfo. Proc.Data) - Longint(EPos);
-      {$endif}
     end;
     for i := 0 to FContinueOffsets.Count -1 do
     begin
       EPos := Cardinal(FContinueOffsets[I]);
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Longint((@BlockInfo.Proc.Data[EPos - 3])^)) := Longint(CPos) - Longint(EPos);
-      {$else}
       Longint((@BlockInfo.Proc.Data[EPos - 3])^) := Longint(CPos) - Longint(EPos);
-      {$endif}
     end;
     FBreakOffsets.Free;
     FContinueOffsets.Free;
@@ -10849,11 +10793,7 @@ begin
       BlockWriteByte(BlockInfo, Cm_G);
       BlockWriteLong(BlockInfo, $12345678);
       EPos := Length(BlockInfo.Proc.Data);
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Longint((@BlockInfo.Proc.Data[SPos - 3])^)) := Length(BlockInfo.Proc.Data) - Longint(SPos);
-      {$else}
       Longint((@BlockInfo.Proc.Data[SPos - 3])^) := Length(BlockInfo.Proc.Data) - Longint(SPos);
-      {$endif}
       FParser.Next;
       Block := TPSBlockInfo.Create(BlockInfo);
       Block.SubType := tOneLiner;
@@ -10863,19 +10803,11 @@ begin
         exit;
       end;
       Block.Free;
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Longint((@BlockInfo.Proc.Data[EPos - 3])^)) := Length(BlockInfo.Proc.Data) - Longint(EPos);
-      {$else}
       Longint((@BlockInfo.Proc.Data[EPos - 3])^) := Length(BlockInfo.Proc.Data) - Longint(EPos);
-      {$endif}
     end
     else
     begin
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Longint((@BlockInfo.Proc.Data[SPos - 3])^)) := Length(BlockInfo.Proc.Data) - Longint(SPos) + 5 - 5;
-      {$else}
       Longint((@BlockInfo.Proc.Data[SPos - 3])^) := Length(BlockInfo.Proc.Data) - Longint(SPos) + 5 - 5;
-      {$endif}
     end;
     Result := True;
   end; {ProcessIf}
@@ -11133,11 +11065,7 @@ begin
       BlockWriteByte(BlockInfo, Cm_G);
       BlockWriteLong(BlockInfo, $12345678);
       EndReloc.Add(Pointer(Length(BlockInfo.Proc.Data)));
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Cardinal((@BlockInfo.Proc.Data[CurrP - 3])^)) := Cardinal(Length(BlockInfo.Proc.Data)) - CurrP - 5;
-      {$else}
       Cardinal((@BlockInfo.Proc.Data[CurrP - 3])^) := Cardinal(Length(BlockInfo.Proc.Data)) - CurrP - 5;
-      {$endif}
       if FParser.CurrTokenID = CSTI_Semicolon then FParser.Next;
       if FParser.CurrTokenID = CSTII_Else then
       begin
@@ -11169,11 +11097,7 @@ begin
     FParser.Next;
     for i := 0 to EndReloc.Count -1 do
     begin
-      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-      unaligned(Cardinal((@BlockInfo.Proc.Data[Cardinal(EndReloc[I])- 3])^)) := Cardinal(Length(BlockInfo.Proc.Data)) - Cardinal(EndReloc[I]);
-      {$else}
       Cardinal((@BlockInfo.Proc.Data[Cardinal(EndReloc[I])- 3])^) := Cardinal(Length(BlockInfo.Proc.Data)) - Cardinal(EndReloc[I]);
-      {$endif}
     end;
     CalcItem.Free;
     TempRec.Free;
@@ -11184,11 +11108,7 @@ begin
       begin
         if Cardinal(FContinueOffsets[i]) >= SPos then
         begin
-          {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-          unaligned(Byte((@BlockInfo.Proc.Data[Longint(FContinueOffsets[i]) - 4])^)) := Cm_P2G;
-	  {$else}
           Byte((@BlockInfo.Proc.Data[Longint(FContinueOffsets[i]) - 4])^) := Cm_P2G;
-	  {$endif}
         end;
       end;
     end;
@@ -11198,11 +11118,7 @@ begin
       begin
         if Cardinal(FBreakOffsets[i]) >= SPos then
         begin
-          {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
-          unaligned(Byte((@BlockInfo.Proc.Data[Longint(FBreakOffsets[i]) - 4])^)) := Cm_P2G;
-	  {$else}
           Byte((@BlockInfo.Proc.Data[Longint(FBreakOffsets[i]) - 4])^) := Cm_P2G;
-	  {$endif}
         end;
       end;
     end;

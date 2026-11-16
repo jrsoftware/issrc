@@ -30,7 +30,7 @@ procedure RIRegister_stdctrls(cl: TPSRuntimeClassImporter);
 
 implementation
 uses
-  sysutils, classes{$IFDEF CLX}, QControls, QStdCtrls, QGraphics{$ELSE}, controls, stdctrls, Graphics{$ENDIF}{$IFDEF FPC},buttons{$ENDIF};
+  sysutils, classes{$IFDEF CLX}, QControls, QStdCtrls, QGraphics{$ELSE}, controls, stdctrls, Graphics{$ENDIF};
 
 procedure RIRegisterTCUSTOMGROUPBOX(Cl: TPSRuntimeClassImporter);
 begin
@@ -91,10 +91,8 @@ begin
     RegisterMethod(@TCUSTOMEDIT.COPYTOCLIPBOARD, 'CopyToClipboard');
     RegisterMethod(@TCUSTOMEDIT.CUTTOCLIPBOARD, 'CutToClipboard');
 		RegisterMethod(@TCUSTOMEDIT.PASTEFROMCLIPBOARD, 'PasteFromClipboard');
-		{$IFNDEF FPC}
 		RegisterMethod(@TCUSTOMEDIT.GETSELTEXTBUF, 'GetSelTextBuf');
     RegisterMethod(@TCUSTOMEDIT.SETSELTEXTBUF, 'SetSelTextBuf');
-		{$ENDIF}{FPC}
     {$ENDIF}
   end;
 end;
