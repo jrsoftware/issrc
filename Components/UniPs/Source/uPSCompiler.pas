@@ -1848,10 +1848,6 @@ resourceString
   RPS_AbstractClass = 'Abstract Class Construction';
   RPS_UnknownWarning = 'Unknown warning';
 
-  {$IFDEF DEBUG }
-  RPS_UnableToRegister = 'Unable to register %s';
-  {$ENDIF}
-
   RPS_NotArrayProperty = 'Not an array property : ''%s''';
   RPS_NotProperty = 'Not a property : ''%s''';
   RPS_UnknownProperty = 'Unknown Property : ''%s''';
@@ -1984,10 +1980,6 @@ begin
   {$IFNDEF PS_NOINT64}
   bts64: BlockWriteData(BlockInfo, p^.ts64, SizeOf(tbts64));
   btU64: BlockWriteData(BlockInfo, p^.tu64, SizeOf(tbtu64));
-  {$ENDIF}
-  {$IFDEF DEBUG}
-  else
-      asm int 3; end;
   {$ENDIF}
   end;
 end;
@@ -5764,9 +5756,6 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
   var
     x: TPSProcVar;
   begin
-{$IFDEF DEBUG}
-    if (mtype = nil) or (not mtype.Used) then asm int 3; end;
-{$ENDIF}
     x := TPSProcVar.Create;
     {$IFDEF PS_USESSUPPORT}
     x.DeclareUnit:=fModule;
@@ -5947,9 +5936,6 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
       begin
         Val := IVar;
         ExpectedType := GetTypeNo(BlockInfo, ivar);
-{$IFDEF DEBUG}
-        if not ExpectedType.Used then asm int 3; end;
-{$ENDIF}
         ParamMode := pmInOut;
       end;
       Result := ProcessFunction2(ProcNo, Par, nil);
@@ -6872,17 +6858,11 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
               begin
                 Val := tmp;
                 ExpectedType := GetTypeNo(BlockInfo, tmp);
-{$IFDEF DEBUG}
-                if not ExpectedType.Used then asm int 3; end;
-{$ENDIF}
               end;
               with tmp3.Parameters.Add do
               begin
                 Val := x;
                 ExpectedType := GetTypeNo(BlockInfo, x);
-{$IFDEF DEBUG}
-                if not ExpectedType.Used then asm int 3; end;
-{$ENDIF}
                 ParamMode := pmInOut;
               end;
               x := tmp3;
@@ -6911,9 +6891,6 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
               if u.BaseType = btVariant then
                 Param.ExpectedType := u else
               Param.ExpectedType := GetTypeNo(BlockInfo, tmp);
-{$IFDEF DEBUG}
-              if not Param.ExpectedType.Used then asm int 3; end;
-{$ENDIF}
             end else begin
               if (u.BaseType = btVariant) then
                 l := FindProc('VarArrayGet') else
@@ -6947,9 +6924,6 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
               begin
                 Val := x;
                 ExpectedType := GetTypeNo(BlockInfo, x);
-{$IFDEF DEBUG}
-                if not ExpectedType.Used then asm int 3; end;
-{$ENDIF}
 
                 if x is TPSValueVar then
                   ParamMode := pmInOut
@@ -6960,9 +6934,6 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
               begin
                 Val := tmp;
                 ExpectedType := GetTypeNo(BlockInfo, tmp);
-{$IFDEF DEBUG}
-                if not ExpectedType.Used then asm int 3; end;
-{$ENDIF}
               end;
               x := tmp3;
             end;
@@ -7354,9 +7325,6 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
             begin
               Val := Tempp;
               ExpectedType := at2ut(Decl.Result);
-{$IFDEF DEBUG}
-              if not ExpectedType.Used then asm int 3; end;
-{$ENDIF}
             end;
 
             if not TPSClassType(FType).cl.Property_Set(Idx, Procno) then
@@ -7646,16 +7614,10 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
           begin
             Val := Temp;
             ExpectedType := GetTypeNo(BlockInfo, temp);
-{$IFDEF DEBUG}
-            if not ExpectedType.Used then asm int 3; end;
-{$ENDIF}
           end;
           with TPSValueProcNo(Result).Parameters.Add do
           begin
             ExpectedType := at2ut(FindBaseType(btu32));
-{$IFDEF DEBUG}
-            if not ExpectedType.Used then asm int 3; end;
-{$ENDIF}
             Val := TPSValueData.Create;
             with TPSValueData(val) do
             begin
@@ -8083,9 +8045,6 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
         begin
           Val := p;
           ExpectedType := GetTypeNo(BlockInfo, p);
-{$IFDEF DEBUG}
-          if not ExpectedType.Used then asm int 3; end;
-{$ENDIF}
           FParamMode := pmIn;
         end;
         Result := Temp;
@@ -11940,10 +11899,6 @@ var
       bts64: WriteData(p^.ts64, SizeOf(tbts64));
       btU64: WriteData(p^.tu64, SizeOf(tbtu64));
       {$ENDIF}
-      {$IFDEF DEBUG}
-      else
-          asm int 3; end;
-      {$ENDIF}
       end;
     end;
 
@@ -15114,13 +15069,6 @@ destructor TPSValueAllocatedStackVar.Destroy;
 var
   pv: TPSProcVar;
 begin
-  {$IFDEF DEBUG}
-  if Cardinal(LocalVarNo +1) <> proc.ProcVars.Count then
-  begin
-    Abort;
-    exit;
-  end;
-  {$ENDIF}
   if Proc <> nil then
   begin
     pv := Proc.ProcVars[Proc.ProcVars.Count -1];
@@ -15516,7 +15464,6 @@ begin
     if not ParseMethod(FOwner, FClassName, Decl, DOrgName, DDecl, FT) then
     begin
       Result := False;
-      {$IFDEF DEBUG} raise EPSCompilerException.CreateFmt(RPS_UnableToRegister, [Decl]); {$ENDIF}
       exit;
     end;
     if ft = mftConstructor then

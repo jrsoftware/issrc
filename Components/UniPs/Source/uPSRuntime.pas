@@ -4325,25 +4325,6 @@ begin
 end;
 
 
-{$IFDEF FPC_OR_KYLIX}
-function OleErrorMessage(ErrorCode: HResult): tbtString;
-begin
-  Result := SysErrorMessage(ErrorCode);
-  if Result = '' then
-    Result := Format(RPS_OLEError, [ErrorCode]);
-end;
-
-procedure OleError(ErrorCode: HResult);
-begin
-  raise Exception.Create(OleErrorMessage(ErrorCode));
-end;
-
-procedure OleCheck(Result: HResult);
-begin
-  if Result < 0 then OleError(Result);
-end;
-{$ENDIF}
-
 function TPSExec.SetVariantValue(dest, Src: Pointer; desttype, srctype: TPSTypeRec): Boolean;
 var
   Tmp: TObject;
@@ -10242,7 +10223,7 @@ begin
   CheckPackagePtr(PByteArr(Ptr));
   if Ret.FEndOfVMT = MaxInt then
   begin
-    I := {$IFDEF NO_vmtSelfPtr}-48{$ELSE}vmtSelfPtr{$ENDIF} div SizeOf(Pointer) + 1;
+    I := vmtSelfPtr div SizeOf(Pointer) + 1;
     while I < 0 do
     begin
       if I < 0 then
@@ -11846,13 +11827,6 @@ begin
   Result := (Modifier = '%') or (Modifier = '!') or AlwaysAsVariable(aType);
 end;
 
-{$ifdef empty_methods_handler}
-procedure MyAllMethodsHandler;
-begin
-end;
-{$else}
-
-
 {$IFDEF CPU64}
 function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; ResPtr: Pointer): Integer; forward;
 {$ELSE}
@@ -12384,7 +12358,6 @@ begin
   end;
 end;
 {$ENDIF CPU64}
-{$endif empty_methods_handler}
 
 function TPSRuntimeClassImporter.FindClass(const Name: tbtString): TPSRuntimeClass;
 var

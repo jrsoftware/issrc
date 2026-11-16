@@ -104,9 +104,6 @@ begin
         exit;
       end;
 
-      {$IFDEF UNIX_OR_KYLIX}
-      dllhandle := LoadLibrary(PChar(s2));
-      {$ELSE}
       if Copy(s2, 1, 6) = '<utf8>' then
         Filename := UTF8ToUnicodeString(Copy(s2, 7, Maxint))
       else
@@ -115,7 +112,6 @@ begin
         dllhandle := LoadLibraryEx(PChar(Filename), 0, LOAD_WITH_ALTERED_SEARCH_PATH)
       else
         dllhandle := LoadLibrary(PChar(Filename));
-      {$ENDIF}
       if dllhandle = 0 then
       begin
         p.Ext2 := Pointer(1);
