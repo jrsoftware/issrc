@@ -10,7 +10,8 @@ These files are Inno Setup's own version of RemObjects Pascal Script. Inno Setup
 When you edit them:
 - Do not refactor the code style to match Inno Setup conventions.
 - Keep changes minimal and focused. Inno Setup always builds with Delphi on Windows, in both 32- and 64-bit, so a change must be correct on both. Use `{$IFDEF CPU64}` for code that differs by bitness.
-- Code for compilers and platforms that Inno Setup does not use (FPC, non-Windows) is dead code, see `Components/UniPs/README.md`. Do not extend a change to it, and do not add new guards for it.
+- These files have no code for compilers and platforms that Inno Setup does not use (FPC, non-Windows). Do not add such code, and do not add new guards for it.
+- For the dead code that is left, see `Components/UniPs/README.md`. Do not extend a change to it.
 
 ## Registration: compile-time (uPSC_) vs runtime (uPSR_)
 

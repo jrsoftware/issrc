@@ -1181,13 +1181,6 @@ type
     FNameHash: Longint;
     FVarNo: Cardinal;
   end;
-  PRaiseFrame = ^TRaiseFrame;
-  TRaiseFrame = record
-    NextRaise: PRaiseFrame;
-    ExceptAddr: Pointer;
-    ExceptObject: TObject;
-    ExceptionRecord: Pointer;
-  end;
   TPSExceptionHandler = class
     CurrProc: TPSInternalProcRec;
     BasePtr, StackSize: Cardinal;
@@ -12029,18 +12022,6 @@ begin
   end;
 end;
 
-procedure PutOnFPUStackExtended(ft: extended);
-asm
-//  fstp tbyte ptr [ft]
-  fld tbyte ptr [ft]
-
-end;
-
-procedure PutOnFPUStackCurrency(cu: currency);
-asm
-  fild qword ptr [cu]
-end;
-
 {$IFDEF CPU64}
 function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; ResPtr: Pointer): Integer;
 var
@@ -12209,6 +12190,18 @@ begin
   end;
 end;
 {$ELSE}
+procedure PutOnFPUStackExtended(ft: extended);
+asm
+//  fstp tbyte ptr [ft]
+  fld tbyte ptr [ft]
+
+end;
+
+procedure PutOnFPUStackCurrency(cu: currency);
+asm
+  fild qword ptr [cu]
+end;
+
 function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer; ResPtr: Pointer): Integer;
 var
   Decl: tbtString;

@@ -1,8 +1,8 @@
 {----------------------------------------------------------------------------}
 { RemObjects Pascal Script                                                   }
 {                                                                            }
-{ compiler: Delphi 2 and up, Kylix 3 and up                                  }
-{ platform: Win32, Linux                                                     }
+{ compiler: Delphi 10.4 and up                                               }
+{ platform: Win32, Win64                                                     }
 {                                                                            }
 { (c)opyright RemObjects Software. all rights reserved.                      }
 {                                                                            }
