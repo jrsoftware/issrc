@@ -1159,7 +1159,6 @@ resourceString
 
   RPS_InvalidVariable = 'Invalid variable';
   RPS_InvalidArray = 'Invalid array';
-  RPS_OLEError = 'OLE error %.8x';
   RPS_UnknownProcedure = 'Unknown procedure';
   RPS_NotEnoughParameters = 'Not enough parameters';
   RPS_InvalidParameter = 'Invalid parameter';
