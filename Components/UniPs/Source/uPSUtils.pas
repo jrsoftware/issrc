@@ -700,39 +700,17 @@ begin
 end;
 //-------------------------------------------------------------------
 
-{$DEFINE PS_HAVEFORMATSETTINGS}
-
-{$IFDEF PS_HAVEFORMATSETTINGS}
 var
   DotFormatSettings: TFormatSettings;
-{$ENDIF}
 
 function FloatToStr(E: Extended): TbtString;
-{$IFNDEF PS_HAVEFORMATSETTINGS}
-var
-  s: tbtstring;
-{$ENDIF}
 begin
-{$IFDEF PS_HAVEFORMATSETTINGS}
   Result := TbtString(SysUtils.FloatToStr(E, DotFormatSettings));
-{$ELSE}
-  Str(e:0:12, s);
-  Result := s;
-{$ENDIF}
 end;
 
 function CurrToStr(C: Currency): TbtString;
-{$IFNDEF PS_HAVEFORMATSETTINGS}
-var
-  s: tbtstring;
-{$ENDIF}
 begin
-{$IFDEF PS_HAVEFORMATSETTINGS}
   Result := TbtString(SysUtils.CurrToStr(C, DotFormatSettings));
-{$ELSE}
-  Str(c:0:4, s);
-  Result := s;
-{$ENDIF}
 end;
 
 function StrToInt(const S: TbtString): LongInt;
@@ -1711,7 +1689,6 @@ begin
   fUnitName := FastUpperCase(Value);
 end;
 
-{$IFDEF PS_HAVEFORMATSETTINGS}
 initialization
   DotFormatSettings := FormatSettings;
   { Always use a dot, like Str and Val do }
@@ -1719,7 +1696,6 @@ initialization
   { FPC's FloatToStr and CurrToStr use ThousandSeparator to decide whether to remove
     a minus sign. #0 never occurs in their output, so then it has no effect, like with Str. }
   DotFormatSettings.ThousandSeparator := #0;
-{$ENDIF}
 end.
 
 

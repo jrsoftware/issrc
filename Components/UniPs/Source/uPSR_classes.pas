@@ -234,20 +234,16 @@ begin
   end;
 end;
 
-{$DEFINE STRINGSTREAMFIX}
-
-{$IFDEF STRINGSTREAMFIX}
 function TStringStreamCreateString(AHidden1: Pointer; AHidden2: Byte; const AString: string): TStringStream;
 begin
   Result := TStringStream.Create(AString);
 end;
-{$ENDIF}
 
 procedure RIRegisterTSTRINGSTREAM(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TSTRINGSTREAM) do
   begin
-    RegisterConstructor({$IFDEF STRINGSTREAMFIX}@TStringStreamCreateString{$ELSE}@TSTRINGSTREAM.CREATE{$ENDIF}, 'Create');
+    RegisterConstructor(@TStringStreamCreateString, 'Create');
   end;
 end;
 

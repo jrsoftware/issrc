@@ -11,9 +11,6 @@
 
 {$INCLUDE eDefines.inc}
 
-{$DEFINE PS_HAVEVARIANT}
-{$DEFINE PS_DYNARRAY}
-
 {$B-}{$X+}{$T-}{$H+}
 
 {$R-}{$Q-}
@@ -29,8 +26,6 @@ Defines:
 }
 
 {$UNDEF DEBUG}
-
-{$DEFINE TExtended80Rec_present}
 
 {$WARN IMPLICIT_INTEGER_CAST_LOSS OFF}
 {$WARN IMPLICIT_CONVERSION_LOSS OFF}

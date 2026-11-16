@@ -1,12 +1,7 @@
-{$DEFINE PS_RESBEFOREPARAMETERS}
-{$DEFINE x64_string_result_as_varparameter}
-
 { implementation of x64 abi }
 //procedure DebugBreak; external 'Kernel32.dll';
 const
   EmptyPchar: array[0..0] of char = #0;
-
-{$UNDEF REG_STACK_PTR_OFFSET0}
 
 type
   TRegisters = packed record
@@ -22,9 +17,6 @@ type
     SingleBits: Integer; // 72
   end;
 
-{$DEFINE REG_STACK_PTR_OFFSET0}
-
-{$IFDEF REG_STACK_PTR_OFFSET0} // ! NEW asm-win-x64 version for Delphi, no GPF on exception !
 type
   EInvocationError = class(Exception);
 
@@ -166,128 +158,6 @@ asm
 @res_done:
 end;
 
-{$ELSE} // ! OLD asm-win-x64 version ! GPF on exception !
-
-procedure x64call(
-  Address: Pointer;
-  out _RAX: IPointer;
-  var _XMM0: Double;
-  var Registers: TRegisters); assembler;
-asm
-(* Registers:
-    RCX: Address
-    RDX: *_RAX
-    R8:  * _XMM0
-    R9: _REGISTERS
-    fpc inserts an 20h empty space
-*)
-//{$IFDEF FPC}
-  push rbp
-  mov rbp,rsp
-//{$ENDIF}
-  push rcx  // address         ;rbp -8
-  push rdx  // @_rax           ;rbp -16
-  push r8   // @_xmm0          ;rbp -24
-  push r9   // _registers      ;rbp -32
-
-  mov rax, [rbp-32] //registers
-
-  mov rcx, [rax+64] // items/count
-  mov rdx, [rax+56] // stack
-  jmp @compareitems
-@work:
-  push [rdx]
-  dec rcx
-  sub rdx,8
-@compareitems:
-  or rcx, rcx
-  jnz @work
-
-  // copy registers
-  mov rcx, [rax+72] // single bits
-
-  bt rcx, 1
-  jnc @g1
-  cvtsd2ss xmm1, [rax+32]
-  jmp @g1e
-  @g1:
-  movsd xmm1, [rax+32]
-  @g1e:
-
-
-  bt rcx, 2
-  jnc @g2
-  cvtsd2ss xmm2, [rax+40]
-  jmp @g2e
-  @g2:
-  movsd xmm2, [rax+40]
-  @g2e:
-
-  bt rcx, 3
-  jnc @g3
-  cvtsd2ss xmm3, [rax+48]
-  jmp @g3e
-  @g3:
-  movsd xmm3, [rax+48]
-  @g3e:
-
-
-
-  // rbp-16: address of xmm0
-
-  bt rcx, 0
-  jnc @g0
-  mov rdx, [rbp -24]
-  cvtsd2ss xmm0, [rdx]
-  jmp @g0e
-  @g0:
-  mov rdx, [rbp -24]
-  movsd xmm0, [rdx]
-  @g0e:
-
-  // other registers
-  mov rcx, [rax]
-  mov rdx, [rax+8]
-  mov r8, [rax+16]
-  mov r9, [rax+24]
-
-
-  mov RAX, [rbp-8]
-
-  // weird thing on windows, it needs 32 bytes in the CALLEE side to do whatever in
-  sub RSP, 32
-
-  call RAX
-
-  add RSP, 32 // undo the damage done earlier
-
-  // copy result back
-  mov RDX, [rbp-16]
-  mov [RDX], RAX
-
-  mov rax, [rbp-32] //registers
-
-  bt [rax+72], 8                 // if atype.basetype  <> btSingle
-  jnc @g5                        //
-  cvtss2sd xmm1,xmm0             // convert single to double  into xmm1
-  mov rdx,[rbp-24]               // @_xmm0  ;rbp -24
-  movsd qword ptr [rdx], xmm1    // save  xmm1 to param _xmm0
-  jmp @g5e                       // exit if atype.basetype  = btSingle
-
-  @g5:                           //else "if atype.basetype  = btSingle"
-    mov rdx,[rbp-24]             // @_xmm0  ;rbp -24
-    movsd qword ptr [rdx], xmm0  // save  xmm1 to param _xmm0
-
-  @g5e:
-
-
-  leave
-  ret
-end;
-{$ENDIF}
-
-{$DEFINE DELPHI_and_WINDOWS}
-
 function TPSExec.InnerfuseCall(_Self, Address: Pointer; CallingConv: TPSCallingConvention; Params: TPSList; res: PPSVariantIFC): Boolean;
 var
   Stack: array of Byte;
@@ -317,7 +187,6 @@ _XMM0: Double;
 
   function ResultUsesResultPointer(res: PPSVariantIFC): Boolean;
   begin
-    {$IFDEF DELPHI_and_WINDOWS}
     { Delphi Win64 ABI: a record result is returned in RAX at sizes 1, 2, and
       4, and at size 8 only when the record contains no managed field; all
       other sizes (3, 5, 6, 7, and > 8) and the managed 8-byte record are
@@ -328,7 +197,6 @@ _XMM0: Double;
       Result := not (res^.aType.RealSize in [1, 2, 4]) and
         ((res^.aType.RealSize <> 8) or IsManagedType(res^.aType))
     else
-    {$ENDIF}
       Result := res^.aType.RealSize > PointerSize;
   end;
   procedure StoreReg(data: IPointer);   overload;
@@ -578,22 +446,18 @@ begin
     if assigned(res) and not IsSafeCall and (res^.atype.basetype = btSingle) then begin
       Registers.Singlebits  := Registers.Singlebits or 256;
     end;
-{$IFDEF PS_RESBEFOREPARAMETERS}
    if assigned(res) and not IsSafeCall then begin
     case res^.aType.BaseType of
-      {$IFDEF x64_string_result_as_varparameter}
       btstring, btWideString, btUnicodeString,
-      {$ENDIF}
-      btInterface, btArray, btVariant{$IFNDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
+      btInterface, btArray, btVariant:
         GetPtr(res);
       btRecord,
-      btSet{$IFDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
+      btSet, btStaticArray:
         begin
           if ResultUsesResultPointer(res) then GetPtr(res);
         end;
     end;
    end;
-{$ENDIF}
     for I := 0 to Params.Count - 1 do
     begin
       if not GetPtr(rp(Params[I])) then Exit;
@@ -601,34 +465,18 @@ begin
     if assigned(res) and IsSafeCall then
       GetPtr(res); { SafeCall: res is actually passed as last parameter }
     if assigned(res) and not IsSafeCall then begin
-{$IFNDEF PS_RESBEFOREPARAMETERS}
-      case res^.aType.BaseType of
-        {$IFDEF x64_string_result_as_varparameter}
-        btstring, btWideString, btUnicodeString,
-        {$ENDIF}
-        btInterface, btArray, btVariant{$IFNDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
-          GetPtr(res);
-        btRecord,
-        btSet{$IFDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
-          begin
-            if ResultUsesResultPointer(res) then GetPtr(res);
-          end;
-      end;
-{$ENDIF}
       if (length(Stack) mod 16) <> 0 then begin
         SetLength(Stack, Length(Stack)+16 - (Length(Stack) mod 16));
       end;
-      if Stack = nil then pp := nil else pp := @Stack[{$IFDEF REG_STACK_PTR_OFFSET0}0{$ELSE}Length(Stack) -8{$ENDIF}];
+      if Stack = nil then pp := nil else pp := @Stack[0];
       Registers.Stack := pp;
       Registers.Items := Length(Stack) div 8;
       x64call(Address, _RAX, _XMM0, Registers);
       case res^.aType.BaseType of
-        btRecord, btSet{$IFDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
+        btRecord, btSet, btStaticArray:
           begin
-            {$IFDEF DELPHI_and_WINDOWS}
             { A result that used the hidden result pointer is already in place }
             if not ResultUsesResultPointer(res) then
-            {$ENDIF}
             begin
               case res.aType.RealSize of
                 1: byte(res.Dta^) := _RAX;
@@ -654,13 +502,8 @@ begin
         btCurrency:    tbts64(res.Dta^) := Int64(_RAX); { Currency is returned in RAX as its scaled Int64 backing, not its logical value }
         btInterface,
         btVariant,
-        {$IFDEF x64_string_result_as_varparameter}
         btWidestring,btUnicodestring, btstring ,
-        {$ENDIF}
-        {$IFNDEF DELPHI_and_WINDOWS}btStaticArray, {$ENDIF}btArray:;
-        {$IFNDEF x64_string_result_as_varparameter}
-        btUnicodeString, btWideString, btstring:  Int64(res.dta^) := _RAX;
-        {$ENDIF}
+        btArray:;
       else
         exit;
       end;
@@ -668,7 +511,7 @@ begin
       if (length(Stack) mod 16) <> 0 then begin
         SetLength(Stack, Length(Stack)+16 - (Length(Stack) mod 16));
       end;
-	if Stack = nil then pp := nil else pp := @Stack[{$IFDEF REG_STACK_PTR_OFFSET0}0{$ELSE}Length(Stack) -8{$ENDIF}];
+	if Stack = nil then pp := nil else pp := @Stack[0];
         Registers.Stack := pp;
         Registers.Items := Length(Stack) div 8;
         x64call(Address, _RAX, _XMM0, Registers);

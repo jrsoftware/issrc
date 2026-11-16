@@ -1892,19 +1892,12 @@ begin
   BlockWriteData(BlockInfo, l, 4);
 end;
 
-{$IFDEF CPU64}
-{$IFDEF TExtended80Rec_present}
-  { ^ This combination is not True on FPC }
-  {$DEFINE CPU64_and_TExtended80Rec_present}
-{$ENDIF}
-{$ENDIF}
-
 function BlockWriteVariant(BlockInfo: TPSBlockInfo; p: PIfRVariant{$IFNDEF PS_NOINT64}; const ExecIs64Bit: Boolean{$ENDIF}): Boolean;
 var
   du8: tbtu8;
   du16: tbtu16;
   {$IFNDEF PS_NOINT64}
-  {$IFDEF CPU64_and_TExtended80Rec_present}
+  {$IFDEF CPU64}
   TempReallyExtended: TExtended80Rec;
   {$ENDIF}
   {$IFNDEF CPU64}
@@ -1946,16 +1939,12 @@ begin
         BlockWriteData(BlockInfo, p^.textended, sizeof(tbtExtended));
         {$ENDIF}
       end else begin
-        {$IFDEF CPU64_and_TExtended80Rec_present}
+        {$IFDEF CPU64}
         { On 32-bit Exec, Extended is not an alias for Double, so write a real Extended instead, using TExtended80Rec }
         TempReallyExtended := TExtended80Rec(p^.textended);
         BlockWriteData(BlockInfo, TempReallyExtended, sizeof(TExtended80Rec));
         {$ELSE}
-        {$IFDEF CPU64}
-          Result := False; { 64-bit compiler cannot write 10 byte Extended for 32-bit exec without having TExtended80Rec }
-        {$ELSE}
-          BlockWriteData(BlockInfo, p^.textended, sizeof(tbtExtended));
-        {$ENDIF}
+        BlockWriteData(BlockInfo, p^.textended, sizeof(tbtExtended));
         {$ENDIF}
       end;
       {$ELSE}
@@ -6828,7 +6817,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
         begin
           if (u.BaseType = btString) {$IFNDEF PS_NOWIDESTRING} or
             (u.BaseType = btWideString) or (u.BaseType = btUnicodeString) {$ENDIF}
-            {$IFDEF PS_HAVEVARIANT}or (u.BaseType = btVariant){$ENDIF} then
+            or (u.BaseType = btVariant) then
           begin
              FParser.Next;
             tmp := Calc(CSTI_CloseBlock);
@@ -6856,9 +6845,8 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                 x := nil;
                 exit;
               end;
-              {$IFDEF PS_HAVEVARIANT}if (u.BaseType = btVariant) then
+              if (u.BaseType = btVariant) then
                 l := FindProc('VarArraySet') else
-              {$ENDIF}
               {$IFNDEF PS_NOWIDESTRING}
               if (u.BaseType = btWideString) or (u.BaseType = btUnicodeString) then
                 l := FindProc('WStrSet')
@@ -6906,7 +6894,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                 x := nil;
                 exit;
               end;
-              {$IFDEF PS_HAVEVARIANT}if (u.BaseType <> btVariant) then {$ENDIF}
+              if (u.BaseType <> btVariant) then
               begin
                 if (GetTypeNo(BlockInfo, Tmp).BaseType <> btChar)
                 {$IFNDEF PS_NOWIDESTRING} and (GetTypeno(BlockInfo, Tmp).BaseType <> btWideChar) {$ENDIF} then
@@ -6920,17 +6908,15 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                 end;
               end;
               param.Val := tmp;
-              {$IFDEF PS_HAVEVARIANT}
               if u.BaseType = btVariant then
-                Param.ExpectedType := u else{$ENDIF}
+                Param.ExpectedType := u else
               Param.ExpectedType := GetTypeNo(BlockInfo, tmp);
 {$IFDEF DEBUG}
               if not Param.ExpectedType.Used then asm int 3; end;
 {$ENDIF}
             end else begin
-              {$IFDEF PS_HAVEVARIANT}if (u.BaseType = btVariant) then
+              if (u.BaseType = btVariant) then
                 l := FindProc('VarArrayGet') else
-              {$ENDIF}
               {$IFNDEF PS_NOWIDESTRING}
               if (u.BaseType = btWideString) or (u.BaseType = btUnicodeString) then
                 l := FindProc('WStrGet')
@@ -6946,9 +6932,8 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                 exit;
               end;
               tmp3 := TPSValueProcNo.Create;
-              {$IFDEF PS_HAVEVARIANT}if (u.BaseType = btVariant) then
+              if (u.BaseType = btVariant) then
                 tmp3.ResultType := FindBaseType(btVariant) else
-              {$ENDIF}
               {$IFNDEF PS_NOWIDESTRING}
               if (u.BaseType = btWideString) or (u.BaseType = btUnicodeString) then
                 tmp3.ResultType := FindBaseType(btWideChar)
@@ -7048,7 +7033,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
           end;
         end
         else if ((FParser.CurrTokenId = CSTI_Period) or (ImplicitPeriod))
-         {$IFDEF PS_HAVEVARIANT}and not (u.BaseType = btVariant){$ENDIF}
+         and not (u.BaseType = btVariant)
         then
         begin
           if not ImplicitPeriod then
@@ -7117,11 +7102,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
               u := rr.aType;
             end;
           end
-          {$IFDEF PS_HAVEVARIANT}
           else if (u.BaseType = btVariant) then break else
-          {$ELSE}
-          ;
-          {$ENDIF}
 
           begin
             x.Free;
@@ -11876,7 +11857,7 @@ var
     var
       BaseType: TPSBaseType; { Just so we can't end up with an empty var block }
       {$IFNDEF PS_NOINT64}
-      {$IFDEF CPU64_and_TExtended80Rec_present}
+      {$IFDEF CPU64}
       TempReallyExtended: TExtended80Rec;
       {$ENDIF}
       {$IFNDEF CPU64}
@@ -11919,16 +11900,12 @@ var
             WriteData(p^.textended, sizeof(tbtExtended));
             {$ENDIF}
           end else begin
-            {$IFDEF CPU64_and_TExtended80Rec_present}
+            {$IFDEF CPU64}
             { On 32-bit Exec, Extended is not an alias for Double, so write a real Extended instead, using TExtended80Rec }
             TempReallyExtended := TExtended80Rec(p^.textended);
             WriteData(TempReallyExtended, sizeof(TExtended80Rec));
             {$ELSE}
-            {$IFDEF CPU64}
-              Result := False;
-            {$ELSE}
-              WriteData(p^.textended, sizeof(tbtExtended));
-            {$ENDIF}
+            WriteData(p^.textended, sizeof(tbtExtended));
             {$ENDIF}
           end;
           {$ELSE}
