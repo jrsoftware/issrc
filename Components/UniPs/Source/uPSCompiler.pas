@@ -13833,9 +13833,7 @@ begin
   AddConstantN('varTypeMask', 'Word').Value.tu16 := vartypemask;
   AddConstantN('varArray', 'Word').Value.tu16 := vararray;
   AddConstantN('varByRef', 'Word').Value.tu16 := varByRef;
-{$IFDEF UNICODE}
   AddConstantN('varUString', 'Word').Value.tu16 := varUString;
-{$ENDIF}
   AddDelphiFunction('function Unassigned: Variant;');
   AddDelphiFunction('function VarIsEmpty(const V: Variant): Boolean;');
   AddDelphiFunction('function VarIsClear(const V: Variant): Boolean;');

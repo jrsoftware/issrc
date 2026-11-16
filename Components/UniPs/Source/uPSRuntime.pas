@@ -1599,7 +1599,7 @@ begin
         Result := 'Variant(IDispatch)'
       else if TVarData(p.Dta^).VType = varNull then
         REsult := 'Null'
-      else if (TVarData(p.Dta^).VType = varOleStr){$IFDEF UNICODE} or (TVarData(p.Dta^).VType = varUString){$ENDIF} then
+      else if (TVarData(p.Dta^).VType = varOleStr) or (TVarData(p.Dta^).VType = varUString) then
       {$IFDEF PS_NOWIDESTRING}
         Result := MakeString(Variant(p.Dta^))
       {$ELSE}
@@ -11861,9 +11861,9 @@ end;
 
 
 {$IFDEF CPU64}
-function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; {$IFDEF DELPHI} ResPtr: Pointer {$ENDIF}): Integer; forward;
+function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; ResPtr: Pointer): Integer; forward;
 {$ELSE}
-function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer{$IFDEF DELPHI}; ResPtr: Pointer{$ENDIF}): Integer; forward;
+function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer; ResPtr: Pointer): Integer; forward;
 {$ENDIF}
 
 procedure MyAllMethodsHandler;
@@ -11877,7 +11877,6 @@ procedure MyAllMethodsHandler;
 //  - procedure
 //    * RDX, R8, R9 - param1 - param3
 //    * STACK = param4... paramcount
-{$IFDEF DELPHI}
 asm
   // SEH-compatible frame: .params 4 = 32 bytes local storage
   // Layout: ResPtr(8) + 3*unused(8) = 32 bytes
@@ -11917,37 +11916,11 @@ asm
   movq    xmm0, [rbp+0]
   mov     rax, [rbp+0]
 end;
-{$ELSE}
-asm
-  PUSH RBP
-  MOVQ RAX, XMM3
-  PUSH RAX
-  MOVQ RAX, XMM2
-  PUSH RAX
-  MOVQ RAX, XMM1
-  PUSH RAX
-  MOV RAX, RSP
-  ADD RAX, 20h+28h   //48h
-  PUSH RAX  // stack
-  // R9 - 3rd param
-  // R8 - 2nd param
-  // Rdx -1st param
-  // Rcx - Self
-  SUB RSP, 20h
-  CALL MyAllMethodsHandler64
-  ADD   RSP, 20h  //Restore stack
-  ADD   RSP, 40h
-  POP RAX
-  SUB RSP, 40h
-  ADD RSP, 4*8
-end;
-{$ENDIF}
 {$else}
 //  On entry:
 //     EAX = Self pointer
 //     EDX, ECX = param1 and param2
 //     STACK = param3... paramcount
-{$IFDEF DELPHI}
 asm
   // Like the Win64 stub: the stub owns an 8-byte result slot and passes its
   // address to MyAllMethodsHandler32 as ResPtr, so that an Int64/UInt64
@@ -11969,22 +11942,6 @@ asm
   lea esp, [esp+eax+8]  // pop the slot, old return address and params
   mov eax, ecx
 end;
-{$ELSE}
-asm
-  push 0
-  push ecx
-  push edx
-  mov edx, esp
-  add edx, 16 // was 12
-  pop ecx
-  call MyAllMethodsHandler32
-  pop ecx
-  mov edx, [esp]
-  add esp, eax
-  mov [esp], edx
-  mov eax, ecx
-end;
-{$ENDIF}
 {$endif CPU64}
 
 function ResultAsRegister(b: TPSTypeRec): Boolean;
@@ -12011,7 +11968,6 @@ begin
     btChar,
     btclass,
     btEnum: Result := true;
-{$IFDEF DELPHI}
     { The Delphi x64 ABI returns a record of 1, 2, or 4 bytes in RAX, and
       the x86 ABI a record of 1 or 2 bytes in AL/AX (see System.Rtti's
       UseResultPointer). Records of these sizes never contain a managed
@@ -12021,11 +11977,7 @@ begin
       tkArray like tkRecord. }
     btRecord, btStaticArray: Result := (b.RealSize in [1, 2{$IFDEF CPU64}, 4{$ENDIF}]) or
       ((b.RealSize = PointerSize) and not IsManagedType(b));
-{$ENDIF}
     btSet: Result := b.RealSize <= PointerSize;
-{$IFNDEF DELPHI}
-    btStaticArray: Result := b.RealSize <= PointerSize;
-{$ENDIF}
   else
     Result := false;
   end;
@@ -12060,17 +12012,12 @@ begin
     btChar,
     btArray,
     btEnum: Result := true;
-{$IFDEF DELPHI}
     { See the btSet/btRecord/btStaticArray comment in x64.inc. Delphi's set
       storage rounding needs a case here only when it crosses the by-value/
       by-reference boundary: 3 (by reference) rounds to 4 (by value), while
       the rounding of 5-7 to 8 does not (all by reference) }
     btSet: Result := b.RealSize in [1, 2, 3, 4];
     btRecord, btStaticArray: Result := b.RealSize in [1, 2, 4];
-{$ELSE}
-    btSet: Result := b.RealSize <= PointerSize;
-    btStaticArray: Result := b.RealSize <= PointerSize;
-{$ENDIF}
 {$IFDEF CPU64}
     btSingle,
     btDouble,
@@ -12095,7 +12042,7 @@ asm
 end;
 
 {$IFDEF CPU64}
-function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; {$IFDEF DELPHI} ResPtr: Pointer {$ENDIF}): Integer;
+function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; ResPtr: Pointer): Integer;
 var
   Decl: tbtString;
   I, C, regno: Integer;
@@ -12241,28 +12188,11 @@ begin
   if (Res <> nil) then begin
     Params.DeleteLast;
     if (ResultAsRegister(Res.FType)) then begin
-{$IFDEF DELPHI}
       CopyArrayContents(ResPtr, @PPSVariantData(res)^.Data, 1, Res^.FType);
-{$ELSE}
-      if (res^.FType.BaseType = btSingle) or (res^.FType.BaseType = btDouble) or
-      (res^.FType.BaseType = btCurrency) or (res^.Ftype.BaseType = btExtended) then begin
-        case Res^.FType.BaseType of
-          btSingle: PutOnFPUStackExtended(PPSVariantSingle(res).Data);
-          btDouble: PutOnFPUStackExtended(PPSVariantDouble(res).Data);
-          btExtended: PutOnFPUStackExtended(PPSVariantExtended(res).Data);
-          btCurrency: PutOnFPUStackExtended(PPSVariantCurrency(res).Data);
-        end;
-        DestroyHeapVariant(Res);
-        Res := nil;
-      end
-      else begin
-        CopyArrayContents(Pointer(IPointer(Stack)-IPointer(PointerSize2)), @PPSVariantData(res)^.Data, 1, Res^.FType);
-      end;
-{$ENDIF}
-    end{$IFDEF DELPHI} else begin
+    end else begin
       { The Win64 ABI requires returning the hidden result pointer in RAX }
       PPointer(ResPtr)^ := PPSVariantPointer(Res).DataDest;
-    end{$ENDIF};
+    end;
     DestroyHeapVariant(res);
   end;
   for i := 0 to Params.Count - 1 do
@@ -12279,7 +12209,7 @@ begin
   end;
 end;
 {$ELSE}
-function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer{$IFDEF DELPHI}; ResPtr: Pointer{$ENDIF}): Integer;
+function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer; ResPtr: Pointer): Integer;
 var
   Decl: tbtString;
   I, C, regno: Integer;
@@ -12441,14 +12371,7 @@ begin
         Res := nil;
       end else
       begin
-{$IFDEF DELPHI}
         CopyArrayContents(ResPtr, @PPSVariantData(res)^.Data, 1, Res^.FType);
-{$ELSE}
-{$IFNDEF PS_NOINT64}
-  if (res^.FType.BaseType <> btS64) and (res^.FType.BaseType <> btU64) then
-{$ENDIF}
-          CopyArrayContents(Pointer(IPointer(Stack)-PointerSize2), @PPSVariantData(res)^.Data, 1, Res^.FType);
-{$ENDIF}
       end;
     end;
     DestroyHeapVariant(res);
@@ -13222,13 +13145,11 @@ begin
           DispParam.rgvarg[i].vt := VT_BSTR;
           DispParam.rgvarg[i].bstrVal := StringToOleStr(AnsiString(Par[High(Par)-i]));
           WSFreeList.Add(DispParam.rgvarg[i].bstrVal);
-        {$IFDEF UNICODE}
         end else if (PVarData(@Par[High(Par)-i]).VType = varOleStr) or (PVarData(@Par[High(Par)-i]).VType = varUString) then
         begin
           DispParam.rgvarg[i].vt := VT_BSTR;
           DispParam.rgvarg[i].bstrVal := StringToOleStr(UnicodeString(Par[High(Par)-i]));
           WSFreeList.Add(DispParam.rgvarg[i].bstrVal);
-        {$ENDIF}
         end else
         begin
           DispParam.rgvarg[i].vt := VT_VARIANT or VT_BYREF;

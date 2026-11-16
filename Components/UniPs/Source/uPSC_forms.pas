@@ -169,11 +169,7 @@ begin
 {$IFDEF PS_PANSICHAR}
     RegisterMethod('function MessageBox(Text,Caption: PAnsiChar; Flags: Longint): Integer');
 {$ELSE}
-{$IFDEF UNICODE}
     RegisterMethod('function MessageBox(Text,Caption: string; Flags: Longint): Integer');
-  {$ELSE}
-    RegisterMethod('function MessageBox(Text,Caption: PChar; Flags: Longint): Integer');
-  {$ENDIF}
 {$ENDIF}
     RegisterMethod('procedure Minimize');
     RegisterMethod('procedure Restore');

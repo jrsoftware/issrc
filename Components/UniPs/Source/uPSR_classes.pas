@@ -234,9 +234,7 @@ begin
   end;
 end;
 
-{$IFDEF UNICODE}
-  {$DEFINE STRINGSTREAMFIX}
-{$ENDIF}
+{$DEFINE STRINGSTREAMFIX}
 
 {$IFDEF STRINGSTREAMFIX}
 function TStringStreamCreateString(AHidden1: Pointer; AHidden2: Byte; const AString: string): TStringStream;

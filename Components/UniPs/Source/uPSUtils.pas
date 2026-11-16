@@ -320,8 +320,7 @@ type
 {$IFNDEF PS_NOWIDESTRING}
   tbtWideString = WideString;
 
-  tbtUnicodeString =
-    {$IFDEF UNICODE}UnicodeString{$ELSE}WideString{$ENDIF};
+  tbtUnicodeString = UnicodeString;
 
   tbtWideChar = WideChar;
   tbtNativeString = tbtUnicodeString;

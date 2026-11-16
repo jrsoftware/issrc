@@ -1,7 +1,5 @@
-{$IFDEF DELPHI}
-  {$DEFINE PS_RESBEFOREPARAMETERS}
-  {$DEFINE x64_string_result_as_varparameter}
-{$ENDIF}
+{$DEFINE PS_RESBEFOREPARAMETERS}
+{$DEFINE x64_string_result_as_varparameter}
 
 { implementation of x64 abi }
 //procedure DebugBreak; external 'Kernel32.dll';
@@ -24,9 +22,7 @@ type
     SingleBits: Integer; // 72
   end;
 
-{$IFDEF DELPHI}
-  {$DEFINE REG_STACK_PTR_OFFSET0}
-{$ENDIF}
+{$DEFINE REG_STACK_PTR_OFFSET0}
 
 {$IFDEF REG_STACK_PTR_OFFSET0} // ! NEW asm-win-x64 version for Delphi, no GPF on exception !
 type
@@ -56,13 +52,7 @@ const
 
   //c_reg_packed = ((SizeOf(TRegisters) mod c_sz_ptr) + c_sz_ptr - 1) div c_sz_ptr; // 1 - packed records; 0 - aligned
 asm
-{$ifdef DELPHI}
   .params c_params // There's actually room for c_loc_count, assembler is saving locals for "Address,_RAX,_XMM0,RegInfo"
-{$else} // TODO: FPC: GPF on exception
-  push    rbp
-  sub     rsp, $210  // ? $268
-  mov     rbp, rsp
-{$endif}
                                              //                         dbg: in:  TRegisters(pointer(R9)^),r
   mov     [rbp+c_loc_offs_adress], Address   // save: rcx (@Address)    dbg: loc: qword(pointer(rbp+c_loc_offs_adress)^)   ; in: qword(pointer(RCX))
   mov     [rbp+c_loc_offs__rax], _RAX        // save: rdx (@_RDX)       dbg: loc: qword(pointer(rbp+c_loc_offs__rax)^)     ; in: qword(pointer(RDX))
@@ -174,13 +164,6 @@ asm
 @no_single_res:
   movsd   [rdx], XMM0            // fill: _XMM0
 @res_done:
-
-{$ifndef DELPHI}
-  lea     rsp, [rbp+$210]
-  pop     rbp
-
-  ret
-{$endif}
 end;
 
 {$ELSE} // ! OLD asm-win-x64 version ! GPF on exception !
@@ -303,7 +286,7 @@ asm
 end;
 {$ENDIF}
 
-{$IFDEF DELPHI}{$DEFINE DELPHI_and_WINDOWS}{$ENDIF}
+{$DEFINE DELPHI_and_WINDOWS}
 
 function TPSExec.InnerfuseCall(_Self, Address: Pointer; CallingConv: TPSCallingConvention; Params: TPSList; res: PPSVariantIFC): Boolean;
 var
@@ -364,21 +347,6 @@ _XMM0: Double;
     end;
   end;
 
-{$IFNDEF DELPHI}
-  procedure StoreStack(const aData; Len: Integer);
-  var
-    p: Pointer;
-  begin
-    if Len > 8 then
-      if Length(Stack) mod 16 <> 0 then begin
-        SetLength(Stack, Length(Stack)+ (16-(Length(Stack) mod 16)));
-      end;
-    SetLength(Stack, Length(Stack)+Len);
-    p := @Stack[Length(Stack)-Len];
-    Move(aData, p^, Len);
-  end;
-{$ENDIF}
-
   procedure StoreReg(data: Double); overload;
   var p: Pointer;
   begin
@@ -419,14 +387,12 @@ _XMM0: Double;
     StoreReg(RegData);
   end;
   
-  {$IFDEF DELPHI}
   type
     TMethodCallData = record
       AType: Byte; { Must be first field, matching uPSRuntime's TOpenArray }
       Data: TMethod;
     end;
     PMethodCallData = ^TMethodCallData;
-  {$ENDIF}
 
   function GetPtr(fVar: PPSVariantIFC): Boolean;
   var
@@ -500,7 +466,6 @@ _XMM0: Double;
         btRecord,
         btStaticArray:
           begin
-            {$IFDEF DELPHI}
             { Delphi Win64 ABI: a record or static array is passed by value (in
               a register) at sizes 1, 2, or 4 and for stdcall/cdecl/safecall
               also at size 8; all other sizes (3, 5, 6, 7, and > 8) are passed
@@ -519,21 +484,6 @@ _XMM0: Double;
               StoreRegBytes(fvar.Dta, fvar^.aType.RealSize)
             else
               StoreReg(IPointer(fVar.Dta));
-            {$ELSE}
-            { FPC Win64 ABI: a record is passed by value (in a register) only
-              at sizes 1, 2, 4, or 8, a set only when it is a small set of at
-              most 4 bytes, and a static array never, for all calling
-              conventions. See aggregate_in_registers_win64 and the arraydef
-              and setdef cases of push_addr_param in
-              https://gitlab.com/freepascal.org/fpc/source/-/blob/main/compiler/x86_64/cpupara.pas
-              and is_smallset in
-              https://gitlab.com/freepascal.org/fpc/source/-/blob/main/compiler/defutil.pas }
-            if ((fvar^.aType.BaseType = btRecord) and (fvar^.aType.RealSize in [1, 2, 4, 8])) or
-               ((fvar^.aType.BaseType = btSet) and (fvar^.aType.RealSize in [1, 2, 3, 4])) then
-              StoreRegBytes(fvar.Dta, fvar^.aType.RealSize)
-            else
-              StoreReg(IPointer(fVar.Dta));
-            {$ENDIF}
           end;
         btVariant:
           begin
@@ -581,23 +531,16 @@ _XMM0: Double;
 
         btProcPtr:
           begin
-            {$IFDEF DELPHI}
-              p := New(PMethodCallData);
-              TMethodCallData(p^).AType := 255;
-              if CallData = nil then
-                CallData := TPSList.Create;
-              CallData.Add(p);
-              // Uncomment when Handler will be implemented
-              //TMethodCallData(p^).Data.Code:=nil;
-              //TMethodCallData(p^).Data.Data:=nil;
-              TMethodCallData(p^).Data := MKMethod(Self, Longint(fvar.dta^)); // It requires the implementation of "Handled"
-              StoreReg(IPointer(@TMethodCallData(p^).Data));
-            {$ELSE}
-              GetMem(p, PointerSize2);
-              TMethod(p^) := MKMethod(Self, Longint(FVar.Dta^));
-              StoreStack(p^, Pointersize2);
-              FreeMem(p);
-            {$ENDIF}
+            p := New(PMethodCallData);
+            TMethodCallData(p^).AType := 255;
+            if CallData = nil then
+              CallData := TPSList.Create;
+            CallData.Add(p);
+            // Uncomment when Handler will be implemented
+            //TMethodCallData(p^).Data.Code:=nil;
+            //TMethodCallData(p^).Data.Data:=nil;
+            TMethodCallData(p^).Data := MKMethod(Self, Longint(fvar.dta^)); // It requires the implementation of "Handled"
+            StoreReg(IPointer(@TMethodCallData(p^).Data));
           end;
 {$IFNDEF PS_NOINT64}
         bts64:
@@ -740,7 +683,7 @@ begin
         pp := CallData[i];
         case pp^ of
           0: DestroyOpenArray(Self, Pointer(pp));
-          {$IFDEF DELPHI} 255: Dispose(PMethodCallData(pp)); {$ENDIF}
+          255: Dispose(PMethodCallData(pp));
         end;
       end;
       CallData.Free;

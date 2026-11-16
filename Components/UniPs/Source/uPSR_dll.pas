@@ -107,14 +107,10 @@ begin
       {$IFDEF UNIX_OR_KYLIX}
       dllhandle := LoadLibrary(PChar(s2));
       {$ELSE}
-      {$IFDEF UNICODE}
       if Copy(s2, 1, 6) = '<utf8>' then
         Filename := UTF8ToUnicodeString(Copy(s2, 7, Maxint))
       else
         Filename := String(s2);
-      {$ELSE}
-      Filename := s2;
-      {$ENDIF}
       if loadwithalteredsearchpath then
         dllhandle := LoadLibraryEx(PChar(Filename), 0, LOAD_WITH_ALTERED_SEARCH_PATH)
       else

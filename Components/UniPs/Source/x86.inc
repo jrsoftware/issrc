@@ -220,7 +220,7 @@ end;
 const
   EmptyPchar: array[0..0] of char = #0;
 
-{$IFDEF DELPHI}{$DEFINE DELPHI_and_MSWINDOWS}{$ENDIF}
+{$DEFINE DELPHI_and_MSWINDOWS}
 
 {$IFDEF DELPHI_and_MSWINDOWS}
 { Delphi Win32 passes a by-value record or static array of 4 bytes
