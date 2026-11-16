@@ -20,12 +20,10 @@ procedure RIRegister_Graphics(Cl: TPSRuntimeClassImporter; Streams: Boolean);
 
 implementation
 uses
-  Classes{$IFDEF CLX}, QGraphics{$ELSE}, Windows, Graphics{$ENDIF} {$IFDEF DELPHI_TOKYO_UP}, UITypes {$ENDIF};
+  Classes, Windows, Graphics {$IFDEF DELPHI_TOKYO_UP}, UITypes {$ENDIF};
 
-{$IFNDEF CLX}
 procedure TFontHandleR(Self: TFont; var T: HFONT); begin T := Self.Handle; end;
 procedure TFontHandleW(Self: TFont; T: HFONT); begin Self.Handle := T; end;
-{$ENDIF}
 procedure TFontPixelsPerInchR(Self: TFont; var T: Longint); begin T := Self.PixelsPerInch; end;
 procedure TFontPixelsPerInchW(Self: TFont; T: Longint); begin Self.PixelsPerInch := T; end;
 procedure TFontStyleR(Self: TFont; var T: TFontStyles); begin T := Self.Style; end;
@@ -36,17 +34,13 @@ begin
   with Cl.Add(TFont) do
   begin
     RegisterConstructor(@TFont.Create, 'Create');
-{$IFNDEF CLX}
     RegisterPropertyHelper(@TFontHandleR, @TFontHandleW, 'Handle');
-{$ENDIF}
     RegisterPropertyHelper(@TFontPixelsPerInchR, @TFontPixelsPerInchW, 'PixelsPerInch');
     RegisterPropertyHelper(@TFontStyleR, @TFontStyleW, 'Style');
   end;
 end;
-{$IFNDEF CLX}
 procedure TCanvasHandleR(Self: TCanvas; var T: HDC); begin T := Self.Handle; end;
 procedure TCanvasHandleW(Self: TCanvas; T: HDC); begin Self.Handle:= T; end;
-{$ENDIF}
 
 procedure TCanvasPixelsR(Self: TCanvas; var T: Longint; X,Y: Longint); begin T := Self.Pixels[X,Y]; end;
 procedure TCanvasPixelsW(Self: TCanvas; T, X, Y: Longint); begin Self.Pixels[X,Y]:= T; end;
@@ -61,9 +55,7 @@ begin
     RegisterMethod(@TCanvas.RoundRect, 'RoundRect');
     RegisterMethod(@TCanvas.Ellipse, 'Ellipse');
     RegisterMethod(@TCanvas.FillRect, 'FillRect');
-{$IFNDEF CLX}
     RegisterMethod(@TCanvas.FloodFill, 'FloodFill');
-{$ENDIF}
     RegisterMethod(@TCanvas.Draw, 'Draw');
 
     RegisterMethod(@TCanvas.Lineto, 'LineTo');
@@ -73,9 +65,7 @@ begin
     RegisterMethod(@TCanvas.TextHeight, 'TextHeight');
     RegisterMethod(@TCanvas.TextOut, 'TextOut');
     RegisterMethod(@TCanvas.TextWidth, 'TextWidth');
-{$IFNDEF CLX}
     RegisterPropertyHelper(@TCanvasHandleR, @TCanvasHandleW, 'Handle');
-{$ENDIF}
     RegisterPropertyHelper(@TCanvasPixelsR, @TCanvasPixelsW, 'Pixels');
   end;
 end;
@@ -138,18 +128,14 @@ begin
 end;
 
 procedure TBitmapTransparentColor_R(Self: TBitmap; var T: TColor); begin T := Self.TransparentColor; end;
-{$IFNDEF CLX}
 procedure TBitmapIgnorePalette_W(Self: TBitmap; const T: Boolean); begin Self.IgnorePalette := T; end;
 procedure TBitmapIgnorePalette_R(Self: TBitmap; var T: Boolean); begin T := Self.IgnorePalette; end;
 procedure TBitmapPalette_W(Self: TBitmap; const T: HPALETTE); begin Self.Palette := T; end;
 procedure TBitmapPalette_R(Self: TBitmap; var T: HPALETTE); begin T := Self.Palette; end;
-{$ENDIF}
 procedure TBitmapMonochrome_W(Self: TBitmap; const T: Boolean); begin Self.Monochrome := T; end;
 procedure TBitmapMonochrome_R(Self: TBitmap; var T: Boolean); begin T := Self.Monochrome; end;
-{$IFNDEF CLX}
 procedure TBitmapHandle_W(Self: TBitmap; const T: HBITMAP); begin Self.Handle := T; end;
 procedure TBitmapHandle_R(Self: TBitmap; var T: HBITMAP); begin T := Self.Handle; end;
-{$ENDIF}
 procedure TBitmapCanvas_R(Self: TBitmap; var T: TCanvas); begin T := Self.Canvas; end;
 
 procedure RIRegisterTBitmap(CL: TPSRuntimeClassImporter; Streams: Boolean);
@@ -161,26 +147,20 @@ begin
       RegisterMethod(@TBitmap.SaveToStream, 'SaveToStream');
     end;
     RegisterPropertyHelper(@TBitmapCanvas_R,nil,'Canvas');
-{$IFNDEF CLX}
     RegisterPropertyHelper(@TBitmapHandle_R,@TBitmapHandle_W,'Handle');
-{$ENDIF}
 
     {$IFNDEF PS_MINIVCL}
     RegisterMethod(@TBitmap.Dormant, 'Dormant');
     RegisterMethod(@TBitmap.FreeImage, 'FreeImage');
-{$IFNDEF CLX}
     RegisterMethod(@TBitmap.LoadFromClipboardFormat, 'LoadFromClipboardFormat');
-{$ENDIF}
     RegisterMethod(@TBitmap.LoadFromResourceName, 'LoadFromResourceName');
     RegisterMethod(@TBitmap.LoadFromResourceID, 'LoadFromResourceID');
-{$IFNDEF CLX}
     RegisterMethod(@TBitmap.ReleaseHandle, 'ReleaseHandle');
     RegisterMethod(@TBitmap.ReleasePalette, 'ReleasePalette');
     RegisterMethod(@TBitmap.SaveToClipboardFormat, 'SaveToClipboardFormat');
     RegisterPropertyHelper(@TBitmapMonochrome_R,@TBitmapMonochrome_W,'Monochrome');
     RegisterPropertyHelper(@TBitmapPalette_R,@TBitmapPalette_W,'Palette');
     RegisterPropertyHelper(@TBitmapIgnorePalette_R,@TBitmapIgnorePalette_W,'IgnorePalette');
-{$ENDIF}
     RegisterPropertyHelper(@TBitmapTransparentColor_R,nil,'TransparentColor');
     {$ENDIF}
   end;

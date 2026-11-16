@@ -1122,7 +1122,7 @@ function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: tbtS
 
 implementation
 uses
-  TypInfo {$IFDEF DELPHI3UP}{$IFNDEF KYLIX} , ComObj {$ENDIF}{$ENDIF} {$IFDEF DELPHI_TOKYO_UP}, AnsiStrings{$ENDIF};
+  TypInfo {$IFDEF DELPHI3UP} , ComObj {$ENDIF} {$IFDEF DELPHI_TOKYO_UP}, AnsiStrings{$ENDIF};
 
 {$IFDEF DELPHI3UP }
 resourceString
@@ -4386,10 +4386,6 @@ begin
   end;
 end;
 
-
-{$IFDEF KYLIX}
-{$DEFINE FPC_OR_KYLIX}
-{$ENDIF}
 
 {$IFDEF FPC_OR_KYLIX}
 function OleErrorMessage(ErrorCode: HResult): tbtString;

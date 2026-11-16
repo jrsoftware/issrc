@@ -16,7 +16,7 @@ procedure RIRegister_Forms(Cl: TPSRuntimeClassImporter);
 
 implementation
 uses
-  sysutils, classes, {$IFDEF CLX}QControls, QForms, QGraphics{$ELSE}Windows, Controls, Forms, Graphics{$ENDIF};
+  sysutils, classes, Windows, Controls, Forms, Graphics;
 
 procedure TCONTROLSCROLLBARKIND_R(Self: TCONTROLSCROLLBAR; var T: TSCROLLBARKIND); begin T := Self.KIND; end;
 procedure TCONTROLSCROLLBARSCROLLPOS_R(Self: TCONTROLSCROLLBAR; var T: INTEGER); begin t := Self.SCROLLPOS; end;
@@ -42,13 +42,11 @@ procedure RIRegisterTSCROLLBOX(Cl: TPSRuntimeClassImporter);
 begin
   Cl.Add(TSCROLLBOX);
 end;
-{$IFNDEF CLX}
 procedure TFORMACTIVEOLECONTROL_W(Self: TFORM; T: TWINCONTROL); begin Self.ACTIVEOLECONTROL := T; end;
 procedure TFORMACTIVEOLECONTROL_R(Self: TFORM; var T: TWINCONTROL); begin T := Self.ACTIVEOLECONTROL; 
 end;
 procedure TFORMTILEMODE_W(Self: TFORM; T: TTILEMODE); begin Self.TILEMODE := T; end;
 procedure TFORMTILEMODE_R(Self: TFORM; var T: TTILEMODE); begin T := Self.TILEMODE; end;
-{$ENDIF}{CLX}
 procedure TFORMACTIVEMDICHILD_R(Self: TFORM; var T: TFORM); begin T := Self.ACTIVEMDICHILD; end;
 procedure TFORMDROPTARGET_W(Self: TFORM; T: BOOLEAN); begin Self.DROPTARGET := T; end;
 procedure TFORMDROPTARGET_R(Self: TFORM; var T: BOOLEAN); begin T := Self.DROPTARGET; end;
@@ -60,9 +58,7 @@ procedure TFORMMODALRESULT_W(Self: TFORM; T: TMODALRESULT); begin Self.MODALRESU
 procedure TFORMMODALRESULT_R(Self: TFORM; var T: TMODALRESULT); begin T := Self.MODALRESULT; end;
 procedure TFORMACTIVE_R(Self: TFORM; var T: BOOLEAN); begin T := Self.ACTIVE; end;
 procedure TFORMCANVAS_R(Self: TFORM; var T: TCANVAS); begin T := Self.CANVAS; end;
-{$IFNDEF CLX}
 procedure TFORMCLIENTHANDLE_R(Self: TFORM; var T: HWND); begin T := Self.CLIENTHANDLE; end;
-{$ENDIF}
 
 { Innerfuse Pascal Script Class Import Utility (runtime) }
 
@@ -87,14 +83,12 @@ begin
     RegisterPropertyHelper(@TFORMACTIVE_R, nil, 'Active');
 
     {$IFNDEF PS_MINIVCL}
-{$IFNDEF CLX} 
     RegisterMethod(@TFORM.ARRANGEICONS, 'ArrangeIcons');
     RegisterMethod(@TFORM.PRINT, 'Print');
     RegisterMethod(@TFORM.SENDCANCELMODE, 'SendCancelMode');
     RegisterPropertyHelper(@TFORMACTIVEOLECONTROL_R, @TFORMACTIVEOLECONTROL_W, 'ActiveOleControl');
     RegisterPropertyHelper(@TFORMCLIENTHANDLE_R, nil, 'ClientHandle');
     RegisterPropertyHelper(@TFORMTILEMODE_R, @TFORMTILEMODE_W, 'TileMode');
-{$ENDIF}{CLX}
     RegisterMethod(@TFORM.CASCADE, 'Cascade');
     RegisterMethod(@TFORM.NEXT, 'Next');
     RegisterMethod(@TFORM.PREVIOUS, 'Previous');
@@ -114,14 +108,12 @@ begin
 end;
 
 procedure TAPPLICATIONACTIVE_R(Self: TAPPLICATION; var T: BOOLEAN); begin T := Self.ACTIVE; end;
-{$IFNDEF CLX}
 procedure TAPPLICATIONDIALOGHANDLE_R(Self: TAPPLICATION; var T: HWND); begin T := Self.DIALOGHANDLE; end;
 procedure TAPPLICATIONDIALOGHANDLE_W(Self: TAPPLICATION; T: HWND); begin Self.DIALOGHANDLE := T; end;
 procedure TAPPLICATIONHANDLE_R(Self: TAPPLICATION; var T: HWND); begin T := Self.HANDLE; end;
 procedure TAPPLICATIONHANDLE_W(Self: TAPPLICATION; T: HWND); begin Self.HANDLE := T; end;
 procedure TAPPLICATIONUPDATEFORMATSETTINGS_R(Self: TAPPLICATION; var T: BOOLEAN); begin T := Self.UPDATEFORMATSETTINGS; end;
 procedure TAPPLICATIONUPDATEFORMATSETTINGS_W(Self: TAPPLICATION; T: BOOLEAN); begin Self.UPDATEFORMATSETTINGS := T; end;
-{$ENDIF}
 
 
 procedure TAPPLICATIONEXENAME_R(Self: TAPPLICATION; var T: STRING); begin T := Self.EXENAME; end;
@@ -177,12 +169,10 @@ begin
     RegisterPropertyHelper(@TAPPLICATIONONRESTORE_R, @TAPPLICATIONONRESTORE_W, 'OnRestore');
     RegisterMethod(@TAPPLICATION.NORMALIZETOPMOSTS, 'NormalizeTopMosts');
     RegisterMethod(@TAPPLICATION.RESTORETOPMOSTS, 'RestoreTopMosts');
-    {$IFNDEF CLX}
     RegisterPropertyHelper(@TAPPLICATIONDIALOGHANDLE_R, @TAPPLICATIONDIALOGHANDLE_W, 'DialogHandle');
     RegisterMethod(@TAPPLICATION.CREATEHANDLE, 'CreateHandle');
     RegisterPropertyHelper(@TAPPLICATIONHANDLE_R, @TAPPLICATIONHANDLE_W, 'Handle');
     RegisterPropertyHelper(@TAPPLICATIONUPDATEFORMATSETTINGS_R, @TAPPLICATIONUPDATEFORMATSETTINGS_W, 'UpdateFormatSettings');
-    {$ENDIF}
     RegisterMethod(@TAPPLICATION.BRINGTOFRONT, 'BringToFront');
     RegisterMethod(@TAPPLICATION.MESSAGEBOX, 'MessageBox');
     RegisterMethod(@TAPPLICATION.PROCESSMESSAGES, 'ProcessMessages');
@@ -199,11 +189,9 @@ begin
     {$IFNDEF PS_MINIVCL}
     RegisterMethod(@TAPPLICATION.CONTROLDESTROYED, 'ControlDestroyed');
     RegisterMethod(@TAPPLICATION.CANCELHINT, 'CancelHint');
-    {$IFNDEF CLX}
     RegisterMethod(@TAPPLICATION.HELPCOMMAND, 'HelpCommand');
     RegisterMethod(@TAPPLICATION.HELPCONTEXT, 'HelpContext');
     RegisterMethod(@TAPPLICATION.HELPJUMP, 'HelpJump');
-    {$ENDIF}
     RegisterMethod(@TAPPLICATION.HANDLEMESSAGE, 'HandleMessage');
     RegisterMethod(@TAPPLICATION.HIDEHINT, 'HideHint');
     RegisterMethod(@TAPPLICATION.INITIALIZE, 'Initialize');

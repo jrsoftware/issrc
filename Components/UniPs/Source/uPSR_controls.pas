@@ -22,7 +22,7 @@ procedure RIRegister_Controls(Cl: TPSRuntimeClassImporter);
 
 implementation
 uses
-  Classes{$IFDEF CLX}, QControls, QGraphics{$ELSE}, Controls, Graphics, Windows{$ENDIF};
+  Classes, Controls, Graphics, Windows;
 
 procedure TControlAlignR(Self: TControl; var T: Byte); begin T := Byte(Self.Align); end;
 procedure TControlAlignW(Self: TControl; T: Byte); begin Self.Align:= TAlign(T); end;
@@ -92,19 +92,15 @@ begin
     RegisterMethod(@TCONTROL.CLIENTTOSCREEN, 'ClientToScreen');
     RegisterMethod(@TCONTROL.BEGINDRAG, 'BeginDrag');
     RegisterMethod(@TCONTROL.ENDDRAG, 'EndDrag');
-    {$IFNDEF CLX}
     RegisterMethod(@TCONTROL.GETTEXTBUF, 'GetTextBuf');
     RegisterMethod(@TCONTROL.GETTEXTLEN, 'GetTextLen');
     RegisterMethod(@TCONTROL.PERFORM, 'Perform');
     RegisterMethod(@TCONTROL.SETTEXTBUF, 'SetTextBuf');
-    {$ENDIF}
     RegisterMethod(@TCONTROL.SCREENTOCLIENT, 'ScreenToClient');
     {$ENDIF}
   end;
 end;
-{$IFNDEF CLX}
 procedure TWinControlHandleR(Self: TWinControl; var T: HWND); begin T := Self.Handle; end;
-{$ENDIF}
 procedure TWinControlShowingR(Self: TWinControl; var T: Boolean); begin T := Self.Showing; end;
 
 
@@ -121,9 +117,7 @@ procedure RIRegisterTWinControl(Cl: TPSRuntimeClassImporter); // requires TContr
 begin
   with Cl.Add(TWinControl) do
   begin
-    {$IFNDEF CLX}
     RegisterPropertyHelper(@TWinControlHandleR, nil, 'Handle');
-    {$ENDIF}
     RegisterPropertyHelper(@TWinControlShowingR, nil, 'Showing');
     RegisterPropertyHelper(@TWinControlTabOrderR, @TWinControlTabOrderW, 'TabOrder');
     RegisterPropertyHelper(@TWinControlTabStopR, @TWinControlTabStopW, 'TabStop');
@@ -139,9 +133,7 @@ begin
 		RegisterMethod(@TWinControl.InsertControl, 'InsertControl');
 		RegisterMethod(@TWinControl.ScaleBy, 'ScaleBy');
 		RegisterMethod(@TWinControl.ScrollBy, 'ScrollBy');
-		{$IFNDEF CLX}
-		 RegisterMethod(@TWINCONTROL.PAINTTO, 'PaintTo');
-		{$ENDIF}
+		RegisterMethod(@TWINCONTROL.PAINTTO, 'PaintTo');
 		RegisterMethod(@TWinControl.Realign, 'Realign');
 		RegisterVirtualMethod(@TWinControl.SetFocus, 'SetFocus');
 		RegisterMethod(@TWINCONTROL.CONTAINSCONTROL, 'ContainsControl');

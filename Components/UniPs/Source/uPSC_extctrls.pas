@@ -23,11 +23,9 @@ procedure SIRegisterTBEVEL(Cl: TPSPascalCompiler);
 procedure SIRegisterTTIMER(Cl: TPSPascalCompiler);
 procedure SIRegisterTCUSTOMPANEL(Cl: TPSPascalCompiler);
 procedure SIRegisterTPANEL(Cl: TPSPascalCompiler);
-{$IFNDEF CLX}
 procedure SIRegisterTPAGE(Cl: TPSPascalCompiler);
 procedure SIRegisterTNOTEBOOK(Cl: TPSPascalCompiler);
 procedure SIRegisterTHEADER(Cl: TPSPascalCompiler);
-{$ENDIF}
 procedure SIRegisterTCUSTOMRADIOGROUP(Cl: TPSPascalCompiler);
 procedure SIRegisterTRADIOGROUP(Cl: TPSPascalCompiler);
 {$IFDEF DELPHI14UP}
@@ -203,7 +201,6 @@ begin
     {$ENDIF}
   end;
 end;
-{$IFNDEF CLX}
 procedure SIRegisterTPAGE(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TCustomControl'), 'TPage') do
@@ -271,7 +268,6 @@ begin
     {$ENDIF}
   end;
 end;
-{$ENDIF}
 
 procedure SIRegisterTCUSTOMRADIOGROUP(Cl: TPSPascalCompiler);
 begin
@@ -380,15 +376,11 @@ begin
   SIRegisterTTIMER(Cl);
   {$ENDIF}
   SIRegisterTCUSTOMPANEL(Cl);
-  {$IFNDEF CLX}
   SIRegisterTPANEL(Cl);
-  {$ENDIF}
   {$IFNDEF PS_MINIVCL}
-  {$IFNDEF CLX}
   SIRegisterTPAGE(Cl);
   SIRegisterTNOTEBOOK(Cl);
   SIRegisterTHEADER(Cl);
-  {$ENDIF}
   SIRegisterTCUSTOMRADIOGROUP(Cl);
   SIRegisterTRADIOGROUP(Cl);
   {$ENDIF}

@@ -117,9 +117,6 @@ begin
       {$IFDEF UNIX}
       {$DEFINE UNIX_OR_KYLIX}
       {$ENDIF}
-      {$IFDEF KYLIX}
-      {$DEFINE UNIX_OR_KYLIX}
-      {$ENDIF}
 
       {$IFDEF UNIX_OR_KYLIX}
       dllhandle := LoadLibrary(PChar(s2));

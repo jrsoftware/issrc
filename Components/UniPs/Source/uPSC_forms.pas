@@ -131,14 +131,12 @@ begin
 
 
     {$IFNDEF PS_MINIVCL}
-    {$IFNDEF CLX}
     RegisterMethod('procedure ArrangeIcons');
     RegisterMethod('procedure Print');
     RegisterMethod('procedure SendCancelMode(Sender: TControl)');
     RegisterProperty('ActiveOleControl', 'TWinControl', iptrw);
     RegisterProperty('ClientHandle', 'HWND', iptr);
     RegisterProperty('TileMode', 'TTileMode', iptrw);
-    {$ENDIF}
     RegisterMethod('procedure Cascade');
     RegisterMethod('procedure Next');
     RegisterMethod('procedure Previous');
@@ -193,10 +191,8 @@ begin
     RegisterMethod('procedure ProcessMessages');
     RegisterMethod('procedure Terminate');
     RegisterProperty('ExeName', 'NativeString', iptr);
-    {$IFNDEF CLX}
     RegisterProperty('Handle', 'HWND', iptrw);
     RegisterProperty('UpdateFormatSettings', 'Boolean', iptrw);
-    {$ENDIF}
     RegisterProperty('Hint', 'NativeString', iptrw);
     RegisterProperty('MainForm', 'TForm', iptr);
     RegisterProperty('ShowHint', 'Boolean', iptrw);
@@ -219,13 +215,11 @@ begin
     RegisterMethod('procedure NormalizeTopMosts');
     RegisterMethod('procedure RestoreTopMosts');
     RegisterMethod('procedure Run');
-    {$IFNDEF CLX}
     RegisterMethod('function HelpCommand(Command: Integer; Data: NativeInt): Boolean');
     RegisterMethod('function HelpContext(Context: THelpContext): Boolean');
     RegisterMethod('function HelpJump(JumpID: NativeString): Boolean');
     RegisterProperty('DialogHandle', 'HWND', iptrw);
     RegisterMethod('procedure CreateHandle');
-    {$ENDIF}
     RegisterProperty('HelpFile', 'NativeString', iptrw);
     RegisterProperty('HintColor', 'TColor', iptrw);
     RegisterProperty('HintPause', 'Integer', iptrw);
@@ -257,10 +251,8 @@ begin
   cl.AddTypeS('TBorderIcon' ,'(biSystemMenu, biMinimize, biMaximize, biHelp)');
   cl.AddTypeS('TBorderIcons', 'set of TBorderIcon');
   cl.AddTypeS('THelpContext', 'LongInt');
-  {$IFNDEF CLX}
   if cl.FindType('HWND') = nil then
     cl.AddTypeS('HWND', 'NativeUInt');
-  {$ENDIF}
 end;
 
 procedure SIRegister_Forms(Cl: TPSPascalCompiler);

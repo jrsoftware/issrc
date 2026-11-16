@@ -69,12 +69,10 @@ begin
     RegisterMethod('function ClientToScreen(Point: TPoint): TPoint');
     RegisterMethod('procedure BeginDrag(Immediate: Boolean)');
     RegisterMethod('procedure EndDrag(Drop: Boolean)');
-    {$IFNDEF CLX}
     RegisterMethod('function GetTextBuf(Buffer: PChar; BufSize: Integer): Integer');
     RegisterMethod('function GetTextLen: Integer');
     RegisterMethod('procedure SetTextBuf(Buffer: PChar)');
     RegisterMethod('function Perform(Msg: Cardinal; WParam: NativeUInt; LParam: NativeInt): NativeInt');
-    {$ENDIF}
     RegisterMethod('function ScreenToClient(Point: TPoint): TPoint');
     {$ENDIF}
   end;
@@ -90,9 +88,7 @@ begin
       RegisterProperty('Parent', 'TWinControl', iptRW);
     end;
 
-    {$IFNDEF CLX}
     RegisterProperty('Handle', 'HWND', iptR);
-    {$ENDIF}
     RegisterProperty('Showing', 'Boolean', iptR);
     RegisterProperty('TabOrder', 'Integer', iptRW);
     RegisterProperty('TabStop', 'Boolean', iptRW);
@@ -109,9 +105,7 @@ begin
     RegisterMethod('procedure InsertControl(AControl: TControl);');
     RegisterMethod('procedure ScaleBy(M, D: Integer);');
     RegisterMethod('procedure ScrollBy(DeltaX, DeltaY: Integer);');
-    {$IFNDEF CLX}
     RegisterMethod('procedure PaintTo(DC: HDC; X,Y: Integer)');
-    {$ENDIF}
     RegisterMethod('procedure Realign;');
     RegisterMethod('procedure SetFocus; virtual;');
 

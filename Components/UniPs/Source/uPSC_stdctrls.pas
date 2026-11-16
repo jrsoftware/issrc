@@ -92,9 +92,7 @@ begin
   with Cl.AddClassN(cl.FindClass('TGraphicControl'), 'TCustomLabel') do
   begin
     {$IFNDEF PS_MINIVCL}
-{$IFNDEF CLX}
     RegisterProperty('Canvas', 'TCanvas', iptr);
-{$ENDIF}
     {$ENDIF}
   end;
 end;
@@ -221,9 +219,7 @@ procedure SIRegisterTCUSTOMMEMO(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TCustomEdit'), 'TCustomMemo') do
   begin
-    {$IFNDEF CLX}
     RegisterProperty('Lines', 'TStrings', iptrw);
-    {$ENDIF}
   end;
 end;
 
@@ -232,9 +228,6 @@ procedure SIRegisterTMEMO(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TCustomMemo'), 'TMemo') do
   begin
-    {$IFDEF CLX}
-    RegisterProperty('Lines', 'TStrings', iptrw);
-    {$ENDIF}
     {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     {$ENDIF}

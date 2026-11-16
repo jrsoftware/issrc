@@ -34,7 +34,6 @@
   {$B-}{$X+}{$T-}{$H+}
 {$ENDIF}
 
-{$IFDEF LINUX}{KYLIX}{$DEFINE CLX}{$DEFINE DELPHI3UP}{$DEFINE DELPHI6UP}{$ENDIF}
 {$R-}{$Q-}
 
 
@@ -48,10 +47,6 @@ Defines:
 }
 
 {$UNDEF DEBUG}
-
-{$IFDEF CLX}
-{$DEFINE PS_NOIDISPATCH} // not implemented
-{$ENDIF}
 
 {$IFDEF DELPHI16UP}
   {$DEFINE TExtended80Rec_present}

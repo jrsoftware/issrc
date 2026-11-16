@@ -16,11 +16,9 @@ procedure RIRegisterTBEVEL(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTTIMER(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTCUSTOMPANEL(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTPANEL(Cl: TPSRuntimeClassImporter);
-{$IFNDEF CLX}
 procedure RIRegisterTPAGE(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTNOTEBOOK(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTHEADER(Cl: TPSRuntimeClassImporter);
-{$ENDIF}
 procedure RIRegisterTCUSTOMRADIOGROUP(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTRADIOGROUP(Cl: TPSRuntimeClassImporter);
 {$IFDEF DELPHI14UP}
@@ -31,11 +29,7 @@ procedure RIRegisterTLINKLABEL(Cl: TPSRuntimeClassImporter);
 implementation
 
 uses
-  {$IFDEF CLX}
-  QExtCtrls, QGraphics;
-  {$ELSE}
   ExtCtrls, Graphics;
-  {$ENDIF}
 
 procedure RIRegisterTSHAPE(Cl: TPSRuntimeClassImporter);
 begin
@@ -86,7 +80,6 @@ procedure RIRegisterTPANEL(Cl: TPSRuntimeClassImporter);
 begin
   Cl.Add(TPANEL);
 end;
-{$IFNDEF CLX}
 procedure RIRegisterTPAGE(Cl: TPSRuntimeClassImporter);
 begin
   Cl.Add(TPAGE);
@@ -107,7 +100,6 @@ begin
 		RegisterPropertyHelper(@THEADERSECTIONWIDTH_R, @THEADERSECTIONWIDTH_W, 'SectionWidth');
 	end;
 end;
-{$ENDIF}
 
 procedure RIRegisterTCUSTOMRADIOGROUP(Cl: TPSRuntimeClassImporter);
 begin
@@ -162,15 +154,11 @@ begin
   RIRegisterTTIMER(Cl);
   {$ENDIF}
   RIRegisterTCUSTOMPANEL(Cl);
-  {$IFNDEF CLX}
   RIRegisterTPANEL(Cl);
-  {$ENDIF}
   {$IFNDEF PS_MINIVCL}
-  {$IFNDEF CLX}
   RIRegisterTPAGE(Cl);
 	RIRegisterTNOTEBOOK(Cl);
 	RIRegisterTHEADER(Cl);
-  {$ENDIF}
   RIRegisterTCUSTOMRADIOGROUP(Cl);
   RIRegisterTRADIOGROUP(Cl);
   {$ENDIF}
