@@ -2202,7 +2202,7 @@ begin
               btDouble: VCType := FindAndAddType(Owner, '!OPENARRAYOFDOUBLE', 'array of Double');
               btExtended: VCType := FindAndAddType(Owner, '!OPENARRAYOFEXTENDED', 'array of Extended');
               btString: VCType := FindAndAddType(Owner, '!OPENARRAYOFSTRING', 'array of string');
-              btPChar: VCType := FindAndAddType(Owner, '!OPENARRAYOFPCHAR', {$IFDEF PS_PANSICHAR}'array of PAnsiChar'{$ELSE}'array of PChar'{$ENDIF});
+              btPChar: VCType := FindAndAddType(Owner, '!OPENARRAYOFPCHAR', 'array of PAnsiChar');
               btNotificationVariant, btVariant: VCType := FindAndAddType(Owner, '!OPENARRAYOFVARIANT', 'array of Variant');
             {$IFNDEF PS_NOINT64}btS64:  VCType := FindAndAddType(Owner, '!OPENARRAYOFS64', 'array of Int64');
               btU64:  VCType := FindAndAddType(Owner, '!OPENARRAYOFU64', 'array of UInt64');{$ENDIF}
@@ -4408,15 +4408,6 @@ begin
       Result := nil;
       Exit;
     end;
-{$IFNDEF PS_NOINTERFACEGUIDBRACKETS}
-    FParser.Next;
-    if FParser.CurrTokenId <> CSTI_OpenBlock then
-    begin
-      MakeError('', ecOpenBlockExpected, '');
-      Result := nil;
-      Exit;
-    end;
-{$ENDIF}
     FParser.Next;
     if FParser.CurrTokenId <> CSTI_String then
     begin
@@ -4435,15 +4426,6 @@ begin
         Exit;
       end;
     end;
-{$IFNDEF PS_NOINTERFACEGUIDBRACKETS}
-    FParser.Next;
-    if FParser.CurrTokenId <> CSTI_CloseBlock then
-    begin
-      MakeError('', ecCloseBlockExpected, '');
-      Result := nil;
-      Exit;
-    end;
-{$ENDIF}
     Intf := AddInterface(FindInterface(InheritedFrom), Guid, Name);
     FParser.Next;
     repeat
@@ -12926,11 +12908,8 @@ begin
   begin
     HighValue := 255; // make sure it's gonna be a 1 byte var
   end;
-  //following 2 IFDEFs should actually be UNICODE IFDEFs...
-  AddType({$IFDEF PS_PANSICHAR}'AnsiChar'{$ELSE}'Char'{$ENDIF}, btChar);
-  {$IFDEF PS_PANSICHAR}
+  AddType('AnsiChar', btChar);
   AddType('Char', btWideChar);
-  {$ENDIF}
   {$IFNDEF PS_NOWIDESTRING}
   AddType('WideChar', btWideChar);
   AddType('WideString', btWideString);
@@ -12970,7 +12949,7 @@ begin
   AddType('Double', btDouble);
   AddType('Extended', btExtended);
   AddType('Currency', btCurrency);
-  AddType({$IFDEF PS_PANSICHAR}'PAnsiChar'{$ELSE}'PChar'{$ENDIF}, btPChar);
+  AddType('PAnsiChar', btPChar);
   AddType('Variant', btVariant);
   AddType('!NotificationVariant', btNotificationVariant);
   for i := FTypes.Count -1 downto 0 do AT2UT(FTypes[i]);

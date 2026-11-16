@@ -69,7 +69,7 @@ Under `ISHelp/ISHelpGen/`:
 - Help content lives under `ISHelp`:
   - When editing `ISHelp\*`, regenerate CHM/Web help: run `compile.bat x64 ISHelpGen` then `ISHelp\compile.bat` and verify 0 errors. Don't skip; this regenerates `isxclasses_wordlists_generated.pas`, which is in Git.
   - `isxfunc.xml` documents Pascal Script functions.
-  - `isxclasses.pas` documents Pascal Script classes, with `isxclasses.header`, `isxclasses.header2`, and `isxclasses.footer` as helpers. When a `uPSC_*.pas` registration changes for Inno Setup (`PS_MINIVCL` is defined), update `isxclasses.pas` to match and regenerate as above.
+  - `isxclasses.pas` documents Pascal Script classes, with `isxclasses.header`, `isxclasses.header2`, and `isxclasses.footer` as helpers. When a `uPSC_*.pas` registration changes, update `isxclasses.pas` to match and regenerate as above.
   - `isx.xml` contains all other Pascal Script documentation.
   - `ispp.xml` documents the ISPP preprocessor.
   - `isetup.xml` contains the remaining documentation.

@@ -103,8 +103,6 @@ procedure TGraphicOnChange_W(Self: TGraphic; const T: TNotifyEvent); begin Self.
 procedure TGraphicOnChange_R(Self: TGraphic; var T: TNotifyEvent); begin T := Self.OnChange; end;
 procedure TGraphicWidth_W(Self: TGraphic; const T: Integer); begin Self.Width := T; end;
 procedure TGraphicWidth_R(Self: TGraphic; var T: Integer); begin T := Self.Width; end;
-procedure TGraphicModified_W(Self: TGraphic; const T: Boolean); begin Self.Modified := T; end;
-procedure TGraphicModified_R(Self: TGraphic; var T: Boolean); begin T := Self.Modified; end;
 procedure TGraphicHeight_W(Self: TGraphic; const T: Integer); begin Self.Height := T; end;
 procedure TGraphicHeight_R(Self: TGraphic; var T: Integer); begin T := Self.Height; end;
 procedure TGraphicEmpty_R(Self: TGraphic; var T: Boolean); begin T := Self.Empty; end;
@@ -120,20 +118,9 @@ begin
     RegisterPropertyHelper(@TGraphicHeight_R,@TGraphicHeight_W,'Height');
     RegisterPropertyHelper(@TGraphicWidth_R,@TGraphicWidth_W,'Width');
     RegisterPropertyHelper(@TGraphicOnChange_R,@TGraphicOnChange_W,'OnChange');
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterPropertyHelper(@TGraphicModified_R,@TGraphicModified_W,'Modified');
-    {$ENDIF}
   end;
 end;
 
-procedure TBitmapTransparentColor_R(Self: TBitmap; var T: TColor); begin T := Self.TransparentColor; end;
-procedure TBitmapIgnorePalette_W(Self: TBitmap; const T: Boolean); begin Self.IgnorePalette := T; end;
-procedure TBitmapIgnorePalette_R(Self: TBitmap; var T: Boolean); begin T := Self.IgnorePalette; end;
-procedure TBitmapPalette_W(Self: TBitmap; const T: HPALETTE); begin Self.Palette := T; end;
-procedure TBitmapPalette_R(Self: TBitmap; var T: HPALETTE); begin T := Self.Palette; end;
-procedure TBitmapMonochrome_W(Self: TBitmap; const T: Boolean); begin Self.Monochrome := T; end;
-procedure TBitmapMonochrome_R(Self: TBitmap; var T: Boolean); begin T := Self.Monochrome; end;
 procedure TBitmapHandle_W(Self: TBitmap; const T: HBITMAP); begin Self.Handle := T; end;
 procedure TBitmapHandle_R(Self: TBitmap; var T: HBITMAP); begin T := Self.Handle; end;
 procedure TBitmapCanvas_R(Self: TBitmap; var T: TCanvas); begin T := Self.Canvas; end;
@@ -148,21 +135,6 @@ begin
     end;
     RegisterPropertyHelper(@TBitmapCanvas_R,nil,'Canvas');
     RegisterPropertyHelper(@TBitmapHandle_R,@TBitmapHandle_W,'Handle');
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterMethod(@TBitmap.Dormant, 'Dormant');
-    RegisterMethod(@TBitmap.FreeImage, 'FreeImage');
-    RegisterMethod(@TBitmap.LoadFromClipboardFormat, 'LoadFromClipboardFormat');
-    RegisterMethod(@TBitmap.LoadFromResourceName, 'LoadFromResourceName');
-    RegisterMethod(@TBitmap.LoadFromResourceID, 'LoadFromResourceID');
-    RegisterMethod(@TBitmap.ReleaseHandle, 'ReleaseHandle');
-    RegisterMethod(@TBitmap.ReleasePalette, 'ReleasePalette');
-    RegisterMethod(@TBitmap.SaveToClipboardFormat, 'SaveToClipboardFormat');
-    RegisterPropertyHelper(@TBitmapMonochrome_R,@TBitmapMonochrome_W,'Monochrome');
-    RegisterPropertyHelper(@TBitmapPalette_R,@TBitmapPalette_W,'Palette');
-    RegisterPropertyHelper(@TBitmapIgnorePalette_R,@TBitmapIgnorePalette_W,'IgnorePalette');
-    RegisterPropertyHelper(@TBitmapTransparentColor_R,nil,'TransparentColor');
-    {$ENDIF}
   end;
 end;
 
@@ -185,8 +157,6 @@ begin
   RIRegisterTBitmap(CL, Streams);
   RIRegisterTPicture(CL);
 end;
-
-// PS_MINIVCL changes by Martijn Laan
 
 end.
 

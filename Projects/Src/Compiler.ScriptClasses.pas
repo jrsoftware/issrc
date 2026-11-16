@@ -62,20 +62,6 @@ begin
     RegisterProperty('WordWrap', 'Boolean', iptrw);
     RegisterProperty('OnClick', 'TNotifyEvent', iptrw);
     RegisterProperty('OnDblClick', 'TNotifyEvent', iptrw);
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterProperty('DragCursor', 'Longint', iptrw);
-    RegisterProperty('DragMode', 'TDragMode', iptrw);
-    RegisterProperty('ParentShowHint', 'Boolean', iptrw);
-    RegisterProperty('PopupMenu', 'TPopupMenu', iptrw);
-    RegisterProperty('OnDragDrop', 'TDragDropEvent', iptrw);
-    RegisterProperty('OnDragOver', 'TDragOverEvent', iptrw);
-    RegisterProperty('OnEndDrag', 'TEndDragEvent', iptrw);
-    RegisterProperty('OnMouseDown', 'TMouseEvent', iptrw);
-    RegisterProperty('OnMouseMove', 'TMouseMoveEvent', iptrw);
-    RegisterProperty('OnMouseUp', 'TMouseEvent', iptrw);
-    RegisterProperty('OnStartDrag', 'TStartDragEvent', iptrw);
-    {$ENDIF}
   end;
 end;
 
@@ -117,22 +103,6 @@ begin
     RegisterProperty('RequireRadioSelection', 'Boolean', iptrw);
     RegisterProperty('OnEnter', 'TNotifyEvent', iptrw);
     RegisterProperty('OnExit', 'TNotifyEvent', iptrw);
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterProperty('Ctl3D', 'Boolean', iptrw);
-    RegisterProperty('DragCursor', 'Longint', iptrw);
-    RegisterProperty('DragMode', 'TDragMode', iptrw);
-    RegisterProperty('ParentCtl3D', 'Boolean', iptrw);
-    RegisterProperty('ParentShowHint', 'Boolean', iptrw);
-    RegisterProperty('PopupMenu', 'TPopupMenu', iptrw);
-    RegisterProperty('OnDragDrop', 'TDragDropEvent', iptrw);
-    RegisterProperty('OnDragOver', 'TDragOverEvent', iptrw);
-    RegisterProperty('OnEndDrag', 'TEndDragEvent', iptrw);
-    RegisterProperty('OnMouseDown', 'TMouseEvent', iptrw);
-    RegisterProperty('OnMouseMove', 'TMouseMoveEvent', iptrw);
-    RegisterProperty('OnMouseUp', 'TMouseEvent', iptrw);
-    RegisterProperty('OnStartDrag', 'TStartDragEvent', iptrw);
-    {$ENDIF}
   end;
 end;
 
@@ -188,24 +158,6 @@ begin
     RegisterProperty('OnKeyUp', 'TKeyEvent', iptrw);
     RegisterProperty('OnEnter', 'TNotifyEvent', iptrw);
     RegisterProperty('OnExit', 'TNotifyEvent', iptrw);
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterProperty('CharCase', 'TEditCharCase', iptrw);
-    RegisterProperty('Ctl3D', 'Boolean', iptrw);
-    RegisterProperty('DragCursor', 'Longint', iptrw);
-    RegisterProperty('DragMode', 'TDragMode', iptrw);
-    RegisterProperty('OEMConvert', 'Boolean', iptrw);
-    RegisterProperty('ParentCtl3D', 'Boolean', iptrw);
-    RegisterProperty('ParentShowHint', 'Boolean', iptrw);
-    RegisterProperty('PopupMenu', 'TPopupMenu', iptrw);
-    RegisterProperty('OnDragDrop', 'TDragDropEvent', iptrw);
-    RegisterProperty('OnDragOver', 'TDragOverEvent', iptrw);
-    RegisterProperty('OnEndDrag', 'TEndDragEvent', iptrw);
-    RegisterProperty('OnMouseDown', 'TMouseEvent', iptrw);
-    RegisterProperty('OnMouseMove', 'TMouseMoveEvent', iptrw);
-    RegisterProperty('OnMouseUp', 'TMouseEvent', iptrw);
-    RegisterProperty('OnStartDrag', 'TStartDragEvent', iptrw);
-    {$ENDIF}
   end;
 end;
 

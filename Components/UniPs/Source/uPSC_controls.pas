@@ -56,19 +56,6 @@ begin
   
     RegisterProperty('StyleElements', 'TStyleElements', iptrw);
     RegisterProperty('StyleName', 'string', iptrw);
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterMethod('function Dragging: Boolean;');
-    RegisterMethod('function HasParent: Boolean');
-    RegisterMethod('function ClientToScreen(Point: TPoint): TPoint');
-    RegisterMethod('procedure BeginDrag(Immediate: Boolean)');
-    RegisterMethod('procedure EndDrag(Drop: Boolean)');
-    RegisterMethod('function GetTextBuf(Buffer: PChar; BufSize: Integer): Integer');
-    RegisterMethod('function GetTextLen: Integer');
-    RegisterMethod('procedure SetTextBuf(Buffer: PChar)');
-    RegisterMethod('function Perform(Msg: Cardinal; WParam: NativeUInt; LParam: NativeInt): NativeInt');
-    RegisterMethod('function ScreenToClient(Point: TPoint): TPoint');
-    {$ENDIF}
   end;
 end;
 
@@ -90,26 +77,6 @@ begin
     RegisterMethod('function Focused: Boolean');
     RegisterProperty('Controls', 'TControl Integer', iptr);
     RegisterProperty('ControlCount', 'Integer', iptr);
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterMethod('function HandleAllocated: Boolean;');
-    RegisterMethod('procedure HandleNeeded;');
-    RegisterMethod('procedure EnableAlign;');
-    RegisterMethod('procedure RemoveControl(AControl: TControl);');
-    RegisterMethod('procedure InsertControl(AControl: TControl);');
-    RegisterMethod('procedure ScaleBy(M, D: Integer);');
-    RegisterMethod('procedure ScrollBy(DeltaX, DeltaY: Integer);');
-    RegisterMethod('procedure PaintTo(DC: HDC; X,Y: Integer)');
-    RegisterMethod('procedure Realign;');
-    RegisterMethod('procedure SetFocus; virtual;');
-
-    RegisterMethod('function ContainsControl(Control: TControl): Boolean');
-    RegisterMethod('procedure DisableAlign');
-    RegisterMethod('procedure UpdateControlState');
-
-    RegisterProperty('Brush', 'TBrush', iptr);
-    RegisterProperty('HelpContext', 'LongInt', iptrw);
-    {$ENDIF}
   end;
 end;
 procedure SIRegisterTGraphicControl(cl: TPSPascalCompiler); // requires TControl
@@ -140,10 +107,6 @@ begin
     cl.AddTypeS('HWND', 'NativeUInt');
   if cl.FindType('HDC') = nil then
     cl.AddTypeS('HDC', 'NativeUInt');
-  {$IFNDEF PS_MINIVCL}
-  if cl.FindType('THandle') = nil then
-    cl.AddTypeS('THandle', 'NativeUInt');
-  {$ENDIF}
 
   cl.AddTypeS('TEndDragEvent', 'procedure(Sender, Target: TObject; X, Y: Integer)');
 
@@ -198,19 +161,6 @@ procedure SIRegisterTDragObject(cl: TPSPascalCompiler);
 begin
   with CL.AddClassN(CL.FindClass('TObject'),'TDragObject') do
   begin
-{$IFNDEF PS_MINIVCL}
-    RegisterMethod('procedure Assign(Source: TDragObject)');
-    RegisterMethod('function GetName: string');
-    RegisterMethod('function Instance: THandle');
-    RegisterMethod('procedure HideDragImage');
-    RegisterMethod('procedure ShowDragImage');
-    RegisterProperty('Cancelling', 'Boolean', iptrw);
-    RegisterProperty('DragHandle', 'HWND', iptrw);
-    RegisterProperty('DragPos', 'TPoint', iptrw);
-    RegisterProperty('DragTargetPos', 'TPoint', iptrw);
-    RegisterProperty('MouseDeltaX', 'Double', iptr);
-    RegisterProperty('MouseDeltaY', 'Double', iptr);
-{$ENDIF}
   end;
   Cl.AddTypeS('TStartDragEvent', 'procedure (Sender: TObject; var DragObject: TDragObject)');
 end;
@@ -237,7 +187,5 @@ begin
   SIRegisterTGraphicControl(cl);
   SIRegisterTCustomControl(cl);
 end;
-
-// PS_MINIVCL changes by Martijn Laan
 
 end.

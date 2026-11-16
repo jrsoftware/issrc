@@ -11,22 +11,6 @@ exists because upstream Pascal Script supports many compilers, platforms, and
 configurations that Inno Setup does not use. For example `PS_NOINT64` is never
 true.
 
-There's also a significant amount of useless guards by compiler directives
-that are never false in Inno Setup builds. For example `PS_MINIVCL` is never
-false.
-
-## Defines set by Inno Setup
-
-Inno Setup's project files define the following symbols when compiling these
-units:
-
-| Define | Meaning |
-|--------|---------|
-| `PS_MINIVCL` | Minimal VCL mode: excludes large VCL registration blocks |
-| `PS_NOGRAPHCONST` | Excludes graphics color constants, computes them instead |
-| `PS_PANSICHAR` | Maps `PChar` parameters to `PAnsiChar` in script declarations |
-| `PS_NOINTERFACEGUIDBRACKETS` | Interface GUIDs are not enclosed in brackets |
-
 ## Defines NOT set by Inno Setup
 
 These symbols are not defined, meaning `{$IFDEF X}` blocks are dead and

@@ -21,13 +21,8 @@ procedure SIRegisterTPicture(CL: TPSPascalCompiler);
 procedure SIRegister_Graphics(Cl: TPSPascalCompiler; Streams: Boolean);
 
 implementation
-{$IFNDEF PS_NOGRAPHCONST}
-uses
-  Graphics;
-{$ELSE}
 uses
   Windows;
-{$ENDIF}
 
 procedure SIRegisterTGRAPHICSOBJECT(Cl: TPSPascalCompiler);
 begin
@@ -104,38 +99,9 @@ begin
 end;
 
 procedure SIRegister_Graphics_TypesAndConsts(Cl: TPSPascalCompiler);
-{$IFDEF PS_NOGRAPHCONST}
 const
   clSystemColor = $FF000000;
-{$ENDIF}
 begin
-{$IFNDEF PS_NOGRAPHCONST}
-  cl.AddConstantN('clScrollBar', 'Integer').Value.ts32 := clScrollBar;
-  cl.AddConstantN('clBackground', 'Integer').Value.ts32 := clBackground;
-  cl.AddConstantN('clActiveCaption', 'Integer').Value.ts32 := clActiveCaption;
-  cl.AddConstantN('clInactiveCaption', 'Integer').Value.ts32 := clInactiveCaption;
-  cl.AddConstantN('clMenu', 'Integer').Value.ts32 := clMenu;
-  cl.AddConstantN('clWindow', 'Integer').Value.ts32 := clWindow;
-  cl.AddConstantN('clWindowFrame', 'Integer').Value.ts32 := clWindowFrame;
-  cl.AddConstantN('clMenuText', 'Integer').Value.ts32 := clMenuText;
-  cl.AddConstantN('clWindowText', 'Integer').Value.ts32 := clWindowText;
-  cl.AddConstantN('clCaptionText', 'Integer').Value.ts32 := clCaptionText;
-  cl.AddConstantN('clActiveBorder', 'Integer').Value.ts32 := clActiveBorder;
-  cl.AddConstantN('clInactiveBorder', 'Integer').Value.ts32 := clInactiveBorder;
-  cl.AddConstantN('clAppWorkSpace', 'Integer').Value.ts32 := clAppWorkSpace;
-  cl.AddConstantN('clHighlight', 'Integer').Value.ts32 := clHighlight;
-  cl.AddConstantN('clHighlightText', 'Integer').Value.ts32 := clHighlightText;
-  cl.AddConstantN('clBtnFace', 'Integer').Value.ts32 := clBtnFace;
-  cl.AddConstantN('clBtnShadow', 'Integer').Value.ts32 := clBtnShadow;
-  cl.AddConstantN('clGrayText', 'Integer').Value.ts32 := clGrayText;
-  cl.AddConstantN('clBtnText', 'Integer').Value.ts32 := clBtnText;
-  cl.AddConstantN('clInactiveCaptionText', 'Integer').Value.ts32 := clInactiveCaptionText;
-  cl.AddConstantN('clBtnHighlight', 'Integer').Value.ts32 := clBtnHighlight;
-  cl.AddConstantN('cl3DDkShadow', 'Integer').Value.ts32 := cl3DDkShadow;
-  cl.AddConstantN('cl3DLight', 'Integer').Value.ts32 := cl3DLight;
-  cl.AddConstantN('clInfoText', 'Integer').Value.ts32 := clInfoText;
-  cl.AddConstantN('clInfoBk', 'Integer').Value.ts32 := clInfoBk;
-{$ELSE}
   cl.AddConstantN('clScrollBar', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_SCROLLBAR);
   cl.AddConstantN('clBackground', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_BACKGROUND);
   cl.AddConstantN('clActiveCaption', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_ACTIVECAPTION);
@@ -161,7 +127,6 @@ begin
   cl.AddConstantN('cl3DLight', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_3DLIGHT);
   cl.AddConstantN('clInfoText', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_INFOTEXT);
   cl.AddConstantN('clInfoBk', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_INFOBK);
-{$ENDIF}
   cl.AddConstantN('clBlack', 'Integer').Value.ts32 := $000000;
   cl.AddConstantN('clMaroon', 'Integer').Value.ts32 := $000080;
   cl.AddConstantN('clGreen', 'Integer').Value.ts32 := $008000;
@@ -214,10 +179,6 @@ begin
     RegisterProperty('Height', 'Integer', iptrw);
     RegisterProperty('Width', 'Integer', iptrw);
     RegisterProperty('OnChange', 'TNotifyEvent', iptrw);
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterProperty('Modified', 'Boolean', iptrw);
-    {$ENDIF}
   end;
 end;
 
@@ -231,21 +192,6 @@ begin
     end;
     RegisterProperty('Canvas', 'TCanvas', iptr);
     RegisterProperty('Handle', 'HBITMAP', iptrw);
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterMethod('procedure Dormant');
-    RegisterMethod('procedure FreeImage');
-    RegisterMethod('procedure LoadFromClipboardFormat(AFormat: Word; AData: THandle; APalette: HPALETTE)');
-    RegisterMethod('procedure LoadFromResourceName(Instance: THandle; const ResName: string)');
-    RegisterMethod('procedure LoadFromResourceID(Instance: THandle; ResID: Integer)');
-    RegisterMethod('function ReleaseHandle: HBITMAP');
-    RegisterMethod('function ReleasePalette: HPALETTE');
-    RegisterMethod('procedure SaveToClipboardFormat(var Format: Word; var Data: THandle; var APalette: HPALETTE)');
-    RegisterProperty('Monochrome', 'Boolean', iptrw);
-    RegisterProperty('Palette', 'HPALETTE', iptrw);
-    RegisterProperty('IgnorePalette', 'Boolean', iptrw);
-    RegisterProperty('TransparentColor', 'TColor', iptr);
-    {$ENDIF}
   end;
 end;
 
@@ -269,7 +215,5 @@ begin
   SIRegisterTBitmap(Cl, Streams);
   SIRegisterTPicture(cl);
 end;
-
-// PS_MINIVCL changes by Martijn Laan
 
 End.

@@ -75,7 +75,6 @@ begin
   RIRegisterTPersistent(Cl);
   RIRegisterTComponent(Cl);
 end;
-// PS_MINIVCL changes by Martijn Laan
 
 end.
 
