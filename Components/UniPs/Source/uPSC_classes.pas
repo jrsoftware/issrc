@@ -34,12 +34,10 @@ procedure SIRegisterTRESOURCESTREAM(Cl: TPSPascalCompiler);
 procedure SIRegisterTPARSER(Cl: TPSPascalCompiler);
 procedure SIRegisterTCOLLECTIONITEM(CL: TPSPascalCompiler);
 procedure SIRegisterTCOLLECTION(CL: TPSPascalCompiler);
-{$IFDEF DELPHI3UP}
 procedure SIRegisterTOWNEDCOLLECTION(CL: TPSPascalCompiler);
 {$ENDIF}
-{$ENDIF}
 
-procedure SIRegister_Classes(Cl: TPSPascalCompiler; Streams: Boolean{$IFDEF D4PLUS}=True{$ENDIF});
+procedure SIRegister_Classes(Cl: TPSPascalCompiler; Streams: Boolean);
 
 implementation
 
@@ -48,9 +46,7 @@ begin
   with Cl.AddClassN(cl.FindClass('TPersistent'), 'TStrings') do
   begin
     IsAbstract := True;
-{$IFDEF DELPHI2005UP}
     RegisterMethod('constructor Create;');
-{$ENDIF}
     RegisterMethod('function Add(S: string): Integer;');
     RegisterMethod('procedure Append(S: string);');
     RegisterMethod('procedure AddStrings(Strings: TStrings);');
@@ -60,9 +56,7 @@ begin
     RegisterMethod('procedure Insert(Index: Integer; S: string); ');
     RegisterProperty('Capacity', 'Integer', iptRW);
     RegisterProperty('Delimiter', 'Char', iptRW);
-{$IFDEF DELPHI2006UP}
     RegisterProperty('StrictDelimiter', 'Boolean', iptRW);
-{$ENDIF}
     RegisterProperty('DelimitedText', 'string', iptrw);
     RegisterProperty('NameValueSeparator', 'Char', iptRW);
     RegisterProperty('QuoteChar', 'Char', iptRW);
@@ -105,9 +99,7 @@ procedure SIRegisterTSTRINGLIST(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TStrings'), 'TStringList') do
   begin
-{$IFDEF DELPHI2005UP}
     RegisterMethod('constructor Create;');
-{$ENDIF}
     RegisterMethod('function Find(S: string; var Index: Integer): Boolean');
     RegisterMethod('procedure Sort');
     RegisterProperty('CaseSensitive', 'Boolean', iptrw);
@@ -134,30 +126,15 @@ procedure SIRegisterTSTREAM(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TObject'), 'TStream') do
   begin
-    {$IFNDEF DELPHI_SYDNEY_UP}
-    IsAbstract := True;
-    {$ENDIF}
     RegisterMethod('function Read(Buffer: AnyString; Count: LongInt): LongInt');
     RegisterMethod('function Write(Buffer: AnyString; Count: LongInt): LongInt');
-    {$IFDEF DELPHI_TOKYO_UP}
     {$IFNDEF PS_NOINT64}
     RegisterMethod('function Seek(Offset: Int64; Origin: Word): Int64');
     {$ENDIF}
-    {$ELSE}
-    RegisterMethod('function Seek(Offset: LongInt; Origin: Word): LongInt');
-    {$ENDIF}
     RegisterMethod('procedure ReadBuffer(Buffer: AnyString; Count: LongInt)');
     RegisterMethod('procedure WriteBuffer(Buffer: AnyString; Count: LongInt)');
-    {$IFDEF DELPHI4UP}
     {$IFNDEF PS_NOINT64}
-    {$IFDEF DELPHI_SYDNEY_UP}
     RegisterMethod('function CopyFrom(Source: TStream; Count: Int64; BufferSize: Integer): Int64');
-    {$ELSE}
-    RegisterMethod('function CopyFrom(Source: TStream; Count: Int64): Int64');
-    {$ENDIF}
-    {$ENDIF}
-    {$ELSE}
-    RegisterMethod('function CopyFrom(Source: TStream; Count: Integer): LongInt');
     {$ENDIF}
     RegisterProperty('Position', 'LongInt', iptrw);
     RegisterProperty('Size', 'LongInt', iptrw);
@@ -251,9 +228,9 @@ Begin
   begin
   RegisterMethod('constructor Create(Collection: TCollection)');
   RegisterProperty('Collection', 'TCollection', iptrw);
-{$IFDEF DELPHI3UP}  RegisterProperty('ID', 'Integer', iptr); {$ENDIF}
+  RegisterProperty('ID', 'Integer', iptr);
   RegisterProperty('Index', 'Integer', iptrw);
-{$IFDEF DELPHI3UP}  RegisterProperty('DisplayName', 'string', iptrw); {$ENDIF}
+  RegisterProperty('DisplayName', 'string', iptrw);
   end;
 end;
 
@@ -266,21 +243,20 @@ Begin
 With cr do
   begin
 //  RegisterMethod('constructor Create(ItemClass: TCollectionItemClass)');
-{$IFDEF DELPHI6UP} RegisterMethod('function Owner: TPersistent'); {$ENDIF}
+  RegisterMethod('function Owner: TPersistent');
   RegisterMethod('function Add: TCollectionItem');
   RegisterMethod('procedure BeginUpdate');
   RegisterMethod('procedure Clear');
-{$IFDEF DELPHI5UP}  RegisterMethod('procedure Delete(Index: Integer)'); {$ENDIF}
+  RegisterMethod('procedure Delete(Index: Integer)');
   RegisterMethod('procedure EndUpdate');
-{$IFDEF DELPHI3UP}  RegisterMethod('function FindItemID(ID: Integer): TCollectionItem'); {$ENDIF}
-{$IFDEF DELPHI3UP}  RegisterMethod('function Insert(Index: Integer): TCollectionItem'); {$ENDIF}
+  RegisterMethod('function FindItemID(ID: Integer): TCollectionItem');
+  RegisterMethod('function Insert(Index: Integer): TCollectionItem');
   RegisterProperty('Count', 'Integer', iptr);
-{$IFDEF DELPHI3UP}  RegisterProperty('ItemClass', 'TCollectionItemClass', iptr); {$ENDIF}
+  RegisterProperty('ItemClass', 'TCollectionItemClass', iptr);
   RegisterProperty('Items', 'TCollectionItem Integer', iptrw);
   end;
 end;
 
-{$IFDEF DELPHI3UP}
 procedure SIRegisterTOWNEDCOLLECTION(CL: TPSPascalCompiler);
 Begin
 With Cl.AddClassN(cl.FindClass('TCollection'),'TOwnedCollection') do
@@ -288,7 +264,6 @@ With Cl.AddClassN(cl.FindClass('TCollection'),'TOwnedCollection') do
 //  RegisterMethod('constructor Create(AOwner: TPersistent; ItemClass: TCollectionItemClass)');
   end;
 end;
-{$ENDIF}
 {$ENDIF}
 
 procedure SIRegister_Classes_TypesAndConsts(Cl: TPSPascalCompiler);
@@ -349,9 +324,7 @@ begin
   SIRegisterTPARSER(Cl);
   SIRegisterTCOLLECTIONITEM(Cl);
   SIRegisterTCOLLECTION(Cl);
-  {$IFDEF DELPHI3UP}
   SIRegisterTOWNEDCOLLECTION(Cl);
-  {$ENDIF}
   {$ENDIF}
 end;
 

@@ -3,7 +3,7 @@ unit uPSUtils;
 
 interface
 uses
-  Classes, SysUtils {$IFDEF VER130}, Windows {$ENDIF};
+  Classes, SysUtils;
 
 const
 
@@ -23,9 +23,9 @@ const
 
   PSAddrNegativeStackStart = 1073741824;
 type
-  tbtString = {$IFDEF DELPHI2009UP}AnsiString{$ELSE}string{$ENDIF};
-  tbtPChar  = {$IFDEF DELPHI2009UP}PAnsiChar{$ELSE}PChar{$ENDIF};
-  tbtChar   = {$IFDEF DELPHI4UP}AnsiChar{$ELSE}CHAR{$ENDIF};
+  tbtString = AnsiString;
+  tbtPChar  = PAnsiChar;
+  tbtChar   = AnsiChar;
 
   TPSBaseType = Byte;
 
@@ -324,13 +324,9 @@ type
     {$IFDEF UNICODE}UnicodeString{$ELSE}WideString{$ENDIF};
 
   tbtWideChar = WideChar;
-  tbtNativeString = {$IFDEF DELPHI2009UP}tbtUnicodeString{$ELSE}tbtString{$ENDIF};
+  tbtNativeString = tbtUnicodeString;
 {$ENDIF}
-{$IFDEF DELPHI2009UP}
   IPointer = NativeUInt;
-{$ELSE}
-  IPointer = Cardinal;
-{$ENDIF}
   TPSCallingConvention = (cdRegister, cdPascal, cdCdecl, cdStdCall, cdSafeCall);
 
 
@@ -570,7 +566,7 @@ type
   TPSPascalParser = class(TObject)
   protected
     FData: TbtString;
-    FText: {$IFDEF DELPHI4UP}PAnsiChar{$ELSE}PChar{$ENDIF};
+    FText: PAnsiChar;
     FLastEnterPos, FRow, FRealPosition, FTokenLength: Cardinal;
     FTokenId: TPSPasToken;
     FToken: TbtString;
@@ -633,52 +629,10 @@ const
   FMaxCheckCount = (FCapacityInc div 4) * 64;
 {$ENDIF}
 
-{$IFDEF VER130}
-function WideUpperCase(const S: WideString): WideString;
-function WideLowerCase(const S: WideString): WideString;
-{$ENDIF}
 implementation
 
-{$IFDEF DELPHI3UP }
 resourceString
-{$ELSE }
-const
-{$ENDIF }
   RPS_InvalidFloat = 'Invalid float';
-
-{$IFDEF VER130}
-
-function WideUpperCase(const S: WideString): WideString;
-var
-  Len: Integer;
-begin
-  // CharUpperBuffW is stubbed out on Win9x platofmrs
-  if Win32Platform = VER_PLATFORM_WIN32_NT then
-  begin
-    Len := Length(S);
-    SetString(Result, PWideChar(S), Len);
-    if Len > 0 then CharUpperBuffW(Pointer(Result), Len);
-  end
-  else
-    Result := AnsiUpperCase(S);
-end;
-
-function WideLowerCase(const S: WideString): WideString;
-var
-  Len: Integer;
-begin
-  // CharLowerBuffW is stubbed out on Win9x platofmrs
-  if Win32Platform = VER_PLATFORM_WIN32_NT then
-  begin
-    Len := Length(S);
-    SetString(Result, PWideChar(S), Len);
-    if Len > 0 then CharLowerBuffW(Pointer(Result), Len);
-  end
-  else
-    Result := AnsiLowerCase(S);
-end;
-
-{$ENDIF}
 
 
 function MakeHash(const s: TbtString): Longint;
@@ -747,7 +701,7 @@ begin
 end;
 //-------------------------------------------------------------------
 
-{$IFDEF DELPHIXEUP}{$DEFINE PS_HAVEFORMATSETTINGS}{$ENDIF}
+{$DEFINE PS_HAVEFORMATSETTINGS}
 
 {$IFDEF PS_HAVEFORMATSETTINGS}
 var
@@ -1234,7 +1188,7 @@ var
   var
     ct, ci: Cardinal;
     hs: Boolean;
-    p: {$IFDEF DELPHI4UP}PAnsiChar{$ELSE}PChar{$ENDIF};
+    p: PAnsiChar;
   begin
     ParseToken := iNoError;
     ct := CurrTokenPos;
@@ -1253,7 +1207,7 @@ var
           CurrTokenLen := ci - ct;
 
           FLastUpToken := _GetToken(CurrTokenPos, CurrtokenLen);
-          p := {$IFDEF DELPHI4UP}PAnsiChar{$ELSE}pchar{$ENDIF}(FLastUpToken);
+          p := PAnsiChar(FLastUpToken);
           while p^<>#0 do
           begin
             if p^ in [#97..#122] then

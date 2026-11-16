@@ -7,11 +7,7 @@ interface
 uses
   uPSCompiler, uPSUtils;
 
-{$IFDEF DELPHI3UP }
 resourceString
-{$ELSE }
-const
-{$ENDIF }
   RPS_Invalid_External = 'Invalid External';
   RPS_InvalidCallingConvention = 'Invalid Calling Convention';
 

@@ -52,9 +52,7 @@ procedure SIRegisterTGROUPBOX(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TCustomGroupBox'), 'TGroupBox') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Caption', 'string', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
@@ -103,9 +101,7 @@ begin
   with Cl.AddClassN(cl.FindClass('TCustomLabel'), 'TLabel') do
   begin
     RegisterProperty('Alignment', 'TAlignment', iptrw);
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('Caption', 'string', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
@@ -168,9 +164,7 @@ procedure SIRegisterTEDIT(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TCustomEdit'), 'TEdit') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('AutoSelect', 'Boolean', iptrw);
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
@@ -228,9 +222,7 @@ procedure SIRegisterTMEMO(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TCustomMemo'), 'TMemo') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Alignment', 'TAlignment', iptrw);
     RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
@@ -301,9 +293,7 @@ begin
   with Cl.AddClassN(cl.FindClass('TCustomComboBox'), 'TComboBox') do
   begin
     RegisterProperty('Style', 'TComboBoxStyle', iptrw);
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('DropDownCount', 'Integer', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
@@ -355,9 +345,7 @@ procedure SIRegisterTBUTTON(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TButtonControl'),  'TButton') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Cancel', 'Boolean', iptrw);
     RegisterProperty('Caption', 'string', iptrw);
     RegisterProperty('Default', 'Boolean', iptrw);
@@ -368,11 +356,9 @@ begin
     RegisterProperty('OnEnter', 'TNotifyEvent', iptrw);
     RegisterProperty('OnExit', 'TNotifyEvent', iptrw);
 
-    {$IFDEF DELPHI23UP}
     RegisterProperty('CommandLinkHint', 'string', iptrw);
     RegisterProperty('ElevationRequired', 'Boolean', iptrw);
     RegisterProperty('Style', 'TButtonStyle', iptrw);
-    {$ENDIF}
 
     {$IFNDEF PS_MINIVCL}
     RegisterProperty('DragCursor', 'LongInt', iptrw);
@@ -410,9 +396,7 @@ begin
   begin
     RegisterProperty('Alignment', 'TAlignment', iptrw);
     RegisterProperty('AllowGrayed', 'Boolean', iptrw);
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Caption', 'string', iptrw);
     RegisterProperty('Checked', 'Boolean', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
@@ -454,9 +438,7 @@ begin
   with Cl.AddClassN(cl.FindClass('TButtonControl'), 'TRadioButton') do
   begin
     RegisterProperty('Alignment', 'TAlignment', iptrw);
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Caption', 'string', iptrw);
     RegisterProperty('Checked', 'Boolean', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
@@ -516,9 +498,7 @@ procedure SIRegisterTLISTBOX(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TCustomListBox'), 'TListBox') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
@@ -569,9 +549,7 @@ procedure SIRegisterTSCROLLBAR(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TWinControl'), 'TScrollBar') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Kind', 'TScrollBarKind', iptrw);
     RegisterProperty('Max', 'Integer', iptrw);
     RegisterProperty('Min', 'Integer', iptrw);
@@ -609,9 +587,7 @@ begin
   cl.AddTypeS('TEditCharCase', '(ecNormal, ecUpperCase, ecLowerCase)');
   cl.AddTypeS('TScrollStyle', '(ssNone, ssHorizontal, ssVertical, ssBoth)');
   cl.AddTypeS('TComboBoxStyle', '(csDropDown, csSimple, csDropDownList, csOwnerDrawFixed, csOwnerDrawVariable)');
-  {$IFDEF DELPHI23UP}
   cl.AddTypeS('TButtonStyle', '(bsPushButton, bsCommandLink, bsSplitButton)');
-  {$ENDIF}
   cl.AddTypeS('TCheckBoxState', '(cbUnchecked, cbChecked, cbGrayed)');
   cl.AddTypeS('TListBoxStyle', '(lbStandard, lbOwnerDrawFixed, lbOwnerDrawVariable)');
   cl.AddTypeS('TScrollCode', '(scLineUp, scLineDown, scPageUp, scPageDown, scPosition, scTrack, scTop, scBottom, scEndScroll)');

@@ -510,15 +510,11 @@ _XMM0: Double;
               rounds set storage up (a native set is never 3 bytes, and on Win64
               never 5-7 bytes), so a 3-byte ROPS set is a native 4-byte set
               passed by value, and a 5-8 byte ROPS set is a native 8-byte set
-              passed by reference. Before Rio 10.3 the register convention
-              additionally passed sizes 5, 6, 7, and 8 by value, see
+              passed by reference. See
               https://blogs.embarcadero.com/abi-changes-in-rad-studio-10-3/ }
             if (fvar^.aType.RealSize in [1, 2, 4]) or
                ((fvar^.aType.BaseType = btSet) and (fvar^.aType.RealSize = 3)) or
                ((fvar^.aType.BaseType <> btSet) and (fvar^.aType.RealSize = 8) and (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]))
-               {$IFNDEF DELPHI_RIO_UP}
-               or ((fvar^.aType.RealSize in [5, 6, 7, 8]) and not (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]))
-               {$ENDIF}
                then
               StoreRegBytes(fvar.Dta, fvar^.aType.RealSize)
             else

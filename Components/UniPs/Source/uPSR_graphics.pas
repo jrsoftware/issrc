@@ -20,7 +20,7 @@ procedure RIRegister_Graphics(Cl: TPSRuntimeClassImporter; Streams: Boolean);
 
 implementation
 uses
-  Classes, Windows, Graphics {$IFDEF DELPHI_TOKYO_UP}, UITypes {$ENDIF};
+  Classes, Windows, Graphics, UITypes;
 
 procedure TFontHandleR(Self: TFont; var T: HFONT); begin T := Self.Handle; end;
 procedure TFontHandleW(Self: TFont; T: HFONT); begin Self.Handle := T; end;

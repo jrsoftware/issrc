@@ -109,11 +109,7 @@ type
 
 implementation
 
-{$IFDEF DELPHI3UP }
 resourceString
-{$ELSE }
-const
-{$ENDIF }
 
   RPS_ExpectedReturnAddressStackBase = 'Expected return address at stack base';
 

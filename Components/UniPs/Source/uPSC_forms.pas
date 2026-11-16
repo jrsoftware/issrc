@@ -48,10 +48,8 @@ procedure SIRegisterTSCROLLBOX(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TScrollingWinControl'), 'TScrollBox') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('Constraints', 'TSizeConstraints', iptrw);
-    {$ENDIF}
     RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
@@ -85,11 +83,7 @@ procedure SIRegisterTFORM(Cl: TPSPascalCompiler);
 begin
  with Cl.AddClassN(cl.FindClass('TScrollingWinControl'), 'TForm') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterMethod('constructor CreateNew(AOwner: TComponent; Dummy: Integer)');
-    {$ELSE}
-    RegisterMethod('constructor CreateNew(AOwner: TComponent)');
-    {$ENDIF}
     RegisterMethod('procedure Close');
     RegisterMethod('procedure Hide');
     RegisterMethod('procedure Show');
@@ -97,10 +91,8 @@ begin
     RegisterMethod('procedure Release');
     RegisterProperty('Active', 'Boolean', iptr);
     RegisterProperty('ActiveControl', 'TWinControl', iptrw);
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('Constraints', 'TSizeConstraints', iptrw);
-    {$ENDIF}
     RegisterProperty('BorderIcons', 'TBorderIcons', iptrw);
     RegisterProperty('BorderStyle', 'TFormBorderStyle', iptrw);
     RegisterProperty('Caption', 'NativeString', iptrw);
@@ -109,10 +101,8 @@ begin
     RegisterProperty('Font', 'TFont', iptrw);
     RegisterProperty('FormStyle', 'TFormStyle', iptrw);
     RegisterProperty('KeyPreview', 'Boolean', iptrw);
-    {$IFDEF DELPHI_SEATTLE_UP}
     RegisterProperty('PopupMode', 'TPopupMode', iptrw);
     RegisterProperty('PopupParent', 'TForm', iptrw);
-    {$ENDIF}
     RegisterProperty('Position', 'TPosition', iptrw);
     RegisterProperty('OnActivate', 'TNotifyEvent', iptrw);
     RegisterProperty('OnClick', 'TNotifyEvent', iptrw);
@@ -240,9 +230,7 @@ begin
   cl.AddTypeS('TBorderStyle', 'TFormBorderStyle');
   cl.AddTypeS('TWindowState', '(wsNormal, wsMinimized, wsMaximized)');
   cl.AddTypeS('TFormStyle', '(fsNormal, fsMDIChild, fsMDIForm, fsStayOnTop)');
-  {$IFDEF DELPHI_SEATTLE_UP}
   cl.AddTypeS('TPopupMode', '(pmNone, pmAuto, pmExplicit)');
-  {$ENDIF}
   cl.AddTypeS('TPosition', '(poDesigned, poDefault, poDefaultPosOnly, poDefaultSizeOnly, poScreenCenter, poDesktopCenter, poMainFormCenter, poOwnerFormCenter)');
   cl.AddTypeS('TPrintScale', '(poNone, poProportional, poPrintToFit)');
   cl.AddTypeS('TCloseAction', '(caNone, caHide, caFree, caMinimize)');

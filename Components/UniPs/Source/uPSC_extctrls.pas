@@ -28,10 +28,8 @@ procedure SIRegisterTNOTEBOOK(Cl: TPSPascalCompiler);
 procedure SIRegisterTHEADER(Cl: TPSPascalCompiler);
 procedure SIRegisterTCUSTOMRADIOGROUP(Cl: TPSPascalCompiler);
 procedure SIRegisterTRADIOGROUP(Cl: TPSPascalCompiler);
-{$IFDEF DELPHI14UP}
 procedure SIRegisterTCUSTOMLINKLABEL(Cl: TPSPascalCompiler);
 procedure SIRegisterTLINKLABEL(Cl: TPSPascalCompiler);
-{$ENDIF}
 procedure SIRegister_ExtCtrls(cl: TPSPascalCompiler);
 
 implementation
@@ -39,9 +37,7 @@ procedure SIRegisterTSHAPE(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TGraphicControl'), 'TShape') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Brush', 'TBrush', iptrw);
     RegisterProperty('Pen', 'TPen', iptrw);
     RegisterProperty('Shape', 'TShapeType', iptrw);
@@ -66,9 +62,7 @@ procedure SIRegisterTIMAGE(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TGraphicControl'), 'TImage') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Canvas', 'TCanvas', iptr);
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('Center', 'Boolean', iptrw);
@@ -97,9 +91,7 @@ procedure SIRegisterTPAINTBOX(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TGraphicControl'), 'TPaintBox') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Canvas', 'TCanvas', iptr);
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
@@ -129,9 +121,7 @@ procedure SIRegisterTBEVEL(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TGraphicControl'), 'TBevel') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Shape', 'TBevelShape', iptrw);
     RegisterProperty('Style', 'TBevelStyle', iptrw);
 
@@ -161,14 +151,10 @@ begin
   with Cl.AddClassN(cl.FindClass('TCustomPanel'), 'TPanel') do
   begin
     RegisterProperty('Alignment', 'TAlignment', iptrw);
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('BevelInner', 'TPanelBevel', iptrw);
     RegisterProperty('BevelOuter', 'TPanelBevel', iptrw);
-    {$IFDEF DELPHI2009UP}
     RegisterProperty('BevelKind', 'TBevelKind', iptrw);
-    {$ENDIF}
     RegisterProperty('BevelWidth', 'TBevelWidth', iptrw);
     RegisterProperty('BorderWidth', 'TBorderWidth', iptrw);
     RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
@@ -213,9 +199,7 @@ begin
   with Cl.AddClassN(cl.FindClass('TCustomControl'), 'TNotebook') do
   begin
     RegisterProperty('ActivePage', 'string', iptrw);
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
     RegisterProperty('PageIndex', 'Integer', iptrw);
@@ -252,9 +236,7 @@ begin
   begin
     RegisterProperty('SectionWidth', 'Integer Integer', iptrw);
     RegisterProperty('AllowResize', 'Boolean', iptrw);
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('BorderStyle', 'TBorderStyle', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
     RegisterProperty('ParentFont', 'Boolean', iptrw);
@@ -278,9 +260,7 @@ procedure SIRegisterTRADIOGROUP(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TCustomRadioGroup'), 'TRadioGroup') do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    {$ENDIF}
     RegisterProperty('Caption', 'string', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Columns', 'Integer', iptrw);
@@ -307,8 +287,6 @@ begin
     {$ENDIF}
   end;
 end;
-
-{$IFDEF DELPHI14UP}
 
 procedure SIRegisterTCUSTOMLINKLABEL(Cl: TPSPascalCompiler);
 begin
@@ -345,8 +323,6 @@ begin
   end;
 end;
 
-{$ENDIF}
-
 procedure SIRegister_ExtCtrls_TypesAndConsts(cl: TPSPascalCompiler);
 begin
   cl.AddTypeS('TShapeType', '(stRectangle, stSquare, stRoundRect, stRoundSquare, stEllipse, stCircle)');
@@ -356,10 +332,8 @@ begin
   cl.AddTypeS('TBevelWidth', 'LongInt');
   cl.AddTypeS('TBorderWidth', 'LongInt');
   cl.AddTypeS('TSectionEvent', 'procedure(Sender: TObject; ASection, AWidth: Integer)');
-  {$IFDEF DELPHI14UP}
   cl.AddTypeS('TSysLinkType', '(sltURL, sltID)');
   cl.AddTypeS('TSysLinkEvent', 'procedure(Sender: TObject; const Link: string; LinkType: TSysLinkType)');
-  {$ENDIF}
 end;
 
 procedure SIRegister_ExtCtrls(cl: TPSPascalCompiler);
@@ -384,10 +358,8 @@ begin
   SIRegisterTCUSTOMRADIOGROUP(Cl);
   SIRegisterTRADIOGROUP(Cl);
   {$ENDIF}
-  {$IFDEF DELPHI14UP}
   SIRegisterTCUSTOMLINKLABEL(Cl);
   SIRegisterTLINKLABEL(Cl);
-  {$ENDIF}
 end;
 
 end.

@@ -21,10 +21,8 @@ procedure RIRegisterTNOTEBOOK(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTHEADER(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTCUSTOMRADIOGROUP(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTRADIOGROUP(Cl: TPSRuntimeClassImporter);
-{$IFDEF DELPHI14UP}
 procedure RIRegisterTCUSTOMLINKLABEL(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTLINKLABEL(Cl: TPSRuntimeClassImporter);
-{$ENDIF}
 
 implementation
 
@@ -111,8 +109,6 @@ begin
   Cl.Add(TRADIOGROUP);
 end;
 
-{$IFDEF DELPHI14UP}
-
 procedure TCUSTOMLINKLABELALIGNMENT_R(Self: TCUSTOMLINKLABEL; var T: TCustomLinkLabel.TLinkAlignment); begin T := Self.ALIGNMENT; end;
 procedure TCUSTOMLINKLABELALIGNMENT_W(Self: TCUSTOMLINKLABEL; T: TCustomLinkLabel.TLinkAlignment); begin
 Self.ALIGNMENT := T;
@@ -140,8 +136,6 @@ begin
   Cl.Add(TLINKLABEL);
 end;
 
-{$ENDIF}
-
 procedure RIRegister_ExtCtrls(cl: TPSRuntimeClassImporter);
 begin
   {$IFNDEF PS_MINIVCL}
@@ -162,10 +156,8 @@ begin
   RIRegisterTCUSTOMRADIOGROUP(Cl);
   RIRegisterTRADIOGROUP(Cl);
   {$ENDIF}
-  {$IFDEF DELPHI14UP}
   RIRegisterTCUSTOMLINKLABEL(Cl);
   RIRegisterTLINKLABEL(Cl);
-  {$ENDIF}
 end;
 
 end.

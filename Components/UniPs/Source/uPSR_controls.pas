@@ -14,9 +14,7 @@ procedure RIRegisterTWinControl(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTGraphicControl(cl: TPSRuntimeClassImporter);
 procedure RIRegisterTCustomControl(cl: TPSRuntimeClassImporter);
 procedure RIRegister_TDragObject(CL: TPSRuntimeClassImporter);
-{$IFDEF DELPHI4UP}
 procedure RIRegisterTSizeConstraints(cl: TPSRuntimeClassImporter);
-{$ENDIF}
 
 procedure RIRegister_Controls(Cl: TPSRuntimeClassImporter);
 
@@ -45,15 +43,11 @@ procedure TControlParentW(Self: TControl; T: TWinControl); begin Self.Parent:= T
 procedure TCONTROLENABLED_W(Self: TCONTROL; T: BOOLEAN); begin Self.ENABLED := T; end;
 procedure TCONTROLENABLED_R(Self: TCONTROL; var T: BOOLEAN); begin T := Self.ENABLED; end;
 
-{$IFDEF DELPHI23UP}
 procedure TControlStyleElementsR(Self: TControl; var T: TStyleElements); begin T := Self.StyleElements; end;
 procedure TControlStyleElementsW(Self: TControl; T: TStyleElements); begin Self.StyleElements:= T; end;
-{$ENDIF}
 
-{$IFDEF DELPHI26UP}
 procedure TControlStyleNameR(Self: TControl; var T: string); begin T := Self.StyleName; end;
 procedure TControlStyleNameW(Self: TControl; T: string); begin Self.StyleName:= T; end;
-{$ENDIF}
 
 procedure RIRegisterTControl(Cl: TPSRuntimeClassImporter);
 begin
@@ -77,12 +71,8 @@ begin
     RegisterPropertyHelper(@TControlVisibleR, @TControlVisibleW, 'Visible');
     RegisterPropertyHelper(@TCONTROLENABLED_R, @TCONTROLENABLED_W, 'Enabled');
 
-    {$IFDEF DELPHI23UP}
     RegisterPropertyHelper(@TControlStyleElementsR, @TControlStyleElementsW, 'StyleElements');
-    {$ENDIF}
-    {$IFDEF DELPHI26UP}
     RegisterPropertyHelper(@TControlStyleNameR, @TControlStyleNameW, 'StyleName');
-    {$ENDIF}
 
     RegisterPropertyHelper(@TControlParentR, @TControlParentW, 'Parent');
 
@@ -153,7 +143,6 @@ begin
   Cl.Add(TCustomControl);
 end;
 
-{$IFDEF DELPHI4UP}
 (* === run-time registration functions === *)
 (*----------------------------------------------------------------------------*)
 procedure TDragObjectMouseDeltaY_R(Self: TDragObject; var T: Double);
@@ -194,21 +183,17 @@ begin Self.Cancelling := T; end;
 (*----------------------------------------------------------------------------*)
 procedure TDragObjectCancelling_R(Self: TDragObject; var T: Boolean);
 begin T := Self.Cancelling; end;
-{$ENDIF}
 (*----------------------------------------------------------------------------*)
 procedure RIRegister_TDragObject(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(TDragObject) do
   begin
 {$IFNDEF PS_MINIVCL}
-{$IFDEF DELPHI4UP}
     RegisterVirtualMethod(@TDragObject.Assign, 'Assign');
-{$ENDIF}
     RegisterVirtualMethod(@TDragObject.GetName, 'GetName');
     RegisterVirtualMethod(@TDragObject.Instance, 'Instance');
     RegisterVirtualMethod(@TDragObject.HideDragImage, 'HideDragImage');
     RegisterVirtualMethod(@TDragObject.ShowDragImage, 'ShowDragImage');
-{$IFDEF DELPHI4UP}
     RegisterPropertyHelper(@TDragObjectCancelling_R,@TDragObjectCancelling_W,'Cancelling');
     RegisterPropertyHelper(@TDragObjectDragHandle_R,@TDragObjectDragHandle_W,'DragHandle');
     RegisterPropertyHelper(@TDragObjectDragPos_R,@TDragObjectDragPos_W,'DragPos');
@@ -216,16 +201,13 @@ begin
     RegisterPropertyHelper(@TDragObjectMouseDeltaX_R,nil,'MouseDeltaX');
     RegisterPropertyHelper(@TDragObjectMouseDeltaY_R,nil,'MouseDeltaY');
 {$ENDIF}
-{$ENDIF}
   end;
 end;
 
-{$IFDEF DELPHI4UP}
 procedure RIRegisterTSizeConstraints(cl: TPSRuntimeClassImporter);
 begin
   Cl.Add(TSizeConstraints);
 end;
-{$ENDIF}
 
 procedure RIRegister_Controls(Cl: TPSRuntimeClassImporter);
 begin
@@ -234,9 +216,7 @@ begin
   RIRegisterTGraphicControl(cl);
   RIRegisterTCustomControl(cl);
   RIRegister_TDragObject(cl);
-  {$IFDEF DELPHI4UP}
   RIRegisterTSizeConstraints(cl);
-  {$ENDIF}
 end;
 
 // PS_MINIVCL changes by Martijn Laan

@@ -66,19 +66,11 @@ procedure RIRegisterTFORM(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TFORM) do
   begin
-    {$IFDEF DELPHI4UP}
     RegisterVirtualConstructor(@TFORM.CREATENEW, 'CreateNew');
-    {$ELSE}
-    RegisterConstructor(@TFORM.CREATENEW, 'CreateNew');
-    {$ENDIF}
     RegisterMethod(@TFORM.CLOSE, 'Close');
     RegisterMethod(@TFORM.HIDE, 'Hide');
     RegisterMethod(@TFORM.SHOW, 'Show');
-    {$IFDEF DELPHI_SEATTLE_UP}
     RegisterVirtualMethod(@TFORM.SHOWMODAL, 'ShowModal');
-    {$ELSE}
-    RegisterMethod(@TFORM.SHOWMODAL, 'ShowModal');
-    {$ENDIF}
     RegisterMethod(@TFORM.RELEASE, 'Release');
     RegisterPropertyHelper(@TFORMACTIVE_R, nil, 'Active');
 
@@ -129,7 +121,7 @@ procedure TAPPLICATIONHINTSHORTPAUSE_R(Self: TAPPLICATION; var T: INTEGER); begi
 procedure TAPPLICATIONHINTSHORTPAUSE_W(Self: TAPPLICATION; T: INTEGER); begin Self.HINTSHORTPAUSE := T; end;
 procedure TAPPLICATIONHINTHIDEPAUSE_R(Self: TAPPLICATION; var T: INTEGER); begin T := Self.HINTHIDEPAUSE; end;
 procedure TAPPLICATIONHINTHIDEPAUSE_W(Self: TAPPLICATION; T: INTEGER); begin Self.HINTHIDEPAUSE := T; end;
-procedure TAPPLICATIONMAINFORM_R(Self: TAPPLICATION; var T: {$IFDEF DELPHI3UP}TCustomForm{$ELSE}TFORM{$ENDIF}); begin T := Self.MAINFORM; end;
+procedure TAPPLICATIONMAINFORM_R(Self: TAPPLICATION; var T: TCustomForm); begin T := Self.MAINFORM; end;
 procedure TAPPLICATIONSHOWHINT_R(Self: TAPPLICATION; var T: BOOLEAN); begin T := Self.SHOWHINT; end;
 procedure TAPPLICATIONSHOWHINT_W(Self: TAPPLICATION; T: BOOLEAN); begin Self.SHOWHINT := T; end;
 procedure TAPPLICATIONSHOWMAINFORM_R(Self: TAPPLICATION; var T: BOOLEAN); begin T := Self.SHOWMAINFORM; end;

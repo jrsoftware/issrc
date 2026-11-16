@@ -106,7 +106,7 @@ end;
 procedure SIRegister_Graphics_TypesAndConsts(Cl: TPSPascalCompiler);
 {$IFDEF PS_NOGRAPHCONST}
 const
-  clSystemColor = {$IFDEF DELPHI7UP} $FF000000 {$ELSE} $80000000 {$ENDIF};
+  clSystemColor = $FF000000;
 {$ENDIF}
 begin
 {$IFNDEF PS_NOGRAPHCONST}

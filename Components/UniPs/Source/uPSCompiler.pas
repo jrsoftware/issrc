@@ -2,8 +2,7 @@ unit uPSCompiler;
 {$I PascalScript.inc}
 interface
 uses
-  {$IFNDEF DELPHI3UP}{$IFNDEF PS_NOINTERFACES}Windows, Ole2,
-  {$ENDIF}{$ENDIF}SysUtils, uPSUtils;
+  SysUtils, uPSUtils;
 
 
 type
@@ -1773,13 +1772,9 @@ procedure DisposeVariant(p: PIfRVariant);
 
 implementation
 
-uses {$IFDEF DELPHI5}ComObj, {$ENDIF}Classes, typInfo;
+uses Classes, typInfo;
 
-{$IFDEF DELPHI3UP}
 resourceString
-{$ELSE}
-const
-{$ENDIF}
 
   RPS_OnUseEventOnly = 'This function can only be called from within the OnUses event';
   RPS_UnableToRegisterFunction = 'Unable to register function %s';
@@ -2530,9 +2525,6 @@ begin
   Parser := TPSPascalParser.Create;
   Parser.SetText(Header);
   Decl := TPSParametersDecl.Create;
-{$IFNDEF DELPHI_TOKYO_UP}
-  x := nil;
-{$ENDIF}
   try
     if Parser.CurrTokenId = CSTII_Function then
       IsFunction := True
@@ -5663,7 +5655,7 @@ function TPSPascalCompiler.ReadString: PIfRVariant;
       begin
         if UTF8Decode then
         begin
-        temp3 := temp3 + {$IFNDEF PS_NOWIDESTRING}{$IFDEF DELPHI6UP}System.{$IFDEF DELPHI2009UP}UTF8ToWidestring{$ELSE}UTF8Decode{$ENDIF}{$ENDIF}{$ENDIF}(PString(FParser.GetToken));
+        temp3 := temp3 + {$IFNDEF PS_NOWIDESTRING}System.UTF8ToWidestring{$ENDIF}(PString(FParser.GetToken));
         {$IFNDEF PS_NOWIDESTRING}wchar:=true;{$ENDIF}
         end else
           temp3 := temp3 + {$IFNDEF PS_NOWIDESTRING}tbtUnicodestring{$ENDIF}(PString(FParser.GetToken));
@@ -13014,13 +13006,8 @@ begin
   {$ENDIF}
   AddType('AnsiString', btString);
   {$IFNDEF PS_NOWIDESTRING}
-    {$IFDEF DELPHI2009UP}
-    AddType('string', btUnicodeString);
-    AddType('NativeString', btUnicodeString);
-    {$ELSE}
-    AddType('string', btString);
-    AddType('NativeString', btString);
-    {$ENDIF}
+  AddType('string', btUnicodeString);
+  AddType('NativeString', btUnicodeString);
   {$ELSE}
   AddType('string', btString);
   AddType('NativeString', btString);
@@ -13835,17 +13822,13 @@ begin
   AddConstantN('varBoolean', 'Word').Value.tu16 := varboolean;
   AddConstantN('varVariant', 'Word').Value.tu16 := varvariant;
   AddConstantN('varUnknown', 'Word').Value.tu16 := varunknown;
-{$IFDEF DELPHI6UP}
   AddConstantN('varShortInt', 'Word').Value.tu16 := varshortint;
   AddConstantN('varByte', 'Word').Value.tu16 := varbyte;
   AddConstantN('varWord', 'Word').Value.tu16 := varword;
   AddConstantN('varLongWord', 'Word').Value.tu16 := varlongword;
   AddConstantN('varInt64', 'Word').Value.tu16 := varint64;
-{$ENDIF}
-{$IFDEF DELPHI5UP}
   AddConstantN('varStrArg', 'Word').Value.tu16 := varstrarg;
   AddConstantN('varAny', 'Word').Value.tu16 := varany;
-{$ENDIF}
   AddConstantN('varString', 'Word').Value.tu16 := varstring;
   AddConstantN('varTypeMask', 'Word').Value.tu16 := vartypemask;
   AddConstantN('varArray', 'Word').Value.tu16 := vararray;
@@ -13855,9 +13838,7 @@ begin
 {$ENDIF}
   AddDelphiFunction('function Unassigned: Variant;');
   AddDelphiFunction('function VarIsEmpty(const V: Variant): Boolean;');
-{$IFDEF DELPHI7UP}
   AddDelphiFunction('function VarIsClear(const V: Variant): Boolean;');
-{$ENDIF}
   AddDelphiFunction('function Null: Variant;');
   AddDelphiFunction('function VarIsNull(const V: Variant): Boolean;');
   AddDelphiFunction('function VarType(const V: Variant): TVarType;');
@@ -14219,9 +14200,6 @@ var
 
 begin
   pDecl := TPSParametersDecl.Create;
-{$IFNDEF DELPHI_TOKYO_UP}
-  p := nil;
-{$ENDIF}
   try
     if not ParseMethod(Self, '', Decl, DOrgName, pDecl, FT) then
       Raise EPSCompilerException.CreateFmt(RPS_UnableToRegisterFunction, [Decl]);
@@ -15624,7 +15602,7 @@ begin
   GetPropInfos(fclass.ClassInfo, p);
   for i := Count -1 downto 0 do
   begin
-    if p^[i]^.PropType^.Kind in [tkLString, tkInteger, tkChar, tkEnumeration, tkFloat, tkString, tkSet, tkClass, tkMethod{$IFNDEF PS_NOWIDESTRING}, tkWString{$ENDIF}{$IFDEF DELPHI2009UP}, tkUString{$ENDIF}] then
+    if p^[i]^.PropType^.Kind in [tkLString, tkInteger, tkChar, tkEnumeration, tkFloat, tkString, tkSet, tkClass, tkMethod{$IFNDEF PS_NOWIDESTRING}, tkWString{$ENDIF}, tkUString] then
     begin
       if (p^[i]^.GetProc <> nil) then
       begin
