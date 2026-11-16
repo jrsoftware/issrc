@@ -220,7 +220,7 @@ end;
 const
   EmptyPchar: array[0..0] of char = #0;
 
-{$IFDEF DELPHI}{$IFDEF MSWINDOWS}{$DEFINE DELPHI_and_MSWINDOWS}{$ENDIF}{$ENDIF}
+{$IFDEF DELPHI}{$DEFINE DELPHI_and_MSWINDOWS}{$ENDIF}
 
 {$IFDEF DELPHI_and_MSWINDOWS}
 { Delphi Win32 passes a by-value record or static array of 4 bytes
@@ -273,11 +273,7 @@ var
     else
     {$ENDIF}
     begin
-      {$IFDEF MSWINDOWS}
       Result := res^.aType.RealSize > 4;
-      {$ELSE}
-      Result := True;
-      {$ENDIF}
     end;
   end;
 
@@ -621,11 +617,6 @@ begin
                   if TPSTypeRec_Set(res.aType).aByteSize >4 then GetPtr(res);
                 end;
             end;
-            {$IFDEF DARWIN}
-            if (length(Stack) mod 16) <> 0 then begin
-              Stack := Stack + StringOfChar(ansichar(#32), 16 - (Length(Stack) mod 16)) ;
-            end;
-            {$ENDIF} 			
             case res^.aType.BaseType of
               btSet:
                 begin
@@ -682,11 +673,6 @@ begin
               exit;
             end;
           end else begin
-            {$IFDEF DARWIN}
-            if (length(Stack) mod 16) <> 0 then begin
-              Stack := Stack + StringOfChar(ansichar(#32), 16 - (Length(Stack) mod 16)) ;
-            end;
-            {$ENDIF} 		  
             RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
 		  end;
           Result := True;
@@ -715,11 +701,6 @@ begin
             Stack := StringOfChar(AnsiChar(#0),4) +Stack;
             Pointer((@Stack[1])^) := _Self;
           end;
-          {$IFDEF DARWIN}
-          if (length(Stack) mod 16) <> 0 then begin
-            Stack := Stack + StringOfChar(ansichar(#32), 16 - (Length(Stack) mod 16)) ;
-          end;
-          {$ENDIF}
           if assigned(res) then begin
             case res^.aType.BaseType of
               btSingle:      tbtsingle(res^.Dta^) := RealFloatCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4);
@@ -787,11 +768,6 @@ begin
             Stack := StringOfChar(AnsiChar(#0),4) +Stack;
             Pointer((@Stack[1])^) := _Self;
           end;
-          {$IFDEF DARWIN}
-          if (length(Stack) mod 16) <> 0 then begin
-            Stack := Stack + StringOfChar(ansichar(#32), 16 - (Length(Stack) mod 16)) ;
-          end;
-          {$ENDIF}
           OleCheck(RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil));
           Result := True;
         end;
@@ -805,11 +781,6 @@ begin
           for I := Params.Count - 1 downto 0 do begin
             if not GetPtr(Params[I]) then Exit;
           end;
-          {$IFDEF DARWIN}
-          if (length(Stack) mod 16) <> 0 then begin
-            Stack := Stack + StringOfChar(ansichar(#32), 16 - (Length(Stack) mod 16)) ;
-          end;
-          {$ENDIF}
           if assigned(res) then begin
             case res^.aType.BaseType of
               btSingle:      tbtsingle(res^.dta^) := RealFloatCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4);

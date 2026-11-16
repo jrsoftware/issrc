@@ -94,11 +94,9 @@ begin
         end;
         if FastUppercase(s2) = 'DELAYLOAD' then
           DelayLoad := True
-        {$IFNDEF LINUX}
         else
         if FastUppercase(s2) = 'LOADWITHALTEREDSEARCHPATH' then
           LoadWithAlteredSearchPath := True
-        {$ENDIF}
         else
         begin
           Sender.MakeError('', ecCustomError, 'Invalid External');

@@ -9,7 +9,7 @@ Copyright (C) 2000-2009 by Carlo Kok (ck@carlo-kok.com)
 
 interface
 uses
-  SysUtils, uPSUtils{$IFDEF DELPHI6UP}, variants{$ENDIF}{$IFDEF MACOS},uPSCMac{$ELSE}{$IFNDEF PS_NOIDISPATCH}{$IFDEF DELPHI3UP}, ActiveX, Windows{$ELSE}, Ole2{$ENDIF}{$ENDIF}{$ENDIF};
+  SysUtils, uPSUtils{$IFDEF DELPHI6UP}, variants{$ENDIF}{$IFNDEF PS_NOIDISPATCH}{$IFDEF DELPHI3UP}, ActiveX, Windows{$ELSE}, Ole2{$ENDIF}{$ENDIF};
 
 
 type
@@ -12113,10 +12113,6 @@ function ParamAsVariable(const Modifier: tbtchar; aType: TPSTypeRec): Boolean;
 begin
   Result := (Modifier = '%') or (Modifier = '!') or AlwaysAsVariable(aType);
 end;
-
-{$if defined(cpuarm) or defined(cpuarm64)}
-  {$define empty_methods_handler}
-{$ifend}
 
 {$ifdef empty_methods_handler}
 procedure MyAllMethodsHandler;

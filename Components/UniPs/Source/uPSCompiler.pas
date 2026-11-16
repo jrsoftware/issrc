@@ -2,7 +2,7 @@ unit uPSCompiler;
 {$I PascalScript.inc}
 interface
 uses
-  {$IFNDEF DELPHI3UP}{$IFNDEF PS_NOINTERFACES}{$IFNDEF LINUX}Windows, Ole2,{$ENDIF}
+  {$IFNDEF DELPHI3UP}{$IFNDEF PS_NOINTERFACES}Windows, Ole2,
   {$ENDIF}{$ENDIF}SysUtils, uPSUtils;
 
 

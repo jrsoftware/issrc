@@ -16,15 +16,7 @@ function UnloadProc(Caller: TPSExec; p: TPSExternalProcRec; Global, Stack: TPSSt
 
 implementation
 uses
-  {$IFDEF UNIX}
-  Unix, baseunix, dynlibs, termio, sockets;
-  {$ELSE}
-  {$IFDEF MSWINDOWS}
   SysUtils, Windows;
-  {$ELSE}
-  SysUtils;
-  {$ENDIF}
-  {$ENDIF}
 
 {
 p^.Ext1 contains the pointer to the Proc function
@@ -87,9 +79,7 @@ var
   ph: PLoadedDll;
   dllhandle: THandle;
   loadwithalteredsearchpath: Boolean;
-  {$IFNDEF UNIX}
   Filename: String;
-  {$ENDIF}
 begin
   s := p.Decl;
   Delete(s, 1, 4);
@@ -114,10 +104,6 @@ begin
         exit;
       end;
 
-      {$IFDEF UNIX}
-      {$DEFINE UNIX_OR_KYLIX}
-      {$ENDIF}
-
       {$IFDEF UNIX_OR_KYLIX}
       dllhandle := LoadLibrary(PChar(s2));
       {$ELSE}
@@ -137,7 +123,7 @@ begin
       if dllhandle = 0 then
       begin
         p.Ext2 := Pointer(1);
-        ErrorCode := {$IFDEF MSWINDOWS}GetLastError{$ELSE}ERROR_MOD_NOT_FOUND+1{$ENDIF};
+        ErrorCode := GetLastError;
         Result := False;
         exit;
       end;
@@ -156,7 +142,7 @@ begin
   if p.Ext1 = nil then
   begin
     p.Ext2 := Pointer(1);
-    ErrorCode := {$IFDEF MSWINDOWS}GetLastError{$ELSE}ERROR_MOD_NOT_FOUND+2{$ENDIF};
+    ErrorCode := GetLastError;
     Result := false;
     exit;
   end;
@@ -216,9 +202,7 @@ begin
   end else n := nil;
   try
     TMYExec(Caller).InnerfuseCall(nil, p.Ext1, cc, MyList, n);
-    {$IFNDEF UNIX}
     DLLSetLastError(Caller, GetLastError);
-    {$ENDIF}
   finally
     DisposePPSvariantIFC(n);
     DisposePPSVariantIFCList(MyList);
