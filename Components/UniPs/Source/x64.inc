@@ -298,9 +298,9 @@ _XMM0: Double;
         btRecord,
         btInterface,
         btClass,
-        {$IFNDEF PS_NOWIDESTRING} btUnicodeString, btWideString, btWideChar, {$ENDIF} btU8, btS8, btU16,
-        btS16, btU32, btS32, btSingle, btDouble, btExtended, btString, btPChar, btChar, btCurrency
-        {$IFNDEF PS_NOINT64}, bts64, btU64{$ENDIF}:
+        btUnicodeString, btWideString, btWideChar, btU8, btS8, btU16,
+        btS16, btU32, btS32, btSingle, btDouble, btExtended, btString, btPChar, btChar, btCurrency,
+        bts64, btU64:
           begin
             Varptr := fvar.Dta;
           end;
@@ -372,7 +372,7 @@ _XMM0: Double;
         btS8: begin
             StoreReg(IPointer(byte(fVar^.dta^)));
           end;
-        {$IFNDEF PS_NOWIDESTRING} btWideChar, {$ENDIF}
+        btWideChar,
         btu16, btS16: begin
             StoreReg(IPointer(word(fVar^.dta^)));
           end;
@@ -410,7 +410,6 @@ _XMM0: Double;
             TMethodCallData(p^).Data := MKMethod(Self, Longint(fvar.dta^)); // It requires the implementation of "Handled"
             StoreReg(IPointer(@TMethodCallData(p^).Data));
           end;
-{$IFNDEF PS_NOINT64}
         bts64:
           begin
             StoreReg(IPointer(int64(fvar^.dta^)));
@@ -419,7 +418,6 @@ _XMM0: Double;
           begin
             StoreReg(IPointer(tbtu64(fvar^.dta^)));
         end;
-{$ENDIF}
       end; {case}
     end;
     Result := True;
@@ -491,14 +489,12 @@ begin
         btDouble:      tbtdouble(res.Dta^) := _XMM0;
         btExtended:    tbtextended(res.Dta^) := _XMM0;
         btchar,btU8, btS8:    tbtu8(res.dta^) := _RAX;
-        {$IFNDEF PS_NOWIDESTRING} btWideChar, {$ENDIF} btu16, bts16:  tbtu16(res.dta^) := _RAX;
+        btWideChar, btu16, bts16:  tbtu16(res.dta^) := _RAX;
         btClass : IPointer(res.dta^) := _RAX;
         btu32,bts32:   tbtu32(res.dta^) := _RAX;
         btPChar:       pansichar(res.dta^) := Pansichar(_RAX);
-{$IFNDEF PS_NOINT64}
         bts64: tbts64(res.dta^) := Int64(_RAX);
         btU64: tbtu64(res.dta^) := UInt64(_RAX);
-{$ENDIF}
         btCurrency:    tbts64(res.Dta^) := Int64(_RAX); { Currency is returned in RAX as its scaled Int64 backing, not its logical value }
         btInterface,
         btVariant,

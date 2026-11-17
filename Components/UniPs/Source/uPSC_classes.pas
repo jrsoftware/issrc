@@ -81,14 +81,10 @@ begin
   begin
     RegisterMethod('function Read(Buffer: AnyString; Count: LongInt): LongInt');
     RegisterMethod('function Write(Buffer: AnyString; Count: LongInt): LongInt');
-    {$IFNDEF PS_NOINT64}
     RegisterMethod('function Seek(Offset: Int64; Origin: Word): Int64');
-    {$ENDIF}
     RegisterMethod('procedure ReadBuffer(Buffer: AnyString; Count: LongInt)');
     RegisterMethod('procedure WriteBuffer(Buffer: AnyString; Count: LongInt)');
-    {$IFNDEF PS_NOINT64}
     RegisterMethod('function CopyFrom(Source: TStream; Count: Int64; BufferSize: Integer): Int64');
-    {$ENDIF}
     RegisterProperty('Position', 'LongInt', iptrw);
     RegisterProperty('Size', 'LongInt', iptrw);
   end;

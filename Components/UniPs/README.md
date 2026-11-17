@@ -5,28 +5,6 @@ These files are a modified fork of the `stable` branch of the
 repository, taken at commit `246a51fd8ec18e011178dbcf14022709289a9b0d`. Inno
 Setup no longer follows that repository.
 
-These source files still contain a significant amount of dead code guarded by
-compiler directives that are never true in Inno Setup builds. This dead code
-exists because upstream Pascal Script supports many compilers, platforms, and
-configurations that Inno Setup does not use. For example `PS_NOINT64` is never
-true.
-
-## Defines NOT set by Inno Setup
-
-These symbols are not defined, meaning `{$IFDEF X}` blocks are dead and
-`{$IFNDEF X}` blocks are live:
-
-| Define | What it would enable |
-|--------|---------------------|
-| `PS_USESSUPPORT` | Uses-clause tracking in the compiler |
-| `PS_DELPHIDIV` | Alternative integer division behavior |
-| `PS_NOINT64` | Disables Int64 support |
-| `PS_NOWIDESTRING` | Disables WideString support |
-| `PS_NOINTERFACES` | Disables COM interface support |
-| `PS_NOIDISPATCH` | Disables IDispatch support |
-| `PS_NOSMARTLIST` | Disables smart list optimization |
-| `PS_NOSTANDARDTYPES` | Disables standard type registration |
-
 ## Build environment
 
 Inno Setup requires Delphi 10.4 Sydney or later and targets Windows only. No

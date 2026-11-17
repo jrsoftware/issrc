@@ -26,10 +26,8 @@ begin
   cl.AddTypeS('TCLSID', 'TGUID');
   cl.AddTypeS('TIID', 'TGUID');
   cl.AddDelphiFunction('procedure OleCheck(Result: HResult);');
-{$IFNDEF PS_NOINTERFACES}
   cl.AddDelphiFunction('function StringToGUID(const S: string): TGUID;');
   cl.AddDelphiFunction('function CreateComObject(const ClassID: TGUID): IUnknown;');
-{$ENDIF}
   cl.AddDelphiFunction('function CreateOleObject(const ClassName: string): IDispatch;');
   cl.AddDelphiFunction('function GetActiveOleObject(const ClassName: string): IDispatch;');
 end;

@@ -321,9 +321,9 @@ var
         btRecord,
         btInterface,
         btClass,
-        {$IFNDEF PS_NOWIDESTRING} btUnicodeString, btWideString, btWideChar, {$ENDIF} btU8, btS8, btU16,
-        btS16, btU32, btS32, btSingle, btDouble, btExtended, btString, btPChar, btChar, btCurrency
-        {$IFNDEF PS_NOINT64}, bts64, btU64{$ENDIF}:
+        btUnicodeString, btWideString, btWideChar, btU8, btS8, btU16,
+        btS16, btU32, btS32, btSingle, btDouble, btExtended, btString, btPChar, btChar, btCurrency,
+        bts64, btU64:
           begin
             Varptr := fvar.Dta;
           end;
@@ -486,7 +486,7 @@ var
         btS8: begin
             TempStr := tbtchar(fVar^.dta^) + tbtstring(StringOfChar(AnsiChar(#0),3));
           end;
-        {$IFNDEF PS_NOWIDESTRING}btWideChar, {$ENDIF}
+        btWideChar,
         btu16, btS16: begin
             TempStr := StringOfChar(AnsiChar(#0),4);
             Word((@TempStr[1])^) := word(fVar^.dta^);
@@ -508,7 +508,6 @@ var
             TempStr := StringOfChar(AnsiChar(#0),4);
             Pointer((@TempStr[1])^) := pointer(fvar^.dta^);
           end;
-          {$IFNDEF PS_NOWIDESTRING}
         btWideString: begin
             TempStr := StringOfChar(AnsiChar(#0),4);
             Pointer((@TempStr[1])^) := pointer(fvar^.dta^);
@@ -517,7 +516,6 @@ var
             TempStr := StringOfChar(AnsiChar(#0),4);
             Pointer((@TempStr[1])^) := pointer(fvar^.dta^);
           end;
-          {$ENDIF}
 
         btProcPtr:
           begin
@@ -526,7 +524,7 @@ var
             UseReg := false;
           end;
 
-        {$IFNDEF PS_NOINT64}bts64:
+        bts64:
           begin
             TempStr:= StringOfChar(AnsiChar(#0),8);
             Int64((@TempStr[1])^) := int64(fvar^.dta^);
@@ -537,7 +535,7 @@ var
             TempStr := StringOfChar(AnsiChar(#0),8);
             UInt64((@TempStr[1])^) := tbtu64(fvar^.dta^);
             UseReg := False;
-        end;{$ENDIF}
+        end;
       end; {case}
       if UseReg then
       begin
@@ -584,7 +582,7 @@ begin
 
           if assigned(res) then begin
             case res^.aType.BaseType of
-              {$IFNDEF PS_NOWIDESTRING}btWideString, btUnicodeString, {$ENDIF}
+              btWideString, btUnicodeString,
               btInterface, btArray, btstring, btVariant: GetPtr(res);
               btRecord, btStaticArray:
                 begin
@@ -613,7 +611,7 @@ begin
               btDouble:      tbtdouble(res.Dta^) := RealFloatCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4);
               btExtended:    tbtextended(res.Dta^) := RealFloatCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4);
               btchar,btU8, btS8:    tbtu8(res.dta^) := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
-              {$IFNDEF PS_NOWIDESTRING}btWideChar, {$ENDIF}btu16, bts16:  tbtu16(res.dta^) := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
+              btWideChar, btu16, bts16:  tbtu16(res.dta^) := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
               btClass :
               begin
                 tbtu32(res.dta^) := RealCall_Register(Address, EAX, EDX, ECX,
@@ -622,7 +620,7 @@ begin
 
               btu32,bts32:   tbtu32(res.dta^) := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
               btPChar:       pansichar(res.dta^) := Pansichar(RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil));
-              {$IFNDEF PS_NOINT64}bts64, btU64:
+              bts64, btU64:
                 begin
                   EAX := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, @EDX);
                   if res^.aType.BaseType = btU64 then
@@ -630,10 +628,9 @@ begin
                   else
                     tbts64(res.dta^) := Int64(Cardinal(EDX)) shl 32 or Cardinal(EAX);
                 end;
-              {$ENDIF}
               btCurrency:    tbtCurrency(res.Dta^) := RealFloatCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4) / 10000;
               btInterface,
-              {$IFNDEF PS_NOWIDESTRING}btWidestring,btUnicodestring, {$ENDIF}
+              btWidestring,btUnicodestring,
               btVariant, btArray, btstring: RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
               btRecord, btStaticArray:
                 begin
@@ -662,7 +659,7 @@ begin
           end;
           if assigned(res) then begin
             case res^.aType.BaseType of
-              {$IFNDEF PS_NOWIDESTRING}btWideString, btUnicodeString, {$ENDIF}btInterface, btArray, btString, btVariant: GetPtr(res);
+              btWideString, btUnicodeString, btInterface, btArray, btString, btVariant: GetPtr(res);
               btRecord, btStaticArray:
                 begin
                   if ResultUsesResultPointer(res) then GetPtr(res);
@@ -684,10 +681,10 @@ begin
               btExtended:    tbtextended(res^.Dta^) := RealFloatCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4);
               btCurrency:    tbtCurrency(res^.Dta^) := RealFloatCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4) / 10000;
               btChar, btU8, btS8:    tbtu8(res^.Dta^) := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
-              {$IFNDEF PS_NOWIDESTRING}btWideChar, {$ENDIF}btu16, bts16:  tbtu16(res^.Dta^) := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
+              btWideChar, btu16, bts16:  tbtu16(res^.Dta^) := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
               btClass, btu32, bts32:  tbtu32(res^.Dta^):= RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
               btPChar:       pansichar(res^.dta^) := Pansichar(RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil));
-              {$IFNDEF PS_NOINT64}bts64, btU64:
+              bts64, btU64:
                 begin
                   EAX := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, @EDX);
                   if res^.aType.BaseType = btU64 then
@@ -695,8 +692,7 @@ begin
                   else
                     tbts64(res^.dta^) := Int64(Cardinal(EDX)) shl 32 or Cardinal(EAX);
                 end;
-              {$ENDIF}
-              btVariant, {$IFNDEF PS_NOWIDESTRING}btUnicodeString, btWideString, {$ENDIF}
+              btVariant, btUnicodeString, btWideString,
               btInterface, btArray, btstring: RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
               btRecord, btStaticArray:
                 begin
@@ -762,10 +758,10 @@ begin
               btExtended:    tbtextended(res^.dta^) := RealFloatCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4);
               btCurrency:    tbtCurrency(res^.dta^) := RealFloatCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4) / 10000;
               btCHar, btU8, btS8:    tbtu8(res^.dta^) := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
-              {$IFNDEF PS_NOWIDESTRING}btWideChar, {$ENDIF}btu16, bts16:  tbtu16(res^.dta^) := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
+              btWideChar, btu16, bts16:  tbtu16(res^.dta^) := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
               btClass, btu32, bts32:  tbtu32(res^.dta^) := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
               btPChar:       pansichar(res^.dta^) := Pansichar(RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil));
-              {$IFNDEF PS_NOINT64}bts64, btU64:
+              bts64, btU64:
                 begin
                   EAX := RealCall_CDecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, @EDX);
                   if res^.aType.BaseType = btU64 then
@@ -773,8 +769,7 @@ begin
                   else
                     tbts64(res^.Dta^) := Int64(Cardinal(EDX)) shl 32 or Cardinal(EAX);
                 end;
-              {$ENDIF}
-              btVariant, {$IFNDEF PS_NOWIDESTRING}btUnicodeString, btWideString, {$ENDIF}
+              btVariant, btUnicodeString, btWideString,
               btInterface, btArray, btstring: begin GetPtr(res); RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil); end;
               btRecord, btStaticArray:
                 begin
@@ -831,10 +826,10 @@ begin
               btExtended:    tbtextended(res^.dta^):= RealFloatCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4);
               btCurrency:    tbtCurrency(res^.dta^) := RealFloatCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4) / 10000;
               btChar, btU8, btS8:    tbtu8(res^.dta^) := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
-              {$IFNDEF PS_NOWIDESTRING}btWideChar, {$ENDIF}btu16, bts16:  tbtu16(res^.dta^) := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
+              btWideChar, btu16, bts16:  tbtu16(res^.dta^) := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
               btclass, btu32, bts32:  tbtu32(res^.dta^) := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
               btPChar:       pansichar(res^.dta^) := Pansichar(RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil));
-              {$IFNDEF PS_NOINT64}bts64, btU64:
+              bts64, btU64:
                 begin
                   EAX := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, @EDX);
                   if res^.aType.BaseType = btU64 then
@@ -842,8 +837,7 @@ begin
                   else
                     tbts64(res^.dta^) := Int64(Cardinal(EDX)) shl 32 or Cardinal(EAX);
                 end;
-              {$ENDIF}
-              btVariant, {$IFNDEF PS_NOWIDESTRING}btUnicodeString, btWideString, {$ENDIF}
+              btVariant, btUnicodeString, btWideString,
               btInterface, btArray, btstring: begin GetPtr(res); RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil); end;
               btRecord, btStaticArray:
                 begin
