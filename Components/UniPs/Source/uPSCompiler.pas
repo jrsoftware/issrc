@@ -703,7 +703,6 @@ type
     ecUnSetLabel,
     ecNotInLoop,
     ecInvalidJump,
-    ecOpenBlockExpected,
     ecWriteOnlyProperty,
     ecReadOnlyProperty,
     ecClassTypeExpected,
@@ -856,7 +855,6 @@ type
   protected
     FAnyString: TPSType;
     FAnyMethod: TPSType;
-    FUnitName: tbtString;
     FID: Pointer;
     FOnExportCheck: TPSOnExportCheck;
     FDefaultBoolType: TPSType;
@@ -900,7 +898,6 @@ type
     FExceptFinallyCount: Integer;
 
 
-    fInCompile : Integer;
     FInterfaces: TPSList;
 
     FCurrUsedTypeNo: Cardinal;
@@ -1131,10 +1128,6 @@ type
     property AttributesCloseTokenID: TPSPasToken read FAttributesCloseTokenID write FAttributesCloseTokenID;
 
     property ExecIs64Bit: Boolean read FExecIs64Bit write FExecIs64Bit;
-
-    {$WARNINGS OFF}
-    property UnitName: tbtString read FUnitName;
-    {$WARNINGS ON}
   end;
   TIFPSPascalCompiler = TPSPascalCompiler;
 
@@ -1721,7 +1714,6 @@ resourceString
   RPS_UnSetLabel = 'Label ''%s'' not set';
   RPS_NotInLoop = 'Not in a loop';
   RPS_InvalidJump = 'Invalid jump';
-  RPS_OpenBlockExpected = 'Opening square brackets (''['') expected';
   RPS_WriteOnlyProperty = 'Write-only property';
   RPS_ReadOnlyProperty = 'Read-only property';
   RPS_ClassTypeExpected = 'Class type expected';
@@ -1785,7 +1777,7 @@ begin
   BlockWriteData(BlockInfo, l, 4);
 end;
 
-function BlockWriteVariant(BlockInfo: TPSBlockInfo; p: PIfRVariant; const ExecIs64Bit: Boolean): Boolean;
+procedure BlockWriteVariant(BlockInfo: TPSBlockInfo; p: PIfRVariant; const ExecIs64Bit: Boolean);
 var
   du8: tbtu8;
   du16: tbtu16;
@@ -1796,8 +1788,6 @@ var
   TempDouble: Double;
   {$ENDIF}
 begin
-  Result := True;
-
   BlockWriteLong(BlockInfo, p^.FType.FinalTypeNo);
   case p.FType.BaseType of
   btType: BlockWriteData(BlockInfo, p^.ttype.FinalTypeno, 4);
@@ -6333,8 +6323,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
       if AllowData then
       begin
         BlockWriteByte(BlockInfo, 1);
-        if not BlockWriteVariant(BlockInfo, TPSValueData(x).Data, FExecIs64Bit) then
-          Result := False;
+        BlockWriteVariant(BlockInfo, TPSValueData(x).Data, FExecIs64Bit);
       end
       else
         Result := False;
@@ -11326,7 +11315,7 @@ var
       WriteData(l, 4);
     end;
 
-    function WriteAttributeValue(p: PIfRVariant): Boolean;
+    procedure WriteAttributeValue(p: PIfRVariant);
     var
       BaseType: TPSBaseType;
       {$IFDEF WIN64}
@@ -11336,8 +11325,6 @@ var
       TempDouble: Double;
       {$ENDIF}
     begin
-      Result := True;
-
       WriteLong(p^.FType.FinalTypeNo);
       BaseType := p.FType.BaseType;
       case BaseType of
@@ -11406,12 +11393,10 @@ var
       end;
     end;
 
-    function WriteAttributes(attr: TPSAttributes): Boolean;
+    procedure WriteAttributes(attr: TPSAttributes);
     var
       i, j: Longint;
     begin
-      Result := True;
-
       WriteLong(attr.Count);
       for i := 0 to Attr.Count -1 do
       begin
@@ -11420,16 +11405,11 @@ var
         WriteData(Attr[i].FAttribType.Name[1], j);
         WriteLong(Attr[i].Count);
         for j := 0 to Attr[i].Count -1 do
-        begin
-          if not WriteAttributeValue(Attr[i][j]) then begin
-            Result := False;
-            exit;
-          end;
-        end;
+          WriteAttributeValue(Attr[i][j]);
       end;
     end;
 
-    function WriteTypes: Boolean;
+    procedure WriteTypes;
     var
       l, n: Longint;
       bt: TPSBaseType;
@@ -11442,8 +11422,6 @@ var
         WriteData(TypeNo, 4);
       end;
     begin
-      Result := True;
-
       Items := TPSList.Create;
       try
         for l := 0 to FCurrUsedTypeNo -1 do
@@ -11521,10 +11499,7 @@ var
             WriteLong(Length(FExportName));
             WriteData(FExportName[1], length(FExportName));
           end;
-          if not WriteAttributes(x.Attributes) then begin
-            Result := False;
-            exit;
-          end;
+          WriteAttributes(x.Attributes);
         end;
       finally
         Items.Free;
@@ -11561,7 +11536,7 @@ var
       end;
     end;
 
-    function WriteProcs: Boolean;
+    procedure WriteProcs;
     var
       l: Longint;
       xp: TPSProcedure;
@@ -11570,7 +11545,6 @@ var
       s: tbtString;
       att: Byte;
     begin
-      Result := True;
       for l := 0 to FProcs.Count - 1 do
       begin
         xp := FProcs[l];
@@ -11610,10 +11584,7 @@ var
           end;
         end;
         if xp.Attributes.Count <> 0 then
-          if not WriteAttributes(xp.Attributes) then begin
-            Result := False;
-            exit;
-          end;
+          WriteAttributes(xp.Attributes);
       end;
     end;
 
@@ -11712,10 +11683,8 @@ var
     WriteLong(FVars.Count);
     WriteLong(MainProc);  //nvds
     WriteLong(0);
-    if not WriteTypes or not WriteProcs then begin
-      Result := False;
-      exit;
-    end;
+    WriteTypes;
+    WriteProcs;
     WriteVars;
     WriteProcs2;
 
@@ -11879,7 +11848,6 @@ begin
   Result := False;
   FWithCount := -1;
 
-  FUnitName := '';
   FCurrUsedTypeNo := 0;
   FIsUnit := False;
   Clear;
@@ -11979,8 +11947,6 @@ begin
         Cleanup;
         exit;
       end;
-      if fInCompile = 1 then
-        FUnitName := FParser.OriginalToken;
       FParser.Next;
       if FParser.CurrTokenId <> CSTI_Semicolon then
       begin
@@ -13939,7 +13905,6 @@ begin
     ecUnSetLabel: Result := tbtstring(Format (RPS_UnSetLabel, [Param]));
     ecNotInLoop: Result := tbtstring(RPS_NotInLoop);
     ecInvalidJump: Result := tbtstring(RPS_InvalidJump);
-    ecOpenBlockExpected: Result := tbtstring(RPS_OpenBlockExpected);
     ecWriteOnlyProperty: Result := tbtstring(RPS_WriteOnlyProperty);
     ecReadOnlyProperty: Result := tbtstring(RPS_ReadOnlyProperty);
     ecClassTypeExpected: Result := tbtstring(RPS_ClassTypeExpected);

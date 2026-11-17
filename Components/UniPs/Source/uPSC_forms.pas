@@ -21,8 +21,6 @@ begin
   with Cl.AddClassN(cl.FindClass('TWinControl'), 'TScrollingWinControl') do
   begin
     RegisterMethod('procedure ScrollInView(AControl: TControl)');
-    RegisterProperty('HorzScrollBar', 'TControlScrollBar', iptrw);
-    RegisterProperty('VertScrollBar', 'TControlScrollBar', iptrw);
   end;
 end;
 

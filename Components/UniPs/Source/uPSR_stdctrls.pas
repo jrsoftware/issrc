@@ -27,7 +27,7 @@ procedure RIRegister_stdctrls(cl: TPSRuntimeClassImporter);
 
 implementation
 uses
-  sysutils, classes, controls, stdctrls, Graphics;
+  sysutils, classes, controls, stdctrls;
 
 procedure RIRegisterTCUSTOMLABEL(Cl: TPSRuntimeClassImporter);
 begin
