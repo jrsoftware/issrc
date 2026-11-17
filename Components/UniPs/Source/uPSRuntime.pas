@@ -7659,10 +7659,8 @@ begin
               end;
               FStack.Pop;
 (*              Dec(FStack.FCount);
-              {$IFNDEF PS_NOSMARTLIST}
               Inc(FStack.FCheckCount);
               if FStack.FCheckCount > FMaxCheckCount then FStack.Recreate;
-              {$ENDIF}
               FStack.FLength := Longint(IPointer(vtemp) - IPointer(FStack.DataPtr));
               if TPSTypeRec(vtemp^).BaseType in NeedFinalization then
                 FinalizeVariant(Pointer(IPointer(vtemp)+PointerSize), Pointer(vtemp^));
@@ -8770,8 +8768,7 @@ begin
       if Stack.GetItem(Stack.Count -2)^.FType.BaseType = btUnicodeString then
         Stack.SetUnicodeString(-1, UpperCase(Stack.GetUnicodeString(-2))) // Uppercase
       else
-      if (Stack.GetItem(Stack.Count -2)^.FType.BaseType = btWideString) or
-        (Stack.GetItem(Stack.Count -2)^.FType.BaseType = btUnicodeString) then
+      if Stack.GetItem(Stack.Count -2)^.FType.BaseType = btWideString then
         Stack.SetWideString(-1, WideUpperCase(Stack.GetWideString(-2))) // Uppercase
       else
         Stack.SetAnsiString(-1, FastUppercase(Stack.GetAnsiString(-2))); // Uppercase
@@ -8779,8 +8776,7 @@ begin
       if Stack.GetItem(Stack.Count -2)^.FType.BaseType = btUnicodeString then
         Stack.SetUnicodeString(-1, LowerCase(Stack.GetUnicodeString(-2))) // Uppercase
       else
-      if (Stack.GetItem(Stack.Count -2)^.FType.BaseType = btWideString) or
-        (Stack.GetItem(Stack.Count -2)^.FType.BaseType = btUnicodeString) then
+      if Stack.GetItem(Stack.Count -2)^.FType.BaseType = btWideString then
         Stack.SetWideString(-1, WideLowerCase(Stack.GetWideString(-2))) // Uppercase
       else
         Stack.SetAnsiString(-1, FastLowercase(Stack.GetAnsiString(-2)));// LowerCase
