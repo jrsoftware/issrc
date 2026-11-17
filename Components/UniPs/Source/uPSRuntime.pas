@@ -4213,7 +4213,7 @@ begin
             btChar: tbtu32(Dest^) := Ord(tbtchar(Src^));
             btWideChar: tbtu32(Dest^) := Ord(tbtwidechar(Src^));
             btVariant: tbtu32(Dest^) := Variant(src^);
-            {$IFNDEF CPU64}
+            {$IFNDEF WIN64}
             // see below
             btClass: tbtu32(Dest^) := tbtu32(src^);
             {$ENDIF}
@@ -4240,7 +4240,7 @@ begin
             btChar: tbts32(Dest^) := Ord(tbtchar(Src^));
             btWideChar: tbts32(Dest^) := Ord(tbtwidechar(Src^));
             btVariant: tbts32(Dest^) := Variant(src^);
-            {$IFNDEF CPU64}
+            {$IFNDEF WIN64}
             // nx change start - allow assignment of class
             btClass: tbts32(Dest^) := tbts32(src^);
             // nx change end
@@ -4268,7 +4268,7 @@ begin
             btChar: tbts64(Dest^) := Ord(tbtchar(Src^));
             btWideChar: tbts64(Dest^) := Ord(tbtwidechar(Src^));
             btVariant: tbts64(Dest^) := Variant(src^);
-            {$IFDEF CPU64}
+            {$IFDEF WIN64}
             // see above
             btClass: tbts64(Dest^) := tbtu64(src^);
             {$ENDIF}
@@ -4295,7 +4295,7 @@ begin
             btChar: tbtu64(Dest^) := Ord(tbtchar(Src^));
             btWideChar: tbtu64(Dest^) := Ord(tbtwidechar(Src^));
             btVariant: tbtu64(Dest^) := Variant(src^);
-            {$IFDEF CPU64}
+            {$IFDEF WIN64}
             // see above
             btClass: tbtu64(Dest^) := tbtu64(src^);
             {$ENDIF}
@@ -4442,8 +4442,8 @@ begin
             TObject(Dest^) := TObject(Src^)
           else
           // nx change start
-          if (srctype.BaseType in {$IFDEF CPU64} [btU64, btS64] {$ELSE} [btU32, btS32] {$ENDIF}) then
-            {$IFDEF CPU64} TbtU64(Dest^) := TbtU64(Src^) {$ELSE} TbtU32(Dest^) := TbtU32(Src^) {$ENDIF}
+          if (srctype.BaseType in {$IFDEF WIN64} [btU64, btS64] {$ELSE} [btU32, btS32] {$ENDIF}) then
+            {$IFDEF WIN64} TbtU64(Dest^) := TbtU64(Src^) {$ELSE} TbtU32(Dest^) := TbtU32(Src^) {$ENDIF}
           else
           // nx change end
             Result := False;
@@ -10077,7 +10077,7 @@ begin
   Delete(s, 1, 1);
   CurrStack := Cardinal(Stack.Count) - Cardinal(length(s)) -1;
   if s[1] = #0 then inc(CurrStack);
-  {$IFDEF CPU64}
+  {$IFDEF WIN64}
   IntVal := CreateHeapVariant(Caller.FindType2(btS64));
   {$ELSE}
   IntVal := CreateHeapVariant(Caller.FindType2(btU32));
@@ -10720,7 +10720,7 @@ begin
       exit;
     end;
     Params := TPSList.Create;
-//{$IFDEF CPU64}
+//{$IFDEF WIN64}
 //{$ELSE}
     data.Code := nil;
     data.Data := nil;
@@ -11390,7 +11390,7 @@ function AlwaysAsVariable(aType: TPSTypeRec): Boolean;
 begin
   case atype.BaseType of
     btVariant: Result := true;
-{$IFDEF CPU64}
+{$IFDEF WIN64}
     { See the btSet/btRecord/btStaticArray comment in x64.inc }
     btSet: Result := not (atype.RealSize in [1, 2, 3, 4]);
     btRecord, btStaticArray: Result := not (atype.RealSize in [1, 2, 4]);
@@ -11407,14 +11407,14 @@ begin
   Result := (Modifier = '%') or (Modifier = '!') or AlwaysAsVariable(aType);
 end;
 
-{$IFDEF CPU64}
+{$IFDEF WIN64}
 function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; ResPtr: Pointer): Integer; forward;
 {$ELSE}
 function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer; ResPtr: Pointer): Integer; forward;
 {$ENDIF}
 
 procedure MyAllMethodsHandler;
-{$ifdef CPU64}
+{$ifdef WIN64}
 //  On entry:
 //  RCX = Self pointer
 //  - function:
@@ -11489,7 +11489,7 @@ asm
   lea esp, [esp+eax+8]  // pop the slot, old return address and params
   mov eax, ecx
 end;
-{$endif CPU64}
+{$endif WIN64}
 
 function ResultAsRegister(b: TPSTypeRec): Boolean;
 begin
@@ -11518,7 +11518,7 @@ begin
       also returned in RAX/EAX, but only when it contains no managed
       field. Static arrays follow the same rule: UseResultPointer treats
       tkArray like tkRecord. }
-    btRecord, btStaticArray: Result := (b.RealSize in [1, 2{$IFDEF CPU64}, 4{$ENDIF}]) or
+    btRecord, btStaticArray: Result := (b.RealSize in [1, 2{$IFDEF WIN64}, 4{$ENDIF}]) or
       ((b.RealSize = PointerSize) and not IsManagedType(b));
     btSet: Result := b.RealSize <= PointerSize;
   else
@@ -11535,7 +11535,7 @@ begin
     btu16,
     bts32,
     btu32,
-{$IFDEF CPU64} 
+{$IFDEF WIN64} 
     bts64,
     btU64,
 {$ENDIF}
@@ -11555,7 +11555,7 @@ begin
       the rounding of 5-7 to 8 does not (all by reference) }
     btSet: Result := b.RealSize in [1, 2, 3, 4];
     btRecord, btStaticArray: Result := b.RealSize in [1, 2, 4];
-{$IFDEF CPU64}
+{$IFDEF WIN64}
     btSingle,
     btDouble,
     btExtended,
@@ -11566,7 +11566,7 @@ begin
   end;
 end;
 
-{$IFDEF CPU64}
+{$IFDEF WIN64}
 function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; ResPtr: Pointer): Integer;
 var
   Decl: tbtString;
@@ -11927,7 +11927,7 @@ begin
       raise EPSException.Create(PSErrorToString(Self.SE.ExceptionCode, Self.Se.ExceptionString), Self.Se, Self.Se.ExProc, Self.Se.ExPos);
   end;
 end;
-{$ENDIF CPU64}
+{$ENDIF WIN64}
 
 function TPSRuntimeClassImporter.FindClass(const Name: tbtString): TPSRuntimeClass;
 var

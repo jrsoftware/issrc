@@ -320,7 +320,7 @@ type
 
 const
 
-  PointerSize = IPointer({$IFDEF CPU64}8{$ELSE}4{$ENDIF});
+  PointerSize = IPointer({$IFDEF WIN64}8{$ELSE}4{$ENDIF});
   PointerSize2 = IPointer(2*PointerSize);
   MaxListSize = Maxint div 16;
 

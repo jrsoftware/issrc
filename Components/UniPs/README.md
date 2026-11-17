@@ -9,15 +9,12 @@ Setup no longer follows that repository.
 
 Inno Setup requires Delphi 10.4 Sydney or later and targets Windows only. No
 guard tests for another compiler, an older Delphi version, or another
-platform. `PascalScript.inc` (included by every unit) includes `eDefines.inc`,
-which only defines `CPU64` for 64-bit builds, and `DELPHI_ATHENS_UP` for
-Delphi 12 Athens or later.
+platform.
 
 ## Symbols that genuinely vary
 
 | Symbol | Why it varies |
 |--------|--------------|
-| `CPU64` | Both 32-bit and 64-bit builds are supported |
-| `CPUX64` / `Win32` / `Win64` | Same |
-| `DELPHI_ATHENS_UP` | Depends on the Delphi version used to compile |
-| `DELPHI_SMALL_MANAGED_BORROW` | Derived from `DELPHI_ATHENS_UP` in x86.inc |
+| `WIN64` | Both 32-bit and 64-bit builds are supported |
+| `CPUX64` / `Win32` | Same |
+| `DELPHI_SMALL_MANAGED_BORROW` | Defined in x86.inc for Delphi 12 Athens or later |

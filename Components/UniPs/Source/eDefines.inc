@@ -1,7 +1,0 @@
-{$IFDEF CPU64BITS}
-  {$DEFINE CPU64}
-{$ENDIF}
-
-{$IF CompilerVersion >= 36}
-  {$DEFINE DELPHI_ATHENS_UP}
-{$ENDIF}

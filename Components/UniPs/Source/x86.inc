@@ -227,7 +227,7 @@ const
   reference counted copy that the callee finalizes at exit. It is unknown
   exactly when this changed, only that it is off in 10.4 and on in 12.2, so
   Delphi 12 is used as the boundary. }
-{$IFDEF DELPHI_ATHENS_UP}{$DEFINE DELPHI_SMALL_MANAGED_BORROW}{$ENDIF}
+{$IF CompilerVersion >= 36}{$DEFINE DELPHI_SMALL_MANAGED_BORROW}{$ENDIF}
 
 function TPSExec.InnerfuseCall(_Self, Address: Pointer; CallingConv: TPSCallingConvention; Params: TPSList; res: PPSVariantIFC): Boolean;
 var

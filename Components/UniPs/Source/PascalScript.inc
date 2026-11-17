@@ -1,5 +1,5 @@
 {----------------------------------------------------------------------------}
-{ RemObjects Pascal Script                                                   }
+{ RemObjects Pascal Script - Inno Setup version                              }
 {                                                                            }
 { compiler: Delphi 10.4 and up                                               }
 { platform: Win32, Win64                                                     }
@@ -8,8 +8,6 @@
 {                                                                            }
 {----------------------------------------------------------------------------}
 
-
-{$INCLUDE eDefines.inc}
 
 {$B-}{$X+}{$T-}{$H+}
 

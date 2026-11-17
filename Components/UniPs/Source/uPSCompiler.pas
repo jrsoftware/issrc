@@ -1789,10 +1789,10 @@ function BlockWriteVariant(BlockInfo: TPSBlockInfo; p: PIfRVariant; const ExecIs
 var
   du8: tbtu8;
   du16: tbtu16;
-  {$IFDEF CPU64}
+  {$IFDEF WIN64}
   TempReallyExtended: TExtended80Rec;
   {$ENDIF}
-  {$IFNDEF CPU64}
+  {$IFNDEF WIN64}
   TempDouble: Double;
   {$ENDIF}
 begin
@@ -1819,7 +1819,7 @@ begin
   btExtended:
     begin
       if ExecIs64Bit then begin
-        {$IFNDEF CPU64}
+        {$IFNDEF WIN64}
         { On 64-bit Exec, Extended is an alias for Double, so write a Double instead }
         TempDouble := tbtDouble(p^.textended);
         BlockWriteData(BlockInfo, TempDouble, sizeof(tbtDouble));
@@ -1827,7 +1827,7 @@ begin
         BlockWriteData(BlockInfo, p^.textended, sizeof(tbtExtended));
         {$ENDIF}
       end else begin
-        {$IFDEF CPU64}
+        {$IFDEF WIN64}
         { On 32-bit Exec, Extended is not an alias for Double, so write a real Extended instead, using TExtended80Rec }
         TempReallyExtended := TExtended80Rec(p^.textended);
         BlockWriteData(BlockInfo, TempReallyExtended, sizeof(TExtended80Rec));
@@ -11329,10 +11329,10 @@ var
     function WriteAttributeValue(p: PIfRVariant): Boolean;
     var
       BaseType: TPSBaseType;
-      {$IFDEF CPU64}
+      {$IFDEF WIN64}
       TempReallyExtended: TExtended80Rec;
       {$ENDIF}
-      {$IFNDEF CPU64}
+      {$IFNDEF WIN64}
       TempDouble: Double;
       {$ENDIF}
     begin
@@ -11360,7 +11360,7 @@ var
       btExtended:
         begin
           if ExecIs64Bit then begin
-            {$IFNDEF CPU64}
+            {$IFNDEF WIN64}
             { On 64-bit Exec, Extended is an alias for Double, so write a Double instead }
             TempDouble := tbtDouble(p^.textended);
             WriteData(TempDouble, sizeof(tbtDouble));
@@ -11368,7 +11368,7 @@ var
             WriteData(p^.textended, sizeof(tbtExtended));
             {$ENDIF}
           end else begin
-            {$IFDEF CPU64}
+            {$IFDEF WIN64}
             { On 32-bit Exec, Extended is not an alias for Double, so write a real Extended instead, using TExtended80Rec }
             TempReallyExtended := TExtended80Rec(p^.textended);
             WriteData(TempReallyExtended, sizeof(TExtended80Rec));
@@ -12150,7 +12150,7 @@ begin
   FMessages := TPSList.Create;
   FAttributesOpenTokenID := CSTI_OpenBlock;
   FAttributesCloseTokenID := CSTI_CloseBlock;
-  FExecIs64Bit := {$IFDEF CPU64} True {$ELSE} False {$ENDIF};
+  FExecIs64Bit := {$IFDEF WIN64} True {$ELSE} False {$ENDIF};
 end;
 
 destructor TPSPascalCompiler.Destroy;
