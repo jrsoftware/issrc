@@ -149,6 +149,19 @@
         <prototype>function WizardSilent: Boolean;</prototype>
         <description><p>Returns <tt>True</tt> if Setup is running silently, <tt>False</tt> otherwise.</p></description>
       </function>
+      <function>
+        <name>WizardResumeParams</name>
+        <prototype>function WizardResumeParams: String;</prototype>
+        <description><p>Returns the command-line parameters which make Setup continue with the current wizard selections and the current command-line options, for example after a restart needed by a prerequisite. Components and tasks are also included if none are selected, so the defaults aren't selected again.</p>
+<p>Not included are <tt>/PASSWORD=</tt>, because the result is usually stored in the registry, and <tt>/LOADINF=</tt>, because the loaded settings are included themselves. If logging is active, <tt>/LOGAPPEND=</tt> is included so that logging continues in the current log file.</p>
+<p>User information, custom wizard pages, and your own command-line parameters aren't included. Append these yourself if you need them.</p>
+<p>Windows limits the command line of a <tt>RunOnce</tt> registry value to 260 characters.</p></description>
+        <example><pre><key>procedure</key> CreateRunOnceEntry;
+<key>begin</key>
+  RegWriteStringValue(HKA, <str>'Software\Microsoft\Windows\CurrentVersion\RunOnce'</str>, <str>'My Program Setup restart'</str>,
+    <str>'"'</str> + ExpandConstant(<str>'{srcexe}'</str>) + <str>'" /restart=1 '</str> + WizardResumeParams);
+<key>end</key>;</pre></example>
+      </function>
     </subcategory>
     <subcategory>
       <function>

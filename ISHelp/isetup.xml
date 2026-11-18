@@ -4591,6 +4591,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <keyword value="/NOSTYLE" anchor="NOSTYLE" />
 <keyword value="/LOG" anchor="LOG" />
 <keyword value="/LOG=" anchor="LOG2" />
+<keyword value="/LOGAPPEND=" anchor="LOGAPPEND" />
 <keyword value="/PASSWORD=" anchor="PASSWORD" />
 <keyword value="/RESTARTEXITCODE=" anchor="RESTARTEXITCODE" />
 <keyword value="/SUPPRESSMSGBOXES" anchor="SUPPRESSMSGBOXES" />
@@ -4670,6 +4671,11 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <dt><b><a name="LOG2">/LOG=</a>"<i>filename</i>"</b></dt>
 <dd>
 <p>Same as <tt>/LOG</tt>, except it allows you to specify a fixed path/filename to use for the log file. If a file with the specified name already exists it will be overwritten. If the file cannot be created, Setup will abort with an error message.</p>
+</dd>
+
+<dt><b><a name="LOGAPPEND">/LOGAPPEND=</a>"<i>filename</i>"</b></dt>
+<dd>
+<p>Same as <tt>/LOG=</tt>, except that if a file with the specified name already exists it will be appended to instead of overwritten.</p>
 </dd>
 
 <dt><b><a name="NOCANCEL">/NOCANCEL</a></b></dt>
