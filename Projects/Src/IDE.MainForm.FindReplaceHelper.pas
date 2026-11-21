@@ -167,8 +167,19 @@ begin
     StartPos := FActiveMemo.Selection.StartPos;
     EndPos := 0;
   end;
-  if FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
-     FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) then
+  const SearchOptions = FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx);
+  var Found := FActiveMemo.FindText(StartPos, EndPos, FLastFindText, SearchOptions, Range);
+  { An empty match at the caret is the one the caret already sits on, so the caret would never move: must manually
+    progress past it, like Find in Files and Replace All do }
+  if Found and Range.Empty and (Range.StartPos = StartPos) and FActiveMemo.Selection.Empty then begin
+    if StartPos = EndPos then
+      Found := False
+    else if Down then
+      Found := FActiveMemo.FindText(FActiveMemo.GetPositionAfter(StartPos), EndPos, FLastFindText, SearchOptions, Range)
+    else
+      Found := FActiveMemo.FindText(FActiveMemo.GetPositionBefore(StartPos), EndPos, FLastFindText, SearchOptions, Range);
+  end;
+  if Found then
     FActiveMemo.SelectAndEnsureInView(Range)
   else
     MsgBox(LFmtMessage(SFindNotFound, [FLastFindText]), LFmtMessage(SCompilerFormCaption),
