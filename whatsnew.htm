@@ -168,6 +168,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Pressing Esc while a bottom pane, such as <i>Compiler Output</i>, is focused returns focus to the editor.</li>
     <li><i>Find</i> and <i>Go to Line</i> now center the view and unfold sections.</li>
     <li><i>Fix:</i> A folded section could unfold by itself after an edit on its first line or anywhere above it (broken since section folding was introduced in 6.4.0).</li>
+    <li><i>Fix:</i> <i>Find Next</i> and <i>Find Previous</i> didn't move when using a regular expression that matches zero-length text at the cursor (for example <tt>^</tt> or <tt>\b</tt>). They now move on to the next or previous match. The same applies to the <i>Find Next</i> buttons of the <i>Find</i> and <i>Replace</i> dialogs.</li>
   </ul>
   </li>
   <li>The <tt>[Setup]</tt> section directives which take a color now accept all standard web color names defined by CSS, such as <tt>orange</tt> and <tt>cornflowerblue</tt>, as well as the short <tt>#<i>rgb</i></tt> form.</li>
