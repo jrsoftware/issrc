@@ -17,7 +17,7 @@ Most of these are hard constraints of the ROPS compiler. Violating them causes c
 - No variant records.
 - `const` parameters are passed by value (copied), and not by reference as in modern Delphi.
 - As in Delphi, assigning a dynamic array, or passing it as a value or `const` parameter, shares its elements. A change to an element through one variable is visible through the other. `SetArrayLength` and `SetLength` copy a shared array only when the length changes. Delphi's `SetLength` always copies it. `Copy` doesn't support arrays. To get an array that isn't shared, change its length and change it back, or copy the elements to a new array.
-- The `/` operator always returns `Extended`, even when both operands are integers. Use `div` for integer division.
+- The `/` operator does integer division when both operands are integers.
 - `Break` and `Continue` are not reserved words. They are ordinary identifiers recognized specially inside loop bodies. A local declaration named `Break` or `Continue` will shadow the loop-control behavior.
 - `Low`, `High`, and `SizeOf` must be used with a variable, not a type.
 ## Conventions (same spirit as the Pascal rules, adapted for ROPS)

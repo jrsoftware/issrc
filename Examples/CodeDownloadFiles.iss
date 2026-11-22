@@ -69,7 +69,7 @@ begin
       'https://files.jrsoftware.org/is/misc/myprog-extrareadmes-01.7z', '',
       'MyProg-ExtraReadmes.7z', AllowedKeysRuntimeIDs);
     DownloadPage.Add(
-      'https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1',
+      'https://jrsoftware.org/download/iscrypt.dll',
       'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc');
     DownloadPage.Show;
     try

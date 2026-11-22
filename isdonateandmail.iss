@@ -19,14 +19,14 @@ procedure DonateBitmapButtonOnClick(Sender: TObject);
 var
   ErrorCode: Integer;
 begin
-  ShellExecAsOriginalUser('open', 'https://jrsoftware.org/isdonate.php', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+  ShellExecAsOriginalUser('open', 'https://jrsoftware.org/inno-setup/donate', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 end;
 
 procedure MailBitmapButtonOnClick(Sender: TObject);
 var
   ErrorCode: Integer;
 begin
-  ShellExecAsOriginalUser('open', 'https://jrsoftware.org/ismail.php', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+  ShellExecAsOriginalUser('open', 'https://jrsoftware.org/inno-setup/mailing-list', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 end;
 
 <event('InitializeWizard')>

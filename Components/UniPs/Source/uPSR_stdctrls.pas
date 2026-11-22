@@ -7,8 +7,6 @@ uses
   uPSRuntime, uPSUtils;
 
 
-procedure RIRegisterTCUSTOMGROUPBOX(Cl: TPSRuntimeClassImporter);
-procedure RIRegisterTGROUPBOX(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTCUSTOMLABEL(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTLABEL(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTCUSTOMEDIT(Cl: TPSRuntimeClassImporter);
@@ -24,37 +22,17 @@ procedure RIRegisterTCHECKBOX(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTRADIOBUTTON(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTCUSTOMLISTBOX(Cl: TPSRuntimeClassImporter);
 procedure RIRegisterTLISTBOX(Cl: TPSRuntimeClassImporter);
-procedure RIRegisterTSCROLLBAR(Cl: TPSRuntimeClassImporter);
 
 procedure RIRegister_stdctrls(cl: TPSRuntimeClassImporter);
 
 implementation
 uses
-  sysutils, classes{$IFDEF CLX}, QControls, QStdCtrls, QGraphics{$ELSE}, controls, stdctrls, Graphics{$ENDIF}{$IFDEF FPC},buttons{$ENDIF};
-
-procedure RIRegisterTCUSTOMGROUPBOX(Cl: TPSRuntimeClassImporter);
-begin
-  Cl.Add(TCUSTOMGROUPBOX);
-end;
-
-
-procedure RIRegisterTGROUPBOX(Cl: TPSRuntimeClassImporter);
-begin
-  Cl.Add(TGROUPBOX);
-end;
-{$IFNDEF CLX}
-procedure TCUSTOMLABELCANVAS_R(Self: TCUSTOMLABEL; var T: TCanvas); begin T := Self.CANVAS; end;
-{$ENDIF}
+  sysutils, classes, controls, stdctrls;
 
 procedure RIRegisterTCUSTOMLABEL(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TCUSTOMLABEL) do
   begin
-    {$IFNDEF PS_MINIVCL}
-{$IFNDEF CLX}
-    RegisterPropertyHelper(@TCUSTOMLABELCANVAS_R, nil, 'Canvas');
-{$ENDIF}
-    {$ENDIF}
   end;
 end;
 
@@ -86,16 +64,6 @@ begin
     RegisterPropertyHelper(@TCUSTOMEDITSELSTART_R, @TCUSTOMEDITSELSTART_W, 'SelStart');
     RegisterPropertyHelper(@TCUSTOMEDITSELTEXT_R, @TCUSTOMEDITSELTEXT_W, 'SelText');
     RegisterPropertyHelper(@TCUSTOMEDITTEXT_R, @TCUSTOMEDITTEXT_W, 'Text');
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterMethod(@TCUSTOMEDIT.COPYTOCLIPBOARD, 'CopyToClipboard');
-    RegisterMethod(@TCUSTOMEDIT.CUTTOCLIPBOARD, 'CutToClipboard');
-		RegisterMethod(@TCUSTOMEDIT.PASTEFROMCLIPBOARD, 'PasteFromClipboard');
-		{$IFNDEF FPC}
-		RegisterMethod(@TCUSTOMEDIT.GETSELTEXTBUF, 'GetSelTextBuf');
-    RegisterMethod(@TCUSTOMEDIT.SETSELTEXTBUF, 'SetSelTextBuf');
-		{$ENDIF}{FPC}
-    {$ENDIF}
   end;
 end;
 
@@ -105,17 +73,15 @@ begin
 end;
 
 
-procedure TCUSTOMMEMOLINES_R(Self: {$IFDEF CLX}TMemo{$ELSE}TCUSTOMMEMO{$ENDIF}; var T: TSTRINGS); begin T := Self.LINES; end;
-procedure TCUSTOMMEMOLINES_W(Self: {$IFDEF CLX}TMemo{$ELSE}TCUSTOMMEMO{$ENDIF}; T: TSTRINGS); begin Self.LINES := T; end;
+procedure TCUSTOMMEMOLINES_R(Self: TCUSTOMMEMO; var T: TSTRINGS); begin T := Self.LINES; end;
+procedure TCUSTOMMEMOLINES_W(Self: TCUSTOMMEMO; T: TSTRINGS); begin Self.LINES := T; end;
 
 
 procedure RIRegisterTCUSTOMMEMO(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TCUSTOMMEMO) do
   begin
-    {$IFNDEF CLX}
     RegisterPropertyHelper(@TCUSTOMMEMOLINES_R, @TCUSTOMMEMOLINES_W, 'Lines');
-    {$ENDIF}
   end;
 end;
 
@@ -124,26 +90,16 @@ procedure RIRegisterTMEMO(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TMEMO) do
   begin
-    {$IFDEF CLX}
-    RegisterPropertyHelper(@TCUSTOMMEMOLINES_R, @TCUSTOMMEMOLINES_W, 'Lines');
-    {$ENDIF}
   end;
 end;
 
 
-procedure TCUSTOMCOMBOBOXCANVAS_R(Self: TCUSTOMCOMBOBOX; var T: TCANVAS); begin T := Self.CANVAS; end;
 procedure TCUSTOMCOMBOBOXDROPPEDDOWN_R(Self: TCUSTOMCOMBOBOX; var T: BOOLEAN); begin T := Self.DROPPEDDOWN; end;
 procedure TCUSTOMCOMBOBOXDROPPEDDOWN_W(Self: TCUSTOMCOMBOBOX; T: BOOLEAN); begin Self.DROPPEDDOWN := T; end;
 procedure TCUSTOMCOMBOBOXITEMS_R(Self: TCUSTOMCOMBOBOX; var T: TSTRINGS); begin T := Self.ITEMS; end;
 procedure TCUSTOMCOMBOBOXITEMS_W(Self: TCUSTOMCOMBOBOX; T: TSTRINGS); begin Self.ITEMS := T; end;
 procedure TCUSTOMCOMBOBOXITEMINDEX_R(Self: TCUSTOMCOMBOBOX; var T: INTEGER); begin T := Self.ITEMINDEX; end;
 procedure TCUSTOMCOMBOBOXITEMINDEX_W(Self: TCUSTOMCOMBOBOX; T: INTEGER); begin Self.ITEMINDEX := T; end;
-procedure TCUSTOMCOMBOBOXSELLENGTH_R(Self: TCUSTOMCOMBOBOX; var T: INTEGER); begin T := Self.SELLENGTH; end;
-procedure TCUSTOMCOMBOBOXSELLENGTH_W(Self: TCUSTOMCOMBOBOX; T: INTEGER); begin Self.SELLENGTH := T; end;
-procedure TCUSTOMCOMBOBOXSELSTART_R(Self: TCUSTOMCOMBOBOX; var T: INTEGER); begin T := Self.SELSTART; end;
-procedure TCUSTOMCOMBOBOXSELSTART_W(Self: TCUSTOMCOMBOBOX; T: INTEGER); begin Self.SELSTART := T; end;
-procedure TCUSTOMCOMBOBOXSELTEXT_R(Self: TCUSTOMCOMBOBOX; var T: STRING); begin T := Self.SELTEXT; end;
-procedure TCUSTOMCOMBOBOXSELTEXT_W(Self: TCUSTOMCOMBOBOX; T: STRING); begin Self.SELTEXT := T; end;
 
 
 procedure RIRegisterTCUSTOMCOMBOBOX(Cl: TPSRuntimeClassImporter);
@@ -153,15 +109,6 @@ begin
     RegisterPropertyHelper(@TCUSTOMCOMBOBOXDROPPEDDOWN_R, @TCUSTOMCOMBOBOXDROPPEDDOWN_W, 'DroppedDown');
     RegisterPropertyHelper(@TCUSTOMCOMBOBOXITEMS_R, @TCUSTOMCOMBOBOXITEMS_W, 'Items');
     RegisterPropertyHelper(@TCUSTOMCOMBOBOXITEMINDEX_R, @TCUSTOMCOMBOBOXITEMINDEX_W, 'ItemIndex');
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterMethod(@TCUSTOMCOMBOBOX.CLEAR, 'Clear');
-    RegisterMethod(@TCUSTOMCOMBOBOX.SELECTALL, 'SelectAll');
-    RegisterPropertyHelper(@TCUSTOMCOMBOBOXCANVAS_R, nil, 'Canvas');
-    RegisterPropertyHelper(@TCUSTOMCOMBOBOXSELLENGTH_R, @TCUSTOMCOMBOBOXSELLENGTH_W, 'SelLength');
-    RegisterPropertyHelper(@TCUSTOMCOMBOBOXSELSTART_R, @TCUSTOMCOMBOBOXSELSTART_W, 'SelStart');
-    RegisterPropertyHelper(@TCUSTOMCOMBOBOXSELTEXT_R, @TCUSTOMCOMBOBOXSELTEXT_W, 'SelText');
-    {$ENDIF}
   end;
 end;
 
@@ -207,7 +154,6 @@ begin
   Cl.Add(TRADIOBUTTON);
 end;
 
-procedure TCUSTOMLISTBOXCANVAS_R(Self: TCUSTOMLISTBOX; var T: TCANVAS); begin T := Self.CANVAS; end;
 procedure TCUSTOMLISTBOXITEMS_R(Self: TCUSTOMLISTBOX; var T: TSTRINGS); begin T := Self.ITEMS; end;
 procedure TCUSTOMLISTBOXITEMS_W(Self: TCUSTOMLISTBOX; T: TSTRINGS); begin Self.ITEMS := T; end;
 procedure TCUSTOMLISTBOXITEMINDEX_R(Self: TCUSTOMLISTBOX; var T: INTEGER); begin T := Self.ITEMINDEX; end;
@@ -215,8 +161,6 @@ procedure TCUSTOMLISTBOXITEMINDEX_W(Self: TCUSTOMLISTBOX; T: INTEGER); begin Sel
 procedure TCUSTOMLISTBOXSELCOUNT_R(Self: TCUSTOMLISTBOX; var T: INTEGER); begin T := Self.SELCOUNT; end;
 procedure TCUSTOMLISTBOXSELECTED_R(Self: TCUSTOMLISTBOX; var T: BOOLEAN; t1: INTEGER); begin T := Self.SELECTED[t1]; end;
 procedure TCUSTOMLISTBOXSELECTED_W(Self: TCUSTOMLISTBOX; T: BOOLEAN; t1: INTEGER); begin Self.SELECTED[t1] := T; end;
-procedure TCUSTOMLISTBOXTOPINDEX_R(Self: TCUSTOMLISTBOX; var T: INTEGER); begin T := Self.TOPINDEX; end;
-procedure TCUSTOMLISTBOXTOPINDEX_W(Self: TCUSTOMLISTBOX; T: INTEGER); begin Self.TOPINDEX := T; end;
 
 
 procedure RIRegisterTCUSTOMLISTBOX(Cl: TPSRuntimeClassImporter);
@@ -227,14 +171,6 @@ begin
     RegisterPropertyHelper(@TCUSTOMLISTBOXITEMINDEX_R, @TCUSTOMLISTBOXITEMINDEX_W, 'ItemIndex');
     RegisterPropertyHelper(@TCUSTOMLISTBOXSELCOUNT_R, nil, 'SelCount');
     RegisterPropertyHelper(@TCUSTOMLISTBOXSELECTED_R, @TCUSTOMLISTBOXSELECTED_W, 'Selected');
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterMethod(@TCUSTOMLISTBOX.CLEAR, 'Clear');
-    RegisterMethod(@TCUSTOMLISTBOX.ITEMATPOS, 'ItemAtPos');
-    RegisterMethod(@TCUSTOMLISTBOX.ITEMRECT, 'ItemRect');
-    RegisterPropertyHelper(@TCUSTOMLISTBOXCANVAS_R, nil, 'Canvas');
-    RegisterPropertyHelper(@TCUSTOMLISTBOXTOPINDEX_R, @TCUSTOMLISTBOXTOPINDEX_W, 'TopIndex');
-    {$ENDIF}
   end;
 end;
 
@@ -245,21 +181,8 @@ begin
 end;
 
 
-procedure RIRegisterTSCROLLBAR(Cl: TPSRuntimeClassImporter);
-begin
-  with Cl.Add(TSCROLLBAR) do
-  begin
-    RegisterMethod(@TSCROLLBAR.SETPARAMS, 'SetParams');
-  end;
-end;
-
-
 procedure RIRegister_stdctrls(cl: TPSRuntimeClassImporter);
 begin
-  {$IFNDEF PS_MINIVCL}
-  RIRegisterTCUSTOMGROUPBOX(Cl);
-  RIRegisterTGROUPBOX(Cl);
-  {$ENDIF}
   RIRegisterTCUSTOMLABEL(Cl);
   RIRegisterTLABEL(Cl);
   RIRegisterTCUSTOMEDIT(Cl);
@@ -275,12 +198,7 @@ begin
   RIRegisterTRADIOBUTTON(Cl);
   RIRegisterTCUSTOMLISTBOX(Cl);
   RIRegisterTLISTBOX(Cl);
-  {$IFNDEF PS_MINIVCL}
-  RIRegisterTSCROLLBAR(Cl);
-  {$ENDIF}
 end;
-
-// PS_MINIVCL changes by Martijn Laan
 
 end.
 

@@ -193,7 +193,7 @@ Source: "Examples\MyDll\Delphi\MyDll.dpr"; DestDir: "{app}\Examples\MyDll\Delphi
 Source: "Examples\MyDll\Delphi\MyDll.dproj"; DestDir: "{app}\Examples\MyDll\Delphi"; Flags: ignoreversion touch
 
 [INI]
-Filename: "{app}\isfaq.url"; Section: "InternetShortcut"; Key: "URL"; String: "https://jrsoftware.org/isfaq.php" 
+Filename: "{app}\isfaq.url"; Section: "InternetShortcut"; Key: "URL"; String: "https://jrsoftware.org/inno-setup/faq" 
 
 [UninstallDelete]
 Type: files; Name: "{app}\isfaq.url"

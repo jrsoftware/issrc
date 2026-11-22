@@ -7,11 +7,7 @@ interface
 uses
   uPSCompiler, uPSUtils;
 
-{$IFDEF DELPHI3UP }
 resourceString
-{$ELSE }
-const
-{$ENDIF }
   RPS_Invalid_External = 'Invalid External';
   RPS_InvalidCallingConvention = 'Invalid Calling Convention';
 
@@ -94,11 +90,9 @@ begin
         end;
         if FastUppercase(s2) = 'DELAYLOAD' then
           DelayLoad := True
-        {$IFNDEF LINUX}
         else
         if FastUppercase(s2) = 'LOADWITHALTEREDSEARCHPATH' then
           LoadWithAlteredSearchPath := True
-        {$ENDIF}
         else
         begin
           Sender.MakeError('', ecCustomError, 'Invalid External');

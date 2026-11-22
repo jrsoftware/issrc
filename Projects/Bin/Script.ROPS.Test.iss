@@ -3342,10 +3342,9 @@ var
   Stream: TStringStream;
   S: String;
 begin
-  { TStringStream exercises the STRINGSTREAMFIX constructor wrapper in
-    uPSR_classes.pas (TStringStreamCreateString) which works around a Delphi
-    Unicode overload issue, plus the TStream property helpers for Position
-    and Size }
+  { TStringStream exercises the constructor wrapper in uPSR_classes.pas
+    (TStringStreamCreateString) which works around a Delphi Unicode overload
+    issue, plus the TStream property helpers for Position and Size }
 
   Stream := TStringStream.Create('hello world');
   try

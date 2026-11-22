@@ -21,17 +21,8 @@ procedure SIRegisterTPicture(CL: TPSPascalCompiler);
 procedure SIRegister_Graphics(Cl: TPSPascalCompiler; Streams: Boolean);
 
 implementation
-{$IFNDEF PS_NOGRAPHCONST}
-uses
-  {$IFDEF CLX}QGraphics{$ELSE}Graphics{$ENDIF};
-{$ELSE}
-{$IFNDEF CLX}
-{$IFNDEF FPC}
 uses
   Windows;
-{$ENDIF}
-{$ENDIF}
-{$ENDIF}
 
 procedure SIRegisterTGRAPHICSOBJECT(Cl: TPSPascalCompiler);
 begin
@@ -46,9 +37,7 @@ begin
   with Cl.AddClassN(cl.FindClass('TGraphicsObject'), 'TFont') do
   begin
     RegisterMethod('constructor Create;');
-{$IFNDEF CLX}
     RegisterProperty('Handle', 'HFONT', iptRW);
-{$ENDIF}
     RegisterProperty('Color', 'TColor', iptRW);
     RegisterProperty('Height', 'Integer', iptRW);
     RegisterProperty('Name', 'string', iptRW);
@@ -68,9 +57,7 @@ begin
     RegisterMethod('procedure Draw(X, Y: Integer; Graphic: TGraphic);');
     RegisterMethod('procedure Ellipse(X1, Y1, X2, Y2: Integer);');
     RegisterMethod('procedure FillRect(const Rect: TRect);');
-{$IFNDEF CLX}
     RegisterMethod('procedure FloodFill(X, Y: Integer; Color: TColor; FillStyle: Byte);');
-{$ENDIF}
     RegisterMethod('procedure LineTo(X, Y: Integer);');
     RegisterMethod('procedure MoveTo(X, Y: Integer);');
     RegisterMethod('procedure Pie(X1, Y1, X2, Y2, X3, Y3, X4, Y4: Integer);');
@@ -80,9 +67,7 @@ begin
     RegisterMethod('function TextHeight(Text: string): Integer;');
     RegisterMethod('procedure TextOut(X, Y: Integer; Text: string);');
     RegisterMethod('function TextWidth(Text: string): Integer;');
-{$IFNDEF CLX}
     RegisterProperty('Handle', 'HDC', iptRw);
-{$ENDIF}
     RegisterProperty('Pixels', 'Integer Integer Integer', iptRW);
     RegisterProperty('Brush', 'TBrush', iptR);
     RegisterProperty('CopyMode', 'TCopyMode', iptRw);
@@ -114,39 +99,9 @@ begin
 end;
 
 procedure SIRegister_Graphics_TypesAndConsts(Cl: TPSPascalCompiler);
-{$IFDEF PS_NOGRAPHCONST}
 const
-  clSystemColor = {$IFDEF DELPHI7UP} $FF000000 {$ELSE} $80000000 {$ENDIF};
-{$ENDIF}
+  clSystemColor = $FF000000;
 begin
-{$IFNDEF PS_NOGRAPHCONST}
-  cl.AddConstantN('clScrollBar', 'Integer').Value.ts32 := clScrollBar;
-  cl.AddConstantN('clBackground', 'Integer').Value.ts32 := clBackground;
-  cl.AddConstantN('clActiveCaption', 'Integer').Value.ts32 := clActiveCaption;
-  cl.AddConstantN('clInactiveCaption', 'Integer').Value.ts32 := clInactiveCaption;
-  cl.AddConstantN('clMenu', 'Integer').Value.ts32 := clMenu;
-  cl.AddConstantN('clWindow', 'Integer').Value.ts32 := clWindow;
-  cl.AddConstantN('clWindowFrame', 'Integer').Value.ts32 := clWindowFrame;
-  cl.AddConstantN('clMenuText', 'Integer').Value.ts32 := clMenuText;
-  cl.AddConstantN('clWindowText', 'Integer').Value.ts32 := clWindowText;
-  cl.AddConstantN('clCaptionText', 'Integer').Value.ts32 := clCaptionText;
-  cl.AddConstantN('clActiveBorder', 'Integer').Value.ts32 := clActiveBorder;
-  cl.AddConstantN('clInactiveBorder', 'Integer').Value.ts32 := clInactiveBorder;
-  cl.AddConstantN('clAppWorkSpace', 'Integer').Value.ts32 := clAppWorkSpace;
-  cl.AddConstantN('clHighlight', 'Integer').Value.ts32 := clHighlight;
-  cl.AddConstantN('clHighlightText', 'Integer').Value.ts32 := clHighlightText;
-  cl.AddConstantN('clBtnFace', 'Integer').Value.ts32 := clBtnFace;
-  cl.AddConstantN('clBtnShadow', 'Integer').Value.ts32 := clBtnShadow;
-  cl.AddConstantN('clGrayText', 'Integer').Value.ts32 := clGrayText;
-  cl.AddConstantN('clBtnText', 'Integer').Value.ts32 := clBtnText;
-  cl.AddConstantN('clInactiveCaptionText', 'Integer').Value.ts32 := clInactiveCaptionText;
-  cl.AddConstantN('clBtnHighlight', 'Integer').Value.ts32 := clBtnHighlight;
-  cl.AddConstantN('cl3DDkShadow', 'Integer').Value.ts32 := cl3DDkShadow;
-  cl.AddConstantN('cl3DLight', 'Integer').Value.ts32 := cl3DLight;
-  cl.AddConstantN('clInfoText', 'Integer').Value.ts32 := clInfoText;
-  cl.AddConstantN('clInfoBk', 'Integer').Value.ts32 := clInfoBk;
-{$ELSE}
-{$IFNDEF CLX}  // These are VCL-only; CLX uses different constant values
   cl.AddConstantN('clScrollBar', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_SCROLLBAR);
   cl.AddConstantN('clBackground', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_BACKGROUND);
   cl.AddConstantN('clActiveCaption', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_ACTIVECAPTION);
@@ -172,8 +127,6 @@ begin
   cl.AddConstantN('cl3DLight', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_3DLIGHT);
   cl.AddConstantN('clInfoText', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_INFOTEXT);
   cl.AddConstantN('clInfoBk', 'Integer').Value.ts32 := Integer(clSystemColor or COLOR_INFOBK);
-{$ENDIF}
-{$ENDIF}
   cl.AddConstantN('clBlack', 'Integer').Value.ts32 := $000000;
   cl.AddConstantN('clMaroon', 'Integer').Value.ts32 := $000080;
   cl.AddConstantN('clGreen', 'Integer').Value.ts32 := $008000;
@@ -203,13 +156,8 @@ begin
   cl.AddTypeS('TPenMode', '(pmBlack, pmWhite, pmNop, pmNot, pmCopy, pmNotCopy, pmMergePenNot, pmMaskPenNot, pmMergeNotPen, pmMaskNotPen, pmMerge, pmNotMerge, pmMask, pmNotMask, pmXor, pmNotXor)');
   cl.AddTypeS('TBrushStyle', '(bsSolid, bsClear, bsHorizontal, bsVertical, bsFDiagonal, bsBDiagonal, bsCross, bsDiagCross)');
   cl.addTypeS('TColor', 'Integer');
-{$IFNDEF CLX}
   cl.AddTypeS('TCopyMode', 'Longint');
-{$ELSE}
-  cl.AddTypeS('TCopyMode', '(cmBlackness, cmDstInvert, cmMergeCopy, cmMergePaint, cmNotSrcCopy, cmNotSrcErase, cmPatCopy, cmPatInvert, cmPatPaint, cmSrcAnd, cmSrcCopy, cmSrcErase, cmSrcInvert, cmSrcPaint, cmWhiteness, cmCreateMask)');
-{$ENDIF}
 
-{$IFNDEF CLX}
   if cl.FindType('HBITMAP') = nil then
     cl.AddTypeS('HBITMAP', 'NativeUInt');
   if cl.FindType('HPALETTE') = nil then
@@ -218,7 +166,6 @@ begin
     cl.AddTypeS('HFONT', 'NativeUInt');
   if cl.FindType('HDC') = nil then
     cl.AddTypeS('HDC', 'NativeUInt');
-{$ENDIF}
 end;
 
 procedure SIRegisterTGraphic(CL: TPSPascalCompiler);
@@ -232,10 +179,6 @@ begin
     RegisterProperty('Height', 'Integer', iptrw);
     RegisterProperty('Width', 'Integer', iptrw);
     RegisterProperty('OnChange', 'TNotifyEvent', iptrw);
-
-    {$IFNDEF PS_MINIVCL}
-    RegisterProperty('Modified', 'Boolean', iptrw);
-    {$ENDIF}
   end;
 end;
 
@@ -248,32 +191,7 @@ begin
       RegisterMethod('procedure SaveToStream(Stream: TStream)');
     end;
     RegisterProperty('Canvas', 'TCanvas', iptr);
-{$IFNDEF CLX}
     RegisterProperty('Handle', 'HBITMAP', iptrw);
-{$ENDIF}
-
-    {$IFNDEF PS_MINIVCL}
-{$IFNDEF FPC}
-    RegisterMethod('procedure Dormant');
-{$ENDIF}
-    RegisterMethod('procedure FreeImage');
-{$IFNDEF CLX}
-    RegisterMethod('procedure LoadFromClipboardFormat(AFormat: Word; AData: THandle; APalette: HPALETTE)');
-{$ENDIF}
-    RegisterMethod('procedure LoadFromResourceName(Instance: THandle; const ResName: string)');
-    RegisterMethod('procedure LoadFromResourceID(Instance: THandle; ResID: Integer)');
-{$IFNDEF CLX}
-    RegisterMethod('function ReleaseHandle: HBITMAP');
-    RegisterMethod('function ReleasePalette: HPALETTE');
-    RegisterMethod('procedure SaveToClipboardFormat(var Format: Word; var Data: THandle; var APalette: HPALETTE)');
-    RegisterProperty('Monochrome', 'Boolean', iptrw);
-    RegisterProperty('Palette', 'HPALETTE', iptrw);
-{$IFNDEF FPC}
-    RegisterProperty('IgnorePalette', 'Boolean', iptrw);
-{$ENDIF}
-{$ENDIF}
-    RegisterProperty('TransparentColor', 'TColor', iptr);
-    {$ENDIF}
   end;
 end;
 
@@ -297,7 +215,5 @@ begin
   SIRegisterTBitmap(Cl, Streams);
   SIRegisterTPicture(cl);
 end;
-
-// PS_MINIVCL changes by Martijn Laan
 
 End.

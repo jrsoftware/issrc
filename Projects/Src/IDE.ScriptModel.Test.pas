@@ -3923,7 +3923,7 @@ begin
     Assert(Section.Constants[4].TypeText = 'Boolean');
     Assert(Section.Constants[5].TypeText = 'Integer');
     Assert(Section.Constants[6].TypeText = 'Integer');
-    { Without PS_DELPHIDIV, '/' on integers is an integer division in ROPS }
+    { '/' on integers is an integer division in ROPS }
     Assert(Section.Constants[7].TypeText = 'Integer');
     Assert(Section.Constants[8].TypeText = 'Extended');
     Assert(Section.Constants[9].TypeText = 'String');

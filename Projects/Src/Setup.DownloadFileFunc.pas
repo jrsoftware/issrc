@@ -448,12 +448,12 @@ begin
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
     HTTPDataReceiver.OnDownloadNoProgress := OnDownloadNoProgress;
 
-    { To test redirects: https://jrsoftware.org/download.php/is.exe
+    { To test redirects: https://jrsoftware.org/download/iscrypt.dll
       To test expired certificates: https://expired.badssl.com/
       To test self-signed certificates: https://self-signed.badssl.com/
-      To test basic authentication: https://guest:guest@jigsaw.w3.org/HTTP/Basic/
-      To test 100 MB file: https://speed.hetzner.de/100MB.bin
-      To test 1 GB file: https://speed.hetzner.de/1GB.bin
+      To test basic authentication: https://guest:guest@httpbin.org/basic-auth/guest/guest
+      To test 100 MB file: https://proof.ovh.net/files/100Mb.dat
+      To test 1 GB file: https://proof.ovh.net/files/1Gb.dat
       To test file without a content length: https://github.com/jrsoftware/issrc/archive/main.zip }
 
     { Download to temporary file}

@@ -2475,7 +2475,7 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
             CSTII_mod, CSTII_shl, CSTII_shr: HasIntegerOnlyOperator := True;
             CSTI_Plus, CSTI_Minus, CSTI_Multiply, CSTI_Divide, CSTII_div,
             CSTII_and, CSTII_or, CSTII_xor, CSTII_not, CSTI_OpenRound,
-            CSTI_CloseRound: ; { Takes its operands' type, and so do '/' and 'div': without PS_DELPHIDIV, ROPS divides two integers into an integer. }
+            CSTI_CloseRound: ; { Takes its operands' type, and so do '/' and 'div': ROPS divides two integers into an integer. }
           else
             Inferable := False;
           end;

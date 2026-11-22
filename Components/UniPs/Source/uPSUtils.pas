@@ -3,7 +3,7 @@ unit uPSUtils;
 
 interface
 uses
-  Classes, SysUtils {$IFDEF VER130}, Windows {$ENDIF};
+  Classes, SysUtils;
 
 const
 
@@ -23,21 +23,9 @@ const
 
   PSAddrNegativeStackStart = 1073741824;
 type
-  {$IFDEF FPC}
-    {$IFDEF FPC_UNICODE}
-    tbtString = AnsiString;
-    tbtPChar  = PAnsiChar;
-    tbtChar   = AnsiChar;
-    {$ELSE}
-    tbtString = string;
-    tbtPChar  = PChar;
-    tbtChar   = Char;
-    {$ENDIF}
-  {$ELSE}
-  tbtString = {$IFDEF DELPHI2009UP}AnsiString{$ELSE}string{$ENDIF};
-  tbtPChar  = {$IFDEF DELPHI2009UP}PAnsiChar{$ELSE}PChar{$ENDIF};
-  tbtChar   = {$IFDEF DELPHI4UP}AnsiChar{$ELSE}CHAR{$ENDIF};
-  {$ENDIF}
+  tbtString = AnsiString;
+  tbtPChar  = PAnsiChar;
+  tbtChar   = AnsiChar;
 
   TPSBaseType = Byte;
 
@@ -79,17 +67,13 @@ const
 
   btVariant         = 16;
 
-{$IFNDEF PS_NOINT64}
   btS64             = 17;
-{$ENDIF}
 
   btChar            = 18;
 
-{$IFNDEF PS_NOWIDESTRING}
   btWideString      = 19;
 
   btWideChar        = 20;
-{$ENDIF}
 
   btProcPtr         = 21;
 
@@ -107,9 +91,7 @@ const
 
   btUnicodeString   = 28;
 
-{$IFNDEF PS_NOINT64}
   btU64             = 29;
-{$ENDIF}
 
   btType = 130;
 
@@ -322,41 +304,23 @@ type
 
   tbtCurrency = Currency;
 
-{$IFNDEF PS_NOINT64}
-
   tbts64 = int64;
   tbtu64 = uint64;
-{$ENDIF}
 
 
-{$IFNDEF PS_NOWIDESTRING}
   tbtWideString = WideString;
 
-  tbtUnicodeString =
-    {$IFDEF FPC}
-      UnicodeString
-    {$ELSE}
-      {$IFDEF UNICODE}UnicodeString{$ELSE}WideString{$ENDIF}
-    {$ENDIF};
+  tbtUnicodeString = UnicodeString;
 
   tbtWideChar = WideChar;
-  tbtNativeString = {$IFDEF DELPHI2009UP}tbtUnicodeString{$ELSE}tbtString{$ENDIF};
-{$ENDIF}
-{$IFDEF FPC}
-  IPointer = PtrUInt;
-{$ELSE}
-  {$IFDEF DELPHI2009UP}
-    IPointer = NativeUInt;
-  {$ELSE}
-    IPointer = Cardinal;
-  {$ENDIF}
-{$ENDIF}
+  tbtNativeString = tbtUnicodeString;
+  IPointer = NativeUInt;
   TPSCallingConvention = (cdRegister, cdPascal, cdCdecl, cdStdCall, cdSafeCall);
 
 
 const
 
-  PointerSize = IPointer({$IFDEF CPU64}8{$ELSE}4{$ENDIF});
+  PointerSize = IPointer({$IFDEF WIN64}8{$ELSE}4{$ENDIF});
   PointerSize2 = IPointer(2*PointerSize);
   MaxListSize = Maxint div 16;
 
@@ -381,10 +345,8 @@ type
     function GetItem(Nr: Cardinal): Pointer;
     procedure SetItem(Nr: Cardinal; P: Pointer);
   public
-    {$IFNDEF PS_NOSMARTLIST}
 
     procedure Recreate;
-    {$ENDIF}
 
     property Data: PPointerList read FData;
 
@@ -435,42 +397,6 @@ type
     destructor Destroy; override;
   end;
   TIFStringList = TPSStringList;
-
-  TPSUnitList = class;
-
-  TPSUnit = class(TObject)
-  private
-    fList     : TPSUnitList;
-    fUnits    : TPSList;
-    fUnitName : TbtString;
-    procedure SetUnitName(const Value: TbtString);
-  public
-    constructor Create(List: TPSUnitList);
-
-    destructor Destroy; override;
-
-    procedure AddUses(pUnitName: TbtString);
-
-    function HasUses(pUnitName: TbtString): Boolean;
-
-    {$WARNINGS OFF}
-    property UnitName: TbtString read fUnitName write SetUnitName;
-    {$WARNINGS ON}
-  end;
-
-  TPSUnitList = class
-  private
-    fList: TPSList;
-    function Add: TPSUnit;
-
-  public
-    constructor Create;
-
-    function GetUnit(UnitName: TbtString): TPSUnit;
-
-    destructor Destroy; override;
-  end;
-
 
 
 type
@@ -590,7 +516,7 @@ type
   TPSPascalParser = class(TObject)
   protected
     FData: TbtString;
-    FText: {$IFDEF DELPHI4UP}PAnsiChar{$ELSE}PChar{$ENDIF};
+    FText: PAnsiChar;
     FLastEnterPos, FRow, FRealPosition, FTokenLength: Cardinal;
     FTokenId: TPSPasToken;
     FToken: TbtString;
@@ -648,57 +574,13 @@ function GRLW(var s: TbtString): TbtString;
 const
 
   FCapacityInc = 32;
-{$IFNDEF PS_NOSMARTLIST}
 
   FMaxCheckCount = (FCapacityInc div 4) * 64;
-{$ENDIF}
 
-{$IFDEF VER130}
-function WideUpperCase(const S: WideString): WideString;
-function WideLowerCase(const S: WideString): WideString;
-{$ENDIF}
 implementation
 
-{$IFDEF DELPHI3UP }
 resourceString
-{$ELSE }
-const
-{$ENDIF }
   RPS_InvalidFloat = 'Invalid float';
-
-{$IFDEF VER130}
-
-function WideUpperCase(const S: WideString): WideString;
-var
-  Len: Integer;
-begin
-  // CharUpperBuffW is stubbed out on Win9x platofmrs
-  if Win32Platform = VER_PLATFORM_WIN32_NT then
-  begin
-    Len := Length(S);
-    SetString(Result, PWideChar(S), Len);
-    if Len > 0 then CharUpperBuffW(Pointer(Result), Len);
-  end
-  else
-    Result := AnsiUpperCase(S);
-end;
-
-function WideLowerCase(const S: WideString): WideString;
-var
-  Len: Integer;
-begin
-  // CharLowerBuffW is stubbed out on Win9x platofmrs
-  if Win32Platform = VER_PLATFORM_WIN32_NT then
-  begin
-    Len := Length(S);
-    SetString(Result, PWideChar(S), Len);
-    if Len > 0 then CharLowerBuffW(Pointer(Result), Len);
-  end
-  else
-    Result := AnsiLowerCase(S);
-end;
-
-{$ENDIF}
 
 
 function MakeHash(const s: TbtString): Longint;
@@ -767,40 +649,17 @@ begin
 end;
 //-------------------------------------------------------------------
 
-{$IFDEF FPC}{$DEFINE PS_HAVEFORMATSETTINGS}{$ENDIF}
-{$IFDEF DELPHIXEUP}{$DEFINE PS_HAVEFORMATSETTINGS}{$ENDIF}
-
-{$IFDEF PS_HAVEFORMATSETTINGS}
 var
   DotFormatSettings: TFormatSettings;
-{$ENDIF}
 
 function FloatToStr(E: Extended): TbtString;
-{$IFNDEF PS_HAVEFORMATSETTINGS}
-var
-  s: tbtstring;
-{$ENDIF}
 begin
-{$IFDEF PS_HAVEFORMATSETTINGS}
   Result := TbtString(SysUtils.FloatToStr(E, DotFormatSettings));
-{$ELSE}
-  Str(e:0:12, s);
-  Result := s;
-{$ENDIF}
 end;
 
 function CurrToStr(C: Currency): TbtString;
-{$IFNDEF PS_HAVEFORMATSETTINGS}
-var
-  s: tbtstring;
-{$ENDIF}
 begin
-{$IFDEF PS_HAVEFORMATSETTINGS}
   Result := TbtString(SysUtils.CurrToStr(C, DotFormatSettings));
-{$ELSE}
-  Str(c:0:4, s);
-  Result := s;
-{$ENDIF}
 end;
 
 function StrToInt(const S: TbtString): LongInt;
@@ -834,9 +693,7 @@ begin
   inherited Create;
   FCount := 0;
   FCapacity := 16;
-  {$IFNDEF PS_NOSMARTLIST}
   FCheckCount := 0;
-  {$ENDIF}
   GetMem(FData, FCapacity * PointerSize);
 end;
 
@@ -849,7 +706,6 @@ begin
     mm := (i1 div i2) * i2;
 end;
 
-{$IFNDEF PS_NOSMARTLIST}
 procedure TPSList.Recreate;
 var
   NewData: PPointerList;
@@ -870,7 +726,6 @@ begin
   FData := NewData;
   FCapacity := NewCapacity;
 end;
-{$ENDIF}
 
 //-------------------------------------------------------------------
 
@@ -884,10 +739,8 @@ begin
   FData[FCount] := P; // Instead of SetItem
   Result := FCount;
   Inc(FCount);
-{$IFNDEF PS_NOSMARTLIST}
   Inc(FCheckCount);
   if FCheckCount > FMaxCheckCount then Recreate;
-{$ENDIF}
 end;
 
 procedure TPSList.AddBlock(List: PPointerList; Count: Longint);
@@ -905,10 +758,8 @@ begin
     FData^[FCount] := List^[L];
     Inc(FCount);
   end;
-{$IFNDEF PS_NOSMARTLIST}
   Inc(FCheckCount);
   if FCheckCount > FMaxCheckCount then Recreate;
-{$ENDIF}
 end;
 
 
@@ -918,10 +769,8 @@ procedure TPSList.DeleteLast;
 begin
   if FCount = 0 then Exit;
   Dec(FCount);
-{$IFNDEF PS_NOSMARTLIST}
     Inc(FCheckCount);
     if FCheckCount > FMaxCheckCount then Recreate;
-{$ENDIF}
 end;
 
 
@@ -936,10 +785,8 @@ begin
     {only move if we aren't deleting the last element}
     if Nr < FCount then
       Move(FData[Nr + 1], FData[Nr], (FCount - Nr) * PointerSize);
-{$IFNDEF PS_NOSMARTLIST}
     Inc(FCheckCount);
     if FCheckCount > FMaxCheckCount then Recreate;
-{$ENDIF}
   end;
 end;
 //-------------------------------------------------------------------
@@ -965,9 +812,7 @@ end;
 procedure TPSList.Clear;
 begin
   FCount := 0;
-{$IFNDEF PS_NOSMARTLIST}
   Recreate;
-{$ENDIF}
 end;
 //-------------------------------------------------------------------
 
@@ -1255,7 +1100,7 @@ var
   var
     ct, ci: Cardinal;
     hs: Boolean;
-    p: {$IFDEF DELPHI4UP}PAnsiChar{$ELSE}PChar{$ENDIF};
+    p: PAnsiChar;
   begin
     ParseToken := iNoError;
     ct := CurrTokenPos;
@@ -1274,7 +1119,7 @@ var
           CurrTokenLen := ci - ct;
 
           FLastUpToken := _GetToken(CurrTokenPos, CurrtokenLen);
-          p := {$IFDEF DELPHI4UP}PAnsiChar{$ELSE}pchar{$ENDIF}(FLastUpToken);
+          p := PAnsiChar(FLastUpToken);
           while p^<>#0 do
           begin
             if p^ in [#97..#122] then
@@ -1683,111 +1528,10 @@ begin
   result := -1;
 end;
 
-{ TPSUnitList }
-
-function TPSUnitList.Add: TPSUnit;
-begin
-  result:=TPSUnit.Create(Self);
-
-  fList.Add(result);
-end;
-
-constructor TPSUnitList.Create;
-begin
-  fList:=TPSList.Create;
-end;
-
-destructor TPSUnitList.Destroy;
-var
-  Dummy: Integer;
-begin
-  for Dummy:=0 to fList.Count-1 do
-    TObject(fList[Dummy]).Free;
-
-  FreeAndNil(fList);
-  
-  inherited;
-end;
-
-function TPSUnitList.GetUnit(UnitName: TbtString): TPSUnit;
-var
-  Dummy: Integer;
-begin
-  UnitName:=FastUpperCase(UnitName);
-  for Dummy:=0 to fList.Count-1 do
-  begin
-    if TPSUnit(fList[Dummy]).UnitName=UnitName then
-    begin
-      result:=TPSUnit(fList[Dummy]);
-      exit;
-    end;
-  end;
-
-  result:=Add;
-
-  result.UnitName:=UnitName;
-end;
-
-{ TPSUnit }
-
-procedure TPSUnit.AddUses(pUnitName: TbtString);
-var
-  UsesUnit: TPSUnit;
-begin
-  UsesUnit:=fList.GetUnit(pUnitName);
-  fUnits.Add(UsesUnit);
-end;
-
-constructor TPSUnit.Create(List: TPSUnitList);
-begin
-  fUnits:=TPSList.Create;
-
-  fList:=List;
-end;
-
-destructor TPSUnit.Destroy;
-begin
-  FreeAndNIl(fUnits);
-  inherited;
-end;
-
-function TPSUnit.HasUses(pUnitName: TbtString): Boolean;
-var
-  Dummy: Integer;
-begin
-  pUnitName:=FastUpperCase(pUnitName);
-
-  if fUnitName=pUnitName then
-  begin
-    result:=true;
-    exit;
-  end;
-
-  result:=false;
-
-  for Dummy:=0 to fUnits.Count-1 do
-  begin
-    result:=TPSUnit(fUnits[Dummy]).HasUses(pUnitName);
-
-    if result then
-      exit;
-  end;
-end;
-
-procedure TPSUnit.SetUnitName(const Value: TbtString);
-begin
-  fUnitName := FastUpperCase(Value);
-end;
-
-{$IFDEF PS_HAVEFORMATSETTINGS}
 initialization
-  DotFormatSettings := {$IFDEF FPC}DefaultFormatSettings{$ELSE}FormatSettings{$ENDIF};
+  DotFormatSettings := FormatSettings;
   { Always use a dot, like Str and Val do }
   DotFormatSettings.DecimalSeparator := '.';
-  { FPC's FloatToStr and CurrToStr use ThousandSeparator to decide whether to remove
-    a minus sign. #0 never occurs in their output, so then it has no effect, like with Str. }
-  DotFormatSettings.ThousandSeparator := #0;
-{$ENDIF}
 end.
 
 

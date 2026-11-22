@@ -16,19 +16,7 @@ function UnloadProc(Caller: TPSExec; p: TPSExternalProcRec; Global, Stack: TPSSt
 
 implementation
 uses
-  {$IFDEF UNIX}
-  {$IFDEF FPC}
-  SysUtils, Unix, baseunix, dynlibs, termio, sockets;
-  {$ELSE}
-  Unix, baseunix, dynlibs, termio, sockets;
-  {$ENDIF}
-  {$ELSE}
-  {$IFDEF MSWINDOWS}
   SysUtils, Windows;
-  {$ELSE}
-  SysUtils;
-  {$ENDIF}
-  {$ENDIF}
 
 {
 p^.Ext1 contains the pointer to the Proc function
@@ -91,9 +79,7 @@ var
   ph: PLoadedDll;
   dllhandle: THandle;
   loadwithalteredsearchpath: Boolean;
-  {$IFNDEF UNIX}
   Filename: String;
-  {$ENDIF}
 begin
   s := p.Decl;
   Delete(s, 1, 4);
@@ -118,33 +104,18 @@ begin
         exit;
       end;
 
-      {$IFDEF UNIX}
-      {$DEFINE UNIX_OR_KYLIX}
-      {$ENDIF}
-      {$IFDEF KYLIX}
-      {$DEFINE UNIX_OR_KYLIX}
-      {$ENDIF}
-
-      {$IFDEF UNIX_OR_KYLIX}
-      dllhandle := LoadLibrary(PChar(s2));
-      {$ELSE}
-      {$IFDEF UNICODE}
       if Copy(s2, 1, 6) = '<utf8>' then
         Filename := UTF8ToUnicodeString(Copy(s2, 7, Maxint))
       else
         Filename := String(s2);
-      {$ELSE}
-      Filename := s2;
-      {$ENDIF}
       if loadwithalteredsearchpath then
         dllhandle := LoadLibraryEx(PChar(Filename), 0, LOAD_WITH_ALTERED_SEARCH_PATH)
       else
         dllhandle := LoadLibrary(PChar(Filename));
-      {$ENDIF}
       if dllhandle = 0 then
       begin
         p.Ext2 := Pointer(1);
-        ErrorCode := {$IFDEF MSWINDOWS}GetLastError{$ELSE}{$IFDEF FPC}GetLastOSError{$ELSE}ERROR_MOD_NOT_FOUND+1{$ENDIF}{$ENDIF};
+        ErrorCode := GetLastError;
         Result := False;
         exit;
       end;
@@ -163,7 +134,7 @@ begin
   if p.Ext1 = nil then
   begin
     p.Ext2 := Pointer(1);
-    ErrorCode := {$IFDEF MSWINDOWS}GetLastError{$ELSE}{$IFDEF FPC}GetLastOSError{$ELSE}ERROR_MOD_NOT_FOUND+2{$ENDIF}{$ENDIF};
+    ErrorCode := GetLastError;
     Result := false;
     exit;
   end;
@@ -223,9 +194,7 @@ begin
   end else n := nil;
   try
     TMYExec(Caller).InnerfuseCall(nil, p.Ext1, cc, MyList, n);
-    {$IFNDEF UNIX}
     DLLSetLastError(Caller, GetLastError);
-    {$ENDIF}
   finally
     DisposePPSvariantIFC(n);
     DisposePPSVariantIFCList(MyList);

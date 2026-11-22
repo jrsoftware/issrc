@@ -1,20 +1,8 @@
-{$IFDEF DELPHI}
-  {$DEFINE PS_RESBEFOREPARAMETERS}
-  {$DEFINE x64_string_result_as_varparameter}
-{$ENDIF}
-
 { implementation of x64 abi }
 //procedure DebugBreak; external 'Kernel32.dll';
 const
   EmptyPchar: array[0..0] of char = #0;
-{$IFDEF FPC}
-{$ASMMODE INTEL}
-{$ENDIF}
-{$IFDEF MSWINDOWS}{$DEFINE WINDOWS}{$ENDIF}
 
-{$UNDEF REG_STACK_PTR_OFFSET0}
-
-{$IFDEF WINDOWS}
 type
   TRegisters = packed record
     _RCX,                  // 0
@@ -25,20 +13,15 @@ type
     _XMM2,                 // 40
     _XMM3: Double;         // 48
     Stack: Pointer;        // 56
-    Items: {$IFDEF FPC}PtrUInt{$ELSE}IntPtr{$ENDIF}; // 64
+    Items: IntPtr; // 64
     SingleBits: Integer; // 72
   end;
 
-{$IFDEF DELPHI}
-  {$DEFINE REG_STACK_PTR_OFFSET0}
-{$ENDIF}
-
-{$IFDEF REG_STACK_PTR_OFFSET0} // ! NEW asm-win-x64 version for Delphi, no GPF on exception !
 type
   EInvocationError = class(Exception);
 
 procedure x64call({RCX}Address: Pointer;out {RDX}_RAX: IPointer;var {R8}_XMM0: Double; var {R9}RegInfo: TRegisters);
-assembler; {$ifdef FPC}nostackframe;{$endif}
+assembler;
 
   procedure InvokeErrorParamCount; // The number of parameters exceeded 64 (c_par_max_count)
   begin
@@ -61,13 +44,7 @@ const
 
   //c_reg_packed = ((SizeOf(TRegisters) mod c_sz_ptr) + c_sz_ptr - 1) div c_sz_ptr; // 1 - packed records; 0 - aligned
 asm
-{$ifdef DELPHI}
   .params c_params // There's actually room for c_loc_count, assembler is saving locals for "Address,_RAX,_XMM0,RegInfo"
-{$else} // TODO: FPC: GPF on exception
-  push    rbp
-  sub     rsp, $210  // ? $268
-  mov     rbp, rsp
-{$endif}
                                              //                         dbg: in:  TRegisters(pointer(R9)^),r
   mov     [rbp+c_loc_offs_adress], Address   // save: rcx (@Address)    dbg: loc: qword(pointer(rbp+c_loc_offs_adress)^)   ; in: qword(pointer(RCX))
   mov     [rbp+c_loc_offs__rax], _RAX        // save: rdx (@_RDX)       dbg: loc: qword(pointer(rbp+c_loc_offs__rax)^)     ; in: qword(pointer(RDX))
@@ -179,331 +156,7 @@ asm
 @no_single_res:
   movsd   [rdx], XMM0            // fill: _XMM0
 @res_done:
-
-{$ifndef DELPHI}
-  lea     rsp, [rbp+$210]
-  pop     rbp
-
-  ret
-{$endif}
 end;
-
-{$ELSE} // ! OLD asm-win-x64 version ! GPF on exception !
-
-procedure x64call(
-  Address: Pointer;
-  out _RAX: IPointer;
-  var _XMM0: Double;
-  var Registers: TRegisters); assembler; {$IFDEF FPC}nostackframe;{$ENDIF}
-asm
-(* Registers:
-    RCX: Address
-    RDX: *_RAX
-    R8:  * _XMM0
-    R9: _REGISTERS
-    fpc inserts an 20h empty space
-*)
-//{$IFDEF FPC}
-  push rbp
-  mov rbp,rsp
-//{$ENDIF}
-  push rcx  // address         ;rbp -8
-  push rdx  // @_rax           ;rbp -16
-  push r8   // @_xmm0          ;rbp -24
-  push r9   // _registers      ;rbp -32
-
-  mov rax, [rbp-32] //registers
-
-  mov rcx, [rax+64] // items/count
-  mov rdx, [rax+56] // stack
-  jmp @compareitems
-@work:
-{$IFDEF FPC}
-  push qword ptr [rdx]
-{$ELSE}
-  push [rdx]
-{$ENDIF}
-  dec rcx
-  sub rdx,8
-@compareitems:
-  or rcx, rcx
-  jnz @work
-
-  // copy registers
-  mov rcx, [rax+72] // single bits
-
-  bt rcx, 1
-  jnc @g1
-  cvtsd2ss xmm1, [rax+32]
-  jmp @g1e
-  @g1:
-  movsd xmm1, [rax+32]
-  @g1e:
-
-
-  bt rcx, 2
-  jnc @g2
-  cvtsd2ss xmm2, [rax+40]
-  jmp @g2e
-  @g2:
-  movsd xmm2, [rax+40]
-  @g2e:
-
-  bt rcx, 3
-  jnc @g3
-  cvtsd2ss xmm3, [rax+48]
-  jmp @g3e
-  @g3:
-  movsd xmm3, [rax+48]
-  @g3e:
-
-
-
-  // rbp-16: address of xmm0
-
-  bt rcx, 0
-  jnc @g0
-  mov rdx, [rbp -24]
-  cvtsd2ss xmm0, [rdx]
-  jmp @g0e
-  @g0:
-  mov rdx, [rbp -24]
-  movsd xmm0, [rdx]
-  @g0e:
-
-  // other registers
-  mov rcx, [rax]
-  mov rdx, [rax+8]
-  mov r8, [rax+16]
-  mov r9, [rax+24]
-
-
-  mov RAX, [rbp-8]
-
-  // weird thing on windows, it needs 32 bytes in the CALLEE side to do whatever in
-  sub RSP, 32
-
-  call RAX
-
-  add RSP, 32 // undo the damage done earlier
-
-  // copy result back
-  mov RDX, [rbp-16]
-  mov [RDX], RAX
-
-  mov rax, [rbp-32] //registers
-
-  bt [rax+72], 8                 // if atype.basetype  <> btSingle
-  jnc @g5                        //
-  cvtss2sd xmm1,xmm0             // convert single to double  into xmm1
-  mov rdx,[rbp-24]               // @_xmm0  ;rbp -24
-  movsd qword ptr [rdx], xmm1    // save  xmm1 to param _xmm0
-  jmp @g5e                       // exit if atype.basetype  = btSingle
-
-  @g5:                           //else "if atype.basetype  = btSingle"
-    mov rdx,[rbp-24]             // @_xmm0  ;rbp -24
-    movsd qword ptr [rdx], xmm0  // save  xmm1 to param _xmm0
-
-  @g5e:
-
-
-  leave
-  ret
-end;
-{$ENDIF}
-
-{$ELSE} //not MSWINDOWS
-type
-  TRegisters = packed record
-    _RDI,               //  0
-    _RSI,               //  8
-    _RDX,               // 16
-    _RCX,               // 24
-    _R8,                // 32
-    _R9: IPointer;      // 40
-    _XMM1,              // 48
-    _XMM2,              // 56
-    _XMM3,              // 64
-    _XMM4,              // 72
-    _XMM5,              // 80
-    _XMM6,              // 88
-    _XMM7: Double;      // 96
-    SingleBits: Integer; //104
-  end;
-
-procedure x64call(
-  Address: Pointer;
-  out _RAX: IPointer;
-
-  var Registers: TRegisters;
-  aStack: Pointer; aItems: Integer; var _XMM0: Double); assembler; nostackframe;
-
-
-asm
-(* Registers:
-    RDI: Address
-    RSI: _RAX
-    RDX: Registers
-    RCX: aStack
-    R8:  aItems
-    R9:  XMM0
-
-    rbp-8    addr
-    rbp-16   _rax
-    rbp-24   _xmm0
-    rbp-32   regs
-*)
-  push rbp
-  mov rbp,rsp
-  push rdi  // address
-  push rsi  // _rax
-  push r9   // xmm0
-  push rdx
-{$IFDEF PS_STACKALIGN}
-  bt r8, 0
-  jnc @skipjump
-  sub rsp, 8
-@skipjump:
-{$ENDIF}
-  mov rax, rdx
-  jmp @compareitems
-@work:
-{$IFDEF FPC}
-  push qword ptr [rcx]
-{$ELSE} 
-  push [rcx]
-{$ENDIF}  
-  dec r8
-  sub rcx,8
-@compareitems:
-  or r8, r8
-  jnz @work
-
-  // copy registers
-  // xmm0
-  mov rdx,[rbp-24]
-  bt [rax+104], 0
-  jnc @skipxmm0
-  cvtsd2ss xmm0,[rdx]
-  jmp @skipxmm0re
-  @skipxmm0:
-  movq xmm0,[rdx]            // move quadword to xmm0 from _XMM0
-  @skipxmm0re:
-
-  // xmm1
-  bt [rax+104], 1
-  jnc @skipxmm1
-  cvtsd2ss xmm1,[rax+48]
-  jmp @skipxmm1re
-  @skipxmm1:
-  movq xmm1,[rax+48]         // move quadword to xmm1 from Registers._XMM1
-  @skipxmm1re:
-
-  // xmm2
-  bt [rax+104], 2
-  jnc @skipxmm2
-  cvtsd2ss xmm2,[rax+56]
-  jmp @skipxmm2re
-  @skipxmm2:
-  movq xmm2,[rax+56]         // move quadword to xmm2 from Registers._XMM2
-  @skipxmm2re:
-
-  // xmm3
-  bt [rax+104], 3
-  jnc @skipxmm3
-  cvtsd2ss xmm3,[rax+64]
-  jmp @skipxmm3re
-  @skipxmm3:
-  movq xmm3,[rax+64]         // move quadword to xmm3 from Registers._XMM3
-  @skipxmm3re:
-
-  // xmm4
-  bt [rax+104], 4
-  jnc @skipxmm4
-  cvtsd2ss xmm4,[rax+72]
-  jmp @skipxmm4re
-  @skipxmm4:
-  movq xmm4,[rax+72]         // move quadword to xmm4 from Registers._XMM4
-  @skipxmm4re:
-
-  // xmm5
-  bt [rax+104], 5
-  jnc @skipxmm5
-  cvtsd2ss xmm5,[rax+80]
-  jmp @skipxmm5re
-  @skipxmm5:
-  movq xmm5,[rax+80]         // move quadword to xmm5 from Registers._XMM5
-  @skipxmm5re:
-
-  // xmm6
-  bt [rax+104], 6
-  jnc @skipxmm6
-  cvtsd2ss xmm6,[rax+88]
-  jmp @skipxmm6re
-  @skipxmm6:
-  movq xmm6,[rax+88]         // move quadword to xmm6 from Registers._XMM6
-  @skipxmm6re:
-
-// xmm7
-  bt [rax+104], 7
-  jnc @skipxmm7
-  cvtsd2ss xmm7,[rax+96]
-  jmp @skipxmm7re
-  @skipxmm7:
-  movq xmm7,[rax+96]         // move quadword to xmm7 from Registers._XMM7
-  @skipxmm7re:
-
-
-  mov RDI, [rax]
-  mov RSI, [rax+ 8]
-  mov RDX, [rax+16]
-  mov RCX, [rax+24]
-  mov R8,  [rax+32]
-  mov R9,  [rax+40]
-
-  // weird thing on windows, it needs 32 bytes in the CALLEE side to do whatever in; not sure about linux
-  //sub RSP, 32
-
-  mov rax, [rbp-8]
-  call RAX
-
-//  add rsp, 8
-
-  // add RSP, 32 // undo the damage done earlier
-
-  // copy result back
-  mov rsi, [rbp-16]          // _RAX parameter
-  mov [rsi], RAX
-  
-{$IFNDEF WINDOWS}
-  mov rsi, [rbp-32]          // Registers parameter
-  mov [rsi+16], RDX          // preserve RDX for 9..16 byte SYSV aggregate results
-{$ENDIF}
-
-  mov rsi, [rbp-24]          // _XMM0 parameter
-
-  // xmm0 res
-  mov rax, [rbp-32]          // Registers parameter
-  bt [rax+104], 8            // if atype.basetype  <> btSingle
-  jnc @skipres               // then goto skipres else begin
-  cvtss2sd xmm1,xmm0         // convert single to double  into xmm1
-  movq [rsi],xmm1            // move quadword to _XMM0
-  jmp @skipresre             // end
-  @skipres:
-  movq [rsi],xmm0            // move quadword to _XMM0
-  @skipresre:
-
-
-  pop rdx
-  pop r9   // xmm0
-  pop rsi  // _rax
-  pop rdi  // address
-  leave
-  ret
-end;
-{$ENDIF}
-
-{$IFDEF DELPHI}{$IFDEF WINDOWS}{$DEFINE DELPHI_and_WINDOWS}{$ENDIF}{$ENDIF}
 
 function TPSExec.InnerfuseCall(_Self, Address: Pointer; CallingConv: TPSCallingConvention; Params: TPSList; res: PPSVariantIFC): Boolean;
 var
@@ -511,12 +164,6 @@ var
   _RAX: IPointer;
 _XMM0: Double;
   Registers: TRegisters;
-{$IFNDEF WINDOWS}
-  RegUsageFloat: Byte;
-{$ENDIF}
-{$IFDEF FPC}
-  IsConstructor,IsVirtualCons: Boolean;
-{$ENDIF}
   RegUsage: Byte;
   CallData: TPSList;
   I: Integer;
@@ -540,7 +187,6 @@ _XMM0: Double;
 
   function ResultUsesResultPointer(res: PPSVariantIFC): Boolean;
   begin
-    {$IFDEF DELPHI_and_WINDOWS}
     { Delphi Win64 ABI: a record result is returned in RAX at sizes 1, 2, and
       4, and at size 8 only when the record contains no managed field; all
       other sizes (3, 5, 6, 7, and > 8) and the managed 8-byte record are
@@ -551,10 +197,8 @@ _XMM0: Double;
       Result := not (res^.aType.RealSize in [1, 2, 4]) and
         ((res^.aType.RealSize <> 8) or IsManagedType(res^.aType))
     else
-    {$ENDIF}
       Result := res^.aType.RealSize > PointerSize;
   end;
-{$IFDEF WINDOWS}
   procedure StoreReg(data: IPointer);   overload;
   var p: Pointer;
   begin
@@ -570,42 +214,7 @@ _XMM0: Double;
     end;
     end;
   end;
-  {$ELSE}
-  procedure StoreReg(data: IPointer);   overload;
-  var p: Pointer;
-  begin
-    case RegUsage of
-      0: begin inc(RegUsage); Registers._RDI:=Data; end;
-      1: begin inc(RegUsage); Registers._RSI:=Data; end;
-      2: begin inc(RegUsage); Registers._RDX:=Data; end;
-      3: begin inc(RegUsage); Registers._RCX:=Data; end;
-      4: begin inc(RegUsage); Registers._R8:=Data; end;
-      5: begin inc(RegUsage); Registers._R9:=Data; end;
-    else begin
-      SetLength(Stack, Length(Stack)+8);
-      p := @Stack[LEngth(Stack)-8];
-      IPointer(p^) := data;
-    end;
-    end;
-  end;
-{$ENDIF}
 
-{$IFNDEF DELPHI}
-  procedure StoreStack(const aData; Len: Integer);
-  var
-    p: Pointer;
-  begin
-    if Len > 8 then
-      if Length(Stack) mod 16 <> 0 then begin
-        SetLength(Stack, Length(Stack)+ (16-(Length(Stack) mod 16)));
-      end;
-    SetLength(Stack, Length(Stack)+Len);
-    p := @Stack[Length(Stack)-Len];
-    Move(aData, p^, Len);
-  end;
-{$ENDIF}
-
-{$IFDEF WINDOWS}
   procedure StoreReg(data: Double); overload;
   var p: Pointer;
   begin
@@ -636,46 +245,6 @@ _XMM0: Double;
     end;
     end;
   end;
-  {$ELSE}
-  procedure StoreReg(data: Double); overload;
-  var p: Pointer;
-  begin
-    case RegUsageFloat of
-      0: begin inc(RegUsageFloat); _XMM0:=Data; end;
-      1: begin inc(RegUsageFloat); Registers._XMM1:=Data; end;
-      2: begin inc(RegUsageFloat); Registers._XMM2:=Data; end;
-      3: begin inc(RegUsageFloat); Registers._XMM3:=Data; end;
-      4: begin inc(RegUsageFloat); Registers._XMM4:=Data; end;
-      5: begin inc(RegUsageFloat); Registers._XMM5:=Data; end;
-      6: begin inc(RegUsageFloat); Registers._XMM6:=Data; end;
-      7: begin inc(RegUsageFloat); Registers._XMM7:=Data; end;
-    else begin
-      SetLength(Stack, Length(Stack)+8);
-      p := @Stack[LEngth(Stack)-8];
-      Double(p^) := data;
-    end;
-    end;
-  end;
-  procedure StoreReg(data: Single); overload;
-  var p: Pointer;
-  begin
-    case RegUsageFloat of
-      0: begin inc(RegUsageFloat); Registers.SingleBits := Registers.SingleBits or 1; _XMM0:=Data; end;
-      1: begin inc(RegUsageFloat); Registers.SingleBits := Registers.SingleBits or 2; Registers._XMM1:=Data; end;
-      2: begin inc(RegUsageFloat); Registers.SingleBits := Registers.SingleBits or 4; Registers._XMM2:=Data; end;
-      3: begin inc(RegUsageFloat); Registers.SingleBits := Registers.SingleBits or 8; Registers._XMM3:=Data; end;
-      4: begin inc(RegUsageFloat); Registers.SingleBits := Registers.SingleBits or 16; Registers._XMM4:=Data; end;
-      5: begin inc(RegUsageFloat); Registers.SingleBits := Registers.SingleBits or 32; Registers._XMM5:=Data; end;
-      6: begin inc(RegUsageFloat); Registers.SingleBits := Registers.SingleBits or 64; Registers._XMM6:=Data; end;
-      7: begin inc(RegUsageFloat); Registers.SingleBits := Registers.SingleBits or 128; Registers._XMM7:=Data; end;
-    else begin
-      SetLength(Stack, Length(Stack)+8);
-      p := @Stack[LEngth(Stack)-8];
-      Single(p^) := data;
-    end;
-    end;
-  end;
-  {$ENDIF}
 
   procedure StoreRegBytes(const Data: Pointer; const Size: Longint);
   var
@@ -686,14 +255,12 @@ _XMM0: Double;
     StoreReg(RegData);
   end;
   
-  {$IFDEF DELPHI}
   type
     TMethodCallData = record
       AType: Byte; { Must be first field, matching uPSRuntime's TOpenArray }
       Data: TMethod;
     end;
     PMethodCallData = ^TMethodCallData;
-  {$ENDIF}
 
   function GetPtr(fVar: PPSVariantIFC): Boolean;
   var
@@ -731,9 +298,9 @@ _XMM0: Double;
         btRecord,
         btInterface,
         btClass,
-        {$IFNDEF PS_NOWIDESTRING} btUnicodeString, btWideString, btWideChar, {$ENDIF} btU8, btS8, btU16,
-        btS16, btU32, btS32, btSingle, btDouble, btExtended, btString, btPChar, btChar, btCurrency
-        {$IFNDEF PS_NOINT64}, bts64, btU64{$ENDIF}:
+        btUnicodeString, btWideString, btWideChar, btU8, btS8, btU16,
+        btS16, btU32, btS32, btSingle, btDouble, btExtended, btString, btPChar, btChar, btCurrency,
+        bts64, btU64:
           begin
             Varptr := fvar.Dta;
           end;
@@ -760,19 +327,13 @@ _XMM0: Double;
               Result := True;
               exit;
             end else begin
-            {$IFDEF FPC}
-              StoreReg(IPointer(FVar.Dta));
-            {$ELSE}
               StoreReg(IPointer(FVar.Dta^));
-            {$ENDIF}
             end;
           end;
         btSet,
         btRecord,
         btStaticArray:
           begin
-            {$IFDEF WINDOWS}
-            {$IFDEF DELPHI}
             { Delphi Win64 ABI: a record or static array is passed by value (in
               a register) at sizes 1, 2, or 4 and for stdcall/cdecl/safecall
               also at size 8; all other sizes (3, 5, 6, 7, and > 8) are passed
@@ -782,41 +343,15 @@ _XMM0: Double;
               rounds set storage up (a native set is never 3 bytes, and on Win64
               never 5-7 bytes), so a 3-byte ROPS set is a native 4-byte set
               passed by value, and a 5-8 byte ROPS set is a native 8-byte set
-              passed by reference. Before Rio 10.3 the register convention
-              additionally passed sizes 5, 6, 7, and 8 by value, see
+              passed by reference. See
               https://blogs.embarcadero.com/abi-changes-in-rad-studio-10-3/ }
             if (fvar^.aType.RealSize in [1, 2, 4]) or
                ((fvar^.aType.BaseType = btSet) and (fvar^.aType.RealSize = 3)) or
                ((fvar^.aType.BaseType <> btSet) and (fvar^.aType.RealSize = 8) and (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]))
-               {$IFNDEF DELPHI_RIO_UP}
-               or ((fvar^.aType.RealSize in [5, 6, 7, 8]) and not (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]))
-               {$ENDIF}
                then
               StoreRegBytes(fvar.Dta, fvar^.aType.RealSize)
             else
               StoreReg(IPointer(fVar.Dta));
-            {$ELSE}
-            { FPC Win64 ABI: a record is passed by value (in a register) only
-              at sizes 1, 2, 4, or 8, a set only when it is a small set of at
-              most 4 bytes, and a static array never, for all calling
-              conventions. See aggregate_in_registers_win64 and the arraydef
-              and setdef cases of push_addr_param in
-              https://gitlab.com/freepascal.org/fpc/source/-/blob/main/compiler/x86_64/cpupara.pas
-              and is_smallset in
-              https://gitlab.com/freepascal.org/fpc/source/-/blob/main/compiler/defutil.pas }
-            if ((fvar^.aType.BaseType = btRecord) and (fvar^.aType.RealSize in [1, 2, 4, 8])) or
-               ((fvar^.aType.BaseType = btSet) and (fvar^.aType.RealSize in [1, 2, 3, 4])) then
-              StoreRegBytes(fvar.Dta, fvar^.aType.RealSize)
-            else
-              StoreReg(IPointer(fVar.Dta));
-            {$ENDIF}
-            {$ELSE}
-            if (fvar^.aType.BaseType <> btStaticArray) and
-               (fvar^.aType.RealSize <= sizeof(IPointer)) then
-              StoreRegBytes(fvar.Dta, fvar^.aType.RealSize)
-            else
-              StoreReg(IPointer(fVar.Dta));
-            {$ENDIF}
           end;
         btVariant:
           begin
@@ -837,7 +372,7 @@ _XMM0: Double;
         btS8: begin
             StoreReg(IPointer(byte(fVar^.dta^)));
           end;
-        {$IFNDEF PS_NOWIDESTRING} btWideChar, {$ENDIF}
+        btWideChar,
         btu16, btS16: begin
             StoreReg(IPointer(word(fVar^.dta^)));
           end;
@@ -864,25 +399,17 @@ _XMM0: Double;
 
         btProcPtr:
           begin
-            {$IFDEF DELPHI}
-              p := New(PMethodCallData);
-              TMethodCallData(p^).AType := 255;
-              if CallData = nil then
-                CallData := TPSList.Create;
-              CallData.Add(p);
-              // Uncomment when Handler will be implemented
-              //TMethodCallData(p^).Data.Code:=nil;
-              //TMethodCallData(p^).Data.Data:=nil;
-              TMethodCallData(p^).Data := MKMethod(Self, Longint(fvar.dta^)); // It requires the implementation of "Handled"
-              StoreReg(IPointer(@TMethodCallData(p^).Data));
-            {$ELSE}
-              GetMem(p, PointerSize2);
-              TMethod(p^) := MKMethod(Self, Longint(FVar.Dta^));
-              StoreStack(p^, Pointersize2);
-              FreeMem(p);
-            {$ENDIF}
+            p := New(PMethodCallData);
+            TMethodCallData(p^).AType := 255;
+            if CallData = nil then
+              CallData := TPSList.Create;
+            CallData.Add(p);
+            // Uncomment when Handler will be implemented
+            //TMethodCallData(p^).Data.Code:=nil;
+            //TMethodCallData(p^).Data.Data:=nil;
+            TMethodCallData(p^).Data := MKMethod(Self, Longint(fvar.dta^)); // It requires the implementation of "Handled"
+            StoreReg(IPointer(@TMethodCallData(p^).Data));
           end;
-{$IFNDEF PS_NOINT64}
         bts64:
           begin
             StoreReg(IPointer(int64(fvar^.dta^)));
@@ -891,24 +418,11 @@ _XMM0: Double;
           begin
             StoreReg(IPointer(tbtu64(fvar^.dta^)));
         end;
-{$ENDIF}
       end; {case}
     end;
     Result := True;
   end;
 begin
-  {$IFDEF FPC}
-  if (Integer(CallingConv) and 128) <> 0 then begin
-    IsVirtualCons := true;
-    CAllingConv := TPSCallingConvention(Integer(CallingConv) and not 128);
-  end else
-    IsVirtualCons:= false;
-  if (Integer(CallingConv) and 64) <> 0 then begin
-    IsConstructor := true;
-    CAllingConv := TPSCallingConvention(Integer(CallingConv) and not 64);
-  end else
-    IsConstructor := false;
-  {$ENDIF}
   IsSafeCall := CallingConv = cdSafeCall;
 
   InnerfuseCall := False;
@@ -920,48 +434,28 @@ begin
   if res <> nil then
     res.VarParam := true;
   try
-{$IFNDEF WINDOWS}
-    (*_RSI := 0;
-    _RDI := 0;
-    _XMM4 := 0;
-    _XMM5 := 0;
-    _XMM6 := 0;
-    _XMM7 := 0;*)
-    RegUsageFloat := 0;
-{$ENDIF}
   _XMM0 := 0;
   FillChar(Registers, Sizeof(REgisters), 0);
     _RAX := 0;
     RegUsage := 0;
-    {$IF DEFINED (fpc) and (fpc_version >= 3)} // FIX FOR FPC constructor calls
-    if IsConstructor then begin
-      if not GetPtr(rp(Params[0])) then exit; // this goes first
-      DisposePPSVariantIFC(Params[0]);
-      Params.Delete(0);
-    end;
-    {$ENDIF}
     if assigned(_Self) then begin
       StoreReg(IPointer(_Self));
     end;
     if assigned(res) and not IsSafeCall and (res^.atype.basetype = btSingle) then begin
       Registers.Singlebits  := Registers.Singlebits or 256;
     end;
-{$IFDEF PS_RESBEFOREPARAMETERS}
    if assigned(res) and not IsSafeCall then begin
     case res^.aType.BaseType of
-      {$IFDEF x64_string_result_as_varparameter}
       btstring, btWideString, btUnicodeString,
-      {$ENDIF}
-      btInterface, btArray, btVariant{$IFNDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
+      btInterface, btArray, btVariant:
         GetPtr(res);
       btRecord,
-      btSet{$IFDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
+      btSet, btStaticArray:
         begin
           if ResultUsesResultPointer(res) then GetPtr(res);
         end;
     end;
    end;
-{$ENDIF}
     for I := 0 to Params.Count - 1 do
     begin
       if not GetPtr(rp(Params[I])) then Exit;
@@ -969,40 +463,18 @@ begin
     if assigned(res) and IsSafeCall then
       GetPtr(res); { SafeCall: res is actually passed as last parameter }
     if assigned(res) and not IsSafeCall then begin
-{$IFNDEF PS_RESBEFOREPARAMETERS}
-      case res^.aType.BaseType of
-        {$IFDEF x64_string_result_as_varparameter}
-        btstring, btWideString, btUnicodeString,
-        {$ENDIF}
-        btInterface, btArray, btVariant{$IFNDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
-          GetPtr(res);
-        btRecord,
-        btSet{$IFDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
-          begin
-            if ResultUsesResultPointer(res) then GetPtr(res);
-          end;
-      end;
-{$ENDIF}
-      {$IFDEF WINDOWS}
       if (length(Stack) mod 16) <> 0 then begin
         SetLength(Stack, Length(Stack)+16 - (Length(Stack) mod 16));
       end;
-      {$ENDIF} 
-      if Stack = nil then pp := nil else pp := @Stack[{$IFDEF REG_STACK_PTR_OFFSET0}0{$ELSE}Length(Stack) -8{$ENDIF}];
-{$IFDEF WINDOWS}
+      if Stack = nil then pp := nil else pp := @Stack[0];
       Registers.Stack := pp;
       Registers.Items := Length(Stack) div 8;
       x64call(Address, _RAX, _XMM0, Registers);
-{$ELSE}
-      x64call(Address, _RAX, Registers, pp, Length(Stack) div 8, _XMM0);
-{$ENDIF}
       case res^.aType.BaseType of
-        btRecord, btSet{$IFDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
+        btRecord, btSet, btStaticArray:
           begin
-            {$IFDEF DELPHI_and_WINDOWS}
             { A result that used the hidden result pointer is already in place }
             if not ResultUsesResultPointer(res) then
-            {$ENDIF}
             begin
               case res.aType.RealSize of
                 1: byte(res.Dta^) := _RAX;
@@ -1010,13 +482,6 @@ begin
                 4: Longint(res.Dta^) := _RAX;
                 8: IPointer(res.dta^) := _RAX;
                 3, 5, 6, 7: Move(_RAX, res.Dta^, res.aType.RealSize);
-                {$IFNDEF WINDOWS}
-                9..16:
-                  begin
-                    Move(_RAX, res.Dta^, 8);
-                    Move(Registers._RDX, Pointer(IPointer(res.Dta) + 8)^, res.aType.RealSize - 8);
-                  end;
-                {$ENDIF}
               end;
             end;
           end;
@@ -1024,41 +489,28 @@ begin
         btDouble:      tbtdouble(res.Dta^) := _XMM0;
         btExtended:    tbtextended(res.Dta^) := _XMM0;
         btchar,btU8, btS8:    tbtu8(res.dta^) := _RAX;
-        {$IFNDEF PS_NOWIDESTRING} btWideChar, {$ENDIF} btu16, bts16:  tbtu16(res.dta^) := _RAX;
+        btWideChar, btu16, bts16:  tbtu16(res.dta^) := _RAX;
         btClass : IPointer(res.dta^) := _RAX;
         btu32,bts32:   tbtu32(res.dta^) := _RAX;
         btPChar:       pansichar(res.dta^) := Pansichar(_RAX);
-{$IFNDEF PS_NOINT64}
         bts64: tbts64(res.dta^) := Int64(_RAX);
         btU64: tbtu64(res.dta^) := UInt64(_RAX);
-{$ENDIF}
         btCurrency:    tbts64(res.Dta^) := Int64(_RAX); { Currency is returned in RAX as its scaled Int64 backing, not its logical value }
         btInterface,
         btVariant,
-        {$IFDEF x64_string_result_as_varparameter}
         btWidestring,btUnicodestring, btstring ,
-        {$ENDIF}
-        {$IFNDEF DELPHI_and_WINDOWS}btStaticArray, {$ENDIF}btArray:;
-        {$IFNDEF x64_string_result_as_varparameter}
-        btUnicodeString, btWideString, btstring:  Int64(res.dta^) := _RAX;
-        {$ENDIF}
+        btArray:;
       else
         exit;
       end;
     end else begin
-      {$IFDEF WINDOWS}
       if (length(Stack) mod 16) <> 0 then begin
         SetLength(Stack, Length(Stack)+16 - (Length(Stack) mod 16));
       end;
-      {$ENDIF} 
-	if Stack = nil then pp := nil else pp := @Stack[{$IFDEF REG_STACK_PTR_OFFSET0}0{$ELSE}Length(Stack) -8{$ENDIF}];
-{$IFDEF WINDOWS}
+	if Stack = nil then pp := nil else pp := @Stack[0];
         Registers.Stack := pp;
         Registers.Items := Length(Stack) div 8;
         x64call(Address, _RAX, _XMM0, Registers);
-{$ELSE}
-       x64call(Address, _RAX, Registers, pp, Length(Stack) div 8, _XMM0);
-{$ENDIF}
       if IsSafeCall then
         OleCheck(_RAX);
     end;
@@ -1070,7 +522,7 @@ begin
         pp := CallData[i];
         case pp^ of
           0: DestroyOpenArray(Self, Pointer(pp));
-          {$IFDEF DELPHI} 255: Dispose(PMethodCallData(pp)); {$ENDIF}
+          255: Dispose(PMethodCallData(pp));
         end;
       end;
       CallData.Free;

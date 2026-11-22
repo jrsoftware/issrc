@@ -4024,7 +4024,7 @@ begin
     if MsgBox(LFmtMessage(SCompilerCopyLicenseKeyBeforePurchase),
        LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES then
       ClipBoard.AsText := GetChunkedLicenseKey;
-  LaunchFileOrURL('https://jrsoftware.org/isorder.php');
+  LaunchFileOrURL('https://jrsoftware.org/inno-setup/purchase');
 end;
 
 procedure TMainForm.HRegisterClick(Sender: TObject);
@@ -4104,7 +4104,7 @@ end;
 
 procedure TMainForm.HWebsiteClick(Sender: TObject);
 begin
-  LaunchFileOrURL('https://jrsoftware.org/isinfo.php');
+  LaunchFileOrURL('https://jrsoftware.org/inno-setup');
 end;
 
 procedure TMainForm.HMailingListClick(Sender: TObject);
