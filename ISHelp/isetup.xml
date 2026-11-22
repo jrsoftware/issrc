@@ -156,6 +156,8 @@ Includes integrated support for zlib (zip), bzip2, Zstandard (zstd), and 7-Zip L
 
 <li><link topic="unicode">Unicode installs</link>.</li>
 
+<li>The Compiler IDE, a modern editor with optional <link topic="compformshortcuts">Visual Studio Code-style shortcuts</link> and <link topic="scriptdebug">integrated debugging</link>.</li>
+
 <li>Integrated preprocessor option for advanced compile-time customization.</li>
 
 <li>Integrated <link topic="scriptintro">Pascal scripting</link> engine option for advanced run-time install and uninstall customization.</li>
