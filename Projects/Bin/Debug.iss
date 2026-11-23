@@ -30,6 +30,7 @@ SetupArchitecture=x64
 ; This makes a task dialog show at startup
 ; UsePreviousPrivileges=no
 ; PrivilegesRequiredOverridesAllowed=dialog
+; WizardKeepAspectRatio=no
 
 ; This enables RTL and scaling for testing
 ;[LangOptions]
@@ -39,6 +40,7 @@ SetupArchitecture=x64
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"
 ; Name: nl; MessagesFile: "compiler:Languages\Dutch.isl"
+; Name: ar; MessagesFile: "compiler:Languages\Arabic.isl"
 
 [Files]
 Source: "..\..\Examples\MyProg.exe"; DestDir: "{app}"
