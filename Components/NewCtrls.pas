@@ -196,6 +196,7 @@ end;
   -Improves alignment of shield icons, especially at high dpi
   -Avoids drawing empty notes
   -Respects the font of the control
+  -Hides accelerator underlines when the UI state says so
   -Properly centers glyphs vertically on the first text line
   For other button styles it just calls the original code, and the code for those styles is not copied here }
 
@@ -217,6 +218,24 @@ var
   IsDefault: Boolean;
   IsElevationRequired: Boolean;
   LPPI: Integer;
+
+  function HidePrefix(const S: String): String;
+  { Returns S as DrawText shows it with DT_HIDEPREFIX: '&X' becomes 'X' and
+    '&&' becomes '&'. Unlike RemoveAccelChar, it keeps parenthesized access
+    keys, so 'File(&F)' becomes 'File(F)', as with native controls, because
+    that's what DT_HIDEPREFIX does. }
+  begin
+    Result := '';
+    var I := 1;
+    while I <= Length(S) do begin
+      if S[I] = '&' then
+        Inc(I);
+      if I <= Length(S) then
+        Result := Result + S[I];
+      Inc(I);
+    end;
+  end;
+
 begin
   const Handle = Control.Handle;
 
@@ -270,13 +289,20 @@ begin
     RSingleLine := DrawRect;
     TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_SINGLELINE or DT_CALCRECT));
     LStyle.DrawText(ACanvas.Handle, Details, BCaption, RSingleLine, TextFormat, ACanvas.Font.Color); { RSingleLine is used below for the glyphs }
+    var DrawCaption := BCaption;
+    var DrawTextFormat: UINT := DT_LEFT or DT_WORDBREAK;
+    if (SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEACCEL) <> 0 then begin
+      { Remove the prefix ourselves, because the style ignores DT_HIDEPREFIX for buttons }
+      DrawCaption := HidePrefix(BCaption);
+      DrawTextFormat := DrawTextFormat or DT_NOPREFIX;
+    end;
     { Following does not use any DT_CALCRECT results }
-    TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_WORDBREAK));
+    TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DrawTextFormat));
     if (seFont in Control.StyleElements) and LStyle.GetElementColor(Details, ecTextColor, ThemeTextColor) then
       ACanvas.Font.Color := ThemeTextColor;
     var R2 := DrawRect;
     FlipRect(R2, LParentRect, LIsRightToLeft);
-    LStyle.DrawText(ACanvas.Handle, Details, BCaption, R2, TextFormat, ACanvas.Font.Color);
+    LStyle.DrawText(ACanvas.Handle, Details, DrawCaption, R2, TextFormat, ACanvas.Font.Color);
   end;
   SetLength(Buffer, Button_GetNoteLength(Handle) + 1);
   if Length(Buffer) > 1 then

@@ -403,8 +403,9 @@ end;
 
 { TNewStaticTextStyleHook - same as Vcl.StdCtrls' TStaticTextStyleHook
   except that it accesses the Control property as a TNewStaticText instead
-  of a TCustomStaticText or TStaticText, and that it uses the control's
-  Color property }
+  of a TCustomStaticText or TStaticText, that it uses the control's
+  Color property, and that it hides accelerator underlines when the UI
+  state says so }
 
 constructor TNewStaticTextStyleHook.Create(AControl: TWinControl);
 begin
@@ -441,11 +442,14 @@ begin
     S := TNewStaticText(Control).Caption;
     if (S = '') or (TNewStaticText(Control).FShowAccelChar and (S[1] = '&') and (Length(S) = 1)) then
       S := S + ' ';
+    var DrawTextFormat: UINT := TNewStaticText(Control).GetDrawTextFlags;
+    if (SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEACCEL) <> 0 then
+      DrawTextFormat := DrawTextFormat or DT_HIDEPREFIX;
     if seFont in Control.StyleElements then
-      DrawControlText(Canvas, Details, S, R, TNewStaticText(Control).GetDrawTextFlags)
+      DrawControlText(Canvas, Details, S, R, DrawTextFormat)
     else begin
       Canvas.Font := TNewStaticText(Control).Font;
-      DrawText(Canvas.Handle, S, Length(S), R, TNewStaticText(Control).GetDrawTextFlags);
+      DrawText(Canvas.Handle, S, Length(S), R, DrawTextFormat);
     end;
   end;
 end;
