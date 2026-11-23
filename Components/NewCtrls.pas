@@ -195,6 +195,7 @@ end;
   -Actually flips the text and icons on RTL
   -Improves alignment of shield icons, especially at high dpi
   -Avoids drawing empty notes
+  -Draws notes without prefix processing, like native command links
   -Respects the font of the control
   -Hides accelerator underlines when the UI state says so
   -Properly centers glyphs vertically on the first text line
@@ -314,13 +315,13 @@ begin
       Inc(DrawRect.Top, R.Height + 2); { R is the DT_CALCRECT result } 
       ACanvas.Font.Height := MulDiv(ACanvas.Font.Height, 2, 3);
       R := DrawRect;
-      TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_WORDBREAK or DT_CALCRECT));
+      TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_WORDBREAK or DT_NOPREFIX or DT_CALCRECT));
       LStyle.DrawText(ACanvas.Handle, Details, Buffer, R, TextFormat, ACanvas.Font.Color);  { R is used directly below for measuring }
       if R.Bottom > Result then
         Result := R.Bottom;
       if Draw then begin
         { Following does not use any DT_CALCRECT results }
-        TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_WORDBREAK));
+        TextFormat := TTextFormatFlags(UDrawTextBiDiModeFlags(Control, DT_LEFT or DT_WORDBREAK or DT_NOPREFIX));
         FlipRect(DrawRect, LParentRect, LIsRightToLeft);
         LStyle.DrawText(ACanvas.Handle, Details, Buffer, DrawRect, TextFormat, ACanvas.Font.Color);
       end;
