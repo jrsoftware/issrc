@@ -674,6 +674,7 @@ initialization
     'procedure WizardSelectTasks(const Tasks: String);',
     'procedure WizardSetBackImage(const BackImages: TArrayOfGraphic; const Stretch, Center: Boolean; const Opacity: Byte);',
     'function WizardSilent: Boolean;',
+    'function WizardResumeParams: String;',
     'function IsUninstaller: Boolean;',
     'function UninstallSilent: Boolean;',
     'function CurrentFilename: String;',
