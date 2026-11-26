@@ -5098,7 +5098,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support (5.3).</li>
 
-<li>Motaz Alnuweiri: 128&times;128 and 256&times;256 sizes of the Compiler IDE and document icons (5.5.3).</li>
+<li>Motaz Alnuweiri: 128&times;128 and 256&times;256 sizes of the Compiler IDE and document icons (5.5.3 - 7.1.1).</li>
 
 <li>DRON: Code for the improved image stretching (5.6).</li>
 
